@@ -1,0 +1,144 @@
+package tn.esprit.services;
+
+import tn.esprit.entities.Matchs;
+import tn.esprit.tools.MyConnection;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MatchsService implements IService<Matchs> {
+    private final Connection connection;
+
+    public MatchsService() throws SQLException {
+        connection = MyConnection.getInstance().getConnection();
+    }
+
+    @Override
+    public void add(Matchs matchs) throws SQLException {
+        String sql = "INSERT INTO matchs (id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, matchs.getIdMatch());
+            statement.setDate(2, Date.valueOf(matchs.getDateMatch()));
+            statement.setTime(3, Time.valueOf(matchs.getHeureDebut()));
+            statement.setString(4, matchs.getLieu());
+            statement.setString(5, matchs.getType());
+            statement.setString(6, matchs.getStatut());
+            statement.setString(7, matchs.getLineupDomicile());
+            statement.setString(8, matchs.getLineupExterieur());
+            setNullableInt(statement, 9, matchs.getScoreEquipeDomicile());
+            setNullableInt(statement, 10, matchs.getScoreEquipeExterieur());
+            setNullableInt(statement, 11, matchs.getEquipeDomicileId());
+            setNullableInt(statement, 12, matchs.getEquipeExterieurId());
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void update(Matchs matchs) throws SQLException {
+        String sql = "UPDATE matchs SET id_match = ?, date_match = ?, heure_debut = ?, lieu = ?, type = ?, statut = ?, lineup_domicile = ?, lineup_exterieur = ?, score_equipe_domicile = ?, score_equipe_exterieur = ?, equipe_domicile_id = ?, equipe_exterieur_id = ? WHERE id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, matchs.getIdMatch());
+            statement.setDate(2, Date.valueOf(matchs.getDateMatch()));
+            statement.setTime(3, Time.valueOf(matchs.getHeureDebut()));
+            statement.setString(4, matchs.getLieu());
+            statement.setString(5, matchs.getType());
+            statement.setString(6, matchs.getStatut());
+            statement.setString(7, matchs.getLineupDomicile());
+            statement.setString(8, matchs.getLineupExterieur());
+            setNullableInt(statement, 9, matchs.getScoreEquipeDomicile());
+            setNullableInt(statement, 10, matchs.getScoreEquipeExterieur());
+            setNullableInt(statement, 11, matchs.getEquipeDomicileId());
+            setNullableInt(statement, 12, matchs.getEquipeExterieurId());
+            statement.setInt(13, matchs.getId());
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM matchs WHERE id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<Matchs> getAll() throws SQLException {
+        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id FROM matchs";
+        List<Matchs> matchsList = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                matchsList.add(mapRow(rs));
+            }
+        }
+
+        return matchsList;
+    }
+
+    @Override
+    public Matchs getById(int id) throws SQLException {
+        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id FROM matchs WHERE id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Matchs mapRow(ResultSet rs) throws SQLException {
+        Date dateMatch = rs.getDate("date_match");
+        Time heureDebut = rs.getTime("heure_debut");
+        Integer scoreEquipeDomicile = getNullableInt(rs, "score_equipe_domicile");
+        Integer scoreEquipeExterieur = getNullableInt(rs, "score_equipe_exterieur");
+        Integer equipeDomicileId = getNullableInt(rs, "equipe_domicile_id");
+        Integer equipeExterieurId = getNullableInt(rs, "equipe_exterieur_id");
+
+        return new Matchs(
+                rs.getInt("id"),
+                rs.getString("id_match"),
+                dateMatch != null ? dateMatch.toLocalDate() : null,
+                heureDebut != null ? heureDebut.toLocalTime() : null,
+                rs.getString("lieu"),
+                rs.getString("type"),
+                rs.getString("statut"),
+                rs.getString("lineup_domicile"),
+                rs.getString("lineup_exterieur"),
+                scoreEquipeDomicile,
+                scoreEquipeExterieur,
+                equipeDomicileId,
+                equipeExterieurId
+        );
+    }
+
+    private void setNullableInt(PreparedStatement statement, int index, Integer value) throws SQLException {
+        if (value != null) {
+            statement.setInt(index, value);
+        } else {
+            statement.setNull(index, java.sql.Types.INTEGER);
+        }
+    }
+
+    private Integer getNullableInt(ResultSet rs, String columnName) throws SQLException {
+        int value = rs.getInt(columnName);
+        return rs.wasNull() ? null : value;
+    }
+}
