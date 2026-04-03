@@ -10,6 +10,7 @@ import tn.esprit.tools.MyConnection;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -78,6 +79,11 @@ public class Main {
         if (readAllChoice.equalsIgnoreCase("yes")) {
             System.out.println("All equipes:");
             List<Equipe> equipes = equipeService.getAll();
+            System.out.print("Do you want to sort equipes by nom from A to Z? (yes/no): ");
+            String sortByNomChoice = scanner.nextLine().trim();
+            if (sortByNomChoice.equalsIgnoreCase("yes")) {
+                equipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            }
             for (Equipe equipe : equipes) {
                 System.out.println(equipe);
             }
@@ -179,6 +185,11 @@ public class Main {
         if (readAllJoueursChoice.equalsIgnoreCase("yes")) {
             System.out.println("All joueurs:");
             List<Joueur> joueurs = joueurService.getAll();
+            System.out.print("Do you want to sort joueurs by nom from A to Z? (yes/no): ");
+            String sortByNomChoice = scanner.nextLine().trim();
+            if (sortByNomChoice.equalsIgnoreCase("yes")) {
+                joueurs.sort(Comparator.comparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            }
             for (Joueur joueur : joueurs) {
                 System.out.println(joueur);
             }
