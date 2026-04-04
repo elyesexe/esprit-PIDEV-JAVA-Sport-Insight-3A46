@@ -100,22 +100,47 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
 ### MatchMain
 
 ```text
-Choose a table to manipulate (equipe, joueur, matchs) or type exit:
+--- MATCH MODULE ---
+1. Manage equipes
+2. Manage joueurs
+3. Manage matchs
+0. Exit
+Choice:
 ```
 
 ### ProductMain
 
 ```text
-Choose a table to manipulate (product, order) or type exit:
+--- PRODUCT MODULE ---
+1. Manage products
+2. Manage orders
+0. Exit
+Choice:
 ```
 
 ### EntrainementMain
 
-This module displays a numbered menu for:
+```text
+SPORT INSIGHT MENU
+1. Manage entrainements
+2. Manage evaluations
+3. Manage participations
+0. Exit
+Choice:
+```
 
-- entrainements
-- evaluations
-- participations
+Inside each module, CRUD actions now follow the same numbered style, for example:
+
+```text
+--- EVALUATIONS ---
+1. Add evaluation
+2. Display all evaluations
+3. Update evaluation
+4. Delete evaluation
+5. Search evaluation
+6. Sort evaluations
+Choice:
+```
 
 ## Notes
 
