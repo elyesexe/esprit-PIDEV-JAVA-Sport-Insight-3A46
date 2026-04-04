@@ -1,13 +1,18 @@
 # Sport Insight
 
-Java console application for managing `equipe`, `joueur`, and `matchs` data with JDBC and MySQL.
+Java console application for managing `match`, `produit`, and `entrainement` features with JDBC and MySQL.
 
 ## Features
 
 - CRUD for `equipe`
 - CRUD for `joueur`
 - CRUD for `matchs`
-- Interactive console flow
+- CRUD for `product`
+- CRUD for `order`
+- CRUD for `entrainement`
+- CRUD for `evaluation`
+- CRUD for `participation`
+- Separate entry points for each module
 - MySQL connection through JDBC
 
 ## Tech Stack
@@ -21,11 +26,18 @@ Java console application for managing `equipe`, `joueur`, and `matchs` data with
 
 ```text
 src/main/java/tn/esprit/
-├── entities/
-├── mains/
-├── services/
-└── tools/
+|-- entities/
+|-- mains/
+|-- services/
+`-- tools/
 ```
+
+## Main Classes
+
+- `tn.esprit.mains.Main`: database connection check only
+- `tn.esprit.mains.MatchMain`: `equipe`, `joueur`, `matchs`
+- `tn.esprit.mains.ProductMain`: `product`, `order`
+- `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
 
 ## Database Configuration
 
@@ -41,49 +53,16 @@ private static final String PASSWORD = "";
 
 Update these values if your local MySQL configuration is different.
 
-## Supported Tables
+## Managed Tables
 
-### `equipe`
-
-Handled fields:
-
-- `id`
-- `nom`
-- `coach`
-- `adresse`
-- `telephone`
-- `email`
-- `image`
-
-### `joueur`
-
-Handled fields:
-
-- `id`
-- `nom`
-- `prenom`
-- `date_naissance`
-- `numero`
-- `image`
-- `equipe_id`
-
-### `matchs`
-
-Handled fields:
-
-- `id`
-- `id_match`
-- `date_match`
-- `heure_debut`
-- `lieu`
-- `type`
-- `statut`
-- `lineup_domicile`
-- `lineup_exterieur`
-- `score_equipe_domicile`
-- `score_equipe_exterieur`
-- `equipe_domicile_id`
-- `equipe_exterieur_id`
+- `equipe`
+- `joueur`
+- `matchs`
+- `product`
+- `order`
+- `entrainement`
+- `evaluation`
+- `participation`
 
 ## Requirements
 
@@ -97,63 +76,54 @@ Before running the project, make sure you have:
 
 ## Installation
 
-Clone the project:
-
 ```bash
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
-```
-
-Compile the project:
-
-```bash
+git clone https://github.com/elyesexe/esprit-PIDEV-JAVA-Sport-Insight-3A46.git
+cd "PI Java"
 mvn compile
 ```
 
 ## Run
 
-Run the main class from IntelliJ or from the terminal.
+From IntelliJ or the terminal, run the main class you need.
 
-If you use IntelliJ:
-
-- Open the project
-- Run `tn.esprit.mains.Main`
-
-If you use Maven from terminal:
+Examples:
 
 ```bash
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.Main"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.MatchMain"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.ProductMain"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
 ```
 
 ## Console Usage
 
-When the application starts, it asks:
+### MatchMain
 
 ```text
 Choose a table to manipulate (equipe, joueur, matchs) or type exit:
 ```
 
-You can type:
+### ProductMain
 
-- `equipe`
-- `joueur`
-- `matchs`
-- `exit`
+```text
+Choose a table to manipulate (product, order) or type exit:
+```
 
-Then the application asks whether you want to:
+### EntrainementMain
 
-- add
-- display all
-- display one by id
-- update
-- delete
+This module displays a numbered menu for:
+
+- entrainements
+- evaluations
+- participations
 
 ## Notes
 
-- Date input format for `joueur` and `matchs`: `yyyy-mm-dd`
-- Time input format for `matchs`: `HH:mm:ss`
-- Some SQL column names are assumed from the entity naming. If your MySQL schema uses different names, update the SQL in the service classes.
+- Date input format: `yyyy-mm-dd`
+- Time input format for matches: `HH:mm:ss`
+- Time input format for entrainements: `HH:mm`
+- If your MySQL schema uses different table or column names, update the SQL in the service classes.
 
-## Author
+## Branch
 
-Project developed as a Java CRUD console application for database practice.
+This merged version is available on branch `match+prod+entrainement`.
