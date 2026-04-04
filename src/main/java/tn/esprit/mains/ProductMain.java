@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ProductMain {
+    private static final Scanner SCANNER = new Scanner(System.in);
+
     public static void main(String[] args) {
         try {
             MyConnection connection = MyConnection.getInstance();
@@ -20,24 +22,24 @@ public class ProductMain {
 
             ProductService productService = new ProductService();
             OrderService orderService = new OrderService();
-            Scanner scanner = new Scanner(System.in);
 
-            while (true) {
-                System.out.print("Choose a table to manipulate (product, order) or type exit: ");
-                String tableChoice = scanner.nextLine().trim().toLowerCase();
+            boolean running = true;
+            while (running) {
+                System.out.println("\n--- PRODUCT MODULE ---");
+                System.out.println("1. Manage products");
+                System.out.println("2. Manage orders");
+                System.out.println("0. Exit");
+                System.out.print("Choice: ");
+                int choice = Integer.parseInt(SCANNER.nextLine());
 
-                switch (tableChoice) {
-                    case "product":
-                        handleProduct(scanner, productService);
-                        break;
-                    case "order":
-                        handleOrder(scanner, orderService);
-                        break;
-                    case "exit":
+                switch (choice) {
+                    case 1 -> handleProduct(productService);
+                    case 2 -> handleOrder(orderService);
+                    case 0 -> {
                         System.out.println("Application closed.");
-                        return;
-                    default:
-                        System.out.println("Unknown table. Type product, order, or exit.");
+                        running = false;
+                    }
+                    default -> System.out.println("Invalid choice.");
                 }
             }
         } catch (Exception e) {
@@ -45,229 +47,219 @@ public class ProductMain {
         }
     }
 
-    private static void handleProduct(Scanner scanner, ProductService productService) throws Exception {
-        System.out.print("Do you want to add a new product? (yes/no): ");
-        String addProductChoice = scanner.nextLine().trim();
-        if (addProductChoice.equalsIgnoreCase("yes")) {
-            System.out.println("Add a new product:");
-            System.out.print("Name: ");
-            String name = scanner.nextLine();
-            System.out.print("Category: ");
-            String category = scanner.nextLine();
-            System.out.print("Price: ");
-            BigDecimal price = new BigDecimal(scanner.nextLine());
-            System.out.print("Stock: ");
-            int stock = Integer.parseInt(scanner.nextLine());
-            System.out.print("Size: ");
-            String size = scanner.nextLine();
-            System.out.print("Brand: ");
-            String brand = scanner.nextLine();
-            System.out.print("Image: ");
-            String image = scanner.nextLine();
+    private static void handleProduct(ProductService productService) throws Exception {
+        System.out.println("\n--- PRODUCTS ---");
+        System.out.println("1. Add product");
+        System.out.println("2. Display all products");
+        System.out.println("3. Update product");
+        System.out.println("4. Delete product");
+        System.out.println("5. Search product");
+        System.out.println("6. Sort products");
+        System.out.print("Choice: ");
+        int choice = Integer.parseInt(SCANNER.nextLine());
 
-            Product product = new Product(name, category, price, stock, size, brand, image);
-            productService.add(product);
-            System.out.println("Product added successfully.");
-        }
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Name: ");
+                String name = SCANNER.nextLine();
+                System.out.print("Category: ");
+                String category = SCANNER.nextLine();
+                System.out.print("Price: ");
+                BigDecimal price = new BigDecimal(SCANNER.nextLine());
+                System.out.print("Stock: ");
+                int stock = Integer.parseInt(SCANNER.nextLine());
+                System.out.print("Size: ");
+                String size = SCANNER.nextLine();
+                System.out.print("Brand: ");
+                String brand = SCANNER.nextLine();
+                System.out.print("Image: ");
+                String image = SCANNER.nextLine();
 
-        System.out.print("Do you want to display all products? (yes/no): ");
-        String readAllProductsChoice = scanner.nextLine().trim();
-        if (readAllProductsChoice.equalsIgnoreCase("yes")) {
-            System.out.println("All products:");
-            List<Product> products = productService.getAll();
-            System.out.print("Do you want to sort products by name from A to Z? (yes/no): ");
-            String sortByNameChoice = scanner.nextLine().trim();
-            if (sortByNameChoice.equalsIgnoreCase("yes")) {
-                products.sort(Comparator.comparing(Product::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                productService.add(new Product(name, category, price, stock, size, brand, image));
+                System.out.println("Product added successfully.");
             }
-            for (Product product : products) {
-                System.out.println(product);
-            }
-        }
+            case 2 -> productService.getAll().forEach(System.out::println);
+            case 3 -> {
+                System.out.print("Product id to update: ");
+                int productId = Integer.parseInt(SCANNER.nextLine());
+                Product product = productService.getById(productId);
+                if (product == null) {
+                    System.out.println("Product not found.");
+                    return;
+                }
 
-        System.out.print("Do you want to display one product by id? (yes/no): ");
-        String readOneProductChoice = scanner.nextLine().trim();
-        if (readOneProductChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the product to display: ");
-            int productIdToRead = Integer.parseInt(scanner.nextLine());
-            Product productToRead = productService.getById(productIdToRead);
-            if (productToRead != null) {
-                System.out.println("Product with id " + productIdToRead + ":");
-                System.out.println(productToRead);
-            } else {
-                System.out.println("No product found with id " + productIdToRead);
-            }
-        }
-
-        System.out.print("Do you want to update a product? (yes/no): ");
-        String updateProductChoice = scanner.nextLine().trim();
-        if (updateProductChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the product to update: ");
-            int productId = Integer.parseInt(scanner.nextLine());
-
-            Product productToUpdate = productService.getById(productId);
-            if (productToUpdate != null) {
                 System.out.print("New name: ");
-                productToUpdate.setName(scanner.nextLine());
+                product.setName(SCANNER.nextLine());
                 System.out.print("New category: ");
-                productToUpdate.setCategory(scanner.nextLine());
+                product.setCategory(SCANNER.nextLine());
                 System.out.print("New price: ");
-                productToUpdate.setPrice(new BigDecimal(scanner.nextLine()));
+                product.setPrice(new BigDecimal(SCANNER.nextLine()));
                 System.out.print("New stock: ");
-                productToUpdate.setStock(Integer.parseInt(scanner.nextLine()));
+                product.setStock(Integer.parseInt(SCANNER.nextLine()));
                 System.out.print("New size: ");
-                productToUpdate.setSize(scanner.nextLine());
+                product.setSize(SCANNER.nextLine());
                 System.out.print("New brand: ");
-                productToUpdate.setBrand(scanner.nextLine());
+                product.setBrand(SCANNER.nextLine());
                 System.out.print("New image: ");
-                productToUpdate.setImage(scanner.nextLine());
-
-                productService.update(productToUpdate);
+                product.setImage(SCANNER.nextLine());
+                productService.update(product);
                 System.out.println("Product updated successfully.");
-                System.out.println("Updated product with id " + productId + ":");
-                System.out.println(productService.getById(productId));
-            } else {
-                System.out.println("No product found with id " + productId);
             }
-        }
-
-        System.out.print("Do you want to delete a product? (yes/no): ");
-        String deleteProductChoice = scanner.nextLine().trim();
-        if (deleteProductChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the product to delete: ");
-            int productIdToDelete = Integer.parseInt(scanner.nextLine());
-            Product productToDelete = productService.getById(productIdToDelete);
-            if (productToDelete != null) {
-                productService.delete(productIdToDelete);
+            case 4 -> {
+                System.out.print("Product id to delete: ");
+                int id = Integer.parseInt(SCANNER.nextLine());
+                productService.delete(id);
                 System.out.println("Product deleted successfully.");
-                System.out.println("Product with id " + productIdToDelete + ":");
-                System.out.println(productService.getById(productIdToDelete));
-            } else {
-                System.out.println("No product found with id " + productIdToDelete);
             }
+            case 5 -> {
+                System.out.print("Keyword: ");
+                String keyword = SCANNER.nextLine().trim().toLowerCase();
+                productService.getAll().stream()
+                        .filter(product -> containsIgnoreCase(product.getName(), keyword)
+                                || containsIgnoreCase(product.getCategory(), keyword)
+                                || containsIgnoreCase(product.getBrand(), keyword))
+                        .forEach(System.out::println);
+            }
+            case 6 -> {
+                List<Product> products = productService.getAll();
+                System.out.println("Sort by: 1.Name  2.Category  3.Price");
+                System.out.print("Choice: ");
+                int sortChoice = Integer.parseInt(SCANNER.nextLine());
+                switch (sortChoice) {
+                    case 1 -> products.sort(Comparator.comparing(Product::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 2 -> products.sort(Comparator.comparing(Product::getCategory, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 3 -> products.sort(Comparator.comparing(Product::getPrice, Comparator.nullsLast(BigDecimal::compareTo)));
+                    default -> {
+                        System.out.println("Invalid choice.");
+                        return;
+                    }
+                }
+                products.forEach(System.out::println);
+            }
+            default -> System.out.println("Invalid choice.");
         }
     }
 
-    private static void handleOrder(Scanner scanner, OrderService orderService) throws Exception {
-        System.out.print("Do you want to add a new order? (yes/no): ");
-        String addOrderChoice = scanner.nextLine().trim();
-        if (addOrderChoice.equalsIgnoreCase("yes")) {
-            System.out.println("Add a new order:");
-            System.out.print("Quantity: ");
-            int quantity = Integer.parseInt(scanner.nextLine());
-            System.out.print("Order date (yyyy-mm-dd): ");
-            LocalDate orderDate = LocalDate.parse(scanner.nextLine());
-            System.out.print("Status: ");
-            String status = scanner.nextLine();
-            System.out.print("Payment method: ");
-            String paymentMethod = scanner.nextLine();
-            System.out.print("Payment status: ");
-            String paymentStatus = scanner.nextLine();
-            System.out.print("Size: ");
-            String size = scanner.nextLine();
-            System.out.print("Contact email: ");
-            String contactEmail = scanner.nextLine();
-            System.out.print("Contact phone: ");
-            String contactPhone = scanner.nextLine();
-            System.out.print("Shipping address: ");
-            String shippingAddress = scanner.nextLine();
-            System.out.print("Billing address: ");
-            String billingAddress = scanner.nextLine();
-            System.out.print("Total amount: ");
-            BigDecimal totalAmount = new BigDecimal(scanner.nextLine());
-            System.out.print("Product id: ");
-            int productId = Integer.parseInt(scanner.nextLine());
-            System.out.print("Entraineur id: ");
-            int entraineurId = Integer.parseInt(scanner.nextLine());
+    private static void handleOrder(OrderService orderService) throws Exception {
+        System.out.println("\n--- ORDERS ---");
+        System.out.println("1. Add order");
+        System.out.println("2. Display all orders");
+        System.out.println("3. Update order");
+        System.out.println("4. Delete order");
+        System.out.println("5. Search order");
+        System.out.println("6. Sort orders");
+        System.out.print("Choice: ");
+        int choice = Integer.parseInt(SCANNER.nextLine());
 
-            Order order = new Order(quantity, orderDate, status, paymentMethod, paymentStatus, size, contactEmail,
-                    contactPhone, shippingAddress, billingAddress, totalAmount, productId, entraineurId);
-            orderService.add(order);
-            System.out.println("Order added successfully.");
-        }
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Quantity: ");
+                int quantity = Integer.parseInt(SCANNER.nextLine());
+                System.out.print("Order date (yyyy-mm-dd): ");
+                LocalDate orderDate = LocalDate.parse(SCANNER.nextLine());
+                System.out.print("Status: ");
+                String status = SCANNER.nextLine();
+                System.out.print("Payment method: ");
+                String paymentMethod = SCANNER.nextLine();
+                System.out.print("Payment status: ");
+                String paymentStatus = SCANNER.nextLine();
+                System.out.print("Size: ");
+                String size = SCANNER.nextLine();
+                System.out.print("Contact email: ");
+                String contactEmail = SCANNER.nextLine();
+                System.out.print("Contact phone: ");
+                String contactPhone = SCANNER.nextLine();
+                System.out.print("Shipping address: ");
+                String shippingAddress = SCANNER.nextLine();
+                System.out.print("Billing address: ");
+                String billingAddress = SCANNER.nextLine();
+                System.out.print("Total amount: ");
+                BigDecimal totalAmount = new BigDecimal(SCANNER.nextLine());
+                System.out.print("Product id: ");
+                int productId = Integer.parseInt(SCANNER.nextLine());
+                System.out.print("Entraineur id: ");
+                int entraineurId = Integer.parseInt(SCANNER.nextLine());
 
-        System.out.print("Do you want to display all orders? (yes/no): ");
-        String readAllOrdersChoice = scanner.nextLine().trim();
-        if (readAllOrdersChoice.equalsIgnoreCase("yes")) {
-            System.out.println("All orders:");
-            List<Order> orders = orderService.getAll();
-            for (Order order : orders) {
-                System.out.println(order);
+                orderService.add(new Order(quantity, orderDate, status, paymentMethod, paymentStatus, size, contactEmail,
+                        contactPhone, shippingAddress, billingAddress, totalAmount, productId, entraineurId));
+                System.out.println("Order added successfully.");
             }
-        }
+            case 2 -> orderService.getAll().forEach(System.out::println);
+            case 3 -> {
+                System.out.print("Order id to update: ");
+                int orderId = Integer.parseInt(SCANNER.nextLine());
+                Order order = orderService.getById(orderId);
+                if (order == null) {
+                    System.out.println("Order not found.");
+                    return;
+                }
 
-        System.out.print("Do you want to display one order by id? (yes/no): ");
-        String readOneOrderChoice = scanner.nextLine().trim();
-        if (readOneOrderChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the order to display: ");
-            int orderIdToRead = Integer.parseInt(scanner.nextLine());
-            Order orderToRead = orderService.getById(orderIdToRead);
-            if (orderToRead != null) {
-                System.out.println("Order with id " + orderIdToRead + ":");
-                System.out.println(orderToRead);
-            } else {
-                System.out.println("No order found with id " + orderIdToRead);
-            }
-        }
-
-        System.out.print("Do you want to update an order? (yes/no): ");
-        String updateOrderChoice = scanner.nextLine().trim();
-        if (updateOrderChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the order to update: ");
-            int orderId = Integer.parseInt(scanner.nextLine());
-
-            Order orderToUpdate = orderService.getById(orderId);
-            if (orderToUpdate != null) {
                 System.out.print("New quantity: ");
-                orderToUpdate.setQuantity(Integer.parseInt(scanner.nextLine()));
+                order.setQuantity(Integer.parseInt(SCANNER.nextLine()));
                 System.out.print("New order date (yyyy-mm-dd): ");
-                orderToUpdate.setOrderDate(LocalDate.parse(scanner.nextLine()));
+                order.setOrderDate(LocalDate.parse(SCANNER.nextLine()));
                 System.out.print("New status: ");
-                orderToUpdate.setStatus(scanner.nextLine());
+                order.setStatus(SCANNER.nextLine());
                 System.out.print("New payment method: ");
-                orderToUpdate.setPaymentMethod(scanner.nextLine());
+                order.setPaymentMethod(SCANNER.nextLine());
                 System.out.print("New payment status: ");
-                orderToUpdate.setPaymentStatus(scanner.nextLine());
+                order.setPaymentStatus(SCANNER.nextLine());
                 System.out.print("New size: ");
-                orderToUpdate.setSize(scanner.nextLine());
+                order.setSize(SCANNER.nextLine());
                 System.out.print("New contact email: ");
-                orderToUpdate.setContactEmail(scanner.nextLine());
+                order.setContactEmail(SCANNER.nextLine());
                 System.out.print("New contact phone: ");
-                orderToUpdate.setContactPhone(scanner.nextLine());
+                order.setContactPhone(SCANNER.nextLine());
                 System.out.print("New shipping address: ");
-                orderToUpdate.setShippingAddress(scanner.nextLine());
+                order.setShippingAddress(SCANNER.nextLine());
                 System.out.print("New billing address: ");
-                orderToUpdate.setBillingAddress(scanner.nextLine());
+                order.setBillingAddress(SCANNER.nextLine());
                 System.out.print("New total amount: ");
-                orderToUpdate.setTotalAmount(new BigDecimal(scanner.nextLine()));
+                order.setTotalAmount(new BigDecimal(SCANNER.nextLine()));
                 System.out.print("New product id: ");
-                orderToUpdate.setProductId(Integer.parseInt(scanner.nextLine()));
+                order.setProductId(Integer.parseInt(SCANNER.nextLine()));
                 System.out.print("New entraineur id: ");
-                orderToUpdate.setEntraineurId(Integer.parseInt(scanner.nextLine()));
-
-                orderService.update(orderToUpdate);
+                order.setEntraineurId(Integer.parseInt(SCANNER.nextLine()));
+                orderService.update(order);
                 System.out.println("Order updated successfully.");
-                System.out.println("Updated order with id " + orderId + ":");
-                System.out.println(orderService.getById(orderId));
-            } else {
-                System.out.println("No order found with id " + orderId);
             }
-        }
-
-        System.out.print("Do you want to delete an order? (yes/no): ");
-        String deleteOrderChoice = scanner.nextLine().trim();
-        if (deleteOrderChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the order to delete: ");
-            int orderIdToDelete = Integer.parseInt(scanner.nextLine());
-            Order orderToDelete = orderService.getById(orderIdToDelete);
-            if (orderToDelete != null) {
-                orderService.delete(orderIdToDelete);
+            case 4 -> {
+                System.out.print("Order id to delete: ");
+                int id = Integer.parseInt(SCANNER.nextLine());
+                orderService.delete(id);
                 System.out.println("Order deleted successfully.");
-                System.out.println("Order with id " + orderIdToDelete + ":");
-                System.out.println(orderService.getById(orderIdToDelete));
-            } else {
-                System.out.println("No order found with id " + orderIdToDelete);
             }
+            case 5 -> {
+                System.out.print("Keyword: ");
+                String keyword = SCANNER.nextLine().trim().toLowerCase();
+                orderService.getAll().stream()
+                        .filter(order -> containsIgnoreCase(order.getStatus(), keyword)
+                                || containsIgnoreCase(order.getPaymentMethod(), keyword)
+                                || containsIgnoreCase(order.getPaymentStatus(), keyword)
+                                || containsIgnoreCase(order.getContactEmail(), keyword))
+                        .forEach(System.out::println);
+            }
+            case 6 -> {
+                List<Order> orders = orderService.getAll();
+                System.out.println("Sort by: 1.Order Date  2.Status  3.Total Amount");
+                System.out.print("Choice: ");
+                int sortChoice = Integer.parseInt(SCANNER.nextLine());
+                switch (sortChoice) {
+                    case 1 -> orders.sort(Comparator.comparing(Order::getOrderDate, Comparator.nullsLast(LocalDate::compareTo)));
+                    case 2 -> orders.sort(Comparator.comparing(Order::getStatus, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 3 -> orders.sort(Comparator.comparing(Order::getTotalAmount, Comparator.nullsLast(BigDecimal::compareTo)));
+                    default -> {
+                        System.out.println("Invalid choice.");
+                        return;
+                    }
+                }
+                orders.forEach(System.out::println);
+            }
+            default -> System.out.println("Invalid choice.");
         }
+    }
+
+    private static boolean containsIgnoreCase(String value, String keyword) {
+        return value != null && value.toLowerCase().contains(keyword);
     }
 }

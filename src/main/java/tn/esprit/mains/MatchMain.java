@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MatchMain {
+    private static final Scanner SCANNER = new Scanner(System.in);
+
     public static void main(String[] args) {
         try {
             MyConnection connection = MyConnection.getInstance();
@@ -23,27 +25,26 @@ public class MatchMain {
             EquipeService equipeService = new EquipeService();
             JoueurService joueurService = new JoueurService();
             MatchsService matchsService = new MatchsService();
-            Scanner scanner = new Scanner(System.in);
 
-            while (true) {
-                System.out.print("Choose a table to manipulate (equipe, joueur, matchs) or type exit: ");
-                String tableChoice = scanner.nextLine().trim().toLowerCase();
+            boolean running = true;
+            while (running) {
+                System.out.println("\n--- MATCH MODULE ---");
+                System.out.println("1. Manage equipes");
+                System.out.println("2. Manage joueurs");
+                System.out.println("3. Manage matchs");
+                System.out.println("0. Exit");
+                System.out.print("Choice: ");
+                int choice = Integer.parseInt(SCANNER.nextLine());
 
-                switch (tableChoice) {
-                    case "equipe":
-                        handleEquipe(scanner, equipeService);
-                        break;
-                    case "joueur":
-                        handleJoueur(scanner, joueurService);
-                        break;
-                    case "matchs":
-                        handleMatchs(scanner, matchsService);
-                        break;
-                    case "exit":
+                switch (choice) {
+                    case 1 -> handleEquipe(equipeService);
+                    case 2 -> handleJoueur(joueurService);
+                    case 3 -> handleMatchs(matchsService);
+                    case 0 -> {
                         System.out.println("Application closed.");
-                        return;
-                    default:
-                        System.out.println("Unknown table. Type equipe, joueur, matchs, or exit.");
+                        running = false;
+                    }
+                    default -> System.out.println("Invalid choice.");
                 }
             }
         } catch (Exception e) {
@@ -51,344 +52,325 @@ public class MatchMain {
         }
     }
 
-    private static void handleEquipe(Scanner scanner, EquipeService equipeService) throws Exception {
-        System.out.print("Do you want to add a new equipe? (yes/no): ");
-        String addChoice = scanner.nextLine().trim();
-        if (addChoice.equalsIgnoreCase("yes")) {
-            System.out.println("Add a new equipe:");
-            System.out.print("Nom: ");
-            String nom = scanner.nextLine();
-            System.out.print("Coach: ");
-            String coach = scanner.nextLine();
-            System.out.print("Adresse: ");
-            String adresse = scanner.nextLine();
-            System.out.print("Telephone: ");
-            String telephone = scanner.nextLine();
-            System.out.print("Email: ");
-            String email = scanner.nextLine();
-            System.out.print("Image: ");
-            String image = scanner.nextLine();
+    private static void handleEquipe(EquipeService equipeService) throws Exception {
+        System.out.println("\n--- EQUIPES ---");
+        System.out.println("1. Add equipe");
+        System.out.println("2. Display all equipes");
+        System.out.println("3. Update equipe");
+        System.out.println("4. Delete equipe");
+        System.out.println("5. Search equipe");
+        System.out.println("6. Sort equipes");
+        System.out.print("Choice: ");
+        int choice = Integer.parseInt(SCANNER.nextLine());
 
-            Equipe nouvelleEquipe = new Equipe(nom, coach, adresse, telephone, email, image);
-            equipeService.add(nouvelleEquipe);
-            System.out.println("Equipe added successfully.");
-        }
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Nom: ");
+                String nom = SCANNER.nextLine();
+                System.out.print("Coach: ");
+                String coach = SCANNER.nextLine();
+                System.out.print("Adresse: ");
+                String adresse = SCANNER.nextLine();
+                System.out.print("Telephone: ");
+                String telephone = SCANNER.nextLine();
+                System.out.print("Email: ");
+                String email = SCANNER.nextLine();
+                System.out.print("Image: ");
+                String image = SCANNER.nextLine();
 
-        System.out.print("Do you want to display all equipes? (yes/no): ");
-        String readAllChoice = scanner.nextLine().trim();
-        if (readAllChoice.equalsIgnoreCase("yes")) {
-            System.out.println("All equipes:");
-            List<Equipe> equipes = equipeService.getAll();
-            System.out.print("Do you want to sort equipes by nom from A to Z? (yes/no): ");
-            String sortByNomChoice = scanner.nextLine().trim();
-            if (sortByNomChoice.equalsIgnoreCase("yes")) {
-                equipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                equipeService.add(new Equipe(nom, coach, adresse, telephone, email, image));
+                System.out.println("Equipe added successfully.");
             }
-            for (Equipe equipe : equipes) {
-                System.out.println(equipe);
-            }
-        }
+            case 2 -> equipeService.getAll().forEach(System.out::println);
+            case 3 -> {
+                System.out.print("Equipe id to update: ");
+                int equipeId = Integer.parseInt(SCANNER.nextLine());
+                Equipe equipe = equipeService.getById(equipeId);
+                if (equipe == null) {
+                    System.out.println("Equipe not found.");
+                    return;
+                }
 
-        System.out.print("Do you want to display one equipe by id? (yes/no): ");
-        String readOneChoice = scanner.nextLine().trim();
-        if (readOneChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the equipe to display: ");
-            int equipeIdToRead = Integer.parseInt(scanner.nextLine());
-            Equipe equipeToRead = equipeService.getById(equipeIdToRead);
-            if (equipeToRead != null) {
-                System.out.println("Equipe with id " + equipeIdToRead + ":");
-                System.out.println(equipeToRead);
-            } else {
-                System.out.println("No equipe found with id " + equipeIdToRead);
-            }
-        }
-
-        System.out.print("Do you want to update an equipe? (yes/no): ");
-        String updateChoice = scanner.nextLine().trim();
-        if (updateChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the equipe to update: ");
-            int equipeId = Integer.parseInt(scanner.nextLine());
-
-            Equipe equipeToUpdate = equipeService.getById(equipeId);
-            if (equipeToUpdate != null) {
                 System.out.print("New nom: ");
-                equipeToUpdate.setNom(scanner.nextLine());
+                equipe.setNom(SCANNER.nextLine());
                 System.out.print("New coach: ");
-                equipeToUpdate.setCoach(scanner.nextLine());
+                equipe.setCoach(SCANNER.nextLine());
                 System.out.print("New adresse: ");
-                equipeToUpdate.setAdresse(scanner.nextLine());
+                equipe.setAdresse(SCANNER.nextLine());
                 System.out.print("New telephone: ");
-                equipeToUpdate.setTelephone(scanner.nextLine());
+                equipe.setTelephone(SCANNER.nextLine());
                 System.out.print("New email: ");
-                equipeToUpdate.setEmail(scanner.nextLine());
+                equipe.setEmail(SCANNER.nextLine());
                 System.out.print("New image: ");
-                equipeToUpdate.setImage(scanner.nextLine());
-
-                equipeService.update(equipeToUpdate);
+                equipe.setImage(SCANNER.nextLine());
+                equipeService.update(equipe);
                 System.out.println("Equipe updated successfully.");
-                System.out.println("Updated equipe with id " + equipeId + ":");
-                System.out.println(equipeService.getById(equipeId));
-            } else {
-                System.out.println("No equipe found with id " + equipeId);
             }
-        }
-
-        System.out.print("Do you want to delete an equipe? (yes/no): ");
-        String deleteChoice = scanner.nextLine().trim();
-        if (deleteChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the equipe to delete: ");
-            int equipeIdToDelete = Integer.parseInt(scanner.nextLine());
-            Equipe equipeToDelete = equipeService.getById(equipeIdToDelete);
-            if (equipeToDelete != null) {
-                equipeService.delete(equipeIdToDelete);
+            case 4 -> {
+                System.out.print("Equipe id to delete: ");
+                int id = Integer.parseInt(SCANNER.nextLine());
+                equipeService.delete(id);
                 System.out.println("Equipe deleted successfully.");
-                System.out.println("Equipe with id " + equipeIdToDelete + ":");
-                System.out.println(equipeService.getById(equipeIdToDelete));
-            } else {
-                System.out.println("No equipe found with id " + equipeIdToDelete);
             }
+            case 5 -> {
+                System.out.print("Keyword: ");
+                String keyword = SCANNER.nextLine().trim().toLowerCase();
+                equipeService.getAll().stream()
+                        .filter(equipe -> containsIgnoreCase(equipe.getNom(), keyword)
+                                || containsIgnoreCase(equipe.getCoach(), keyword)
+                                || containsIgnoreCase(equipe.getAdresse(), keyword)
+                                || containsIgnoreCase(equipe.getEmail(), keyword))
+                        .forEach(System.out::println);
+            }
+            case 6 -> {
+                List<Equipe> equipes = equipeService.getAll();
+                System.out.println("Sort by: 1.Nom  2.Coach  3.Adresse");
+                System.out.print("Choice: ");
+                int sortChoice = Integer.parseInt(SCANNER.nextLine());
+                switch (sortChoice) {
+                    case 1 -> equipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 2 -> equipes.sort(Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 3 -> equipes.sort(Comparator.comparing(Equipe::getAdresse, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    default -> {
+                        System.out.println("Invalid choice.");
+                        return;
+                    }
+                }
+                equipes.forEach(System.out::println);
+            }
+            default -> System.out.println("Invalid choice.");
         }
     }
 
-    private static void handleJoueur(Scanner scanner, JoueurService joueurService) throws Exception {
-        System.out.print("Do you want to add a new joueur? (yes/no): ");
-        String addJoueurChoice = scanner.nextLine().trim();
-        if (addJoueurChoice.equalsIgnoreCase("yes")) {
-            System.out.println("Add a new joueur:");
-            System.out.print("Nom: ");
-            String nom = scanner.nextLine();
-            System.out.print("Prenom: ");
-            String prenom = scanner.nextLine();
-            System.out.print("Date naissance (yyyy-mm-dd): ");
-            LocalDate dateNaissance = LocalDate.parse(scanner.nextLine());
-            System.out.print("Numero: ");
-            int numero = Integer.parseInt(scanner.nextLine());
-            System.out.print("Image: ");
-            String image = scanner.nextLine();
-            System.out.print("Equipe id: ");
-            String equipeIdInput = scanner.nextLine().trim();
+    private static void handleJoueur(JoueurService joueurService) throws Exception {
+        System.out.println("\n--- JOUEURS ---");
+        System.out.println("1. Add joueur");
+        System.out.println("2. Display all joueurs");
+        System.out.println("3. Update joueur");
+        System.out.println("4. Delete joueur");
+        System.out.println("5. Search joueur");
+        System.out.println("6. Sort joueurs");
+        System.out.print("Choice: ");
+        int choice = Integer.parseInt(SCANNER.nextLine());
 
-            Joueur nouveauJoueur = new Joueur(
-                    nom,
-                    prenom,
-                    dateNaissance,
-                    numero,
-                    image,
-                    equipeIdInput.isEmpty() ? null : Integer.parseInt(equipeIdInput)
-            );
-            joueurService.add(nouveauJoueur);
-            System.out.println("Joueur added successfully.");
-        }
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Nom: ");
+                String nom = SCANNER.nextLine();
+                System.out.print("Prenom: ");
+                String prenom = SCANNER.nextLine();
+                System.out.print("Date naissance (yyyy-mm-dd): ");
+                LocalDate dateNaissance = LocalDate.parse(SCANNER.nextLine());
+                System.out.print("Numero: ");
+                int numero = Integer.parseInt(SCANNER.nextLine());
+                System.out.print("Image: ");
+                String image = SCANNER.nextLine();
+                System.out.print("Equipe id: ");
+                String equipeIdInput = SCANNER.nextLine().trim();
 
-        System.out.print("Do you want to display all joueurs? (yes/no): ");
-        String readAllJoueursChoice = scanner.nextLine().trim();
-        if (readAllJoueursChoice.equalsIgnoreCase("yes")) {
-            System.out.println("All joueurs:");
-            List<Joueur> joueurs = joueurService.getAll();
-            System.out.print("Do you want to sort joueurs by nom from A to Z? (yes/no): ");
-            String sortByNomChoice = scanner.nextLine().trim();
-            if (sortByNomChoice.equalsIgnoreCase("yes")) {
-                joueurs.sort(Comparator.comparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                joueurService.add(new Joueur(
+                        nom,
+                        prenom,
+                        dateNaissance,
+                        numero,
+                        image,
+                        equipeIdInput.isEmpty() ? null : Integer.parseInt(equipeIdInput)
+                ));
+                System.out.println("Joueur added successfully.");
             }
-            for (Joueur joueur : joueurs) {
-                System.out.println(joueur);
-            }
-        }
+            case 2 -> joueurService.getAll().forEach(System.out::println);
+            case 3 -> {
+                System.out.print("Joueur id to update: ");
+                int joueurId = Integer.parseInt(SCANNER.nextLine());
+                Joueur joueur = joueurService.getById(joueurId);
+                if (joueur == null) {
+                    System.out.println("Joueur not found.");
+                    return;
+                }
 
-        System.out.print("Do you want to display one joueur by id? (yes/no): ");
-        String readOneJoueurChoice = scanner.nextLine().trim();
-        if (readOneJoueurChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the joueur to display: ");
-            int joueurIdToRead = Integer.parseInt(scanner.nextLine());
-            Joueur joueurToRead = joueurService.getById(joueurIdToRead);
-            if (joueurToRead != null) {
-                System.out.println("Joueur with id " + joueurIdToRead + ":");
-                System.out.println(joueurToRead);
-            } else {
-                System.out.println("No joueur found with id " + joueurIdToRead);
-            }
-        }
-
-        System.out.print("Do you want to update a joueur? (yes/no): ");
-        String updateJoueurChoice = scanner.nextLine().trim();
-        if (updateJoueurChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the joueur to update: ");
-            int joueurId = Integer.parseInt(scanner.nextLine());
-
-            Joueur joueurToUpdate = joueurService.getById(joueurId);
-            if (joueurToUpdate != null) {
                 System.out.print("New nom: ");
-                joueurToUpdate.setNom(scanner.nextLine());
+                joueur.setNom(SCANNER.nextLine());
                 System.out.print("New prenom: ");
-                joueurToUpdate.setPrenom(scanner.nextLine());
+                joueur.setPrenom(SCANNER.nextLine());
                 System.out.print("New date naissance (yyyy-mm-dd): ");
-                joueurToUpdate.setDateNaissance(LocalDate.parse(scanner.nextLine()));
+                joueur.setDateNaissance(LocalDate.parse(SCANNER.nextLine()));
                 System.out.print("New numero: ");
-                joueurToUpdate.setNumero(Integer.parseInt(scanner.nextLine()));
+                joueur.setNumero(Integer.parseInt(SCANNER.nextLine()));
                 System.out.print("New image: ");
-                joueurToUpdate.setImage(scanner.nextLine());
+                joueur.setImage(SCANNER.nextLine());
                 System.out.print("New equipe id: ");
-                String newEquipeId = scanner.nextLine().trim();
-                joueurToUpdate.setEquipeId(newEquipeId.isEmpty() ? null : Integer.parseInt(newEquipeId));
-
-                joueurService.update(joueurToUpdate);
+                String equipeIdInput = SCANNER.nextLine().trim();
+                joueur.setEquipeId(equipeIdInput.isEmpty() ? null : Integer.parseInt(equipeIdInput));
+                joueurService.update(joueur);
                 System.out.println("Joueur updated successfully.");
-                System.out.println("Updated joueur with id " + joueurId + ":");
-                System.out.println(joueurService.getById(joueurId));
-            } else {
-                System.out.println("No joueur found with id " + joueurId);
             }
-        }
-
-        System.out.print("Do you want to delete a joueur? (yes/no): ");
-        String deleteJoueurChoice = scanner.nextLine().trim();
-        if (deleteJoueurChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the joueur to delete: ");
-            int joueurIdToDelete = Integer.parseInt(scanner.nextLine());
-            Joueur joueurToDelete = joueurService.getById(joueurIdToDelete);
-            if (joueurToDelete != null) {
-                joueurService.delete(joueurIdToDelete);
+            case 4 -> {
+                System.out.print("Joueur id to delete: ");
+                int id = Integer.parseInt(SCANNER.nextLine());
+                joueurService.delete(id);
                 System.out.println("Joueur deleted successfully.");
-                System.out.println("Joueur with id " + joueurIdToDelete + ":");
-                System.out.println(joueurService.getById(joueurIdToDelete));
-            } else {
-                System.out.println("No joueur found with id " + joueurIdToDelete);
             }
+            case 5 -> {
+                System.out.print("Keyword: ");
+                String keyword = SCANNER.nextLine().trim().toLowerCase();
+                joueurService.getAll().stream()
+                        .filter(joueur -> containsIgnoreCase(joueur.getNom(), keyword)
+                                || containsIgnoreCase(joueur.getPrenom(), keyword)
+                                || String.valueOf(joueur.getNumero()).contains(keyword))
+                        .forEach(System.out::println);
+            }
+            case 6 -> {
+                List<Joueur> joueurs = joueurService.getAll();
+                System.out.println("Sort by: 1.Nom  2.Prenom  3.Numero");
+                System.out.print("Choice: ");
+                int sortChoice = Integer.parseInt(SCANNER.nextLine());
+                switch (sortChoice) {
+                    case 1 -> joueurs.sort(Comparator.comparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 2 -> joueurs.sort(Comparator.comparing(Joueur::getPrenom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 3 -> joueurs.sort(Comparator.comparingInt(Joueur::getNumero));
+                    default -> {
+                        System.out.println("Invalid choice.");
+                        return;
+                    }
+                }
+                joueurs.forEach(System.out::println);
+            }
+            default -> System.out.println("Invalid choice.");
         }
     }
 
-    private static void handleMatchs(Scanner scanner, MatchsService matchsService) throws Exception {
-        System.out.print("Do you want to add a new match? (yes/no): ");
-        String addMatchChoice = scanner.nextLine().trim();
-        if (addMatchChoice.equalsIgnoreCase("yes")) {
-            System.out.println("Add a new match:");
-            System.out.print("Id match: ");
-            String idMatch = scanner.nextLine();
-            System.out.print("Date match (yyyy-mm-dd): ");
-            LocalDate dateMatch = LocalDate.parse(scanner.nextLine());
-            System.out.print("Heure debut (HH:mm:ss): ");
-            LocalTime heureDebut = LocalTime.parse(scanner.nextLine());
-            System.out.print("Lieu: ");
-            String lieu = scanner.nextLine();
-            System.out.print("Type: ");
-            String type = scanner.nextLine();
-            System.out.print("Statut: ");
-            String statut = scanner.nextLine();
-            System.out.print("Lineup domicile: ");
-            String lineupDomicile = scanner.nextLine();
-            System.out.print("Lineup exterieur: ");
-            String lineupExterieur = scanner.nextLine();
-            System.out.print("Score equipe domicile: ");
-            String scoreDomicileInput = scanner.nextLine().trim();
-            System.out.print("Score equipe exterieur: ");
-            String scoreExterieurInput = scanner.nextLine().trim();
-            System.out.print("Equipe domicile id: ");
-            String equipeDomicileIdInput = scanner.nextLine().trim();
-            System.out.print("Equipe exterieur id: ");
-            String equipeExterieurIdInput = scanner.nextLine().trim();
+    private static void handleMatchs(MatchsService matchsService) throws Exception {
+        System.out.println("\n--- MATCHS ---");
+        System.out.println("1. Add match");
+        System.out.println("2. Display all matchs");
+        System.out.println("3. Update match");
+        System.out.println("4. Delete match");
+        System.out.println("5. Search match");
+        System.out.println("6. Sort matchs");
+        System.out.print("Choice: ");
+        int choice = Integer.parseInt(SCANNER.nextLine());
 
-            Matchs nouveauMatch = new Matchs(
-                    idMatch,
-                    dateMatch,
-                    heureDebut,
-                    lieu,
-                    type,
-                    statut,
-                    lineupDomicile,
-                    lineupExterieur,
-                    scoreDomicileInput.isEmpty() ? null : Integer.parseInt(scoreDomicileInput),
-                    scoreExterieurInput.isEmpty() ? null : Integer.parseInt(scoreExterieurInput),
-                    equipeDomicileIdInput.isEmpty() ? null : Integer.parseInt(equipeDomicileIdInput),
-                    equipeExterieurIdInput.isEmpty() ? null : Integer.parseInt(equipeExterieurIdInput)
-            );
-            matchsService.add(nouveauMatch);
-            System.out.println("Match added successfully.");
-        }
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Id match: ");
+                String idMatch = SCANNER.nextLine();
+                System.out.print("Date match (yyyy-mm-dd): ");
+                LocalDate dateMatch = LocalDate.parse(SCANNER.nextLine());
+                System.out.print("Heure debut (HH:mm:ss): ");
+                LocalTime heureDebut = LocalTime.parse(SCANNER.nextLine());
+                System.out.print("Lieu: ");
+                String lieu = SCANNER.nextLine();
+                System.out.print("Type: ");
+                String type = SCANNER.nextLine();
+                System.out.print("Statut: ");
+                String statut = SCANNER.nextLine();
+                System.out.print("Lineup domicile: ");
+                String lineupDomicile = SCANNER.nextLine();
+                System.out.print("Lineup exterieur: ");
+                String lineupExterieur = SCANNER.nextLine();
+                System.out.print("Score equipe domicile: ");
+                String scoreDomicileInput = SCANNER.nextLine().trim();
+                System.out.print("Score equipe exterieur: ");
+                String scoreExterieurInput = SCANNER.nextLine().trim();
+                System.out.print("Equipe domicile id: ");
+                String equipeDomicileIdInput = SCANNER.nextLine().trim();
+                System.out.print("Equipe exterieur id: ");
+                String equipeExterieurIdInput = SCANNER.nextLine().trim();
 
-        System.out.print("Do you want to display all matchs? (yes/no): ");
-        String readAllMatchsChoice = scanner.nextLine().trim();
-        if (readAllMatchsChoice.equalsIgnoreCase("yes")) {
-            System.out.println("All matchs:");
-            List<Matchs> matchsList = matchsService.getAll();
-            for (Matchs match : matchsList) {
-                System.out.println(match);
+                matchsService.add(new Matchs(
+                        idMatch,
+                        dateMatch,
+                        heureDebut,
+                        lieu,
+                        type,
+                        statut,
+                        lineupDomicile,
+                        lineupExterieur,
+                        scoreDomicileInput.isEmpty() ? null : Integer.parseInt(scoreDomicileInput),
+                        scoreExterieurInput.isEmpty() ? null : Integer.parseInt(scoreExterieurInput),
+                        equipeDomicileIdInput.isEmpty() ? null : Integer.parseInt(equipeDomicileIdInput),
+                        equipeExterieurIdInput.isEmpty() ? null : Integer.parseInt(equipeExterieurIdInput)
+                ));
+                System.out.println("Match added successfully.");
             }
-        }
+            case 2 -> matchsService.getAll().forEach(System.out::println);
+            case 3 -> {
+                System.out.print("Match id to update: ");
+                int matchId = Integer.parseInt(SCANNER.nextLine());
+                Matchs match = matchsService.getById(matchId);
+                if (match == null) {
+                    System.out.println("Match not found.");
+                    return;
+                }
 
-        System.out.print("Do you want to display one match by id? (yes/no): ");
-        String readOneMatchChoice = scanner.nextLine().trim();
-        if (readOneMatchChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the match to display: ");
-            int matchIdToRead = Integer.parseInt(scanner.nextLine());
-            Matchs matchToRead = matchsService.getById(matchIdToRead);
-            if (matchToRead != null) {
-                System.out.println("Match with id " + matchIdToRead + ":");
-                System.out.println(matchToRead);
-            } else {
-                System.out.println("No match found with id " + matchIdToRead);
-            }
-        }
-
-        System.out.print("Do you want to update a match? (yes/no): ");
-        String updateMatchChoice = scanner.nextLine().trim();
-        if (updateMatchChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the match to update: ");
-            int matchId = Integer.parseInt(scanner.nextLine());
-
-            Matchs matchToUpdate = matchsService.getById(matchId);
-            if (matchToUpdate != null) {
                 System.out.print("New id match: ");
-                matchToUpdate.setIdMatch(scanner.nextLine());
+                match.setIdMatch(SCANNER.nextLine());
                 System.out.print("New date match (yyyy-mm-dd): ");
-                matchToUpdate.setDateMatch(LocalDate.parse(scanner.nextLine()));
+                match.setDateMatch(LocalDate.parse(SCANNER.nextLine()));
                 System.out.print("New heure debut (HH:mm:ss): ");
-                matchToUpdate.setHeureDebut(LocalTime.parse(scanner.nextLine()));
+                match.setHeureDebut(LocalTime.parse(SCANNER.nextLine()));
                 System.out.print("New lieu: ");
-                matchToUpdate.setLieu(scanner.nextLine());
+                match.setLieu(SCANNER.nextLine());
                 System.out.print("New type: ");
-                matchToUpdate.setType(scanner.nextLine());
+                match.setType(SCANNER.nextLine());
                 System.out.print("New statut: ");
-                matchToUpdate.setStatut(scanner.nextLine());
+                match.setStatut(SCANNER.nextLine());
                 System.out.print("New lineup domicile: ");
-                matchToUpdate.setLineupDomicile(scanner.nextLine());
+                match.setLineupDomicile(SCANNER.nextLine());
                 System.out.print("New lineup exterieur: ");
-                matchToUpdate.setLineupExterieur(scanner.nextLine());
+                match.setLineupExterieur(SCANNER.nextLine());
                 System.out.print("New score equipe domicile: ");
-                String newScoreDomicile = scanner.nextLine().trim();
-                matchToUpdate.setScoreEquipeDomicile(newScoreDomicile.isEmpty() ? null : Integer.parseInt(newScoreDomicile));
+                String scoreDomicileInput = SCANNER.nextLine().trim();
+                match.setScoreEquipeDomicile(scoreDomicileInput.isEmpty() ? null : Integer.parseInt(scoreDomicileInput));
                 System.out.print("New score equipe exterieur: ");
-                String newScoreExterieur = scanner.nextLine().trim();
-                matchToUpdate.setScoreEquipeExterieur(newScoreExterieur.isEmpty() ? null : Integer.parseInt(newScoreExterieur));
+                String scoreExterieurInput = SCANNER.nextLine().trim();
+                match.setScoreEquipeExterieur(scoreExterieurInput.isEmpty() ? null : Integer.parseInt(scoreExterieurInput));
                 System.out.print("New equipe domicile id: ");
-                String newEquipeDomicileId = scanner.nextLine().trim();
-                matchToUpdate.setEquipeDomicileId(newEquipeDomicileId.isEmpty() ? null : Integer.parseInt(newEquipeDomicileId));
+                String equipeDomicileIdInput = SCANNER.nextLine().trim();
+                match.setEquipeDomicileId(equipeDomicileIdInput.isEmpty() ? null : Integer.parseInt(equipeDomicileIdInput));
                 System.out.print("New equipe exterieur id: ");
-                String newEquipeExterieurId = scanner.nextLine().trim();
-                matchToUpdate.setEquipeExterieurId(newEquipeExterieurId.isEmpty() ? null : Integer.parseInt(newEquipeExterieurId));
-
-                matchsService.update(matchToUpdate);
+                String equipeExterieurIdInput = SCANNER.nextLine().trim();
+                match.setEquipeExterieurId(equipeExterieurIdInput.isEmpty() ? null : Integer.parseInt(equipeExterieurIdInput));
+                matchsService.update(match);
                 System.out.println("Match updated successfully.");
-                System.out.println("Updated match with id " + matchId + ":");
-                System.out.println(matchsService.getById(matchId));
-            } else {
-                System.out.println("No match found with id " + matchId);
             }
-        }
-
-        System.out.print("Do you want to delete a match? (yes/no): ");
-        String deleteMatchChoice = scanner.nextLine().trim();
-        if (deleteMatchChoice.equalsIgnoreCase("yes")) {
-            System.out.print("Enter the id of the match to delete: ");
-            int matchIdToDelete = Integer.parseInt(scanner.nextLine());
-            Matchs matchToDelete = matchsService.getById(matchIdToDelete);
-            if (matchToDelete != null) {
-                matchsService.delete(matchIdToDelete);
+            case 4 -> {
+                System.out.print("Match id to delete: ");
+                int id = Integer.parseInt(SCANNER.nextLine());
+                matchsService.delete(id);
                 System.out.println("Match deleted successfully.");
-                System.out.println("Match with id " + matchIdToDelete + ":");
-                System.out.println(matchsService.getById(matchIdToDelete));
-            } else {
-                System.out.println("No match found with id " + matchIdToDelete);
             }
+            case 5 -> {
+                System.out.print("Keyword: ");
+                String keyword = SCANNER.nextLine().trim().toLowerCase();
+                matchsService.getAll().stream()
+                        .filter(match -> containsIgnoreCase(match.getIdMatch(), keyword)
+                                || containsIgnoreCase(match.getLieu(), keyword)
+                                || containsIgnoreCase(match.getType(), keyword)
+                                || containsIgnoreCase(match.getStatut(), keyword))
+                        .forEach(System.out::println);
+            }
+            case 6 -> {
+                List<Matchs> matchs = matchsService.getAll();
+                System.out.println("Sort by: 1.Date  2.Lieu  3.Type");
+                System.out.print("Choice: ");
+                int sortChoice = Integer.parseInt(SCANNER.nextLine());
+                switch (sortChoice) {
+                    case 1 -> matchs.sort(Comparator.comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo)));
+                    case 2 -> matchs.sort(Comparator.comparing(Matchs::getLieu, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    case 3 -> matchs.sort(Comparator.comparing(Matchs::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    default -> {
+                        System.out.println("Invalid choice.");
+                        return;
+                    }
+                }
+                matchs.forEach(System.out::println);
+            }
+            default -> System.out.println("Invalid choice.");
         }
+    }
+
+    private static boolean containsIgnoreCase(String value, String keyword) {
+        return value != null && value.toLowerCase().contains(keyword);
     }
 }
