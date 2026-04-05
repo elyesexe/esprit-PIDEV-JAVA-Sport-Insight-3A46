@@ -13,4 +13,8 @@ public interface IService<T> {
     List<T> getAll() throws SQLException;
 
     T getById(int id) throws SQLException;
+
+    default List<T> search(String keyword) throws SQLException {
+        throw new UnsupportedOperationException("Search is not implemented for this service.");
+    }
 }

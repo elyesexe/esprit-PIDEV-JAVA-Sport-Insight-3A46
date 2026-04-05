@@ -1,6 +1,6 @@
 # Sport Insight
 
-Java console application for managing `match`, `produit`, `entrainement`, and `annonce` features with JDBC and MySQL.
+Java console application for managing `match`, `produit`, `entrainement`, `annonce`, and `sponsor` features with JDBC and MySQL.
 
 ## Team
 
@@ -24,6 +24,8 @@ Java console application for managing `match`, `produit`, `entrainement`, and `a
 - CRUD for `participation`
 - CRUD for `annonce`
 - CRUD for `commentaire`
+- CRUD for `sponsor`
+- CRUD for `contrat_sponsor`
 - Separate entry points for each module
 - MySQL connection through JDBC
 
@@ -51,6 +53,7 @@ src/main/java/tn/esprit/
 - `tn.esprit.mains.ProductMain`: `product`, `order`
 - `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
 - `tn.esprit.mains.AnnonceMain`: `annonce`, `commentaire`
+- `tn.esprit.mains.SponsorMain`: `sponsor`, `contrat_sponsor`
 
 ## Database Configuration
 
@@ -78,6 +81,8 @@ Update these values if your local MySQL configuration is different.
 - `participation`
 - `annonce`
 - `commentaire`
+- `sponsor`
+- `contrat_sponsor`
 
 ## Requirements
 
@@ -109,6 +114,7 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.MatchMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.ProductMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.AnnonceMain"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.SponsorMain"
 ```
 
 ## Console Usage
@@ -165,6 +171,18 @@ Choice:
 Choice:
 ```
 
+### SponsorMain
+
+```text
+============================================
+      SPONSOR & CONTRACT MANAGEMENT
+============================================
+1. Sponsor Management
+2. Contract Sponsor Management
+0. Exit
+Choose an option:
+```
+
 Inside each module, CRUD actions now follow the same numbered style, for example:
 
 ```text
@@ -208,7 +226,8 @@ Select a sort mode:
 - Time input format for matches: `HH:mm:ss`
 - Time input format for entrainements: `HH:mm`
 - If your MySQL schema uses different table or column names, update the SQL in the service classes.
+- `Gestion-sponsor` was merged into this project and its sponsor entrypoint is available as `SponsorMain`.
 
 ## Branch
 
-This merged version is available on branch `match+prod+ent+ann`.
+This merged version is available on branch `m+p+e+a+s`.

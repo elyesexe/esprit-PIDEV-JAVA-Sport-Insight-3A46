@@ -41,4 +41,100 @@ public class ContratSponsor {
         this.sponsorId = sponsorId;
         this.equipeId = equipeId;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public LocalDate getDateDebut() {
+        return dateDebut;
+    }
+
+    public void setDateDebut(LocalDate dateDebut) {
+        this.dateDebut = dateDebut;
+    }
+
+    public LocalDate getDateFin() {
+        return dateFin;
+    }
+
+    public void setDateFin(LocalDate dateFin) {
+        this.dateFin = dateFin;
+    }
+
+    public double getMontant() {
+        return montant;
+    }
+
+    public void setMontant(double montant) {
+        this.montant = montant;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatut() {
+        return statut;
+    }
+
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public boolean isNotified() {
+        return notified;
+    }
+
+    public void setNotified(boolean notified) {
+        this.notified = notified;
+    }
+
+    public String getStatutPaiement() {
+        return statutPaiement;
+    }
+
+    public void setStatutPaiement(String statutPaiement) {
+        this.statutPaiement = statutPaiement;
+    }
+
+    public Integer getSponsorId() {
+        return sponsorId;
+    }
+
+    public void setSponsorId(Integer sponsorId) {
+        this.sponsorId = sponsorId;
+    }
+
+    public Integer getEquipeId() {
+        return equipeId;
+    }
+
+    public void setEquipeId(Integer equipeId) {
+        this.equipeId = equipeId;
+    }
+
+    @Override
+    public String toString() {
+        return "ContratSponsor{" +
+                "id=" + id +
+                ", dateDebut=" + dateDebut +
+                ", dateFin=" + dateFin +
+                ", montant=" + montant +
+                ", description='" + description + '\'' +
+                ", statut='" + statut + '\'' +
+                ", notified=" + notified +
+                ", statutPaiement='" + statutPaiement + '\'' +
+                ", sponsorId=" + sponsorId +
+                ", equipeId=" + equipeId +
+                '}';
+    }
 }
