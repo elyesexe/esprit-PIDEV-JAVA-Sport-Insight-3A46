@@ -12,7 +12,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MatchMain {
     private static final Scanner SCANNER = new Scanner(System.in);
@@ -32,6 +35,7 @@ public class MatchMain {
                 System.out.println("1. Manage equipes");
                 System.out.println("2. Manage joueurs");
                 System.out.println("3. Manage matchs");
+                System.out.println("4. Statistics");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
                 int choice = Integer.parseInt(SCANNER.nextLine());
@@ -40,6 +44,7 @@ public class MatchMain {
                     case 1 -> handleEquipe(equipeService);
                     case 2 -> handleJoueur(joueurService);
                     case 3 -> handleMatchs(matchsService);
+                    case 4 -> handleStatistics(equipeService, joueurService, matchsService);
                     case 0 -> {
                         System.out.println("Application closed.");
                         running = false;
@@ -368,6 +373,127 @@ public class MatchMain {
             }
             default -> System.out.println("Invalid choice.");
         }
+    }
+
+    private static void handleStatistics(EquipeService equipeService, JoueurService joueurService, MatchsService matchsService) throws Exception {
+        System.out.println("\n--- MATCH STATISTICS ---");
+        System.out.println("1. Equipe statistics");
+        System.out.println("2. Joueur statistics");
+        System.out.println("3. Match statistics");
+        System.out.println("4. Global summary");
+        System.out.print("Choice: ");
+        int choice = Integer.parseInt(SCANNER.nextLine());
+
+        switch (choice) {
+            case 1 -> showEquipeStatistics(equipeService, joueurService);
+            case 2 -> showJoueurStatistics(joueurService);
+            case 3 -> showMatchStatistics(matchsService);
+            case 4 -> {
+                showEquipeStatistics(equipeService, joueurService);
+                showJoueurStatistics(joueurService);
+                showMatchStatistics(matchsService);
+            }
+            default -> System.out.println("Invalid choice.");
+        }
+    }
+
+    private static void showEquipeStatistics(EquipeService equipeService, JoueurService joueurService) throws Exception {
+        List<Equipe> equipes = equipeService.getAll();
+        List<Joueur> joueurs = joueurService.getAll();
+
+        System.out.println("\n--- EQUIPE STATISTICS ---");
+        System.out.println("Total equipes: " + equipes.size());
+
+        long coachCount = equipes.stream()
+                .map(Equipe::getCoach)
+                .filter(value -> value != null && !value.isBlank())
+                .distinct()
+                .count();
+        System.out.println("Distinct coaches: " + coachCount);
+
+        Map<Integer, Long> playersPerEquipe = joueurs.stream()
+                .filter(joueur -> joueur.getEquipeId() != null)
+                .collect(Collectors.groupingBy(Joueur::getEquipeId, Collectors.counting()));
+
+        equipes.stream()
+                .max(Comparator.comparingLong(equipe -> playersPerEquipe.getOrDefault(equipe.getId(), 0L)))
+                .ifPresent(equipe -> System.out.println("Equipe with most players: " + equipe.getNom()
+                        + " (" + playersPerEquipe.getOrDefault(equipe.getId(), 0L) + " joueurs)"));
+
+        printTopGrouping("Equipes by address", equipes, Equipe::getAdresse);
+    }
+
+    private static void showJoueurStatistics(JoueurService joueurService) throws Exception {
+        List<Joueur> joueurs = joueurService.getAll();
+
+        System.out.println("\n--- JOUEUR STATISTICS ---");
+        System.out.println("Total joueurs: " + joueurs.size());
+        System.out.println("Assigned to an equipe: " + joueurs.stream().filter(joueur -> joueur.getEquipeId() != null).count());
+        System.out.println("Without equipe: " + joueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count());
+
+        joueurs.stream()
+                .min(Comparator.comparing(Joueur::getDateNaissance, Comparator.nullsLast(LocalDate::compareTo)))
+                .ifPresent(joueur -> System.out.println("Oldest joueur: " + joueur.getNom() + " " + joueur.getPrenom()
+                        + " (" + joueur.getDateNaissance() + ")"));
+
+        joueurs.stream()
+                .max(Comparator.comparing(Joueur::getDateNaissance, Comparator.nullsFirst(LocalDate::compareTo)))
+                .ifPresent(joueur -> System.out.println("Youngest joueur: " + joueur.getNom() + " " + joueur.getPrenom()
+                        + " (" + joueur.getDateNaissance() + ")"));
+
+        double averageNumero = joueurs.stream()
+                .mapToInt(Joueur::getNumero)
+                .average()
+                .orElse(0);
+        System.out.printf("Average player number: %.2f%n", averageNumero);
+    }
+
+    private static void showMatchStatistics(MatchsService matchsService) throws Exception {
+        List<Matchs> matchs = matchsService.getAll();
+
+        System.out.println("\n--- MATCH STATISTICS ---");
+        System.out.println("Total matchs: " + matchs.size());
+        System.out.println("Played matchs: " + matchs.stream().filter(match -> hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur())).count());
+        System.out.println("Pending matchs: " + matchs.stream().filter(match -> !hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur())).count());
+
+        double averageGoals = matchs.stream()
+                .filter(match -> hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur()))
+                .mapToInt(match -> match.getScoreEquipeDomicile() + match.getScoreEquipeExterieur())
+                .average()
+                .orElse(0);
+        System.out.printf("Average total goals per played match: %.2f%n", averageGoals);
+
+        matchs.stream()
+                .filter(match -> hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur()))
+                .max(Comparator.comparingInt(match -> match.getScoreEquipeDomicile() + match.getScoreEquipeExterieur()))
+                .ifPresent(match -> System.out.println("Highest scoring match: " + match.getIdMatch()
+                        + " (" + match.getScoreEquipeDomicile() + "-" + match.getScoreEquipeExterieur() + ")"));
+
+        printTopGrouping("Matches by status", matchs, Matchs::getStatut);
+        printTopGrouping("Matches by type", matchs, Matchs::getType);
+        printTopGrouping("Matches by location", matchs, Matchs::getLieu);
+    }
+
+    private static <T> void printTopGrouping(String label, List<T> items, Function<T, String> classifier) {
+        Map<String, Long> grouped = items.stream()
+                .map(classifier)
+                .filter(value -> value != null && !value.isBlank())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        if (grouped.isEmpty()) {
+            System.out.println(label + ": no data");
+            return;
+        }
+
+        System.out.println(label + ":");
+        grouped.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)))
+                .limit(3)
+                .forEach(entry -> System.out.println("- " + entry.getKey() + ": " + entry.getValue()));
+    }
+
+    private static boolean hasScore(Integer domicile, Integer exterieur) {
+        return domicile != null && exterieur != null;
     }
 
     private static boolean containsIgnoreCase(String value, String keyword) {
