@@ -1,6 +1,16 @@
 # Sport Insight
 
-Java console application for managing `match`, `produit`, and `entrainement` features with JDBC and MySQL.
+Java console application for managing `match`, `produit`, `entrainement`, and `annonce` features with JDBC and MySQL.
+
+## Team
+
+- Director: `Elyes Chaouch`
+- Gestion match: `Elyes Chaouch`
+- Gestion produit: `Amine Bouchnak`
+- Gestion user: `Sirine Saidaoui`
+- Gestion entrainement: `Tesnim Fekih`
+- Gestion annonce: `Sayda Guennichi`
+- Gestion sponsor: `Rym Hamouda`
 
 ## Features
 
@@ -12,6 +22,8 @@ Java console application for managing `match`, `produit`, and `entrainement` fea
 - CRUD for `entrainement`
 - CRUD for `evaluation`
 - CRUD for `participation`
+- CRUD for `annonce`
+- CRUD for `commentaire`
 - Separate entry points for each module
 - MySQL connection through JDBC
 
@@ -38,6 +50,7 @@ src/main/java/tn/esprit/
 - `tn.esprit.mains.MatchMain`: `equipe`, `joueur`, `matchs`
 - `tn.esprit.mains.ProductMain`: `product`, `order`
 - `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
+- `tn.esprit.mains.AnnonceMain`: `annonce`, `commentaire`
 
 ## Database Configuration
 
@@ -63,6 +76,8 @@ Update these values if your local MySQL configuration is different.
 - `entrainement`
 - `evaluation`
 - `participation`
+- `annonce`
+- `commentaire`
 
 ## Requirements
 
@@ -93,6 +108,7 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.Main"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.MatchMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.ProductMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.AnnonceMain"
 ```
 
 ## Console Usage
@@ -129,6 +145,23 @@ SPORT INSIGHT MENU
 Choice:
 ```
 
+### AnnonceMain
+
+```text
+--- ANNOUNCE MANAGEMENT ---
+1. Add annonce
+2. Show all annonces
+3. Update annonce
+4. Delete annonce
+5. Search annonces by title
+6. Sort annonces by publication date
+7. Add commentaire to annonce
+8. Show commentaires for annonce
+9. Search commentaires by content
+0. Exit
+Choice:
+```
+
 Inside each module, CRUD actions now follow the same numbered style, for example:
 
 ```text
@@ -151,4 +184,4 @@ Choice:
 
 ## Branch
 
-This merged version is available on branch `match+prod+entrainement`.
+This merged version is available on branch `match+prod+ent+ann`.
