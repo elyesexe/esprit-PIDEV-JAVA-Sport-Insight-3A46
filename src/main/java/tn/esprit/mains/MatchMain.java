@@ -31,13 +31,13 @@ public class MatchMain {
 
             boolean running = true;
             while (running) {
-                System.out.println("\n--- MATCH MODULE ---");
-                System.out.println("1. Manage equipes");
-                System.out.println("2. Manage joueurs");
-                System.out.println("3. Manage matchs");
-                System.out.println("4. Statistics");
-                System.out.println("0. Exit");
-                System.out.print("Choice: ");
+                printSection("MATCH MODULE");
+                printMenuOption("1", "Manage equipes");
+                printMenuOption("2", "Manage joueurs");
+                printMenuOption("3", "Manage matchs");
+                printMenuOption("4", "Statistics");
+                printMenuOption("0", "Exit");
+                System.out.print("Select an option: ");
                 int choice = Integer.parseInt(SCANNER.nextLine());
 
                 switch (choice) {
@@ -58,14 +58,14 @@ public class MatchMain {
     }
 
     private static void handleEquipe(EquipeService equipeService) throws Exception {
-        System.out.println("\n--- EQUIPES ---");
-        System.out.println("1. Add equipe");
-        System.out.println("2. Display all equipes");
-        System.out.println("3. Update equipe");
-        System.out.println("4. Delete equipe");
-        System.out.println("5. Search equipe");
-        System.out.println("6. Sort equipes");
-        System.out.print("Choice: ");
+        printSection("EQUIPES");
+        printMenuOption("1", "Add equipe");
+        printMenuOption("2", "Display all equipes");
+        printMenuOption("3", "Update equipe");
+        printMenuOption("4", "Delete equipe");
+        printMenuOption("5", "Search equipe");
+        printMenuOption("6", "Sort equipes");
+        System.out.print("Select an action: ");
         int choice = Integer.parseInt(SCANNER.nextLine());
 
         switch (choice) {
@@ -86,7 +86,7 @@ public class MatchMain {
                 equipeService.add(new Equipe(nom, coach, adresse, telephone, email, image));
                 System.out.println("Equipe added successfully.");
             }
-            case 2 -> equipeService.getAll().forEach(System.out::println);
+            case 2 -> displayEquipes(equipeService.getAll());
             case 3 -> {
                 System.out.print("Equipe id to update: ");
                 int equipeId = Integer.parseInt(SCANNER.nextLine());
@@ -120,17 +120,20 @@ public class MatchMain {
             case 5 -> {
                 System.out.print("Keyword: ");
                 String keyword = SCANNER.nextLine().trim().toLowerCase();
-                equipeService.getAll().stream()
+                displayEquipes(equipeService.getAll().stream()
                         .filter(equipe -> containsIgnoreCase(equipe.getNom(), keyword)
                                 || containsIgnoreCase(equipe.getCoach(), keyword)
                                 || containsIgnoreCase(equipe.getAdresse(), keyword)
                                 || containsIgnoreCase(equipe.getEmail(), keyword))
-                        .forEach(System.out::println);
+                        .toList());
             }
             case 6 -> {
                 List<Equipe> equipes = equipeService.getAll();
-                System.out.println("Sort by: 1.Nom  2.Coach  3.Adresse");
-                System.out.print("Choice: ");
+                printSection("SORT EQUIPES");
+                printMenuOption("1", "By nom");
+                printMenuOption("2", "By coach");
+                printMenuOption("3", "By adresse");
+                System.out.print("Select a sort mode: ");
                 int sortChoice = Integer.parseInt(SCANNER.nextLine());
                 switch (sortChoice) {
                     case 1 -> equipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
@@ -141,21 +144,21 @@ public class MatchMain {
                         return;
                     }
                 }
-                equipes.forEach(System.out::println);
+                displayEquipes(equipes);
             }
             default -> System.out.println("Invalid choice.");
         }
     }
 
     private static void handleJoueur(JoueurService joueurService) throws Exception {
-        System.out.println("\n--- JOUEURS ---");
-        System.out.println("1. Add joueur");
-        System.out.println("2. Display all joueurs");
-        System.out.println("3. Update joueur");
-        System.out.println("4. Delete joueur");
-        System.out.println("5. Search joueur");
-        System.out.println("6. Sort joueurs");
-        System.out.print("Choice: ");
+        printSection("JOUEURS");
+        printMenuOption("1", "Add joueur");
+        printMenuOption("2", "Display all joueurs");
+        printMenuOption("3", "Update joueur");
+        printMenuOption("4", "Delete joueur");
+        printMenuOption("5", "Search joueur");
+        printMenuOption("6", "Sort joueurs");
+        System.out.print("Select an action: ");
         int choice = Integer.parseInt(SCANNER.nextLine());
 
         switch (choice) {
@@ -183,7 +186,7 @@ public class MatchMain {
                 ));
                 System.out.println("Joueur added successfully.");
             }
-            case 2 -> joueurService.getAll().forEach(System.out::println);
+            case 2 -> displayJoueurs(joueurService.getAll());
             case 3 -> {
                 System.out.print("Joueur id to update: ");
                 int joueurId = Integer.parseInt(SCANNER.nextLine());
@@ -218,16 +221,19 @@ public class MatchMain {
             case 5 -> {
                 System.out.print("Keyword: ");
                 String keyword = SCANNER.nextLine().trim().toLowerCase();
-                joueurService.getAll().stream()
+                displayJoueurs(joueurService.getAll().stream()
                         .filter(joueur -> containsIgnoreCase(joueur.getNom(), keyword)
                                 || containsIgnoreCase(joueur.getPrenom(), keyword)
                                 || String.valueOf(joueur.getNumero()).contains(keyword))
-                        .forEach(System.out::println);
+                        .toList());
             }
             case 6 -> {
                 List<Joueur> joueurs = joueurService.getAll();
-                System.out.println("Sort by: 1.Nom  2.Prenom  3.Numero");
-                System.out.print("Choice: ");
+                printSection("SORT JOUEURS");
+                printMenuOption("1", "By nom");
+                printMenuOption("2", "By prenom");
+                printMenuOption("3", "By numero");
+                System.out.print("Select a sort mode: ");
                 int sortChoice = Integer.parseInt(SCANNER.nextLine());
                 switch (sortChoice) {
                     case 1 -> joueurs.sort(Comparator.comparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
@@ -238,21 +244,21 @@ public class MatchMain {
                         return;
                     }
                 }
-                joueurs.forEach(System.out::println);
+                displayJoueurs(joueurs);
             }
             default -> System.out.println("Invalid choice.");
         }
     }
 
     private static void handleMatchs(MatchsService matchsService) throws Exception {
-        System.out.println("\n--- MATCHS ---");
-        System.out.println("1. Add match");
-        System.out.println("2. Display all matchs");
-        System.out.println("3. Update match");
-        System.out.println("4. Delete match");
-        System.out.println("5. Search match");
-        System.out.println("6. Sort matchs");
-        System.out.print("Choice: ");
+        printSection("MATCHS");
+        printMenuOption("1", "Add match");
+        printMenuOption("2", "Display all matchs");
+        printMenuOption("3", "Update match");
+        printMenuOption("4", "Delete match");
+        printMenuOption("5", "Search match");
+        printMenuOption("6", "Sort matchs");
+        System.out.print("Select an action: ");
         int choice = Integer.parseInt(SCANNER.nextLine());
 
         switch (choice) {
@@ -298,7 +304,7 @@ public class MatchMain {
                 ));
                 System.out.println("Match added successfully.");
             }
-            case 2 -> matchsService.getAll().forEach(System.out::println);
+            case 2 -> displayMatchs(matchsService.getAll());
             case 3 -> {
                 System.out.print("Match id to update: ");
                 int matchId = Integer.parseInt(SCANNER.nextLine());
@@ -348,17 +354,20 @@ public class MatchMain {
             case 5 -> {
                 System.out.print("Keyword: ");
                 String keyword = SCANNER.nextLine().trim().toLowerCase();
-                matchsService.getAll().stream()
+                displayMatchs(matchsService.getAll().stream()
                         .filter(match -> containsIgnoreCase(match.getIdMatch(), keyword)
                                 || containsIgnoreCase(match.getLieu(), keyword)
                                 || containsIgnoreCase(match.getType(), keyword)
                                 || containsIgnoreCase(match.getStatut(), keyword))
-                        .forEach(System.out::println);
+                        .toList());
             }
             case 6 -> {
                 List<Matchs> matchs = matchsService.getAll();
-                System.out.println("Sort by: 1.Date  2.Lieu  3.Type");
-                System.out.print("Choice: ");
+                printSection("SORT MATCHS");
+                printMenuOption("1", "By date");
+                printMenuOption("2", "By location");
+                printMenuOption("3", "By type");
+                System.out.print("Select a sort mode: ");
                 int sortChoice = Integer.parseInt(SCANNER.nextLine());
                 switch (sortChoice) {
                     case 1 -> matchs.sort(Comparator.comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo)));
@@ -369,19 +378,19 @@ public class MatchMain {
                         return;
                     }
                 }
-                matchs.forEach(System.out::println);
+                displayMatchs(matchs);
             }
             default -> System.out.println("Invalid choice.");
         }
     }
 
     private static void handleStatistics(EquipeService equipeService, JoueurService joueurService, MatchsService matchsService) throws Exception {
-        System.out.println("\n--- MATCH STATISTICS ---");
-        System.out.println("1. Equipe statistics");
-        System.out.println("2. Joueur statistics");
-        System.out.println("3. Match statistics");
-        System.out.println("4. Global summary");
-        System.out.print("Choice: ");
+        printSection("MATCH STATISTICS");
+        printMenuOption("1", "Equipe statistics");
+        printMenuOption("2", "Joueur statistics");
+        printMenuOption("3", "Match statistics");
+        printMenuOption("4", "Global summary");
+        System.out.print("Select an action: ");
         int choice = Integer.parseInt(SCANNER.nextLine());
 
         switch (choice) {
@@ -401,7 +410,7 @@ public class MatchMain {
         List<Equipe> equipes = equipeService.getAll();
         List<Joueur> joueurs = joueurService.getAll();
 
-        System.out.println("\n--- EQUIPE STATISTICS ---");
+        printSection("EQUIPE STATISTICS");
         System.out.println("Total equipes: " + equipes.size());
 
         long coachCount = equipes.stream()
@@ -426,7 +435,7 @@ public class MatchMain {
     private static void showJoueurStatistics(JoueurService joueurService) throws Exception {
         List<Joueur> joueurs = joueurService.getAll();
 
-        System.out.println("\n--- JOUEUR STATISTICS ---");
+        printSection("JOUEUR STATISTICS");
         System.out.println("Total joueurs: " + joueurs.size());
         System.out.println("Assigned to an equipe: " + joueurs.stream().filter(joueur -> joueur.getEquipeId() != null).count());
         System.out.println("Without equipe: " + joueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count());
@@ -451,7 +460,7 @@ public class MatchMain {
     private static void showMatchStatistics(MatchsService matchsService) throws Exception {
         List<Matchs> matchs = matchsService.getAll();
 
-        System.out.println("\n--- MATCH STATISTICS ---");
+        printSection("MATCH STATISTICS");
         System.out.println("Total matchs: " + matchs.size());
         System.out.println("Played matchs: " + matchs.stream().filter(match -> hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur())).count());
         System.out.println("Pending matchs: " + matchs.stream().filter(match -> !hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur())).count());
@@ -494,6 +503,87 @@ public class MatchMain {
 
     private static boolean hasScore(Integer domicile, Integer exterieur) {
         return domicile != null && exterieur != null;
+    }
+
+    private static void displayEquipes(List<Equipe> equipes) {
+        if (equipes.isEmpty()) {
+            System.out.println("No equipes found.");
+            return;
+        }
+
+        printSection("EQUIPE LIST");
+        equipes.forEach(equipe -> {
+            System.out.println("[" + equipe.getId() + "] " + safeText(equipe.getNom()));
+            System.out.println("  Coach    : " + safeText(equipe.getCoach()));
+            System.out.println("  Adresse  : " + safeText(equipe.getAdresse()));
+            System.out.println("  Telephone: " + safeText(equipe.getTelephone()));
+            System.out.println("  Email    : " + safeText(equipe.getEmail()));
+            System.out.println("  Image    : " + safeText(equipe.getImage()));
+            System.out.println();
+        });
+    }
+
+    private static void displayJoueurs(List<Joueur> joueurs) {
+        if (joueurs.isEmpty()) {
+            System.out.println("No joueurs found.");
+            return;
+        }
+
+        printSection("JOUEUR LIST");
+        joueurs.forEach(joueur -> {
+            System.out.println("[" + joueur.getId() + "] " + safeText(joueur.getNom()) + " " + safeText(joueur.getPrenom()));
+            System.out.println("  Birth date: " + String.valueOf(joueur.getDateNaissance()));
+            System.out.println("  Numero    : " + joueur.getNumero());
+            System.out.println("  Equipe ID : " + safeText(joueur.getEquipeId()));
+            System.out.println("  Image     : " + safeText(joueur.getImage()));
+            System.out.println();
+        });
+    }
+
+    private static void displayMatchs(List<Matchs> matchs) {
+        if (matchs.isEmpty()) {
+            System.out.println("No matchs found.");
+            return;
+        }
+
+        printSection("MATCH LIST");
+        matchs.forEach(match -> {
+            String score = hasScore(match.getScoreEquipeDomicile(), match.getScoreEquipeExterieur())
+                    ? match.getScoreEquipeDomicile() + " - " + match.getScoreEquipeExterieur()
+                    : "Not played yet";
+
+            System.out.println("[" + match.getId() + "] " + safeText(match.getIdMatch()));
+            System.out.println("  Date/Time        : " + String.valueOf(match.getDateMatch()) + " " + String.valueOf(match.getHeureDebut()));
+            System.out.println("  Location         : " + safeText(match.getLieu()));
+            System.out.println("  Type             : " + safeText(match.getType()));
+            System.out.println("  Status           : " + safeText(match.getStatut()));
+            System.out.println("  Score            : " + score);
+            System.out.println("  Home team ID     : " + safeText(match.getEquipeDomicileId()));
+            System.out.println("  Away team ID     : " + safeText(match.getEquipeExterieurId()));
+            System.out.println("  Home lineup      : " + safeText(match.getLineupDomicile()));
+            System.out.println("  Away lineup      : " + safeText(match.getLineupExterieur()));
+            System.out.println();
+        });
+    }
+
+    private static void printSection(String title) {
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println(" " + title);
+        System.out.println("========================================");
+    }
+
+    private static void printMenuOption(String key, String label) {
+        System.out.println(key + ". " + label);
+    }
+
+    private static String safeText(Object value) {
+        if (value == null) {
+            return "-";
+        }
+
+        String text = String.valueOf(value).trim();
+        return text.isEmpty() ? "-" : text;
     }
 
     private static boolean containsIgnoreCase(String value, String keyword) {

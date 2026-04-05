@@ -116,12 +116,15 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.AnnonceMain"
 ### MatchMain
 
 ```text
---- MATCH MODULE ---
+========================================
+ MATCH MODULE
+========================================
 1. Manage equipes
 2. Manage joueurs
 3. Manage matchs
+4. Statistics
 0. Exit
-Choice:
+Select an option:
 ```
 
 ### ProductMain
@@ -165,14 +168,38 @@ Choice:
 Inside each module, CRUD actions now follow the same numbered style, for example:
 
 ```text
---- EVALUATIONS ---
-1. Add evaluation
-2. Display all evaluations
-3. Update evaluation
-4. Delete evaluation
-5. Search evaluation
-6. Sort evaluations
-Choice:
+========================================
+ MATCHS
+========================================
+1. Add match
+2. Display all matchs
+3. Update match
+4. Delete match
+5. Search match
+6. Sort matchs
+Select an action:
+
+========================================
+ SORT MATCHS
+========================================
+1. By date
+2. By location
+3. By type
+Select a sort mode:
+
+========================================
+ MATCH LIST
+========================================
+[1] MATCH-69A76521395FF689676675
+  Date/Time        : 2026-02-11 21:00
+  Location         : Riyadh
+  Type             : final supercopa
+  Status           : ended
+  Score            : 4 - 0
+  Home team ID     : 1
+  Away team ID     : 2
+  Home lineup      : 4-3-3
+  Away lineup      : 4-3-3
 ```
 
 ## Notes
