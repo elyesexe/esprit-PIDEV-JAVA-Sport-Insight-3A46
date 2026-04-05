@@ -13,4 +13,6 @@ public interface IService<T> {
     List<T> getAll() throws SQLException;
 
     T getById(int id) throws SQLException;
+
+    List<T> search(String keyword) throws SQLException;
 }
