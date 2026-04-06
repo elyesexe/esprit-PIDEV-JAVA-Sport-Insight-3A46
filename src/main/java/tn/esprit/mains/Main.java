@@ -8,7 +8,7 @@ public class Main {
             MyConnection connection = MyConnection.getInstance();
             System.out.println("Connected to database: " + connection.getConnection().getCatalog());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Database connection failed: " + e.getMessage());
         }
     }
 }

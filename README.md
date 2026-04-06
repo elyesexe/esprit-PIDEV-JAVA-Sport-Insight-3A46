@@ -50,6 +50,7 @@ src/main/java/tn/esprit/
 ## Main Classes
 
 - `tn.esprit.mains.Main`: database connection check only
+- `tn.esprit.mains.LauncherMain`: launcher menu for all modules
 - `tn.esprit.mains.MatchMain`: `equipe`, `joueur`, `matchs`
 - `tn.esprit.mains.ProductMain`: `product`, `order`
 - `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
@@ -113,6 +114,7 @@ Examples:
 
 ```bash
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.Main"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.LauncherMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.MatchMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.ProductMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
@@ -121,7 +123,25 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.SponsorMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.UserMain"
 ```
 
+To start from the central launcher menu, run `tn.esprit.mains.LauncherMain`.
+
 ## Console Usage
+
+### LauncherMain
+
+```text
+========================================
+      WELCOME TO SPORT INSIGHT
+========================================
+1. Match module
+2. Product module
+3. Entrainement module
+4. Annonce module
+5. Sponsor module
+6. User module
+0. Exit
+Choice:
+```
 
 ### MatchMain
 
