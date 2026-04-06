@@ -37,4 +37,153 @@ public class Order {
         this.productId = productId;
         this.entraineurId = entraineurId;
     }
+
+    public Order(Integer id, Integer quantity, LocalDate orderDate, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
+        this.id = id;
+        this.quantity = quantity;
+        this.orderDate = orderDate;
+        this.status = status;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.size = size;
+        this.contactEmail = contactEmail;
+        this.contactPhone = contactPhone;
+        this.shippingAddress = shippingAddress;
+        this.billingAddress = billingAddress;
+        this.totalAmount = totalAmount;
+        this.productId = productId;
+        this.entraineurId = entraineurId;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
+    public String getBillingAddress() {
+        return billingAddress;
+    }
+
+    public void setBillingAddress(String billingAddress) {
+        this.billingAddress = billingAddress;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
+    }
+
+    public Integer getEntraineurId() {
+        return entraineurId;
+    }
+
+    public void setEntraineurId(Integer entraineurId) {
+        this.entraineurId = entraineurId;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", quantity=" + quantity +
+                ", orderDate=" + orderDate +
+                ", status='" + status + '\'' +
+                ", paymentMethod='" + paymentMethod + '\'' +
+                ", paymentStatus='" + paymentStatus + '\'' +
+                ", size='" + size + '\'' +
+                ", contactEmail='" + contactEmail + '\'' +
+                ", contactPhone='" + contactPhone + '\'' +
+                ", shippingAddress='" + shippingAddress + '\'' +
+                ", billingAddress='" + billingAddress + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", productId=" + productId +
+                ", entraineurId=" + entraineurId +
+                '}';
+    }
 }
