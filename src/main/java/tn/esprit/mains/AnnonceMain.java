@@ -46,8 +46,6 @@ public class AnnonceMain {
         } catch (Exception e) {
             System.out.println("❌ Erreur: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            scanner.close();
         }
     }
 
