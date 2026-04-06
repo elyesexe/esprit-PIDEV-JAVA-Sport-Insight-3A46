@@ -1,6 +1,6 @@
 # Sport Insight
 
-Java console application for managing `match`, `produit`, `entrainement`, `annonce`, and `sponsor` features with JDBC and MySQL.
+Java console application for managing `match`, `produit`, `entrainement`, `annonce`, `sponsor`, and `user` features with JDBC and MySQL.
 
 ## Team
 
@@ -26,6 +26,7 @@ Java console application for managing `match`, `produit`, `entrainement`, `annon
 - CRUD for `commentaire`
 - CRUD for `sponsor`
 - CRUD for `contrat_sponsor`
+- CRUD for `user`
 - Separate entry points for each module
 - MySQL connection through JDBC
 
@@ -54,6 +55,7 @@ src/main/java/tn/esprit/
 - `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
 - `tn.esprit.mains.AnnonceMain`: `annonce`, `commentaire`
 - `tn.esprit.mains.SponsorMain`: `sponsor`, `contrat_sponsor`
+- `tn.esprit.mains.UserMain`: `user`
 
 ## Database Configuration
 
@@ -83,6 +85,7 @@ Update these values if your local MySQL configuration is different.
 - `commentaire`
 - `sponsor`
 - `contrat_sponsor`
+- `user`
 
 ## Requirements
 
@@ -115,6 +118,7 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.ProductMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.AnnonceMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.SponsorMain"
+mvn exec:java -Dexec.mainClass="tn.esprit.mains.UserMain"
 ```
 
 ## Console Usage
@@ -183,6 +187,20 @@ Choice:
 Choose an option:
 ```
 
+### UserMain
+
+```text
+--- USER MODULE ---
+1. Add user
+2. Display all users
+3. View user by id
+4. Search users
+5. Update user
+6. Delete user
+0. Exit
+Choice:
+```
+
 Inside each module, CRUD actions now follow the same numbered style, for example:
 
 ```text
@@ -227,6 +245,7 @@ Select a sort mode:
 - Time input format for entrainements: `HH:mm`
 - If your MySQL schema uses different table or column names, update the SQL in the service classes.
 - `Gestion-sponsor` was merged into this project and its sponsor entrypoint is available as `SponsorMain`.
+- `gestion_user` was merged locally into this branch and its entrypoint is available as `UserMain`.
 
 ## Branch
 
