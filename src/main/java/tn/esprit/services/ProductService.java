@@ -3,6 +3,7 @@ package tn.esprit.services;
 import tn.esprit.entities.Product;
 import tn.esprit.tools.MyConnection;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -90,6 +91,73 @@ public class ProductService implements IService<Product> {
         }
 
         return null;
+    }
+
+    public List<Product> advancedSearch(String keyword, String category, String brand,
+                                        BigDecimal minPrice, BigDecimal maxPrice,
+                                        Integer minStock, String size,
+                                        boolean inStockOnly) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT id, name, category, price, stock, size, brand, image FROM product WHERE 1=1"
+        );
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.isBlank()) {
+            sql.append(" AND (LOWER(name) LIKE ? OR LOWER(category) LIKE ? OR LOWER(brand) LIKE ?)");
+            String pattern = "%" + keyword.toLowerCase() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND LOWER(category) = ?");
+            params.add(category.toLowerCase());
+        }
+
+        if (brand != null && !brand.isBlank()) {
+            sql.append(" AND LOWER(brand) = ?");
+            params.add(brand.toLowerCase());
+        }
+
+        if (minPrice != null) {
+            sql.append(" AND price >= ?");
+            params.add(minPrice);
+        }
+
+        if (maxPrice != null) {
+            sql.append(" AND price <= ?");
+            params.add(maxPrice);
+        }
+
+        if (minStock != null) {
+            sql.append(" AND stock >= ?");
+            params.add(minStock);
+        }
+
+        if (size != null && !size.isBlank()) {
+            sql.append(" AND LOWER(size) = ?");
+            params.add(size.toLowerCase());
+        }
+
+        if (inStockOnly) {
+            sql.append(" AND stock > 0");
+        }
+
+        List<Product> products = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    products.add(mapRow(rs));
+                }
+            }
+        }
+
+        return products;
     }
 
     private Product mapRow(ResultSet rs) throws SQLException {
