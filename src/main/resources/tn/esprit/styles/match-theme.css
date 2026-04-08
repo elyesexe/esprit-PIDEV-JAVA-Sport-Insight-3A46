@@ -1,0 +1,250 @@
+@import "equipe-theme.css";
+
+.page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #eff6ff 32%, #ecfeff 68%, #f0fdf4 100%);
+}
+
+.hero-photo {
+    -fx-background-image: url("../images/match-hero.png");
+    -fx-background-size: cover;
+    -fx-background-position: 50% 50%;
+}
+
+.hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.9) 0%, rgba(15, 23, 42, 0.74) 42%, rgba(30, 64, 175, 0.56) 100%);
+}
+
+.match-toolbar {
+    -fx-background-color: rgba(255, 255, 255, 0.82);
+}
+
+.match-search-field {
+    -fx-pref-height: 46;
+}
+
+.match-date-picker {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 16;
+}
+
+.match-date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12 10 12;
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 14px;
+}
+
+.match-date-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.match-date-picker .arrow {
+    -fx-background-color: #1d4ed8;
+}
+
+.match-list-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 4 4 4 4;
+}
+
+.match-list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.match-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 14 0;
+}
+
+.match-list-view .list-cell:filled:selected,
+.match-list-view .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.fixture-card {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 24;
+    -fx-padding: 16 18 18 18;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 24, 0.18, 0, 10);
+}
+
+.match-list-view .list-cell:filled:hover .fixture-card {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-border-color: rgba(52, 211, 153, 0.34);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 28, 0.2, 0, 14);
+}
+
+.match-list-view .list-cell:filled:selected .fixture-card,
+.match-list-view .list-cell:filled:selected:focused .fixture-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(239, 246, 255, 0.98) 0%, rgba(236, 253, 245, 0.98) 100%);
+    -fx-border-color: rgba(59, 130, 246, 0.36);
+    -fx-effect: dropshadow(gaussian, rgba(30, 64, 175, 0.12), 30, 0.2, 0, 14);
+}
+
+.fixture-card-head {
+    -fx-padding: 0 0 4 0;
+}
+
+.fixture-status {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.fixture-status-scheduled {
+    -fx-background-color: rgba(59, 130, 246, 0.14);
+    -fx-border-color: rgba(59, 130, 246, 0.2);
+    -fx-text-fill: #2563eb;
+}
+
+.fixture-status-live {
+    -fx-background-color: rgba(16, 185, 129, 0.16);
+    -fx-border-color: rgba(16, 185, 129, 0.22);
+    -fx-text-fill: #059669;
+}
+
+.fixture-status-finished {
+    -fx-background-color: rgba(148, 163, 184, 0.2);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-text-fill: #475569;
+}
+
+.fixture-status-cancelled {
+    -fx-background-color: rgba(239, 68, 68, 0.14);
+    -fx-border-color: rgba(239, 68, 68, 0.22);
+    -fx-text-fill: #dc2626;
+}
+
+.fixture-date,
+.fixture-id,
+.fixture-team-role {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.fixture-id {
+    -fx-font-weight: 700;
+}
+
+.fixture-teams-row {
+    -fx-padding: 4 0 4 0;
+}
+
+.fixture-team-box {
+    -fx-padding: 4 0 4 0;
+}
+
+.fixture-team-logo-shell,
+.match-detail-logo-shell {
+    -fx-background-color: rgba(248, 250, 252, 0.98);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 22;
+    -fx-padding: 10;
+    -fx-alignment: center;
+}
+
+.fixture-team-fallback,
+.match-detail-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.fixture-team-fallback {
+    -fx-font-size: 22px;
+}
+
+.match-detail-logo-fallback {
+    -fx-font-size: 28px;
+}
+
+.fixture-team-name,
+.match-detail-team-name {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-text-alignment: center;
+}
+
+.fixture-score-shell,
+.match-detail-score-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(241, 245, 249, 0.98) 0%, rgba(239, 246, 255, 0.98) 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 22;
+    -fx-padding: 14 16 14 16;
+}
+
+.fixture-score-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.fixture-score-caption,
+.match-detail-score-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.fixture-meta-row {
+    -fx-padding: 2 0 0 0;
+}
+
+.fixture-meta-chip {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
+.fixture-link-chip {
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(16, 185, 129, 0.22);
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.match-detail-board {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(241, 245, 249, 0.66) 0%, rgba(236, 253, 245, 0.74) 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 24;
+    -fx-padding: 18;
+}
+
+.match-detail-team-shell {
+    -fx-padding: 4;
+}
+
+.match-detail-team-role {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.match-detail-score {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}

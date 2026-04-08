@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.EquipeController"
+            styleClass="page-root">
+    <left>
+        <VBox fx:id="sidebarRoot" spacing="18" styleClass="sidebar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18" right="14" bottom="18" left="14"/>
+            </padding>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="12" styleClass="sidebar-header" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="sidebar-logo-shell">
+                    <ImageView fitWidth="186" fitHeight="62" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <Label fx:id="sidebarSectionLabel"
+                   text="Modules"
+                   styleClass="sidebar-section"/>
+
+            <VBox spacing="10">
+                <Button fx:id="equipesNavButton"
+                        onAction="#handleOpenEquipes"
+                        text="Equipes"
+                        styleClass="sidebar-nav-button"/>
+                <Button fx:id="matchsNavButton"
+                        onAction="#handleOpenMatchsSoon"
+                        text="Matchs"
+                        styleClass="sidebar-nav-button"/>
+                <Button fx:id="joueursNavButton"
+                        onAction="#handleOpenJoueursSoon"
+                        text="Joueurs"
+                        styleClass="sidebar-nav-button"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button fx:id="sidebarToggleButton"
+                    onAction="#handleToggleSidebar"
+                    text="&lt;"
+                    styleClass="sidebar-toggle-button"/>
+
+            <Label text="v1" styleClass="sidebar-footer"/>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="18" styleClass="page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+            <HBox alignment="CENTER_LEFT">
+                <Button fx:id="sidebarOpenButton"
+                        onAction="#handleOpenSidebar"
+                        text="Menu"
+                        managed="false"
+                        visible="false"
+                        styleClass="sidebar-open-button"/>
+            </HBox>
+
+            <StackPane styleClass="hero-shell">
+                <Region styleClass="hero-photo"/>
+                <Region styleClass="hero-overlay"/>
+
+                <VBox spacing="12" styleClass="hero-content">
+                    <Label text="Squads" styleClass="hero-eyebrow"/>
+                    <Label text="Recherchez et pilotez vos equipes" styleClass="hero-title"/>
+                    <Label text="Une interpretation JavaFX du front-office Symfony : hero immersif, cartes arrondies, verre depoli et accents verts."
+                           wrapText="true"
+                           styleClass="hero-text"/>
+
+                    <HBox spacing="10">
+                        <Label fx:id="resultCountLabel" text="0 equipe(s)" styleClass="toolbar-chip-soft"/>
+                        <Label fx:id="selectionStateLabel" text="Mode creation" styleClass="toolbar-chip"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+
+            <VBox spacing="16" styleClass="panel-card toolbar-panel">
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Equipes" styleClass="section-title"/>
+                        <Label text="Recherchez, triez et ouvrez une fiche equipe sans quitter l'ecran."
+                               wrapText="true"
+                               styleClass="section-subtitle"/>
+                    </VBox>
+                    <Label fx:id="statusLabel"
+                           text="Pret"
+                           managed="false"
+                           visible="false"
+                           styleClass="status-pill"/>
+                </HBox>
+
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Recherche" styleClass="field-label"/>
+                        <TextField fx:id="searchField"
+                                   promptText="Rechercher par nom ou coach"
+                                   styleClass="form-text-field"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Tri" styleClass="field-label"/>
+                        <ComboBox fx:id="sortChoiceBox" prefWidth="150" styleClass="glass-combo"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Ordre" styleClass="field-label"/>
+                        <Button fx:id="sortOrderButton"
+                                onAction="#handleToggleSortOrder"
+                                text="Croissant"
+                                prefWidth="132"
+                                styleClass="ghost-button"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Actions" styleClass="field-label"/>
+                        <HBox spacing="10">
+                            <Button fx:id="refreshButton"
+                                    onAction="#handleRefresh"
+                                    text="Actualiser"
+                                    styleClass="primary-button"/>
+                            <Button onAction="#handleResetFilters"
+                                    text="Reinitialiser"
+                                    styleClass="ghost-button"/>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+                    <HBox spacing="18" styleClass="content-shell">
+                        <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Liste des equipes" styleClass="section-title"/>
+                                    <Label text="Cartes inspirees du catalogue front-office Symfony."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Label fx:id="resultsMetaLabel" text="0 resultat(s)" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+
+                            <StackPane VBox.vgrow="ALWAYS">
+                                <ListView fx:id="equipeListView" styleClass="team-list-view"/>
+
+                                <VBox fx:id="emptyStateBox"
+                                      alignment="CENTER"
+                                      managed="false"
+                                      maxWidth="340"
+                                      spacing="12"
+                                      visible="false"
+                                      styleClass="empty-state-box">
+                                    <Label text="+" styleClass="empty-icon"/>
+                                    <Label text="Aucune equipe trouvee" styleClass="empty-title"/>
+                                    <Label text="Essayez un autre mot-cle ou reinitialisez le filtre pour revoir toutes les equipes."
+                                           wrapText="true"
+                                           styleClass="empty-text"/>
+                                </VBox>
+                            </StackPane>
+                        </VBox>
+
+                        <VBox spacing="18" minWidth="390" prefWidth="430" maxWidth="450" styleClass="side-column">
+                            <VBox spacing="16" styleClass="panel-card detail-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button onAction="#handleClear" text="Nouvelle fiche" styleClass="ghost-button"/>
+                                </HBox>
+
+                                <StackPane styleClass="detail-logo-shell">
+                                    <ImageView fx:id="detailLogoView"
+                                               fitHeight="170"
+                                               fitWidth="170"
+                                               managed="false"
+                                               preserveRatio="true"
+                                               visible="false"/>
+                                    <Label fx:id="detailLogoFallbackLabel" text="SI" styleClass="detail-logo-fallback"/>
+                                </StackPane>
+
+                                <VBox spacing="6">
+                                    <Label fx:id="detailNameLabel" text="Aucune equipe selectionnee" styleClass="detail-title"/>
+                                    <Label fx:id="detailSubtitleLabel"
+                                           text="Selectionnez une carte ou commencez une nouvelle creation pour afficher la fiche detail."
+                                           wrapText="true"
+                                           styleClass="detail-subtitle"/>
+                                </VBox>
+
+                                <HBox spacing="10">
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="ID" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="Nouveau" styleClass="stat-value"/>
+                                    </VBox>
+
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Coach" styleClass="stat-caption"/>
+                                        <Label fx:id="detailCoachValueLabel" text="Non renseigne" styleClass="stat-value"/>
+                                    </VBox>
+
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Logo" styleClass="stat-caption"/>
+                                        <Label fx:id="detailStatusValueLabel" text="Sans logo" styleClass="stat-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+
+                            <VBox spacing="16" styleClass="panel-card form-card">
+                                <VBox spacing="4">
+                                    <Label text="Edition de la fiche" styleClass="section-title"/>
+                                    <Label fx:id="formHintLabel"
+                                           text="Composez une nouvelle fiche equipe avec le meme esprit que le front-office Symfony."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+
+                                <Label fx:id="validationLabel"
+                                       managed="false"
+                                       visible="false"
+                                       wrapText="true"
+                                       styleClass="validation-label"/>
+
+                                <VBox spacing="8">
+                                    <Label text="Nom de l'equipe" styleClass="field-label"/>
+                                    <TextField fx:id="nomField"
+                                               promptText="Ex: Real Madrid"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <Label text="Coach" styleClass="field-label"/>
+                                    <TextField fx:id="coachField"
+                                               promptText="Ex: Carlo Ancelotti"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <Label text="Logo" styleClass="field-label"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <TextField fx:id="imageField"
+                                                   editable="false"
+                                                   promptText="Choisissez un logo"
+                                                   styleClass="form-text-field"
+                                                   HBox.hgrow="ALWAYS"/>
+                                        <Button onAction="#handleBrowseImage"
+                                                text="Parcourir..."
+                                                styleClass="ghost-button"/>
+                                    </HBox>
+                                    <Label text="Le logo alimente directement la carte et la fiche detail."
+                                           wrapText="true"
+                                           styleClass="form-helper"/>
+                                </VBox>
+
+                                <HBox spacing="10">
+                                    <Button fx:id="addButton"
+                                            onAction="#handleAdd"
+                                            text="Ajouter"
+                                            styleClass="primary-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="updateButton"
+                                            onAction="#handleUpdate"
+                                            text="Modifier"
+                                            styleClass="ghost-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <Button fx:id="deleteButton"
+                                            onAction="#handleDelete"
+                                            text="Supprimer"
+                                            styleClass="danger-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="clearButton"
+                                            onAction="#handleClear"
+                                            text="Vider"
+                                            styleClass="soft-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
+

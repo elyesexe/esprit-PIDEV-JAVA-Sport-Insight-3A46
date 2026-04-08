@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,12 @@ public class EquipeService implements IService<Equipe> {
         String sql = "INSERT INTO equipe (nom, coach, adresse, telephone, email, image) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, equipe.getNom());
-            statement.setString(2, equipe.getCoach());
-            statement.setString(3, equipe.getAdresse());
-            statement.setString(4, equipe.getTelephone());
-            statement.setString(5, equipe.getEmail());
-            statement.setString(6, equipe.getImage());
+            setNullableString(statement, 1, equipe.getNom());
+            setNullableString(statement, 2, equipe.getCoach());
+            setNullableString(statement, 3, equipe.getAdresse());
+            setNullableString(statement, 4, equipe.getTelephone());
+            setNullableString(statement, 5, equipe.getEmail());
+            setNullableString(statement, 6, equipe.getImage());
             statement.executeUpdate();
         }
     }
@@ -37,12 +38,12 @@ public class EquipeService implements IService<Equipe> {
         String sql = "UPDATE equipe SET nom = ?, coach = ?, adresse = ?, telephone = ?, email = ?, image = ? WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, equipe.getNom());
-            statement.setString(2, equipe.getCoach());
-            statement.setString(3, equipe.getAdresse());
-            statement.setString(4, equipe.getTelephone());
-            statement.setString(5, equipe.getEmail());
-            statement.setString(6, equipe.getImage());
+            setNullableString(statement, 1, equipe.getNom());
+            setNullableString(statement, 2, equipe.getCoach());
+            setNullableString(statement, 3, equipe.getAdresse());
+            setNullableString(statement, 4, equipe.getTelephone());
+            setNullableString(statement, 5, equipe.getEmail());
+            setNullableString(statement, 6, equipe.getImage());
             statement.setInt(7, equipe.getId());
             statement.executeUpdate();
         }
@@ -100,5 +101,14 @@ public class EquipeService implements IService<Equipe> {
                 rs.getString("email"),
                 rs.getString("image")
         );
+    }
+
+    private void setNullableString(PreparedStatement statement, int index, String value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, Types.VARCHAR);
+            return;
+        }
+
+        statement.setString(index, value);
     }
 }

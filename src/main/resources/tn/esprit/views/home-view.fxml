@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.HomeController"
+            styleClass="page-root">
+    <left>
+        <VBox fx:id="sidebarRoot" spacing="18" styleClass="sidebar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18" right="14" bottom="18" left="14"/>
+            </padding>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="12"
+                  styleClass="sidebar-header"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="sidebar-logo-shell">
+                    <ImageView fitWidth="186" fitHeight="62" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <Label fx:id="sidebarSectionLabel"
+                   text="Modules"
+                   styleClass="sidebar-section"/>
+
+            <VBox spacing="10">
+                <Button fx:id="equipesNavButton"
+                        onAction="#handleOpenEquipes"
+                        text="Equipes"
+                        styleClass="sidebar-nav-button"/>
+                <Button fx:id="matchsNavButton"
+                        onAction="#handleOpenMatchs"
+                        text="Matchs"
+                        styleClass="sidebar-nav-button"/>
+                <Button fx:id="joueursNavButton"
+                        onAction="#handleOpenJoueurs"
+                        text="Joueurs"
+                        styleClass="sidebar-nav-button"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button fx:id="sidebarToggleButton"
+                    onAction="#handleToggleSidebar"
+                    text="&lt;"
+                    styleClass="sidebar-toggle-button"/>
+
+            <Label text="v1" styleClass="sidebar-footer"/>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="22" styleClass="page-shell home-page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT">
+                        <Button fx:id="sidebarOpenButton"
+                                onAction="#handleOpenSidebar"
+                                text="Menu"
+                                managed="false"
+                                visible="false"
+                                styleClass="sidebar-open-button"/>
+                    </HBox>
+
+                    <StackPane fx:id="heroShell"
+                               minHeight="250"
+                               prefHeight="250"
+                               maxHeight="250"
+                               styleClass="hero-shell">
+                        <ImageView fx:id="heroImageView"
+                                   managed="false"
+                                   pickOnBounds="true"
+                                   preserveRatio="false"
+                                   smooth="true"
+                                   styleClass="home-hero-image"/>
+                        <Region styleClass="hero-overlay"/>
+
+                        <VBox spacing="12" styleClass="hero-content">
+                            <Label text="Accueil" styleClass="hero-eyebrow"/>
+                            <Label text="Bienvenue sur Sport Insight" styleClass="hero-title"/>
+                            <Label text="Une plateforme sportive pour gerer les equipes, les joueurs et les matchs dans un seul espace."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+                        </VBox>
+                    </StackPane>
+
+                    <VBox spacing="16" styleClass="panel-card home-modules-panel">
+                        <VBox spacing="4">
+                            <Label text="Modules principaux" styleClass="section-title"/>
+                            <Label text="Choisissez un espace de travail pour continuer dans le meme environnement que les autres pages."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+                        </VBox>
+
+                        <FlowPane hgap="18"
+                                  vgap="18"
+                                  alignment="CENTER_LEFT"
+                                  columnHalignment="CENTER"
+                                  prefWrapLength="1040"
+                                  styleClass="home-card-grid">
+                            <Button fx:id="equipesButton"
+                                    onAction="#handleOpenEquipes"
+                                    text=""
+                                    mnemonicParsing="false"
+                                    styleClass="home-module-button">
+                                <graphic>
+                                    <VBox spacing="10" styleClass="home-module-shell-simple">
+                                        <Label text="Equipes" styleClass="home-module-title-simple"/>
+                                        <Label text="Gerer les clubs, les coachs et les logos." wrapText="true" styleClass="home-module-text-simple"/>
+                                    </VBox>
+                                </graphic>
+                            </Button>
+
+                            <Button fx:id="joueursButton"
+                                    onAction="#handleOpenJoueurs"
+                                    text=""
+                                    mnemonicParsing="false"
+                                    styleClass="home-module-button">
+                                <graphic>
+                                    <VBox spacing="10" styleClass="home-module-shell-simple">
+                                        <Label text="Joueurs" styleClass="home-module-title-simple"/>
+                                        <Label text="Suivre les profils, les numeros et les equipes." wrapText="true" styleClass="home-module-text-simple"/>
+                                    </VBox>
+                                </graphic>
+                            </Button>
+
+                            <Button fx:id="matchsButton"
+                                    onAction="#handleOpenMatchs"
+                                    text=""
+                                    mnemonicParsing="false"
+                                    styleClass="home-module-button">
+                                <graphic>
+                                    <VBox spacing="10" styleClass="home-module-shell-simple">
+                                        <Label text="Matchs" styleClass="home-module-title-simple"/>
+                                        <Label text="Consulter les rencontres, les scores et les details." wrapText="true" styleClass="home-module-text-simple"/>
+                                    </VBox>
+                                </graphic>
+                            </Button>
+                        </FlowPane>
+                    </VBox>
+
+                    <HBox spacing="18" styleClass="panel-card home-info-panel">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Un acces rapide aux modules du projet" styleClass="home-info-title"/>
+                            <Label text="Commencez par choisir un espace de travail dans la liste ci-dessus."
+                                   wrapText="true"
+                                   styleClass="home-info-text"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
