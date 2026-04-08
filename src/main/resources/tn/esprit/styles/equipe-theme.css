@@ -1,0 +1,602 @@
+.page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #ecfeff 38%, #f0fdf4 100%);
+    -fx-font-family: "Segoe UI";
+}
+
+.sidebar-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(11, 27, 20, 0.98) 0%, rgba(18, 48, 35, 0.98) 100%);
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 0 1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.22), 30, 0.2, 6, 0);
+    -fx-min-width: 256;
+    -fx-pref-width: 256;
+}
+
+.sidebar-header {
+    -fx-padding: 8 0 16 0;
+    -fx-alignment: center;
+}
+
+.sidebar-logo-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.18) 0%, rgba(187, 247, 208, 0.18) 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(255, 255, 255, 0.22);
+    -fx-border-radius: 24;
+    -fx-padding: 12 14 12 14;
+    -fx-min-width: 204;
+    -fx-min-height: 92;
+    -fx-pref-width: 204;
+    -fx-pref-height: 92;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.24), 22, 0.22, 0, 8);
+}
+
+.sidebar-section {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(219, 234, 254, 0.68);
+}
+
+.sidebar-toggle-button,
+.sidebar-open-button {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 16;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 10 14 10 14;
+}
+
+.sidebar-toggle-button {
+    -fx-min-width: 44;
+    -fx-pref-width: 44;
+    -fx-alignment: center-left;
+    -fx-translate-y: -6;
+}
+
+.sidebar-open-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.9) 0%, rgba(5, 150, 105, 0.92) 100%);
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.2), 18, 0.18, 0, 8);
+}
+
+.sidebar-toggle-button:hover,
+.sidebar-open-button:hover {
+    -fx-background-color: rgba(16, 185, 129, 0.22);
+    -fx-border-color: rgba(52, 211, 153, 0.32);
+}
+
+.sidebar-nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 16;
+    -fx-text-fill: #e2e8f0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 14 12 14;
+    -fx-alignment: center-left;
+    -fx-max-width: infinity;
+}
+
+.sidebar-nav-button:hover {
+    -fx-background-color: rgba(16, 185, 129, 0.18);
+    -fx-border-color: rgba(52, 211, 153, 0.28);
+}
+
+.sidebar-nav-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(52, 211, 153, 0.28) 0%, rgba(16, 185, 129, 0.24) 100%);
+    -fx-border-color: rgba(110, 231, 183, 0.4);
+    -fx-text-fill: #f8fafc;
+}
+
+.sidebar-footer {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(219, 234, 254, 0.55);
+    -fx-padding: 2 0 0 2;
+}
+
+.page-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.page-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.page-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.page-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(226, 232, 240, 0.55);
+    -fx-background-radius: 999;
+}
+
+.page-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(16, 185, 129, 0.32);
+    -fx-background-radius: 999;
+}
+
+.page-shell {
+    -fx-background-color: transparent;
+}
+
+.page-root .button,
+.page-root .text-field,
+.page-root .combo-box {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.page-top,
+.content-shell,
+.side-column,
+.results-panel,
+.toolbar-panel,
+.detail-card,
+.form-card {
+    -fx-background-color: transparent;
+}
+
+.hero-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.16);
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(226, 232, 240, 0.34);
+    -fx-border-radius: 30;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.18), 38, 0.26, 0, 18);
+    -fx-min-height: 250;
+}
+
+.hero-photo {
+    -fx-background-image: url("../images/equipe-hero.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: 50% 42%;
+    -fx-background-radius: 30;
+}
+
+.hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.74) 48%, rgba(5, 150, 105, 0.58) 100%);
+    -fx-background-radius: 30;
+}
+
+.hero-content {
+    -fx-alignment: center-left;
+    -fx-padding: 32 34 34 34;
+    -fx-max-width: 760;
+}
+
+.hero-shell .hero-eyebrow {
+    -fx-background-color: rgba(15, 23, 42, 0.48);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(226, 232, 240, 0.32);
+    -fx-border-radius: 999;
+    -fx-padding: 6 12 6 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.45), 8, 0.22, 0, 1);
+}
+
+.hero-shell .hero-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 39px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.58), 18, 0.26, 0, 2);
+}
+
+.hero-shell .hero-text {
+    -fx-font-size: 15px;
+    -fx-line-spacing: 2px;
+    -fx-text-fill: #dbeafe;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.5), 10, 0.18, 0, 1);
+}
+
+.panel-card {
+    -fx-background-color: rgba(255, 255, 255, 0.78);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 26;
+    -fx-padding: 20 22 22 22;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.1), 30, 0.22, 0, 14);
+}
+
+.section-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.section-subtitle {
+    -fx-font-size: 13px;
+    -fx-line-spacing: 1px;
+    -fx-text-fill: #475569;
+}
+
+.field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.toolbar-chip,
+.toolbar-chip-soft,
+.status-pill {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.toolbar-chip {
+    -fx-background-color: rgba(16, 185, 129, 0.1);
+    -fx-border-color: rgba(16, 185, 129, 0.18);
+    -fx-text-fill: #047857;
+}
+
+.toolbar-chip-soft {
+    -fx-background-color: rgba(255, 255, 255, 0.68);
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+    -fx-text-fill: #475569;
+}
+
+.hero-shell .toolbar-chip,
+.hero-shell .toolbar-chip-soft {
+    -fx-background-color: rgba(15, 23, 42, 0.36);
+    -fx-border-color: rgba(226, 232, 240, 0.18);
+    -fx-text-fill: #f8fafc;
+}
+
+.status-pill {
+    -fx-border-color: transparent;
+}
+
+.status-muted {
+    -fx-background-color: rgba(255, 255, 255, 0.86);
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-text-fill: #475569;
+}
+
+.status-success {
+    -fx-background-color: rgba(16, 185, 129, 0.14);
+    -fx-border-color: rgba(16, 185, 129, 0.22);
+    -fx-text-fill: #047857;
+}
+
+.status-warning {
+    -fx-background-color: rgba(245, 158, 11, 0.16);
+    -fx-border-color: rgba(245, 158, 11, 0.24);
+    -fx-text-fill: #b45309;
+}
+
+.status-error {
+    -fx-background-color: rgba(239, 68, 68, 0.14);
+    -fx-border-color: rgba(239, 68, 68, 0.22);
+    -fx-text-fill: #b91c1c;
+}
+
+.button {
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 11 16 11 16;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #10b981 100%);
+    -fx-text-fill: #f8fafc;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.26), 24, 0.24, 0, 10);
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #059669 100%);
+}
+
+.ghost-button {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #0f172a;
+}
+
+.ghost-button:hover {
+    -fx-background-color: rgba(16, 185, 129, 0.08);
+    -fx-border-color: rgba(16, 185, 129, 0.32);
+    -fx-text-fill: #065f46;
+}
+
+.soft-button {
+    -fx-background-color: rgba(241, 245, 249, 0.95);
+    -fx-border-color: rgba(203, 213, 225, 0.75);
+    -fx-text-fill: #334155;
+}
+
+.soft-button:hover {
+    -fx-background-color: rgba(226, 232, 240, 0.95);
+}
+
+.danger-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #dc2626 100%);
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.22), 24, 0.22, 0, 10);
+}
+
+.danger-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #b91c1c 100%);
+}
+
+.form-text-field {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 16;
+    -fx-padding: 12 14 12 14;
+    -fx-font-size: 14px;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.form-text-field:focused {
+    -fx-border-color: rgba(16, 185, 129, 0.78);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 18, 0.22, 0, 0);
+}
+
+.form-text-field.invalid-field {
+    -fx-background-color: rgba(254, 242, 242, 0.95);
+    -fx-border-color: rgba(239, 68, 68, 0.72);
+}
+
+.glass-combo {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 16;
+    -fx-padding: 2;
+}
+
+.glass-combo:focused {
+    -fx-border-color: rgba(16, 185, 129, 0.78);
+}
+
+.glass-combo .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0f172a;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 13px;
+}
+
+.glass-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.glass-combo .arrow {
+    -fx-background-color: #0f766e;
+}
+
+.validation-label {
+    -fx-background-color: rgba(254, 242, 242, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(248, 113, 113, 0.46);
+    -fx-border-radius: 16;
+    -fx-padding: 12 14 12 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #b91c1c;
+}
+
+.form-helper {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.team-list-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 4 4 4 4;
+}
+
+.team-list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.team-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 14 0;
+}
+
+.team-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.86);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 22;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0.18, 0, 10);
+}
+
+.team-list-view .list-cell:filled:hover .team-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(16, 185, 129, 0.24);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 28, 0.2, 0, 14);
+}
+
+.team-list-view .list-cell:filled:selected,
+.team-list-view .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.team-list-view .list-cell:filled:selected .team-list-card,
+.team-list-view .list-cell:filled:selected:focused .team-list-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.98) 0%, rgba(240, 253, 250, 0.98) 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.5);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 28, 0.24, 0, 14);
+}
+
+.team-list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.team-list-view .scroll-bar:vertical .track {
+    -fx-background-color: rgba(226, 232, 240, 0.6);
+    -fx-background-radius: 999;
+}
+
+.team-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(16, 185, 129, 0.38);
+    -fx-background-radius: 999;
+}
+
+.card-logo-shell {
+    -fx-background-color: rgba(241, 245, 249, 0.95);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 20;
+    -fx-padding: 8;
+    -fx-alignment: center;
+}
+
+.card-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.card-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.card-subtitle,
+.card-subtitle-muted,
+.card-meta {
+    -fx-font-size: 13px;
+}
+
+.card-subtitle {
+    -fx-text-fill: #334155;
+}
+
+.card-subtitle-muted {
+    -fx-text-fill: #64748b;
+}
+
+.card-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.card-link {
+    -fx-padding: 7 12 7 12;
+    -fx-background-color: rgba(16, 185, 129, 0.1);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(16, 185, 129, 0.18);
+    -fx-border-radius: 999;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.detail-card {
+    -fx-spacing: 16;
+}
+
+.detail-logo-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(241, 245, 249, 0.96) 100%);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 26;
+    -fx-padding: 22;
+    -fx-alignment: center;
+}
+
+.detail-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 58px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.detail-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 31px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.detail-subtitle {
+    -fx-font-size: 13px;
+    -fx-line-spacing: 1px;
+    -fx-text-fill: #475569;
+}
+
+.stat-chip {
+    -fx-background-color: rgba(248, 250, 252, 0.98);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 18;
+    -fx-padding: 12 13 12 13;
+    -fx-spacing: 6;
+}
+
+.stat-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.stat-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.empty-state-box {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-border-radius: 24;
+    -fx-padding: 30 24 30 24;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.18, 0, 8);
+}
+
+.empty-icon {
+    -fx-min-width: 62;
+    -fx-min-height: 62;
+    -fx-alignment: center;
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(16, 185, 129, 0.18);
+    -fx-border-radius: 18;
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #059669;
+}
+
+.empty-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.empty-text {
+    -fx-font-size: 13px;
+    -fx-text-alignment: center;
+    -fx-line-spacing: 1px;
+    -fx-text-fill: #64748b;
+}

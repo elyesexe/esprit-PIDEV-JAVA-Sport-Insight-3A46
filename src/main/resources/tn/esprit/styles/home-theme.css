@@ -1,0 +1,124 @@
+@import "equipe-theme.css";
+
+.page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #eaf3ff 0%, #ecfeff 26%, #f8fafc 58%, #e8fff6 100%);
+}
+
+.home-page-shell {
+    -fx-background-color: transparent;
+    -fx-spacing: 20;
+}
+
+.home-hero-shell {
+    -fx-min-height: 250;
+    -fx-pref-height: 250;
+    -fx-max-height: 250;
+}
+
+.home-hero-image {
+    -fx-opacity: 0.98;
+}
+
+.home-hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.82) 0%, rgba(15, 23, 42, 0.66) 48%, rgba(30, 58, 138, 0.26) 100%);
+    -fx-background-radius: 30;
+}
+
+.home-hero-content {
+    -fx-max-width: 700;
+    -fx-padding: 32 34 34 34;
+}
+
+.home-card-grid {
+    -fx-row-valignment: top;
+    -fx-hgap: 18;
+    -fx-vgap: 18;
+    -fx-pref-wrap-length: 1020;
+}
+
+.home-module-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20;
+    -fx-border-color: transparent;
+    -fx-border-radius: 20;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-min-width: 290;
+    -fx-pref-width: 290;
+    -fx-max-width: 290;
+    -fx-min-height: 172;
+    -fx-pref-height: 172;
+}
+
+.home-module-button:hover {
+    -fx-translate-y: -3;
+}
+
+.home-module-button > .label {
+    -fx-text-fill: transparent;
+}
+
+.home-module-shell-simple {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 22;
+    -fx-padding: 22 22 22 22;
+    -fx-min-width: 290;
+    -fx-pref-width: 290;
+    -fx-max-width: 290;
+    -fx-min-height: 172;
+    -fx-pref-height: 172;
+    -fx-max-height: 172;
+    -fx-alignment: center-left;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.1), 22, 0.18, 0, 10);
+}
+
+.home-module-button:hover .home-module-shell-simple {
+    -fx-border-color: rgba(16, 185, 129, 0.34);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 1) 0%, rgba(236, 253, 245, 0.98) 100%);
+}
+
+.home-module-title-simple {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 30px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.home-module-text-simple {
+    -fx-font-size: 15px;
+    -fx-line-spacing: 2px;
+    -fx-text-fill: #475569;
+}
+
+.home-modules-panel {
+    -fx-spacing: 16;
+}
+
+.home-info-panel {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.72) 0%, rgba(236, 253, 245, 0.78) 100%);
+    -fx-border-color: rgba(255, 255, 255, 0.44);
+}
+
+.home-info-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.home-info-text {
+    -fx-font-size: 15px;
+    -fx-line-spacing: 1px;
+    -fx-text-fill: #475569;
+}
+
+.home-hero-shell .hero-title {
+    -fx-font-size: 42px;
+}
+
+.home-hero-shell .hero-text {
+    -fx-font-size: 16px;
+    -fx-max-width: 540;
+}

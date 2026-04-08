@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.MatchController"
+            styleClass="page-root">
+    <left>
+        <VBox fx:id="sidebarRoot" spacing="18" styleClass="sidebar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18" right="14" bottom="18" left="14"/>
+            </padding>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="12" styleClass="sidebar-header" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="sidebar-logo-shell">
+                    <ImageView fitWidth="186" fitHeight="62" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <Label text="Modules" styleClass="sidebar-section"/>
+
+            <VBox spacing="10">
+                <Button fx:id="equipesNavButton"
+                        onAction="#handleOpenEquipes"
+                        text="Equipes"
+                        styleClass="sidebar-nav-button"/>
+                <Button fx:id="matchsNavButton"
+                        onAction="#handleOpenMatchs"
+                        text="Matchs"
+                        styleClass="sidebar-nav-button"/>
+                <Button fx:id="joueursNavButton"
+                        onAction="#handleOpenJoueurs"
+                        text="Joueurs"
+                        styleClass="sidebar-nav-button"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button onAction="#handleToggleSidebar"
+                    text="&lt;"
+                    styleClass="sidebar-toggle-button"/>
+
+            <Label text="v1" styleClass="sidebar-footer"/>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="18" styleClass="page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT">
+                        <Button fx:id="sidebarOpenButton"
+                                onAction="#handleOpenSidebar"
+                                text="Menu"
+                                managed="false"
+                                visible="false"
+                                styleClass="sidebar-open-button"/>
+                    </HBox>
+
+                    <StackPane styleClass="hero-shell">
+                        <StackPane styleClass="hero-photo"/>
+                        <StackPane styleClass="hero-overlay"/>
+                        <VBox spacing="14" styleClass="hero-content">
+                            <Label text="Fixtures" styleClass="hero-eyebrow"/>
+                            <Label text="Retrouvez et pilotez vos matchs" styleClass="hero-title"/>
+                            <Label text="Le module Match conserve le CRUD JavaFX existant, mais avec une presentation plus proche du front-office Symfony et des logos d'equipes visibles."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+                            <HBox spacing="10">
+                                <Label fx:id="resultCountLabel" text="0 match(s)" styleClass="toolbar-chip"/>
+                                <Label fx:id="selectionStateLabel" text="Aucune selection" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="statusLabel" text="Pret" styleClass="status-pill status-muted"/>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+
+                    <VBox spacing="14" styleClass="panel-card match-toolbar">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4">
+                                <Label text="Calendrier des rencontres" styleClass="section-title"/>
+                                <Label fx:id="resultsMetaLabel"
+                                       text="0 rencontre(s) affichee(s)"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="refreshButton"
+                                    onAction="#handleRefresh"
+                                    text="Actualiser"
+                                    styleClass="primary-button"/>
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="searchField"
+                                       promptText="Rechercher par equipe, lieu, type, statut ou date"
+                                       styleClass="form-text-field match-search-field"
+                                       HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="clearButton"
+                                    onAction="#handleClear"
+                                    text="Vider"
+                                    styleClass="soft-button"/>
+                        </HBox>
+                    </VBox>
+
+                    <HBox spacing="18" styleClass="content-shell">
+                        <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Label text="Liste des matchs" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Selectionnez une carte pour modifier ou supprimer." styleClass="section-subtitle"/>
+                            </HBox>
+
+                            <ListView fx:id="matchListView" VBox.vgrow="ALWAYS" styleClass="match-list-view">
+                                <placeholder>
+                                    <VBox alignment="CENTER" spacing="12" styleClass="empty-state-box">
+                                        <Label text="M" styleClass="empty-icon"/>
+                                        <Label text="Aucun match trouve" styleClass="empty-title"/>
+                                        <Label text="Aucun resultat ne correspond a la recherche actuelle. Essayez un autre mot-cle ou ajoutez une nouvelle rencontre."
+                                               wrapText="true"
+                                               styleClass="empty-text"/>
+                                    </VBox>
+                                </placeholder>
+                            </ListView>
+                        </VBox>
+
+                        <VBox spacing="18" minWidth="450" prefWidth="470" maxWidth="500" styleClass="side-column">
+                            <VBox spacing="16" styleClass="panel-card detail-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="detailStatusChipLabel" text="A venir" styleClass="status-pill status-warning"/>
+                                </HBox>
+
+                                <Label fx:id="detailTitleLabel" text="Aucun match selectionne" styleClass="detail-title"/>
+                                <Label fx:id="detailSubtitleLabel"
+                                       text="Selectionnez une rencontre ou commencez une nouvelle creation pour afficher la fiche detail."
+                                       wrapText="true"
+                                       styleClass="detail-subtitle"/>
+
+                                <HBox spacing="14" alignment="CENTER" styleClass="match-detail-board">
+                                    <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="match-detail-team-shell">
+                                        <StackPane styleClass="match-detail-logo-shell">
+                                            <ImageView fx:id="detailHomeLogoView"
+                                                       fitWidth="88"
+                                                       fitHeight="88"
+                                                       preserveRatio="true"
+                                                       managed="false"
+                                                       visible="false"/>
+                                            <Label fx:id="detailHomeLogoFallbackLabel"
+                                                   text="D"
+                                                   styleClass="match-detail-logo-fallback"/>
+                                        </StackPane>
+                                        <Label fx:id="detailHomeNameLabel" text="Equipe domicile" wrapText="true" styleClass="match-detail-team-name"/>
+                                        <Label text="Domicile" styleClass="match-detail-team-role"/>
+                                    </VBox>
+
+                                    <VBox alignment="CENTER" spacing="6" styleClass="match-detail-score-shell">
+                                        <Label fx:id="detailScoreValueLabel" text="-  :  -" styleClass="match-detail-score"/>
+                                        <Label text="Score" styleClass="match-detail-score-caption"/>
+                                    </VBox>
+
+                                    <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="match-detail-team-shell">
+                                        <StackPane styleClass="match-detail-logo-shell">
+                                            <ImageView fx:id="detailAwayLogoView"
+                                                       fitWidth="88"
+                                                       fitHeight="88"
+                                                       preserveRatio="true"
+                                                       managed="false"
+                                                       visible="false"/>
+                                            <Label fx:id="detailAwayLogoFallbackLabel"
+                                                   text="E"
+                                                   styleClass="match-detail-logo-fallback"/>
+                                        </StackPane>
+                                        <Label fx:id="detailAwayNameLabel" text="Equipe exterieur" wrapText="true" styleClass="match-detail-team-name"/>
+                                        <Label text="Exterieur" styleClass="match-detail-team-role"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Date" styleClass="stat-caption"/>
+                                        <Label fx:id="detailDateValueLabel" text="-" styleClass="stat-value"/>
+                                    </VBox>
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Heure" styleClass="stat-caption"/>
+                                        <Label fx:id="detailHeureValueLabel" text="-" styleClass="stat-value"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Lieu" styleClass="stat-caption"/>
+                                        <Label fx:id="detailLieuValueLabel" text="Non renseigne" styleClass="stat-value"/>
+                                    </VBox>
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Type" styleClass="stat-caption"/>
+                                        <Label fx:id="detailTypeValueLabel" text="Non renseigne" styleClass="stat-value"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Statut" styleClass="stat-caption"/>
+                                        <Label fx:id="detailStatutValueLabel" text="Programme" styleClass="stat-value"/>
+                                    </VBox>
+                                    <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                        <Label text="Reference" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="Nouveau" styleClass="stat-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+
+                            <VBox spacing="14" styleClass="panel-card form-card">
+                                <Label text="Formulaire match" styleClass="section-title"/>
+                                <Label text="Gardez seulement le CRUD de base pour cette phase. Aucun lineup, aucune formation avancee." wrapText="true" styleClass="section-subtitle"/>
+
+                                <Label fx:id="validationLabel"
+                                       text=""
+                                       managed="false"
+                                       visible="false"
+                                       wrapText="true"
+                                       styleClass="validation-label"/>
+
+                                <VBox spacing="8">
+                                    <Label text="Date du match" styleClass="field-label"/>
+                                    <DatePicker fx:id="dateMatchPicker" styleClass="match-date-picker"/>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <Label text="Heure de debut" styleClass="field-label"/>
+                                    <TextField fx:id="heureDebutField"
+                                               promptText="HH:mm"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <Label text="Lieu" styleClass="field-label"/>
+                                    <TextField fx:id="lieuField"
+                                               promptText="Ex: Stade municipal"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Type" styleClass="field-label"/>
+                                        <TextField fx:id="typeField"
+                                                   promptText="Ex: Championnat"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Statut" styleClass="field-label"/>
+                                        <TextField fx:id="statutField"
+                                                   promptText="Ex: Programme"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="8">
+                                    <Label text="Equipe domicile" styleClass="field-label"/>
+                                    <ComboBox fx:id="equipeDomicileComboBox"
+                                              promptText="Choisir l'equipe domicile"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <Label text="Equipe exterieur" styleClass="field-label"/>
+                                    <ComboBox fx:id="equipeExterieurComboBox"
+                                              promptText="Choisir l'equipe exterieur"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Score domicile" styleClass="field-label"/>
+                                        <TextField fx:id="scoreDomicileField"
+                                                   promptText="0"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Score exterieur" styleClass="field-label"/>
+                                        <TextField fx:id="scoreExterieurField"
+                                                   promptText="0"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <Button fx:id="addButton"
+                                            onAction="#handleAdd"
+                                            text="Ajouter"
+                                            styleClass="primary-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="updateButton"
+                                            onAction="#handleUpdate"
+                                            text="Modifier"
+                                            styleClass="ghost-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                </HBox>
+
+                                <Button fx:id="deleteButton"
+                                        onAction="#handleDelete"
+                                        text="Supprimer"
+                                        styleClass="danger-button"/>
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
