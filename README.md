@@ -1,6 +1,13 @@
 # Sport Insight
 
-Java console application for managing `match`, `produit`, `entrainement`, `annonce`, `sponsor`, and `user` features with JDBC and MySQL.
+Sport Insight is a Java 17 desktop application backed by JDBC and MySQL.
+
+The project now includes:
+- JavaFX homepage dashboard
+- JavaFX CRUD for `equipe`
+- JavaFX CRUD for `joueur`
+- JavaFX CRUD for `matchs`
+- Console entry points for the other modules already present in the project
 
 ## Team
 
@@ -14,26 +21,27 @@ Java console application for managing `match`, `produit`, `entrainement`, `annon
 
 ## Features
 
-- CRUD for `equipe`
-- CRUD for `joueur`
-- CRUD for `matchs`
-- CRUD for `product`
-- CRUD for `order`
-- CRUD for `entrainement`
-- CRUD for `evaluation`
-- CRUD for `participation`
-- CRUD for `annonce`
-- CRUD for `commentaire`
-- CRUD for `sponsor`
-- CRUD for `contrat_sponsor`
-- CRUD for `user`
-- Separate entry points for each module
-- MySQL connection through JDBC
+- Homepage dashboard as the default app entry screen
+- JavaFX CRUD for `equipe`
+- JavaFX CRUD for `joueur`
+- JavaFX CRUD for `matchs`
+- Console CRUD for `product`
+- Console CRUD for `order`
+- Console CRUD for `entrainement`
+- Console CRUD for `evaluation`
+- Console CRUD for `participation`
+- Console CRUD for `annonce`
+- Console CRUD for `commentaire`
+- Console CRUD for `sponsor`
+- Console CRUD for `contrat_sponsor`
+- Console CRUD for `user`
+- Shared MySQL connection through JDBC
 
 ## Tech Stack
 
 - Java 17
 - Maven
+- JavaFX 21
 - MySQL
 - JDBC
 
@@ -41,16 +49,29 @@ Java console application for managing `match`, `produit`, `entrainement`, `annon
 
 ```text
 src/main/java/tn/esprit/
+|-- Controller/
 |-- entities/
+|-- gui/
 |-- mains/
 |-- services/
 `-- tools/
 ```
 
+```text
+src/main/resources/tn/esprit/
+|-- images/
+|-- styles/
+`-- views/
+```
+
 ## Main Classes
 
+- `tn.esprit.gui.HomeMain`: JavaFX homepage
+- `tn.esprit.gui.EquipeCrudMain`: JavaFX `equipe` screen
+- `tn.esprit.gui.JoueurCrudMain`: JavaFX `joueur` screen
+- `tn.esprit.gui.MatchCrudMain`: JavaFX `matchs` screen
 - `tn.esprit.mains.Main`: database connection check only
-- `tn.esprit.mains.LauncherMain`: launcher menu for all modules
+- `tn.esprit.mains.LauncherMain`: console launcher menu for all modules
 - `tn.esprit.mains.MatchMain`: `equipe`, `joueur`, `matchs`
 - `tn.esprit.mains.ProductMain`: `product`, `order`
 - `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
@@ -108,6 +129,24 @@ mvn compile
 
 ## Run
 
+### Default app
+
+Run the JavaFX homepage:
+
+```bash
+mvn javafx:run
+```
+
+### Direct JavaFX screens
+
+```bash
+mvn javafx:run "-Djavafx.mainClass=tn.esprit.gui.EquipeCrudMain"
+mvn javafx:run "-Djavafx.mainClass=tn.esprit.gui.JoueurCrudMain"
+mvn javafx:run "-Djavafx.mainClass=tn.esprit.gui.MatchCrudMain"
+```
+
+### Console entry points
+
 From IntelliJ or the terminal, run the main class you need.
 
 Examples:
@@ -123,7 +162,14 @@ mvn exec:java -Dexec.mainClass="tn.esprit.mains.SponsorMain"
 mvn exec:java -Dexec.mainClass="tn.esprit.mains.UserMain"
 ```
 
-To start from the central launcher menu, run `tn.esprit.mains.LauncherMain`.
+To start from the console launcher menu, run `tn.esprit.mains.LauncherMain`.
+
+## JavaFX Modules
+
+- `HomeMain`: homepage with navigation to the main JavaFX modules
+- `EquipeCrudMain`: team management with image selection from Windows Explorer
+- `JoueurCrudMain`: player management with image selection from Windows Explorer
+- `MatchCrudMain`: basic match management with team selectors and scores
 
 ## Console Usage
 
@@ -267,6 +313,7 @@ Select a sort mode:
 - `Gestion-sponsor` was merged into this project and its sponsor entrypoint is available as `SponsorMain`.
 - `gestion_user` was merged locally into this branch and its entrypoint is available as `UserMain`.
 
-## Branch
+## Branches
 
-This merged version is available on branch `m+p+e+a+s`.
+- `main`: current integration branch
+- `gestion-match`: match-focused branch used for the match module flow
