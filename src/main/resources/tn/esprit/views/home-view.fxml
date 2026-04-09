@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -74,7 +75,7 @@
                     styleClass="page-scroll"
                     BorderPane.alignment="CENTER">
             <content>
-                <VBox spacing="22" styleClass="page-shell home-page-shell">
+                <VBox spacing="22" styleClass="page-shell home-shell">
                     <padding>
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
@@ -88,51 +89,65 @@
                                 styleClass="sidebar-open-button"/>
                     </HBox>
 
-                    <StackPane fx:id="heroShell"
-                               minHeight="250"
-                               prefHeight="250"
-                               maxHeight="250"
-                               styleClass="hero-shell">
-                        <ImageView fx:id="heroImageView"
-                                   managed="false"
-                                   pickOnBounds="true"
-                                   preserveRatio="false"
-                                   smooth="true"
-                                   styleClass="home-hero-image"/>
-                        <Region styleClass="hero-overlay"/>
+                    <HBox alignment="CENTER_LEFT" spacing="16" styleClass="home-topbar">
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="home-search-box">
+                            <Label text="Search" styleClass="home-search-icon"/>
+                            <TextField promptText="Search analytics, players, or teams..."
+                                       styleClass="home-search-field"/>
+                        </HBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="Thursday, Apr 9" styleClass="home-top-chip"/>
+                        <Button text="+ New Note" styleClass="primary-button"/>
+                    </HBox>
 
-                        <VBox spacing="12" styleClass="hero-content">
-                            <Label text="Accueil" styleClass="hero-eyebrow"/>
-                            <Label text="Bienvenue sur Sport Insight" styleClass="hero-title"/>
-                            <Label text="Une plateforme sportive pour gerer les equipes, les joueurs et les matchs dans un seul espace."
+                    <StackPane styleClass="home-hero-shell">
+                        <Region styleClass="home-hero-photo"/>
+                        <Region styleClass="home-hero-overlay"/>
+                        <VBox spacing="14" styleClass="home-hero-content">
+                            <Label text="PERFORMANCE OVERVIEW" styleClass="home-hero-eyebrow"/>
+                            <Label text="Welcome back to Sport Insight" styleClass="home-hero-title"/>
+                            <Label text="Your operations hub for teams, players, and matches in one place."
                                    wrapText="true"
-                                   styleClass="hero-text"/>
+                                   styleClass="home-hero-text"/>
+
+                            <HBox spacing="12">
+                                <VBox spacing="4" styleClass="home-hero-metric-card">
+                                    <Label text="Matches Today" styleClass="home-metric-label"/>
+                                    <Label text="3" styleClass="home-metric-value"/>
+                                </VBox>
+                                <VBox spacing="4" styleClass="home-hero-metric-card">
+                                    <Label text="Active Players" styleClass="home-metric-label"/>
+                                    <Label text="45" styleClass="home-metric-value"/>
+                                </VBox>
+                                <VBox spacing="4" styleClass="home-hero-metric-card">
+                                    <Label text="Pending Tasks" styleClass="home-metric-label"/>
+                                    <Label text="12" styleClass="home-metric-value"/>
+                                </VBox>
+                            </HBox>
                         </VBox>
                     </StackPane>
 
-                    <VBox spacing="16" styleClass="panel-card home-modules-panel">
-                        <VBox spacing="4">
-                            <Label text="Modules principaux" styleClass="section-title"/>
-                            <Label text="Choisissez un espace de travail pour continuer dans le meme environnement que les autres pages."
-                                   wrapText="true"
-                                   styleClass="section-subtitle"/>
-                        </VBox>
+                    <VBox spacing="14" styleClass="home-section-card">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Core Modules" styleClass="section-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Quick Access" styleClass="toolbar-chip"/>
+                        </HBox>
 
-                        <FlowPane hgap="18"
-                                  vgap="18"
-                                  alignment="CENTER_LEFT"
-                                  columnHalignment="CENTER"
-                                  prefWrapLength="1040"
-                                  styleClass="home-card-grid">
+                        <FlowPane hgap="14"
+                                  vgap="14"
+                                  prefWrapLength="1100"
+                                  styleClass="home-module-grid">
                             <Button fx:id="equipesButton"
                                     onAction="#handleOpenEquipes"
                                     text=""
                                     mnemonicParsing="false"
-                                    styleClass="home-module-button">
+                                    styleClass="home-module-button home-module-button-teams">
                                 <graphic>
-                                    <VBox spacing="10" styleClass="home-module-shell-simple">
-                                        <Label text="Equipes" styleClass="home-module-title-simple"/>
-                                        <Label text="Gerer les clubs, les coachs et les logos." wrapText="true" styleClass="home-module-text-simple"/>
+                                    <VBox spacing="8" styleClass="home-module-content">
+                                        <Label text="Equipes" styleClass="home-module-title"/>
+                                        <Label text="Manage roster and club data" wrapText="true" styleClass="home-module-subtitle"/>
+                                        <Label text="Open module" styleClass="home-module-link"/>
                                     </VBox>
                                 </graphic>
                             </Button>
@@ -141,11 +156,12 @@
                                     onAction="#handleOpenJoueurs"
                                     text=""
                                     mnemonicParsing="false"
-                                    styleClass="home-module-button">
+                                    styleClass="home-module-button home-module-button-players">
                                 <graphic>
-                                    <VBox spacing="10" styleClass="home-module-shell-simple">
-                                        <Label text="Joueurs" styleClass="home-module-title-simple"/>
-                                        <Label text="Suivre les profils, les numeros et les equipes." wrapText="true" styleClass="home-module-text-simple"/>
+                                    <VBox spacing="8" styleClass="home-module-content">
+                                        <Label text="Joueurs" styleClass="home-module-title"/>
+                                        <Label text="Track profiles and assignments" wrapText="true" styleClass="home-module-subtitle"/>
+                                        <Label text="Open module" styleClass="home-module-link"/>
                                     </VBox>
                                 </graphic>
                             </Button>
@@ -154,23 +170,135 @@
                                     onAction="#handleOpenMatchs"
                                     text=""
                                     mnemonicParsing="false"
-                                    styleClass="home-module-button">
+                                    styleClass="home-module-button home-module-button-matches">
                                 <graphic>
-                                    <VBox spacing="10" styleClass="home-module-shell-simple">
-                                        <Label text="Matchs" styleClass="home-module-title-simple"/>
-                                        <Label text="Consulter les rencontres, les scores et les details." wrapText="true" styleClass="home-module-text-simple"/>
+                                    <VBox spacing="8" styleClass="home-module-content">
+                                        <Label text="Matchs" styleClass="home-module-title"/>
+                                        <Label text="View fixtures and match details" wrapText="true" styleClass="home-module-subtitle"/>
+                                        <Label text="Open module" styleClass="home-module-link"/>
                                     </VBox>
                                 </graphic>
                             </Button>
+
+                            <VBox spacing="8" styleClass="home-module-static home-module-static-news">
+                                <Label text="Annonces" styleClass="home-module-title"/>
+                                <Label text="Latest club updates" wrapText="true" styleClass="home-module-subtitle"/>
+                                <Label text="Coming soon" styleClass="home-module-link"/>
+                            </VBox>
+
+                            <VBox spacing="8" styleClass="home-module-static home-module-static-train">
+                                <Label text="Entrainements" styleClass="home-module-title"/>
+                                <Label text="Session plans and load tracking" wrapText="true" styleClass="home-module-subtitle"/>
+                                <Label text="Coming soon" styleClass="home-module-link"/>
+                            </VBox>
+
+                            <VBox spacing="8" styleClass="home-module-static home-module-static-store">
+                                <Label text="Store" styleClass="home-module-title"/>
+                                <Label text="Products and order monitoring" wrapText="true" styleClass="home-module-subtitle"/>
+                                <Label text="Coming soon" styleClass="home-module-link"/>
+                            </VBox>
                         </FlowPane>
                     </VBox>
 
-                    <HBox spacing="18" styleClass="panel-card home-info-panel">
-                        <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Un acces rapide aux modules du projet" styleClass="home-info-title"/>
-                            <Label text="Commencez par choisir un espace de travail dans la liste ci-dessus."
-                                   wrapText="true"
-                                   styleClass="home-info-text"/>
+                    <HBox spacing="16" alignment="TOP_LEFT">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="home-section-card home-feed-panel">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Recent Announcements" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="View All" styleClass="ghost-button"/>
+                            </HBox>
+
+                            <HBox spacing="12" styleClass="home-feed-row">
+                                <Region styleClass="home-feed-thumb home-thumb-one"/>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="New Off-Season Training Protocol" styleClass="home-feed-title"/>
+                                    <Label text="Coaching staff published updated endurance guidelines for next month."
+                                           wrapText="true"
+                                           styleClass="home-feed-text"/>
+                                    <Label text="2 hours ago" styleClass="home-feed-meta"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12" styleClass="home-feed-row">
+                                <Region styleClass="home-feed-thumb home-thumb-two"/>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="New GPS Tracker Inventory" styleClass="home-feed-title"/>
+                                    <Label text="Latest batch is ready for assignment to the U21 squad."
+                                           wrapText="true"
+                                           styleClass="home-feed-text"/>
+                                    <Label text="Yesterday" styleClass="home-feed-meta"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12" styleClass="home-feed-row">
+                                <Region styleClass="home-feed-thumb home-thumb-three"/>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Tournament Bracket Updated" styleClass="home-feed-title"/>
+                                    <Label text="Semi-final dates moved forward. Confirm travel plans by end of day."
+                                           wrapText="true"
+                                           styleClass="home-feed-text"/>
+                                    <Label text="Critical" styleClass="home-feed-meta-error"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="12" prefWidth="340" minWidth="340" styleClass="home-section-card home-schedule-panel">
+                            <Label text="Schedule" styleClass="section-title"/>
+
+                            <HBox spacing="12" styleClass="home-schedule-row">
+                                <VBox alignment="CENTER" spacing="2" styleClass="home-day-box">
+                                    <Label text="Mon" styleClass="home-day-name"/>
+                                    <Label text="15" styleClass="home-day-number"/>
+                                </VBox>
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Tactical Workshop" styleClass="home-schedule-title"/>
+                                    <Label text="09:00 AM | Pitch A" styleClass="home-schedule-meta"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12" styleClass="home-schedule-row">
+                                <VBox alignment="CENTER" spacing="2" styleClass="home-day-box home-day-box-active">
+                                    <Label text="Tue" styleClass="home-day-name-active"/>
+                                    <Label text="16" styleClass="home-day-number-active"/>
+                                </VBox>
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="High-Intensity Session" styleClass="home-schedule-title"/>
+                                    <Label text="14:30 PM | Gym 2" styleClass="home-schedule-meta"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12" styleClass="home-schedule-row">
+                                <VBox alignment="CENTER" spacing="2" styleClass="home-day-box">
+                                    <Label text="Wed" styleClass="home-day-name"/>
+                                    <Label text="17" styleClass="home-day-number"/>
+                                </VBox>
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="First Team Scrimmage" styleClass="home-schedule-title"/>
+                                    <Label text="11:00 AM | Main Field" styleClass="home-schedule-meta"/>
+                                </VBox>
+                            </HBox>
+
+                            <Button text="Open Calendar" styleClass="soft-button"/>
+
+                            <VBox spacing="8" styleClass="home-live-card">
+                                <HBox alignment="CENTER_LEFT" spacing="6">
+                                    <Region styleClass="home-live-dot"/>
+                                    <Label text="Live Session Vibe" styleClass="home-live-label"/>
+                                </HBox>
+                                <Label text="142 BPM" styleClass="home-live-value"/>
+                                <Label text="Average heart rate (Pitch A)" styleClass="home-live-text"/>
+                                <HBox spacing="3" alignment="BOTTOM_LEFT">
+                                    <Region styleClass="home-wave-bar home-wave-1"/>
+                                    <Region styleClass="home-wave-bar home-wave-2"/>
+                                    <Region styleClass="home-wave-bar home-wave-3"/>
+                                    <Region styleClass="home-wave-bar home-wave-4"/>
+                                    <Region styleClass="home-wave-bar home-wave-5"/>
+                                    <Region styleClass="home-wave-bar home-wave-6"/>
+                                    <Region styleClass="home-wave-bar home-wave-7"/>
+                                    <Region styleClass="home-wave-bar home-wave-8"/>
+                                    <Region styleClass="home-wave-bar home-wave-9"/>
+                                </HBox>
+                            </VBox>
                         </VBox>
                     </HBox>
                 </VBox>

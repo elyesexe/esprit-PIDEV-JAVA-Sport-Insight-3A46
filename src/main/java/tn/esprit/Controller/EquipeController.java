@@ -313,7 +313,7 @@ public class EquipeController {
     }
 
     private void configureSidebar() {
-        sidebarVisible = false;
+        sidebarVisible = true;
         if (!equipesNavButton.getStyleClass().contains("sidebar-nav-button-active")) {
             equipesNavButton.getStyleClass().add("sidebar-nav-button-active");
         }

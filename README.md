@@ -37,6 +37,13 @@ The project now includes:
 - Console CRUD for `user`
 - Shared MySQL connection through JDBC
 
+## Latest UI Updates (April 2026)
+
+- Homepage (`home-view.fxml` + `home-theme.css`) fully rebuilt with a custom green dashboard layout.
+- Homepage sidebar now opens by default when the app starts.
+- Equipe sidebar now opens by default when the Equipe module starts.
+- Core module cards on the homepage were resized to medium and standardized to the same size.
+
 ## Tech Stack
 
 - Java 17

@@ -1,124 +1,401 @@
 @import "equipe-theme.css";
 
 .page-root {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #eaf3ff 0%, #ecfeff 26%, #f8fafc 58%, #e8fff6 100%);
+    -fx-background-color:
+        radial-gradient(center 12% 10%, radius 38%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 100%),
+        radial-gradient(center 90% 16%, radius 30%, rgba(4, 120, 87, 0.14) 0%, rgba(4, 120, 87, 0) 100%),
+        linear-gradient(from 0% 0% to 100% 100%, #f5fbf8 0%, #edf9f3 44%, #f8fcfa 100%);
 }
 
-.home-page-shell {
+.home-shell {
     -fx-background-color: transparent;
-    -fx-spacing: 20;
+    -fx-spacing: 22;
+}
+
+.home-topbar {
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 22;
+    -fx-padding: 12 14 12 14;
+}
+
+.home-search-box {
+    -fx-background-color: rgba(248, 250, 252, 0.95);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(203, 213, 225, 0.85);
+    -fx-border-radius: 14;
+    -fx-padding: 7 10 7 10;
+    -fx-min-width: 440;
+}
+
+.home-search-icon {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.home-search-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.home-search-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.home-top-chip {
+    -fx-background-color: rgba(236, 253, 245, 0.96);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(16, 185, 129, 0.26);
+    -fx-border-radius: 999;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
 }
 
 .home-hero-shell {
-    -fx-min-height: 250;
-    -fx-pref-height: 250;
-    -fx-max-height: 250;
+    -fx-background-color: rgba(5, 46, 37, 0.8);
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-radius: 30;
+    -fx-min-height: 308;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.26), 40, 0.24, 0, 18);
 }
 
-.home-hero-image {
-    -fx-opacity: 0.98;
+.home-hero-photo {
+    -fx-background-image: url("../images/bg11.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-radius: 30;
 }
 
 .home-hero-overlay {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.82) 0%, rgba(15, 23, 42, 0.66) 48%, rgba(30, 58, 138, 0.26) 100%);
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%, rgba(2, 44, 34, 0.9) 0%, rgba(3, 105, 83, 0.72) 56%, rgba(5, 150, 105, 0.6) 100%);
     -fx-background-radius: 30;
 }
 
 .home-hero-content {
-    -fx-max-width: 700;
-    -fx-padding: 32 34 34 34;
+    -fx-alignment: center-left;
+    -fx-padding: 28 30 30 30;
 }
 
-.home-card-grid {
-    -fx-row-valignment: top;
-    -fx-hgap: 18;
-    -fx-vgap: 18;
-    -fx-pref-wrap-length: 1020;
+.home-hero-eyebrow {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #dcfce7;
+}
+
+.home-hero-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 42px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.home-hero-text {
+    -fx-font-size: 14px;
+    -fx-line-spacing: 2px;
+    -fx-text-fill: #dcfce7;
+    -fx-max-width: 620;
+}
+
+.home-hero-metric-card {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-border-radius: 16;
+    -fx-padding: 10 12 10 12;
+    -fx-min-width: 150;
+}
+
+.home-metric-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(236, 253, 245, 0.86);
+}
+
+.home-metric-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.home-section-card {
+    -fx-background-color: rgba(255, 255, 255, 0.76);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 26;
+    -fx-padding: 18 20 20 20;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.1), 24, 0.2, 0, 12);
+}
+
+.home-module-grid {
+    -fx-hgap: 14;
+    -fx-vgap: 14;
+}
+
+.home-module-button,
+.home-module-static {
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
+    -fx-padding: 12 12 12 12;
+    -fx-min-width: 156;
+    -fx-pref-width: 156;
+    -fx-max-width: 156;
+    -fx-min-height: 118;
+    -fx-pref-height: 118;
+    -fx-max-height: 118;
 }
 
 .home-module-button {
-    -fx-background-color: transparent;
-    -fx-background-radius: 20;
-    -fx-border-color: transparent;
-    -fx-border-radius: 20;
-    -fx-padding: 0;
     -fx-cursor: hand;
-    -fx-min-width: 290;
-    -fx-pref-width: 290;
-    -fx-max-width: 290;
-    -fx-min-height: 172;
-    -fx-pref-height: 172;
-}
-
-.home-module-button:hover {
-    -fx-translate-y: -3;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
 }
 
 .home-module-button > .label {
     -fx-text-fill: transparent;
 }
 
-.home-module-shell-simple {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+.home-module-button .home-module-content,
+.home-module-static {
     -fx-background-radius: 22;
-    -fx-border-color: rgba(148, 163, 184, 0.22);
     -fx-border-radius: 22;
-    -fx-padding: 22 22 22 22;
-    -fx-min-width: 290;
-    -fx-pref-width: 290;
-    -fx-max-width: 290;
-    -fx-min-height: 172;
-    -fx-pref-height: 172;
-    -fx-max-height: 172;
-    -fx-alignment: center-left;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.1), 22, 0.18, 0, 10);
+    -fx-padding: 12 12 12 12;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #f1f5f9 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
 }
 
-.home-module-button:hover .home-module-shell-simple {
-    -fx-border-color: rgba(16, 185, 129, 0.34);
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 1) 0%, rgba(236, 253, 245, 0.98) 100%);
+.home-module-button-teams .home-module-content {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0fdf4 0%, #ecfdf5 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.3);
 }
 
-.home-module-title-simple {
+.home-module-button-players .home-module-content {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #f1f5f9 100%);
+    -fx-border-color: rgba(100, 116, 139, 0.28);
+}
+
+.home-module-button-matches .home-module-content {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ecfeff 0%, #f0fdfa 100%);
+    -fx-border-color: rgba(20, 184, 166, 0.3);
+}
+
+.home-module-button:hover .home-module-content {
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 18, 0.18, 0, 8);
+}
+
+.home-module-static-news {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fefce8 0%, #fffbeb 100%);
+    -fx-border-color: rgba(202, 138, 4, 0.32);
+}
+
+.home-module-static-train {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0fdf4 0%, #ecfdf5 100%);
+    -fx-border-color: rgba(22, 163, 74, 0.3);
+}
+
+.home-module-static-store {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #eef2ff 100%);
+    -fx-border-color: rgba(129, 140, 248, 0.3);
+}
+
+.home-module-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 30px;
+    -fx-font-size: 18px;
     -fx-font-weight: 700;
     -fx-text-fill: #0f172a;
 }
 
-.home-module-text-simple {
-    -fx-font-size: 15px;
-    -fx-line-spacing: 2px;
-    -fx-text-fill: #475569;
-}
-
-.home-modules-panel {
-    -fx-spacing: 16;
-}
-
-.home-info-panel {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.72) 0%, rgba(236, 253, 245, 0.78) 100%);
-    -fx-border-color: rgba(255, 255, 255, 0.44);
-}
-
-.home-info-title {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 32px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
-}
-
-.home-info-text {
-    -fx-font-size: 15px;
+.home-module-subtitle {
+    -fx-font-size: 11px;
     -fx-line-spacing: 1px;
     -fx-text-fill: #475569;
 }
 
-.home-hero-shell .hero-title {
-    -fx-font-size: 42px;
+.home-module-link {
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #047857;
 }
 
-.home-hero-shell .hero-text {
-    -fx-font-size: 16px;
-    -fx-max-width: 540;
+.home-feed-panel {
+    -fx-spacing: 12;
 }
+
+.home-feed-row {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(148, 163, 184, 0.16);
+    -fx-border-radius: 18;
+    -fx-padding: 10 12 10 10;
+}
+
+.home-feed-thumb {
+    -fx-min-width: 70;
+    -fx-min-height: 70;
+    -fx-background-radius: 14;
+}
+
+.home-thumb-one {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #14b8a6 100%);
+}
+
+.home-thumb-two {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #16a34a 0%, #22c55e 100%);
+}
+
+.home-thumb-three {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #b91c1c 0%, #ef4444 100%);
+}
+
+.home-feed-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.home-feed-text {
+    -fx-font-size: 12px;
+    -fx-line-spacing: 1px;
+    -fx-text-fill: #64748b;
+}
+
+.home-feed-meta {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.home-feed-meta-error {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #b91c1c;
+}
+
+.home-schedule-panel {
+    -fx-spacing: 10;
+}
+
+.home-schedule-row {
+    -fx-background-color: rgba(248, 250, 252, 0.95);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(148, 163, 184, 0.14);
+    -fx-border-radius: 16;
+    -fx-padding: 8 10 8 10;
+}
+
+.home-day-box {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 10;
+    -fx-padding: 6 10 6 10;
+    -fx-min-width: 44;
+}
+
+.home-day-box-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #10b981 100%);
+}
+
+.home-day-name {
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.home-day-number {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.home-day-name-active {
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(236, 253, 245, 0.86);
+}
+
+.home-day-number-active {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.home-schedule-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.home-schedule-meta {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+.home-live-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #064e3b 0%, #047857 100%);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 18;
+    -fx-padding: 12 12 12 12;
+}
+
+.home-live-dot {
+    -fx-min-width: 7;
+    -fx-min-height: 7;
+    -fx-background-color: #ef4444;
+    -fx-background-radius: 999;
+}
+
+.home-live-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(220, 252, 231, 0.88);
+}
+
+.home-live-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.home-live-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(220, 252, 231, 0.8);
+}
+
+.home-wave-bar {
+    -fx-min-width: 3;
+    -fx-background-color: rgba(236, 253, 245, 0.42);
+    -fx-background-radius: 3;
+}
+
+.home-wave-1 { -fx-min-height: 8; }
+.home-wave-2 { -fx-min-height: 11; }
+.home-wave-3 { -fx-min-height: 15; }
+.home-wave-4 { -fx-min-height: 10; }
+.home-wave-5 { -fx-min-height: 17; }
+.home-wave-6 { -fx-min-height: 14; }
+.home-wave-7 { -fx-min-height: 16; }
+.home-wave-8 {
+    -fx-min-height: 20;
+    -fx-background-color: rgba(236, 253, 245, 0.95);
+}
+.home-wave-9 { -fx-min-height: 12; }
