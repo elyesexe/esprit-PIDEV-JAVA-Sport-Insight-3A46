@@ -275,9 +275,9 @@
                                     </VBox>
                                     <VBox spacing="8" HBox.hgrow="ALWAYS">
                                         <Label text="Statut" styleClass="field-label"/>
-                                        <TextField fx:id="statutField"
-                                                   promptText="Ex: Programme"
-                                                   styleClass="form-text-field"/>
+                                        <ComboBox fx:id="statutComboBox"
+                                                  promptText="Choisir le statut"
+                                                  styleClass="glass-combo"/>
                                     </VBox>
                                 </HBox>
 
