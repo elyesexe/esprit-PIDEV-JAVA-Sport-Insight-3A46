@@ -58,6 +58,8 @@ public class MatchController {
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
     private static final double SIDEBAR_EXPANDED_WIDTH = 256;
     private static final double CARD_LOGO_SIZE = 68;
+    private static final String STATUS_PROGRAMME = "Programme";
+    private static final String STATUS_FINI = "Fini";
 
     @FXML
     private VBox sidebarRoot;
@@ -128,7 +130,7 @@ public class MatchController {
     @FXML
     private TextField typeField;
     @FXML
-    private TextField statutField;
+    private ComboBox<String> statutComboBox;
     @FXML
     private ComboBox<Equipe> equipeDomicileComboBox;
     @FXML
@@ -164,6 +166,7 @@ public class MatchController {
         configureStatusLabel();
         configureSearch();
         configureTeamComboBoxes();
+        configureStatusChoices();
         configureFormatters();
         configureMatchList();
         bindFormState();
@@ -328,6 +331,12 @@ public class MatchController {
         equipeExterieurComboBox.setButtonCell(createEquipeCell());
     }
 
+    private void configureStatusChoices() {
+        statutComboBox.setItems(FXCollections.observableArrayList(STATUS_PROGRAMME, STATUS_FINI));
+        statutComboBox.getSelectionModel().select(STATUS_PROGRAMME);
+        updateScoreFieldsForStatus(true);
+    }
+
     private ListCell<Equipe> createEquipeCell() {
         return new ListCell<>() {
             @Override
@@ -476,8 +485,9 @@ public class MatchController {
             updateSelectionState();
             updateDetailPanel();
         });
-        statutField.textProperty().addListener((observable, oldValue, newValue) -> {
-            clearFieldError(statutField);
+        statutComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            clearFieldError(statutComboBox);
+            updateScoreFieldsForStatus(true);
             updateSelectionState();
             updateDetailPanel();
         });
@@ -581,7 +591,7 @@ public class MatchController {
         String heureText = emptyToNull(heureDebutField.getText());
         String lieu = emptyToNull(lieuField.getText());
         String type = emptyToNull(typeField.getText());
-        String statut = emptyToNull(statutField.getText());
+        String statut = normalizeMatchStatus(statutComboBox.getValue());
         Equipe equipeDomicile = equipeDomicileComboBox.getValue();
         Equipe equipeExterieur = equipeExterieurComboBox.getValue();
         String scoreDomicileText = emptyToNull(scoreDomicileField.getText());
@@ -621,8 +631,8 @@ public class MatchController {
         }
 
         if (statut == null) {
-            markFieldInvalid(statutField);
-            showValidation("Le statut est obligatoire.");
+            markFieldInvalid(statutComboBox);
+            showValidation("Choisissez un statut: Programme ou Fini.");
             return null;
         }
 
@@ -645,14 +655,36 @@ public class MatchController {
             return null;
         }
 
-        Integer scoreDomicile = parseScore(scoreDomicileText, scoreDomicileField);
-        if (scoreDomicileText != null && scoreDomicile == null) {
-            return null;
-        }
+        Integer scoreDomicile = null;
+        Integer scoreExterieur = null;
+        if (STATUS_PROGRAMME.equals(statut)) {
+            if (scoreDomicileText != null || scoreExterieurText != null) {
+                markFieldInvalid(scoreDomicileField);
+                markFieldInvalid(scoreExterieurField);
+                showValidation("Un match programme ne peut pas avoir de score.");
+                return null;
+            }
+        } else {
+            if (scoreDomicileText == null || scoreExterieurText == null) {
+                if (scoreDomicileText == null) {
+                    markFieldInvalid(scoreDomicileField);
+                }
+                if (scoreExterieurText == null) {
+                    markFieldInvalid(scoreExterieurField);
+                }
+                showValidation("Pour un match fini, les deux scores sont obligatoires.");
+                return null;
+            }
 
-        Integer scoreExterieur = parseScore(scoreExterieurText, scoreExterieurField);
-        if (scoreExterieurText != null && scoreExterieur == null) {
-            return null;
+            scoreDomicile = parseScore(scoreDomicileText, scoreDomicileField);
+            if (scoreDomicile == null) {
+                return null;
+            }
+
+            scoreExterieur = parseScore(scoreExterieurText, scoreExterieurField);
+            if (scoreExterieur == null) {
+                return null;
+            }
         }
 
         String idMatch = updateMode && selectedMatch != null && selectedMatch.getIdMatch() != null
@@ -700,11 +732,13 @@ public class MatchController {
         heureDebutField.setText(match.getHeureDebut() == null ? "" : match.getHeureDebut().format(TIME_FORMATTER));
         lieuField.setText(emptyIfNull(match.getLieu()));
         typeField.setText(emptyIfNull(match.getType()));
-        statutField.setText(emptyIfNull(match.getStatut()));
+        String status = normalizeMatchStatus(match.getStatut());
+        statutComboBox.setValue(status == null ? STATUS_PROGRAMME : status);
         scoreDomicileField.setText(match.getScoreEquipeDomicile() == null ? "" : String.valueOf(match.getScoreEquipeDomicile()));
         scoreExterieurField.setText(match.getScoreEquipeExterieur() == null ? "" : String.valueOf(match.getScoreEquipeExterieur()));
         selectEquipe(equipeDomicileComboBox, match.getEquipeDomicileId());
         selectEquipe(equipeExterieurComboBox, match.getEquipeExterieurId());
+        updateScoreFieldsForStatus(true);
     }
 
     private void restoreSelection(Integer preferredSelectionId) {
@@ -756,7 +790,11 @@ public class MatchController {
             return;
         }
 
-        String status = resolveFieldValue(statutField.getText(), effectiveMatch == null ? null : effectiveMatch.getStatut(), "Programme");
+        String status = resolveFieldValue(
+                normalizeMatchStatus(statutComboBox.getValue()),
+                normalizeMatchStatus(effectiveMatch == null ? null : effectiveMatch.getStatut()),
+                STATUS_PROGRAMME
+        );
         String title = draftLabel == null ? buildMatchLabel(effectiveMatch) : draftLabel;
 
         detailBadgeLabel.setText(selectedMatch == null ? "Brouillon" : "Fiche match");
@@ -810,11 +848,12 @@ public class MatchController {
         heureDebutField.clear();
         lieuField.clear();
         typeField.clear();
-        statutField.clear();
+        statutComboBox.setValue(STATUS_PROGRAMME);
         scoreDomicileField.clear();
         scoreExterieurField.clear();
         equipeDomicileComboBox.getSelectionModel().clearSelection();
         equipeExterieurComboBox.getSelectionModel().clearSelection();
+        updateScoreFieldsForStatus(true);
     }
 
     private void updateActionAvailability() {
@@ -831,7 +870,8 @@ public class MatchController {
                 || emptyToNull(heureDebutField.getText()) != null
                 || emptyToNull(lieuField.getText()) != null
                 || emptyToNull(typeField.getText()) != null
-                || emptyToNull(statutField.getText()) != null
+                || (normalizeMatchStatus(statutComboBox.getValue()) != null
+                && !STATUS_PROGRAMME.equals(normalizeMatchStatus(statutComboBox.getValue())))
                 || emptyToNull(scoreDomicileField.getText()) != null
                 || emptyToNull(scoreExterieurField.getText()) != null
                 || equipeDomicileComboBox.getValue() != null
@@ -894,6 +934,15 @@ public class MatchController {
     }
 
     private String buildDraftScore(Matchs effectiveMatch) {
+        String status = resolveFieldValue(
+                normalizeMatchStatus(statutComboBox.getValue()),
+                normalizeMatchStatus(effectiveMatch == null ? null : effectiveMatch.getStatut()),
+                STATUS_PROGRAMME
+        );
+        if (STATUS_PROGRAMME.equals(status)) {
+            return "-  :  -";
+        }
+
         String home = emptyToNull(scoreDomicileField.getText());
         String away = emptyToNull(scoreExterieurField.getText());
         if (home == null && effectiveMatch != null && effectiveMatch.getScoreEquipeDomicile() != null) {
@@ -987,7 +1036,7 @@ public class MatchController {
         clearFieldError(heureDebutField);
         clearFieldError(lieuField);
         clearFieldError(typeField);
-        clearFieldError(statutField);
+        clearFieldError(statutComboBox);
         clearFieldError(equipeDomicileComboBox);
         clearFieldError(equipeExterieurComboBox);
         clearFieldError(scoreDomicileField);
@@ -1040,13 +1089,41 @@ public class MatchController {
         if (normalized.contains("cours") || normalized.contains("live")) {
             return "fixture-status-live";
         }
-        if (normalized.contains("term")) {
+        if (normalized.contains("fini") || normalized.contains("term")) {
             return "fixture-status-finished";
         }
         if (normalized.contains("annul")) {
             return "fixture-status-cancelled";
         }
+        if (normalized.contains("prog")) {
+            return "fixture-status-scheduled";
+        }
         return "fixture-status-scheduled";
+    }
+
+    private void updateScoreFieldsForStatus(boolean clearWhenProgramme) {
+        String status = normalizeMatchStatus(statutComboBox.getValue());
+        boolean programme = status == null || STATUS_PROGRAMME.equals(status);
+        scoreDomicileField.setDisable(programme);
+        scoreExterieurField.setDisable(programme);
+        if (programme && clearWhenProgramme) {
+            scoreDomicileField.clear();
+            scoreExterieurField.clear();
+        }
+    }
+
+    private String normalizeMatchStatus(String value) {
+        String normalized = normalize(value);
+        if (normalized == null) {
+            return null;
+        }
+        if (normalized.startsWith("prog")) {
+            return STATUS_PROGRAMME;
+        }
+        if (normalized.startsWith("fini") || normalized.contains("term")) {
+            return STATUS_FINI;
+        }
+        return null;
     }
 
     private StackPane createLogoPane(String imagePath, String teamName, double size, String shellStyle, String fallbackStyle) {
