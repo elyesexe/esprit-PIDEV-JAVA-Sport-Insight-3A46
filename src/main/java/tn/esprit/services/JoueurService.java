@@ -113,4 +113,30 @@ public class JoueurService implements IService<Joueur> {
                 rs.wasNull() ? null : equipeId
         );
     }
+
+    /**
+     * Players currently assigned to a team ({@code equipe_id} is set).
+     */
+    public int countActivePlayers() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM joueur WHERE equipe_id IS NOT NULL";
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    /** Total rows in {@code joueur} (all registered players). */
+    public int countAll() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM joueur";
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
 }

@@ -3,6 +3,7 @@ package tn.esprit.Controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -51,6 +52,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,6 +68,7 @@ public class MatchController {
     private static final double CARD_LOGO_SIZE = 68;
     private static final String STATUS_PROGRAMME = "Programme";
     private static final String STATUS_FINI = "Fini";
+    private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("match-db-worker"));
 
     @FXML
     private VBox sidebarRoot;
@@ -157,12 +164,17 @@ public class MatchController {
     private final ObservableList<Matchs> matchs = FXCollections.observableArrayList();
     private final FilteredList<Matchs> filteredMatchs = new FilteredList<>(matchs, match -> true);
     private final ObservableList<Equipe> equipes = FXCollections.observableArrayList();
+    private final AtomicLong refreshSequence = new AtomicLong();
+    private final Map<String, Optional<Image>> imageCache = new ConcurrentHashMap<>();
 
     private MatchsService matchsService;
     private EquipeService equipeService;
     private Map<Integer, Equipe> equipeById = Map.of();
     private Matchs selectedMatch;
     private boolean serviceReady;
+    private boolean loadingData;
+    private boolean mutatingData;
+    private boolean equipesLoaded;
 
     @FXML
     public void initialize() {
@@ -183,8 +195,7 @@ public class MatchController {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
             serviceReady = true;
-            refreshData(null);
-            showSuccessStatus("Module Match pret.");
+            refreshDataAsync(null, true, "Chargement des matchs...", "status-success", "Module Match pret.");
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -201,15 +212,16 @@ public class MatchController {
             return;
         }
 
-        try {
-            matchsService.add(match);
-            refreshData(null);
-            clearForm();
-            showSuccessStatus("Match ajoute avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant l'ajout.");
-            showAlert(Alert.AlertType.ERROR, "Ajout", "Erreur lors de l'ajout du match.\n" + e.getMessage());
-        }
+        runMutation(
+                () -> matchsService.add(match),
+                null,
+                true,
+                false,
+                "Match ajoute avec succes.",
+                "Ajout",
+                "Erreur pendant l'ajout.",
+                "Erreur lors de l'ajout du match."
+        );
     }
 
     @FXML
@@ -228,14 +240,17 @@ public class MatchController {
         match.setId(selectedMatch.getId());
         match.setIdMatch(selectedMatch.getIdMatch());
 
-        try {
-            matchsService.update(match);
-            refreshData(selectedMatch.getId());
-            showSuccessStatus("Match modifie avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant la modification.");
-            showAlert(Alert.AlertType.ERROR, "Modification", "Erreur lors de la modification du match.\n" + e.getMessage());
-        }
+        Integer preferredSelectionId = selectedMatch.getId();
+        runMutation(
+                () -> matchsService.update(match),
+                preferredSelectionId,
+                false,
+                false,
+                "Match modifie avec succes.",
+                "Modification",
+                "Erreur pendant la modification.",
+                "Erreur lors de la modification du match."
+        );
     }
 
     @FXML
@@ -256,21 +271,28 @@ public class MatchController {
             return;
         }
 
-        try {
-            matchsService.delete(selectedMatch.getId());
-            refreshData(null);
-            clearForm();
-            showSuccessStatus("Match supprime avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant la suppression.");
-            showAlert(Alert.AlertType.ERROR, "Suppression", "Erreur lors de la suppression du match.\n" + e.getMessage());
-        }
+        Integer selectedMatchId = selectedMatch.getId();
+        runMutation(
+                () -> matchsService.delete(selectedMatchId),
+                null,
+                true,
+                false,
+                "Match supprime avec succes.",
+                "Suppression",
+                "Erreur pendant la suppression.",
+                "Erreur lors de la suppression du match."
+        );
     }
 
     @FXML
     private void handleRefresh() {
-        refreshData(getSelectedMatchId());
-        showMutedStatus("Liste des matchs actualisee.");
+        refreshDataAsync(
+                getSelectedMatchId(),
+                true,
+                "Actualisation des matchs...",
+                "status-muted",
+                "Liste des matchs actualisee."
+        );
     }
 
     @FXML
@@ -516,26 +538,83 @@ public class MatchController {
         });
     }
 
-    private void refreshData(Integer preferredSelectionId) {
+    private void refreshDataAsync(
+            Integer preferredSelectionId,
+            boolean reloadEquipes,
+            String loadingMessage,
+            String successStyleClass,
+            String successMessage
+    ) {
         if (matchsService == null || equipeService == null) {
             return;
         }
 
-        try {
-            loadEquipes();
-            List<Matchs> loadedMatchs = new ArrayList<>(matchsService.getAll());
-            loadedMatchs.sort(Comparator
-                    .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
-                    .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
-                    .reversed());
-            matchs.setAll(loadedMatchs);
+        long requestId = refreshSequence.incrementAndGet();
+        boolean shouldLoadEquipes = reloadEquipes || !equipesLoaded || equipes.isEmpty();
+        loadingData = true;
+        updateActionAvailability();
+        if (loadingMessage != null) {
+            showMutedStatus(loadingMessage);
+        }
+
+        Task<RefreshPayload> loadTask = new Task<>() {
+            @Override
+            protected RefreshPayload call() throws Exception {
+                List<Equipe> loadedEquipes = null;
+                if (shouldLoadEquipes) {
+                    loadedEquipes = new ArrayList<>(equipeService.getAll());
+                    loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                }
+
+                List<Matchs> loadedMatchs = new ArrayList<>(matchsService.getAll());
+                loadedMatchs.sort(Comparator
+                        .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
+                        .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
+                        .reversed());
+
+                return new RefreshPayload(loadedEquipes, loadedMatchs, shouldLoadEquipes);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            RefreshPayload payload = loadTask.getValue();
+            if (payload.equipesReloaded) {
+                Integer selectedDomicileId = selectedEquipeId(equipeDomicileComboBox);
+                Integer selectedExterieurId = selectedEquipeId(equipeExterieurComboBox);
+                applyLoadedEquipes(payload.loadedEquipes, selectedDomicileId, selectedExterieurId);
+                imageCache.clear();
+                equipesLoaded = true;
+            }
+
+            matchs.setAll(payload.loadedMatchs);
             applyFilters();
             restoreSelection(preferredSelectionId);
-            matchListView.refresh();
-        } catch (SQLException e) {
+            loadingData = false;
+            updateActionAvailability();
+
+            if (successMessage != null) {
+                setStatus(successMessage, successStyleClass == null ? "status-muted" : successStyleClass);
+            }
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            loadingData = false;
+            updateActionAvailability();
             showErrorStatus("Erreur pendant le chargement.");
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des matchs.\n" + e.getMessage());
-        }
+            Throwable throwable = loadTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des matchs.\n" + details);
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void applyFilters() {
@@ -576,12 +655,11 @@ public class MatchController {
         selectionStateLabel.setText(hasDraftContent() ? "Brouillon en cours" : "Aucune selection");
     }
 
-    private void loadEquipes() throws SQLException {
-        Integer selectedDomicileId = selectedEquipeId(equipeDomicileComboBox);
-        Integer selectedExterieurId = selectedEquipeId(equipeExterieurComboBox);
+    private void applyLoadedEquipes(List<Equipe> loadedEquipes, Integer selectedDomicileId, Integer selectedExterieurId) {
+        if (loadedEquipes == null) {
+            return;
+        }
 
-        List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
-        loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
         equipes.setAll(loadedEquipes);
         equipeById = loadedEquipes.stream()
                 .filter(equipe -> equipe.getId() != null)
@@ -863,11 +941,12 @@ public class MatchController {
 
     private void updateActionAvailability() {
         boolean hasSelection = selectedMatch != null;
-        addButton.setDisable(!serviceReady);
-        updateButton.setDisable(!serviceReady || !hasSelection);
-        deleteButton.setDisable(!serviceReady || !hasSelection);
-        clearButton.setDisable(!serviceReady);
-        refreshButton.setDisable(!serviceReady);
+        boolean busy = loadingData || mutatingData;
+        addButton.setDisable(!serviceReady || busy);
+        updateButton.setDisable(!serviceReady || !hasSelection || busy);
+        deleteButton.setDisable(!serviceReady || !hasSelection || busy);
+        clearButton.setDisable(!serviceReady || busy);
+        refreshButton.setDisable(!serviceReady || busy);
     }
 
     private boolean hasDraftContent() {
@@ -1205,7 +1284,17 @@ public class MatchController {
         }
 
         String normalizedPath = imagePath.trim();
+        Optional<Image> cachedImage = imageCache.get(normalizedPath);
+        if (cachedImage != null) {
+            return cachedImage.orElse(null);
+        }
 
+        Image resolvedImage = resolveImage(normalizedPath);
+        imageCache.put(normalizedPath, Optional.ofNullable(resolvedImage));
+        return resolvedImage;
+    }
+
+    private Image resolveImage(String normalizedPath) {
         Image image = loadImageFromUri(normalizedPath);
         if (image != null) {
             return image;
@@ -1239,6 +1328,70 @@ public class MatchController {
         }
 
         return null;
+    }
+
+    @FunctionalInterface
+    private interface SqlRunnable {
+        void run() throws SQLException;
+    }
+
+    private static final class RefreshPayload {
+        private final List<Equipe> loadedEquipes;
+        private final List<Matchs> loadedMatchs;
+        private final boolean equipesReloaded;
+
+        private RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs, boolean equipesReloaded) {
+            this.loadedEquipes = loadedEquipes;
+            this.loadedMatchs = loadedMatchs;
+            this.equipesReloaded = equipesReloaded;
+        }
+    }
+
+    private void runMutation(
+            SqlRunnable mutation,
+            Integer preferredSelectionId,
+            boolean clearFormOnSuccess,
+            boolean reloadEquipesAfter,
+            String successMessage,
+            String errorTitle,
+            String errorStatusMessage,
+            String errorDialogPrefix
+    ) {
+        if (matchsService == null) {
+            return;
+        }
+
+        mutatingData = true;
+        updateActionAvailability();
+        showMutedStatus("Operation en cours...");
+
+        Task<Void> mutationTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                mutation.run();
+                return null;
+            }
+        };
+
+        mutationTask.setOnSucceeded(event -> {
+            mutatingData = false;
+            updateActionAvailability();
+            if (clearFormOnSuccess) {
+                clearForm();
+            }
+            refreshDataAsync(preferredSelectionId, reloadEquipesAfter, null, "status-success", successMessage);
+        });
+
+        mutationTask.setOnFailed(event -> {
+            mutatingData = false;
+            updateActionAvailability();
+            showErrorStatus(errorStatusMessage);
+            Throwable throwable = mutationTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, errorTitle, errorDialogPrefix + "\n" + details);
+        });
+
+        DB_EXECUTOR.execute(mutationTask);
     }
 
     private URL resolveResource(String imagePath) {
@@ -1329,6 +1482,14 @@ public class MatchController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static ThreadFactory daemonFactory(String threadName) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, threadName);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

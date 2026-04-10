@@ -120,8 +120,8 @@
                                        styleClass="home-search-field"/>
                         </HBox>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Label text="Thursday, Apr 9" styleClass="home-top-chip"/>
-                        <Button text="+ New Note" styleClass="primary-button"/>
+                        <Label fx:id="headerDateLabel" styleClass="home-top-chip"/>
+                        <Button fx:id="newNoteButton" onAction="#handleNewNote" text="+ New Note" styleClass="primary-button"/>
                     </HBox>
 
                     <StackPane styleClass="home-hero-shell">
@@ -137,15 +137,15 @@
                             <HBox spacing="12">
                                 <VBox spacing="4" styleClass="home-hero-metric-card">
                                     <Label text="Matches Today" styleClass="home-metric-label"/>
-                                    <Label text="3" styleClass="home-metric-value"/>
+                                    <Label fx:id="matchesTodayMetricLabel" styleClass="home-metric-value"/>
                                 </VBox>
                                 <VBox spacing="4" styleClass="home-hero-metric-card">
                                     <Label text="Active Players" styleClass="home-metric-label"/>
-                                    <Label text="45" styleClass="home-metric-value"/>
+                                    <Label fx:id="activePlayersMetricLabel" styleClass="home-metric-value"/>
                                 </VBox>
                                 <VBox spacing="4" styleClass="home-hero-metric-card">
                                     <Label text="Pending Tasks" styleClass="home-metric-label"/>
-                                    <Label text="12" styleClass="home-metric-value"/>
+                                    <Label fx:id="pendingTasksMetricLabel" styleClass="home-metric-value"/>
                                 </VBox>
                             </HBox>
                         </VBox>

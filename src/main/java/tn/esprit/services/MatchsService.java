@@ -9,8 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MatchsService implements IService<Matchs> {
     private final Connection connection;
@@ -140,5 +142,38 @@ public class MatchsService implements IService<Matchs> {
     private Integer getNullableInt(ResultSet rs, String columnName) throws SQLException {
         int value = rs.getInt(columnName);
         return rs.wasNull() ? null : value;
+    }
+
+    /**
+     * Number of matches scheduled on the given calendar day.
+     */
+    public int countMatchesOnDate(LocalDate date) throws SQLException {
+        Objects.requireNonNull(date, "date");
+        String sql = "SELECT COUNT(*) FROM matchs WHERE date_match = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setDate(1, Date.valueOf(date));
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Number of matches with the given status (e.g. {@code Programme}, {@code Fini}).
+     */
+    public int countByStatut(String statut) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM matchs WHERE statut = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, statut);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
     }
 }
