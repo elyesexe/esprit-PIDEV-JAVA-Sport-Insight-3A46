@@ -30,6 +30,7 @@ public class EquipeCrudMain extends Application {
         URL stylesheet = EquipeCrudMain.class.getResource("/tn/esprit/styles/equipe-theme.css");
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Equipe theme stylesheet is missing").toExternalForm());
 
+        ThemeManager.registerScene(scene);
         stage.setTitle("Equipes | Sport Insight");
         stage.setMinWidth(940);
         stage.setMinHeight(680);

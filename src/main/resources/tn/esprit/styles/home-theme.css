@@ -399,3 +399,178 @@
     -fx-background-color: rgba(236, 253, 245, 0.95);
 }
 .home-wave-9 { -fx-min-height: 12; }
+
+.theme-dark.page-root {
+    -fx-background-color:
+        radial-gradient(center 12% 10%, radius 38%, rgba(52, 211, 153, 0.12) 0%, rgba(52, 211, 153, 0) 100%),
+        radial-gradient(center 90% 16%, radius 32%, rgba(14, 116, 144, 0.16) 0%, rgba(14, 116, 144, 0) 100%),
+        radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
+}
+
+.theme-dark .home-topbar {
+    -fx-background-color: rgba(15, 23, 42, 0.72);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .home-search-box {
+    -fx-background-color: rgba(11, 18, 32, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+}
+
+.theme-dark .home-search-icon {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .home-search-field {
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .home-top-chip {
+    -fx-background-color: rgba(6, 95, 70, 0.5);
+    -fx-border-color: rgba(52, 211, 153, 0.45);
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .home-hero-shell {
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.56), 40, 0.24, 0, 20);
+}
+
+.theme-dark .home-hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.9) 0%, rgba(5, 46, 37, 0.72) 54%, rgba(15, 118, 110, 0.56) 100%);
+}
+
+.theme-dark .home-hero-eyebrow {
+    -fx-background-color: rgba(15, 23, 42, 0.62);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-text-fill: #bbf7d0;
+}
+
+.theme-dark .home-hero-text,
+.theme-dark .home-metric-label {
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .home-section-card {
+    -fx-background-color: rgba(15, 23, 42, 0.74);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .home-module-button .home-module-content,
+.theme-dark .home-module-static {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.92) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark #equipesButton,
+.theme-dark #joueursButton,
+.theme-dark #matchsButton {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.92) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-border-radius: 22;
+    -fx-background-radius: 22;
+}
+
+.theme-dark #equipesButton .home-module-content,
+.theme-dark #joueursButton .home-module-content,
+.theme-dark #matchsButton .home-module-content {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.theme-dark #equipesButton {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.52) 0%, rgba(15, 23, 42, 0.9) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.5);
+}
+
+.theme-dark #joueursButton {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.9) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+}
+
+.theme-dark #matchsButton {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 55, 52, 0.86) 0%, rgba(10, 30, 38, 0.88) 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.4);
+}
+
+.theme-dark .home-module-button-teams .home-module-content {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.52) 0%, rgba(15, 23, 42, 0.9) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.5);
+}
+
+.theme-dark .home-module-button-players .home-module-content {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.9) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+}
+
+.theme-dark .home-module-button-matches .home-module-content {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 55, 52, 0.86) 0%, rgba(10, 30, 38, 0.88) 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.4);
+}
+
+.theme-dark .home-module-static-news {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(66, 32, 6, 0.56) 0%, rgba(30, 41, 59, 0.82) 100%);
+    -fx-border-color: rgba(245, 158, 11, 0.42);
+}
+
+.theme-dark .home-module-static-train {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(5, 46, 22, 0.62) 0%, rgba(11, 18, 32, 0.88) 100%);
+    -fx-border-color: rgba(34, 197, 94, 0.4);
+}
+
+.theme-dark .home-module-static-store {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 41, 59, 0.9) 0%, rgba(11, 18, 32, 0.9) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .home-module-title,
+.theme-dark .home-feed-title,
+.theme-dark .home-schedule-title,
+.theme-dark .home-day-number {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .home-module-subtitle,
+.theme-dark .home-feed-text,
+.theme-dark .home-schedule-meta,
+.theme-dark .home-day-name,
+.theme-dark .home-day-name-active {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .home-module-link,
+.theme-dark .home-feed-meta {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .home-feed-meta-error {
+    -fx-text-fill: #fca5a5;
+}
+
+.theme-dark .home-feed-row,
+.theme-dark .home-schedule-row {
+    -fx-background-color: rgba(11, 18, 32, 0.88);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .home-day-box {
+    -fx-background-color: rgba(30, 41, 59, 0.82);
+}
+
+.theme-dark .home-day-box-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #047857 0%, #059669 100%);
+}
+
+.theme-dark .home-day-number-active {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .home-feed-thumb {
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.45), 16, 0.2, 0, 6);
+}
+
+.theme-dark .home-live-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #022c22 0%, #0f766e 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}

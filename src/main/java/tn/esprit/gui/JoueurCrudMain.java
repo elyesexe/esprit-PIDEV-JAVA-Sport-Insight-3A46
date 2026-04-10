@@ -30,6 +30,7 @@ public class JoueurCrudMain extends Application {
         URL stylesheet = JoueurCrudMain.class.getResource("/tn/esprit/styles/joueur-theme.css");
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Joueur theme stylesheet is missing").toExternalForm());
 
+        ThemeManager.registerScene(scene);
         stage.setTitle("Joueurs | Sport Insight");
         stage.setMinWidth(940);
         stage.setMinHeight(680);

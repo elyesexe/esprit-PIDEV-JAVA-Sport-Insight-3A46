@@ -248,3 +248,119 @@
     -fx-font-weight: 700;
     -fx-text-fill: #0f172a;
 }
+
+.theme-dark.page-root {
+    -fx-background-color:
+        radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
+}
+
+.theme-dark .hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.92) 0%, rgba(15, 23, 42, 0.76) 42%, rgba(15, 118, 110, 0.54) 100%);
+}
+
+.theme-dark .match-toolbar {
+    -fx-background-color: rgba(15, 23, 42, 0.76);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .match-search-field {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.36);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .match-search-field:focused {
+    -fx-background-color: rgba(11, 18, 32, 0.94);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.94);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.theme-dark #searchField {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.36);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark #searchField:focused {
+    -fx-background-color: rgba(11, 18, 32, 0.94);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.94);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.theme-dark .match-date-picker .text-field {
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .match-list-view .list-cell:filled:selected .fixture-card,
+.theme-dark .match-list-view .list-cell:filled:selected:focused .fixture-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.46) 0%, rgba(15, 23, 42, 0.86) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.58);
+}
+
+.theme-dark .fixture-card {
+    -fx-background-color: rgba(15, 23, 42, 0.74);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .match-list-view .list-cell:filled:hover .fixture-card {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+}
+
+.theme-dark .fixture-date,
+.theme-dark .fixture-id,
+.theme-dark .fixture-team-role {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-team-logo-shell,
+.theme-dark .match-detail-logo-shell,
+.theme-dark .fixture-score-shell,
+.theme-dark .match-detail-score-shell,
+.theme-dark .match-detail-board {
+    -fx-background-color: rgba(11, 18, 32, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+}
+
+.theme-dark .fixture-team-fallback,
+.theme-dark .match-detail-logo-fallback {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-team-name,
+.theme-dark .match-detail-team-name,
+.theme-dark .fixture-score-value,
+.theme-dark .match-detail-score {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .fixture-score-caption,
+.theme-dark .match-detail-score-caption,
+.theme-dark .match-detail-team-role {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-meta-chip {
+    -fx-background-color: rgba(30, 41, 59, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .fixture-link-chip {
+    -fx-background-color: rgba(6, 95, 70, 0.5);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+    -fx-text-fill: #86efac;
+}

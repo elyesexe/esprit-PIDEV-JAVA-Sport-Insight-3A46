@@ -23,6 +23,7 @@ tn\esprit\services\CommentaireService.class
 tn\esprit\entities\Order.class
 tn\esprit\tools\MyConnection.class
 tn\esprit\entities\MatchLineup.class
+tn\esprit\gui\ThemeManager.class
 tn\esprit\gui\JoueurCrudMain.class
 tn\esprit\mains\AnnonceMain.class
 tn\esprit\services\ContratSponsorService.class
@@ -32,6 +33,7 @@ tn\esprit\entities\Equipe.class
 tn\esprit\entities\User.class
 tn\esprit\services\EquipeService.class
 tn\esprit\services\IService.class
+tn\esprit\gui\ThemeManager$ThemeMode.class
 tn\esprit\entities\OrderItem.class
 tn\esprit\gui\MatchCrudMain.class
 tn\esprit\services\EntrainementService.class
