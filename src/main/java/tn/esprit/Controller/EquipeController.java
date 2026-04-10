@@ -2,10 +2,9 @@ package tn.esprit.Controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -23,7 +22,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import tn.esprit.entities.Equipe;
 import tn.esprit.gui.SceneNavigator;
@@ -38,13 +36,20 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class EquipeController {
     private static final double CARD_LOGO_SIZE = 78;
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
     private static final double SIDEBAR_EXPANDED_WIDTH = 256;
+    private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("equipe-db-worker"));
 
     @FXML
     private VBox sidebarRoot;
@@ -121,12 +126,16 @@ public class EquipeController {
 
     private final ObservableList<Equipe> masterEquipes = FXCollections.observableArrayList();
     private final ObservableList<Equipe> displayedEquipes = FXCollections.observableArrayList();
+    private final AtomicLong refreshSequence = new AtomicLong();
+    private final Map<String, Optional<Image>> imageCache = new ConcurrentHashMap<>();
 
     private EquipeService equipeService;
     private File lastImageDirectory;
     private boolean sortDescending;
     private boolean serviceReady;
     private boolean sidebarVisible;
+    private boolean loadingData;
+    private boolean mutatingData;
 
     @FXML
     public void initialize() {
@@ -143,8 +152,7 @@ public class EquipeController {
         try {
             equipeService = new EquipeService();
             serviceReady = true;
-            refreshTable(null);
-            showStatus("status-muted", "Connexion etablie. Module Equipe pret.");
+            refreshTableAsync(null, "Chargement des equipes...", "status-muted", "Connexion etablie. Module Equipe pret.");
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -162,15 +170,15 @@ public class EquipeController {
             return;
         }
 
-        try {
-            equipeService.add(equipe);
-            refreshTable(null);
-            clearForm();
-            showStatus("status-success", "Equipe ajoutee avec succes.");
-        } catch (SQLException e) {
-            showStatus("status-error", "Erreur lors de l'ajout de l'equipe.");
-            showAlert(Alert.AlertType.ERROR, "Ajout", "Erreur lors de l'ajout :\n" + e.getMessage());
-        }
+        runMutation(
+                () -> equipeService.add(equipe),
+                null,
+                true,
+                "Equipe ajoutee avec succes.",
+                "Ajout",
+                "Erreur lors de l'ajout :",
+                "Erreur lors de l'ajout de l'equipe."
+        );
     }
 
     @FXML
@@ -190,14 +198,15 @@ public class EquipeController {
 
         equipe.setId(selectedEquipe.getId());
 
-        try {
-            equipeService.update(equipe);
-            refreshTable(selectedEquipe.getId());
-            showStatus("status-success", "Equipe modifiee avec succes.");
-        } catch (SQLException e) {
-            showStatus("status-error", "Erreur lors de la modification de l'equipe.");
-            showAlert(Alert.AlertType.ERROR, "Modification", "Erreur lors de la modification :\n" + e.getMessage());
-        }
+        runMutation(
+                () -> equipeService.update(equipe),
+                selectedEquipe.getId(),
+                false,
+                "Equipe modifiee avec succes.",
+                "Modification",
+                "Erreur lors de la modification :",
+                "Erreur lors de la modification de l'equipe."
+        );
     }
 
     @FXML
@@ -220,21 +229,25 @@ public class EquipeController {
             return;
         }
 
-        try {
-            equipeService.delete(selectedEquipe.getId());
-            refreshTable(null);
-            clearForm();
-            showStatus("status-success", "Equipe supprimee avec succes.");
-        } catch (SQLException e) {
-            showStatus("status-error", "Erreur lors de la suppression de l'equipe.");
-            showAlert(Alert.AlertType.ERROR, "Suppression", "Erreur lors de la suppression :\n" + e.getMessage());
-        }
+        runMutation(
+                () -> equipeService.delete(selectedEquipe.getId()),
+                null,
+                true,
+                "Equipe supprimee avec succes.",
+                "Suppression",
+                "Erreur lors de la suppression :",
+                "Erreur lors de la suppression de l'equipe."
+        );
     }
 
     @FXML
     private void handleRefresh() {
-        refreshTable(getSelectedEquipeId());
-        showStatus("status-muted", "Liste actualisee depuis la base de donnees.");
+        refreshTableAsync(
+                getSelectedEquipeId(),
+                "Actualisation des equipes...",
+                "status-muted",
+                "Liste actualisee depuis la base de donnees."
+        );
     }
 
     @FXML
@@ -359,18 +372,59 @@ public class EquipeController {
         imageField.textProperty().addListener((observable, oldValue, newValue) -> updateDetailCard());
     }
 
-    private void refreshTable(Integer preferredSelectionId) {
+    private void refreshTableAsync(
+            Integer preferredSelectionId,
+            String loadingMessage,
+            String successStyleClass,
+            String successMessage
+    ) {
         if (equipeService == null) {
             return;
         }
 
-        try {
-            masterEquipes.setAll(equipeService.getAll());
-            applyFiltersAndSort(preferredSelectionId);
-        } catch (SQLException e) {
-            showStatus("status-error", "Erreur lors du chargement des equipes.");
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des equipes :\n" + e.getMessage());
+        long requestId = refreshSequence.incrementAndGet();
+        loadingData = true;
+        updateActionAvailability();
+        if (loadingMessage != null) {
+            showStatus("status-muted", loadingMessage);
         }
+
+        Task<List<Equipe>> loadTask = new Task<>() {
+            @Override
+            protected List<Equipe> call() throws Exception {
+                return equipeService.getAll();
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            masterEquipes.setAll(loadTask.getValue());
+            applyFiltersAndSort(preferredSelectionId);
+            loadingData = false;
+            updateActionAvailability();
+
+            if (successMessage != null) {
+                showStatus(successStyleClass == null ? "status-muted" : successStyleClass, successMessage);
+            }
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            loadingData = false;
+            updateActionAvailability();
+            showStatus("status-error", "Erreur lors du chargement des equipes.");
+            Throwable throwable = loadTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des equipes :\n" + details);
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void applyFiltersAndSort(Integer preferredSelectionId) {
@@ -616,12 +670,13 @@ public class EquipeController {
 
     private void updateActionAvailability() {
         boolean hasSelection = equipeListView.getSelectionModel().getSelectedItem() != null;
+        boolean busy = loadingData || mutatingData;
 
-        addButton.setDisable(!serviceReady);
-        updateButton.setDisable(!serviceReady || !hasSelection);
-        deleteButton.setDisable(!serviceReady || !hasSelection);
-        refreshButton.setDisable(!serviceReady);
-        clearButton.setDisable(!serviceReady);
+        addButton.setDisable(!serviceReady || busy);
+        updateButton.setDisable(!serviceReady || !hasSelection || busy);
+        deleteButton.setDisable(!serviceReady || !hasSelection || busy);
+        refreshButton.setDisable(!serviceReady || busy);
+        clearButton.setDisable(!serviceReady || busy);
     }
 
     private boolean hasDraftContent() {
@@ -753,7 +808,17 @@ public class EquipeController {
         }
 
         String normalizedPath = imagePath.trim();
+        Optional<Image> cachedImage = imageCache.get(normalizedPath);
+        if (cachedImage != null) {
+            return cachedImage.orElse(null);
+        }
 
+        Image resolvedImage = resolveImage(normalizedPath);
+        imageCache.put(normalizedPath, Optional.ofNullable(resolvedImage));
+        return resolvedImage;
+    }
+
+    private Image resolveImage(String normalizedPath) {
         Image image = loadImageFromUri(normalizedPath);
         if (image != null) {
             return image;
@@ -787,6 +852,58 @@ public class EquipeController {
         }
 
         return null;
+    }
+
+    @FunctionalInterface
+    private interface SqlRunnable {
+        void run() throws SQLException;
+    }
+
+    private void runMutation(
+            SqlRunnable mutation,
+            Integer preferredSelectionId,
+            boolean clearFormOnSuccess,
+            String successMessage,
+            String errorTitle,
+            String errorMessagePrefix,
+            String errorStatusMessage
+    ) {
+        if (equipeService == null) {
+            return;
+        }
+
+        mutatingData = true;
+        updateActionAvailability();
+        showStatus("status-muted", "Operation en cours...");
+
+        Task<Void> mutationTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                mutation.run();
+                return null;
+            }
+        };
+
+        mutationTask.setOnSucceeded(event -> {
+            mutatingData = false;
+            updateActionAvailability();
+            imageCache.clear();
+            if (clearFormOnSuccess) {
+                clearForm();
+            }
+            refreshTableAsync(preferredSelectionId, null, "status-success", successMessage);
+        });
+
+        mutationTask.setOnFailed(event -> {
+            mutatingData = false;
+            updateActionAvailability();
+            showStatus("status-error", errorStatusMessage);
+            Throwable throwable = mutationTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, errorTitle, errorMessagePrefix + "\n" + details);
+        });
+
+        DB_EXECUTOR.execute(mutationTask);
     }
 
     private URL resolveResource(String imagePath) {
@@ -860,6 +977,14 @@ public class EquipeController {
         } catch (IllegalArgumentException e) {
             return null;
         }
+    }
+
+    private static ThreadFactory daemonFactory(String threadName) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, threadName);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
