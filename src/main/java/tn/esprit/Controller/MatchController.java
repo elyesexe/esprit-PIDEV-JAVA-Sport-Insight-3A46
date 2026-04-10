@@ -18,6 +18,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -28,6 +29,7 @@ import javafx.scene.layout.VBox;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.MatchsService;
 
@@ -73,6 +75,8 @@ public class MatchController {
     private Button matchsNavButton;
     @FXML
     private Button joueursNavButton;
+    @FXML
+    private ToggleButton themeToggleButton;
     @FXML
     private Label resultCountLabel;
     @FXML
@@ -163,6 +167,7 @@ public class MatchController {
     @FXML
     public void initialize() {
         configureSidebar();
+        ThemeManager.bindToggle(themeToggleButton);
         configureStatusLabel();
         configureSearch();
         configureTeamComboBoxes();

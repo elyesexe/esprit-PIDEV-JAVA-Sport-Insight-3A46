@@ -38,6 +38,7 @@ public final class SceneNavigator {
                 scene.getStylesheets().add(stylesheet.toExternalForm());
             }
 
+            ThemeManager.registerScene(scene);
             stage.setScene(scene);
             stage.setTitle(title);
         } catch (IOException e) {

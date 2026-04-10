@@ -30,6 +30,7 @@ public class HomeMain extends Application {
         URL stylesheet = HomeMain.class.getResource("/tn/esprit/styles/home-theme.css");
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Home theme stylesheet is missing").toExternalForm());
 
+        ThemeManager.registerScene(scene);
         stage.setTitle("Sport Insight | Accueil");
         stage.setMinWidth(940);
         stage.setMinHeight(680);

@@ -173,3 +173,67 @@
 .toolbar-panel .button {
     -fx-max-width: infinity;
 }
+
+.theme-dark .player-list-card {
+    -fx-background-color: rgba(15, 23, 42, 0.74);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .player-list-view .list-cell:filled:hover .player-list-card {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+}
+
+.theme-dark .player-list-view .list-cell:filled:selected .player-list-card,
+.theme-dark .player-list-view .list-cell:filled:selected:focused .player-list-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.44) 0%, rgba(15, 23, 42, 0.86) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.62);
+}
+
+.theme-dark .player-list-view .scroll-bar:vertical .track {
+    -fx-background-color: rgba(51, 65, 85, 0.8);
+}
+
+.theme-dark .player-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(52, 211, 153, 0.46);
+}
+
+.theme-dark .player-avatar-shell,
+.theme-dark .player-detail-photo-shell {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+}
+
+.theme-dark .player-avatar-fallback,
+.theme-dark .player-detail-photo-fallback {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .player-card-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .player-number-badge {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #047857 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.44);
+    -fx-text-fill: #dcfce7;
+}
+
+.theme-dark .player-card-team {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .player-card-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .player-card-meta-pill {
+    -fx-background-color: rgba(30, 41, 59, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .form-date-picker .text-field {
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}

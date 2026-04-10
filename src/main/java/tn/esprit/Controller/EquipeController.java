@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -26,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import tn.esprit.entities.Equipe;
 import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 
 import java.io.File;
@@ -60,6 +62,8 @@ public class EquipeController {
     private Button matchsNavButton;
     @FXML
     private Button joueursNavButton;
+    @FXML
+    private ToggleButton themeToggleButton;
     @FXML
     private TextField searchField;
     @FXML
@@ -127,6 +131,7 @@ public class EquipeController {
     @FXML
     public void initialize() {
         configureSidebar();
+        ThemeManager.bindToggle(themeToggleButton);
         configureToolbar();
         configureListView();
         bindFormPreview();

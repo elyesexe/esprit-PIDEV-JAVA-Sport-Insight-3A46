@@ -3,9 +3,11 @@ package tn.esprit.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.ThemeManager;
 
 public class HomeController {
     private static final double SIDEBAR_EXPANDED_WIDTH = 256;
@@ -32,12 +34,15 @@ public class HomeController {
     private Button joueursButton;
     @FXML
     private Button matchsButton;
+    @FXML
+    private ToggleButton themeToggleButton;
 
     private boolean sidebarVisible;
 
     @FXML
     public void initialize() {
         sidebarVisible = true;
+        ThemeManager.bindToggle(themeToggleButton);
         applySidebarState();
     }
 

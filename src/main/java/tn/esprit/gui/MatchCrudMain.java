@@ -30,6 +30,7 @@ public class MatchCrudMain extends Application {
         URL stylesheet = MatchCrudMain.class.getResource("/tn/esprit/styles/match-theme.css");
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Base stylesheet is missing").toExternalForm());
 
+        ThemeManager.registerScene(scene);
         stage.setTitle("Matchs | Sport Insight");
         stage.setMinWidth(960);
         stage.setMinHeight(700);
