@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="tn.esprit.controllers.CommentaireController">
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <Label text="Gestion des Commentaires" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+            <HBox spacing="10" style="-fx-background-color: #34495E; -fx-padding: 10; -fx-border-radius: 5;">
+                <Label text="Recherche par:" style="-fx-text-fill: white;"/>
+
+                <VBox>
+                    <Label text="ID Joueur:" style="-fx-text-fill: #BDC3C7; -fx-font-size: 11;"/>
+                    <TextField fx:id="searchJoueurField" promptText="ID joueur..." style="-fx-min-width: 150;"/>
+                </VBox>
+
+                <VBox>
+                    <Label text="ID Annonce:" style="-fx-text-fill: #BDC3C7; -fx-font-size: 11;"/>
+                    <TextField fx:id="searchAnnonceField" promptText="ID annonce..." style="-fx-min-width: 150;"/>
+                </VBox>
+
+                <VBox>
+                    <Label text="Date publication:" style="-fx-text-fill: #BDC3C7; -fx-font-size: 11;"/>
+                    <DatePicker fx:id="searchPublicationDatePicker" style="-fx-min-width: 150;"/>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+                <HBox spacing="5">
+                    <Button text="Joueur" onAction="#rechercherParJoueur" style="-fx-padding: 8; -fx-font-size: 11;"/>
+                    <Button text="Annonce" onAction="#rechercherParAnnonce" style="-fx-padding: 8; -fx-font-size: 11;"/>
+                    <Button text="Tri avance" onAction="#rechercherAvance" style="-fx-padding: 8; -fx-font-size: 11;"/>
+                    <Button text="Reinitialiser" onAction="#rafraichirRecherche" style="-fx-padding: 8; -fx-font-size: 11;"/>
+                </HBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="15" style="-fx-padding: 15;">
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Liste des Commentaires" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <TableView fx:id="commentaireTable" style="-fx-font-size: 11;" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="auteurColumn" text="Auteur" prefWidth="100"/>
+                        <TableColumn fx:id="contenuColumn" text="Contenu" prefWidth="200"/>
+                        <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
+                        <TableColumn fx:id="likesColumn" text="Likes" prefWidth="60"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="10" style="-fx-border-color: #BDC3C7; -fx-border-radius: 5; -fx-padding: 15; -fx-min-width: 350;">
+                <Label text="Formulaire de Commentaire" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                <VBox spacing="5">
+                    <Label text="Contenu:" style="-fx-font-weight: bold;"/>
+                    <TextArea fx:id="contenuArea" promptText="Votre commentaire..." wrapText="true" prefRowCount="4"/>
+                </VBox>
+
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="ID Joueur:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="joueurIdField" promptText="Numerique"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="ID Annonce:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="annonceIdField" promptText="Numerique"/>
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="5">
+                    <Label text="Auteur:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="auteurField" promptText="Nom de l'auteur"/>
+                </VBox>
+
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Likes:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="likesField" promptText="0"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Moderation:" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="moderationCombo" promptText="Selectionner..."/>
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="5">
+                    <Label text="Raison de moderation:" style="-fx-font-weight: bold;"/>
+                    <TextArea fx:id="moderationReasonArea" promptText="(Optionnel)" wrapText="true" prefRowCount="2"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Date:" style="-fx-font-weight: bold;"/>
+                    <DatePicker fx:id="datePicker"/>
+                </VBox>
+
+                <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #ECF0F1; -fx-border-radius: 3;">
+                    <Button text="Ajouter" onAction="#ajouterCommentaire" style="-fx-padding: 10; -fx-font-weight: bold; -fx-min-width: 80;"/>
+                    <Button text="Modifier" onAction="#modifierCommentaire" style="-fx-padding: 10; -fx-font-weight: bold; -fx-min-width: 80;"/>
+                    <Button text="Supprimer" onAction="#supprimerCommentaire" style="-fx-padding: 10; -fx-font-weight: bold; -fx-min-width: 80;"/>
+                    <Button text="Nettoyer" onAction="#nettoyer" style="-fx-padding: 10; -fx-min-width: 80;"/>
+                    <Button text="Exporter PDF" onAction="#exporterPdf" style="-fx-padding: 10; -fx-min-width: 100;"/>
+                </HBox>
+
+                <Label fx:id="messageLabel" style="-fx-font-size: 12; -fx-wrap-text: true;" wrapText="true"/>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="tn.esprit.controllers.AnnonceController">
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <Label text="Gestion des Annonces" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+            <!-- Barre de recherche -->
+            <HBox spacing="10" style="-fx-background-color: #34495E; -fx-padding: 10; -fx-border-radius: 5;">
+                <Label text="Recherche par:" style="-fx-text-fill: white;"/>
+
+                <VBox>
+                    <Label text="Titre:" style="-fx-text-fill: #BDC3C7; -fx-font-size: 11;"/>
+                    <TextField fx:id="searchTitreField" promptText="Mot-clé..." style="-fx-min-width: 150;"/>
+                </VBox>
+
+                <VBox>
+                    <Label text="Date:" style="-fx-text-fill: #BDC3C7; -fx-font-size: 11;"/>
+                    <DatePicker fx:id="searchDatePicker" style="-fx-min-width: 150;"/>
+                </VBox>
+
+                <VBox>
+                    <Label text="Poste:" style="-fx-text-fill: #BDC3C7; -fx-font-size: 11;"/>
+                    <TextField fx:id="searchPosteField" promptText="Poste..." style="-fx-min-width: 150;"/>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+                <HBox spacing="5">
+                    <Button onAction="#rechercherParTitre" style="-fx-background-color: transparent; -fx-text-fill: #FFFFFF;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M10 2 A8 8 0 1 0 10 18 A8 8 0 1 0 10 2 M16 16 L20 20" style="-fx-stroke:#FFFFFF; -fx-fill: transparent; -fx-stroke-width:2;" />
+                                <Label text="Titre" style="-fx-text-fill: white;"/>
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Rechercher par titre" />
+                        </tooltip>
+                    </Button>
+                    <Button onAction="#rechercherParDate" style="-fx-background-color: transparent; -fx-text-fill: #FFFFFF;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M2 4 H14 V14 H2 Z M2 6 H14" style="-fx-fill: transparent; -fx-stroke: white; -fx-stroke-width:1.5;" />
+                                <Label text="Date" style="-fx-text-fill: white;"/>
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Rechercher par date" />
+                        </tooltip>
+                    </Button>
+                    <Button onAction="#rechercherParPoste" style="-fx-background-color: transparent; -fx-text-fill: #FFFFFF;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M2 6 L6 2 L14 10 L10 14 Z" style="-fx-fill: white;" />
+                                <Label text="Poste" style="-fx-text-fill: white;"/>
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Rechercher par poste" />
+                        </tooltip>
+                    </Button>
+                    <Button onAction="#rafraichirRecherche" style="-fx-background-color: transparent; -fx-text-fill: #FFFFFF;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M4 6 A6 6 0 1 1 10 12 L10 8" style="-fx-fill: none; -fx-stroke: white; -fx-stroke-width:2;" />
+                                <Label text="Réinitialiser" style="-fx-text-fill: white;"/>
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Réinitialiser" />
+                        </tooltip>
+                    </Button>
+                </HBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="15" style="-fx-padding: 15;">
+            <!-- Table des annonces -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Liste des Annonces" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <TableView fx:id="annonceTable" style="-fx-font-size: 11;" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="titreColumn" text="Titre" prefWidth="150"/>
+                        <TableColumn fx:id="posteColumn" text="Poste" prefWidth="120"/>
+                        <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
+                        <TableColumn fx:id="statutColumn" text="Statut" prefWidth="80"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Formulaire -->
+            <VBox spacing="10" style="-fx-border-color: #BDC3C7; -fx-border-radius: 5; -fx-padding: 15; -fx-min-width: 350;">
+                <Label text="Formulaire d'Annonce" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                <VBox spacing="5">
+                    <Label text="Titre:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="titreField" promptText="Titre de l'annonce"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Description:" style="-fx-font-weight: bold;"/>
+                    <TextArea fx:id="descriptionArea" promptText="Description détaillée..." wrapText="true" prefRowCount="3"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Poste recherché:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="posteField" promptText="Ex: Gardien"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Niveau requis:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="niveauField" promptText="Ex: Professionnel"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Date de publication:" style="-fx-font-weight: bold;"/>
+                    <DatePicker fx:id="datePicker"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Statut:" style="-fx-font-weight: bold;"/>
+                    <ComboBox fx:id="statutCombo" promptText="Sélectionner..."/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="ID Entraîneur:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="entraineurIdField" promptText="ID numérique"/>
+                </VBox>
+
+                <HBox spacing="10">
+                    <CheckBox fx:id="commentsEnabledCheck" text="Commentaires activés" selected="true" />
+                    <CheckBox fx:id="urgentCheck" text="Annonce urgente" />
+                </HBox>
+
+                <VBox spacing="5">
+                    <Label text="Nombre de commentaires:" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="commentCountLabel" text="0" />
+                </VBox>
+
+                <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #ECF0F1; -fx-border-radius: 3;">
+                    <Button onAction="#ajouterAnnonce" style="-fx-padding: 8; -fx-font-weight: bold; -fx-min-width: 110; -fx-font-size:14px;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M6 0 L10 0 L10 6 L16 6 L16 10 L10 10 L10 16 L6 16 L6 10 L0 10 L0 6 L6 6 Z" style="-fx-fill: #2C3E50; -fx-scale-x:0.9; -fx-scale-y:0.9;" />
+                                <Label text="Ajouter" />
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Ajouter une annonce" />
+                        </tooltip>
+                    </Button>
+                    <Button onAction="#modifierAnnonce" style="-fx-padding: 8; -fx-font-weight: bold; -fx-min-width: 110; -fx-font-size:14px;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M2 12 L2 16 L6 16 L14 8 L10 4 L4 4 Z M13 1 L15 3 L11 7 L9 5 Z" style="-fx-fill: #2C3E50; -fx-scale-x:0.9; -fx-scale-y:0.9;" />
+                                <Label text="Modifier" />
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Modifier l'annonce sélectionnée" />
+                        </tooltip>
+                    </Button>
+                    <Button onAction="#supprimerAnnonce" style="-fx-padding: 8; -fx-font-weight: bold; -fx-min-width: 110; -fx-font-size:14px;">
+                        <graphic>
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <SVGPath content="M2 4 L4 4 L4 2 L12 2 L12 4 L14 4 L12 16 L4 16 L2 4 Z" style="-fx-fill: #C0392B; -fx-scale-x:0.9; -fx-scale-y:0.9;" />
+                                <Label text="Supprimer" />
+                            </HBox>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Supprimer l'annonce sélectionnée" />
+                        </tooltip>
+                    </Button>
+                    <Button text="🧹 Nettoyer" onAction="#nettoyer" style="-fx-padding: 10; -fx-min-width: 110; -fx-font-family: 'Segoe UI Emoji', 'Segoe UI Symbol'; -fx-font-size:14px;">
+                        <tooltip>
+                            <Tooltip text="Nettoyer le formulaire" />
+                        </tooltip>
+                    </Button>
+                    <Button text="📄 Exporter PDF" onAction="#exporterPdf" style="-fx-padding: 10; -fx-min-width: 110;"/>
+                </HBox>
+
+                <Label fx:id="messageLabel" style="-fx-font-size: 12; -fx-wrap-text: true;" wrapText="true"/>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>
+
