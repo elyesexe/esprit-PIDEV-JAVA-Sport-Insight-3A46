@@ -1,5 +1,7 @@
 package tn.esprit.Controller;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -11,12 +13,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
@@ -31,7 +34,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
+import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
@@ -57,21 +62,22 @@ import java.util.Optional;
 public class JoueurController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final Path SYMFONY_JOUEURS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "joueurs");
-    private static final double SIDEBAR_EXPANDED_WIDTH = 256;
     private static final double CARD_IMAGE_SIZE = 82;
 
     @FXML
-    private VBox sidebarRoot;
+    private HBox navbarRoot;
+    @FXML
+    private Button adminNavButton;
     @FXML
     private HBox sidebarBrandBox;
-    @FXML
-    private Button sidebarToggleButton;
-    @FXML
-    private Button sidebarOpenButton;
     @FXML
     private Button equipesNavButton;
     @FXML
     private Button matchsNavButton;
+    @FXML
+    private HBox sidebarModuleChildrenBox;
+    @FXML
+    private Button leaguesNavButton;
     @FXML
     private Button joueursNavButton;
     @FXML
@@ -92,6 +98,24 @@ public class JoueurController {
     private ComboBox<Equipe> equipeFilterComboBox;
     @FXML
     private ListView<Joueur> joueurListView;
+    @FXML
+    private TableView<Joueur> joueurTableView;
+    @FXML
+    private TableColumn<Joueur, Integer> joueurIdColumn;
+    @FXML
+    private TableColumn<Joueur, String> joueurNomColumn;
+    @FXML
+    private TableColumn<Joueur, String> joueurPrenomColumn;
+    @FXML
+    private TableColumn<Joueur, String> joueurEquipeColumn;
+    @FXML
+    private TableColumn<Joueur, Integer> joueurNumeroColumn;
+    @FXML
+    private TableColumn<Joueur, String> joueurNaissanceColumn;
+    @FXML
+    private TableColumn<Joueur, String> joueurPositionColumn;
+    @FXML
+    private TableColumn<Joueur, String> joueurNationaliteColumn;
     @FXML
     private VBox emptyStateBox;
     @FXML
@@ -147,12 +171,12 @@ public class JoueurController {
     private Joueur selectedJoueur;
     private File lastImageDirectory;
     private boolean serviceReady;
+    private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
-        configureNavigationState();
         configureStatusLabel();
         configureEquipeComboBoxes();
         configureNumeroField();
@@ -301,28 +325,31 @@ public class JoueurController {
     }
 
     @FXML
-    private void handleOpenSidebar() {
-        applySidebarState(true);
-    }
-
-    @FXML
-    private void handleToggleSidebar() {
-        applySidebarState(false);
-    }
-
-    @FXML
     private void handleOpenHome() {
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
     }
 
     @FXML
+    private void handleOpenAdmin() {
+        AdminNavigation.openAdmin(adminNavButton);
+    }
+
+    @FXML
     private void handleOpenEquipes() {
-        SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/equipe-crud-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Sport Insight");
+        SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/equipe-competitions-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Competitions");
     }
 
     @FXML
     private void handleOpenMatchsSoon() {
+        if (sidebarModuleGroup != null && sidebarModuleGroup.handleMatchsClick()) {
+            return;
+        }
         SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/match-crud-view.fxml", "/tn/esprit/styles/match-theme.css", "Matchs | Sport Insight");
+    }
+
+    @FXML
+    private void handleOpenLeagues() {
+        SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
     }
 
     @FXML
@@ -331,12 +358,14 @@ public class JoueurController {
     }
 
     private void configureSidebar() {
-        applySidebarState(true);
-    }
-
-    private void configureNavigationState() {
-        joueursNavButton.getStyleClass().remove("sidebar-nav-button-active");
-        joueursNavButton.getStyleClass().add("sidebar-nav-button-active");
+        sidebarModuleGroup = new SidebarModuleGroup(
+                matchsNavButton,
+                sidebarModuleChildrenBox,
+                equipesNavButton,
+                leaguesNavButton,
+                joueursNavButton
+        );
+        sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.JOUEURS);
     }
 
     private void configureStatusLabel() {
@@ -373,36 +402,58 @@ public class JoueurController {
     }
 
     private void configurePlayerList() {
-        joueurListView.setItems(filteredJoueurs);
-        joueurListView.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(Joueur item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(null);
-                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        if (joueurTableView != null) {
+            joueurIdColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
+            joueurNomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
+            joueurPrenomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getPrenom())));
+            joueurEquipeColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveEquipeLabel(cell.getValue())));
+            joueurNumeroColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getNumero()));
+            joueurNaissanceColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveBirthDateLabel(cell.getValue())));
+            joueurPositionColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolvePlayerPositionLabel(cell.getValue())));
+            joueurNationaliteColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolvePlayerNationalityLabel(cell.getValue())));
 
-                if (empty || item == null) {
-                    setGraphic(null);
-                    return;
+            joueurTableView.setItems(filteredJoueurs);
+            joueurTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            joueurTableView.setPlaceholder(new Label(""));
+            joueurTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                    handleSelectedJoueurChange(newValue));
+        }
+
+        if (joueurListView != null) {
+            joueurListView.setItems(filteredJoueurs);
+            joueurListView.setPlaceholder(new Label(""));
+            joueurListView.setCellFactory(listView -> new ListCell<>() {
+                @Override
+                protected void updateItem(Joueur item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    setText(null);
+                    VBox card = buildPlayerCard(item);
+                    card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
+                    setGraphic(card);
                 }
+            });
+            joueurListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                    handleSelectedJoueurChange(newValue));
+        }
+    }
 
-                setGraphic(buildPlayerCard(item));
-            }
-        });
+    private void handleSelectedJoueurChange(Joueur newValue) {
+        selectedJoueur = newValue;
 
-        joueurListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            selectedJoueur = newValue;
+        if (newValue != null) {
+            populateForm(newValue);
+        } else if (!hasDraftContent()) {
+            clearFormFieldsOnly();
+        }
 
-            if (newValue != null) {
-                populateForm(newValue);
-            } else if (!hasDraftContent()) {
-                clearFormFieldsOnly();
-            }
-
-            clearValidation();
-            updateActionAvailability();
-            updateDetailPanel();
-        });
+        clearValidation();
+        updateActionAvailability();
+        updateDetailPanel();
     }
 
     private void bindUiState() {
@@ -470,21 +521,21 @@ public class JoueurController {
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
 
-        Label numberLabel = new Label("#" + joueur.getNumero());
+        Label numberLabel = new Label(buildPlayerBadge(joueur));
         numberLabel.getStyleClass().add("player-number-badge");
 
         titleRow.getChildren().addAll(titleLabel, numberLabel);
 
-        Label teamLabel = new Label(getEquipeName(joueur.getEquipeId()));
+        Label teamLabel = new Label(buildPlayerSecondaryLine(joueur));
         teamLabel.getStyleClass().add("player-card-team");
 
         HBox metaRow = new HBox(8);
         metaRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label birthLabel = new Label("Ne le " + formatDate(joueur.getDateNaissance()));
+        Label birthLabel = new Label(buildPlayerBirthLine(joueur));
         birthLabel.getStyleClass().add("player-card-meta");
 
-        Label ageLabel = new Label(formatAge(joueur.getDateNaissance()));
+        Label ageLabel = new Label(buildPlayerMetaPill(joueur));
         ageLabel.getStyleClass().add("player-card-meta-pill");
 
         Region spacer = new Region();
@@ -494,7 +545,12 @@ public class JoueurController {
         content.getChildren().addAll(titleRow, teamLabel, metaRow);
 
         root.getChildren().addAll(avatarShell, content);
-        return new VBox(root);
+        root.setMaxWidth(Double.MAX_VALUE);
+
+        VBox wrapper = new VBox(root);
+        wrapper.setFillWidth(true);
+        wrapper.setMaxWidth(Double.MAX_VALUE);
+        return wrapper;
     }
 
     private void refreshData(Integer preferredSelectionId) {
@@ -546,10 +602,12 @@ public class JoueurController {
 
         filteredJoueurs.setPredicate(joueur -> {
             boolean matchesQuery = query == null
-                    || normalize(buildFullName(joueur)).contains(query)
-                    || normalize(getEquipeName(joueur.getEquipeId())).contains(query)
-                    || normalize(emptyIfNull(joueur.getNom())).contains(query)
-                    || normalize(emptyIfNull(joueur.getPrenom())).contains(query);
+                    || containsNormalized(buildFullName(joueur), query)
+                    || containsNormalized(getEquipeName(joueur.getEquipeId()), query)
+                    || containsNormalized(joueur.getPosition(), query)
+                    || containsNormalized(joueur.getNationalite(), query)
+                    || containsNormalized(joueur.getNom(), query)
+                    || containsNormalized(joueur.getPrenom(), query);
 
             boolean matchesEquipe = filterEquipeId == null || Objects.equals(joueur.getEquipeId(), filterEquipeId);
             return matchesQuery && matchesEquipe;
@@ -559,7 +617,7 @@ public class JoueurController {
         updateEmptyState();
 
         if (selectedJoueur != null && !filteredJoueurs.contains(selectedJoueur)) {
-            joueurListView.getSelectionModel().clearSelection();
+            clearPlayerSelection();
         }
     }
 
@@ -572,7 +630,7 @@ public class JoueurController {
                 .count();
 
         resultCountLabel.setText(joueursCount + " joueur(s)");
-        resultsMetaLabel.setText(joueursCount + " resultat(s)");
+        resultsMetaLabel.setText(joueursCount + (isCardLayout() ? " carte(s)" : " ligne(s)"));
         teamCountLabel.setText(equipesCount + " equipe(s)");
     }
 
@@ -585,15 +643,14 @@ public class JoueurController {
     private void restoreSelection(Integer preferredSelectionId) {
         if (preferredSelectionId == null) {
             selectedJoueur = null;
-            joueurListView.getSelectionModel().clearSelection();
+            clearPlayerSelection();
             updateActionAvailability();
             return;
         }
 
         for (Joueur joueur : filteredJoueurs) {
             if (Objects.equals(joueur.getId(), preferredSelectionId)) {
-                joueurListView.getSelectionModel().select(joueur);
-                joueurListView.scrollTo(joueur);
+                selectPlayer(joueur);
                 selectedJoueur = joueur;
                 updateActionAvailability();
                 return;
@@ -601,7 +658,7 @@ public class JoueurController {
         }
 
         selectedJoueur = null;
-        joueurListView.getSelectionModel().clearSelection();
+        clearPlayerSelection();
         updateActionAvailability();
     }
 
@@ -688,7 +745,7 @@ public class JoueurController {
     }
 
     private void clearForm() {
-        joueurListView.getSelectionModel().clearSelection();
+        clearPlayerSelection();
         selectedJoueur = null;
         clearFormFieldsOnly();
         clearValidation();
@@ -730,11 +787,14 @@ public class JoueurController {
                 ? "Modifiez la fiche selectionnee puis enregistrez vos changements."
                 : "Composez une nouvelle fiche joueur et visualisez-la a droite.");
 
+        String positionValue = selectedJoueur == null ? null : emptyToNull(selectedJoueur.getPosition());
+        String nationaliteValue = selectedJoueur == null ? null : emptyToNull(selectedJoueur.getNationalite());
+
         detailNameLabel.setText(fullName == null ? "Aucun joueur selectionne" : fullName);
-        detailSubtitleLabel.setText(buildDetailSubtitle(equipeName, dateNaissance, numeroValue, drafting));
+        detailSubtitleLabel.setText(buildDetailSubtitle(equipeName, dateNaissance, numeroValue, drafting, positionValue, nationaliteValue));
         detailIdValueLabel.setText(editing && selectedJoueur.getId() != null ? "#" + selectedJoueur.getId() : "Nouveau");
         detailEquipeValueLabel.setText(equipeName == null ? "Aucune" : equipeName);
-        detailNumeroValueLabel.setText(numeroValue == null ? "Non defini" : "#" + numeroValue);
+        detailNumeroValueLabel.setText(hasDefinedNumber(numeroValue) ? "#" + numeroValue : "Non defini");
 
         Image image = loadImage(imagePath);
         boolean hasImage = image != null;
@@ -746,7 +806,14 @@ public class JoueurController {
         detailImageFallbackLabel.setText(buildDraftInitials());
     }
 
-    private String buildDetailSubtitle(String equipeName, LocalDate dateNaissance, String numeroValue, boolean drafting) {
+    private String buildDetailSubtitle(
+            String equipeName,
+            LocalDate dateNaissance,
+            String numeroValue,
+            boolean drafting,
+            String positionValue,
+            String nationaliteValue
+    ) {
         if (!drafting) {
             return "Selectionnez une carte ou commencez une nouvelle creation pour afficher la fiche detail.";
         }
@@ -758,8 +825,14 @@ public class JoueurController {
         if (dateNaissance != null) {
             parts.add("Ne le " + formatDate(dateNaissance));
         }
-        if (numeroValue != null) {
+        if (hasDefinedNumber(numeroValue)) {
             parts.add("Maillot #" + numeroValue);
+        }
+        if (positionValue != null) {
+            parts.add(positionValue);
+        }
+        if (nationaliteValue != null) {
+            parts.add(nationaliteValue);
         }
 
         return parts.isEmpty()
@@ -775,6 +848,36 @@ public class JoueurController {
         deleteButton.setDisable(!serviceReady || !hasSelection);
         clearButton.setDisable(!serviceReady);
         refreshButton.setDisable(!serviceReady);
+        if (joueurTableView != null) {
+            joueurTableView.setDisable(!serviceReady);
+        }
+        if (joueurListView != null) {
+            joueurListView.setDisable(!serviceReady);
+        }
+    }
+
+    private boolean isCardLayout() {
+        return joueurListView != null;
+    }
+
+    private void clearPlayerSelection() {
+        if (joueurTableView != null) {
+            joueurTableView.getSelectionModel().clearSelection();
+        }
+        if (joueurListView != null) {
+            joueurListView.getSelectionModel().clearSelection();
+        }
+    }
+
+    private void selectPlayer(Joueur joueur) {
+        if (joueurTableView != null) {
+            joueurTableView.getSelectionModel().select(joueur);
+            joueurTableView.scrollTo(joueur);
+        }
+        if (joueurListView != null) {
+            joueurListView.getSelectionModel().select(joueur);
+            joueurListView.scrollTo(joueur);
+        }
     }
 
     private boolean hasDraftContent() {
@@ -878,6 +981,67 @@ public class JoueurController {
         return years + " ans";
     }
 
+    private String buildPlayerBadge(Joueur joueur) {
+        if (joueur.getNumero() > 0) {
+            return "#" + joueur.getNumero();
+        }
+        String position = emptyToNull(joueur.getPosition());
+        return position == null ? "API" : position;
+    }
+
+    private String buildPlayerSecondaryLine(Joueur joueur) {
+        String equipeName = sanitizeDash(getEquipeName(joueur.getEquipeId()));
+        String position = emptyToNull(joueur.getPosition());
+        String nationalite = emptyToNull(joueur.getNationalite());
+
+        List<String> parts = new ArrayList<>();
+        if (equipeName != null) {
+            parts.add(equipeName);
+        }
+        if (position != null) {
+            parts.add(position);
+        }
+        if (nationalite != null) {
+            parts.add(nationalite);
+        }
+
+        return parts.isEmpty() ? "Profil sans equipe" : String.join(" | ", parts);
+    }
+
+    private String buildPlayerBirthLine(Joueur joueur) {
+        return joueur.getDateNaissance() == null
+                ? "Date de naissance indisponible"
+                : "Ne le " + formatDate(joueur.getDateNaissance());
+    }
+
+    private String buildPlayerMetaPill(Joueur joueur) {
+        String nationalite = emptyToNull(joueur.getNationalite());
+        return nationalite == null ? formatAge(joueur.getDateNaissance()) : nationalite;
+    }
+
+    private String resolveEquipeLabel(Joueur joueur) {
+        String equipeName = sanitizeDash(getEquipeName(joueur.getEquipeId()));
+        return equipeName == null ? "Sans equipe" : equipeName;
+    }
+
+    private String resolveBirthDateLabel(Joueur joueur) {
+        return joueur.getDateNaissance() == null ? "-" : formatDate(joueur.getDateNaissance());
+    }
+
+    private String resolvePlayerPositionLabel(Joueur joueur) {
+        String position = emptyToNull(joueur.getPosition());
+        return position == null ? "-" : position;
+    }
+
+    private String resolvePlayerNationalityLabel(Joueur joueur) {
+        String nationalite = emptyToNull(joueur.getNationalite());
+        return nationalite == null ? "-" : nationalite;
+    }
+
+    private boolean hasDefinedNumber(String numeroValue) {
+        return numeroValue != null && !"0".equals(numeroValue);
+    }
+
     private void showMutedStatus(String message) {
         setStatus(message, "status-muted");
     }
@@ -933,16 +1097,6 @@ public class JoueurController {
         control.getStyleClass().remove("invalid-field");
     }
 
-    private void applySidebarState(boolean visible) {
-        sidebarRoot.setManaged(visible);
-        sidebarRoot.setVisible(visible);
-        sidebarRoot.setMinWidth(visible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarRoot.setPrefWidth(visible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarRoot.setMaxWidth(visible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarOpenButton.setManaged(!visible);
-        sidebarOpenButton.setVisible(!visible);
-    }
-
     private String emptyIfNull(String value) {
         return value == null ? "" : value;
     }
@@ -957,6 +1111,11 @@ public class JoueurController {
         }
         String normalized = value.trim().toLowerCase();
         return normalized.isBlank() ? null : normalized;
+    }
+
+    private boolean containsNormalized(String value, String query) {
+        String normalized = normalize(value);
+        return normalized != null && normalized.contains(query);
     }
 
     private String sanitizeDash(String value) {

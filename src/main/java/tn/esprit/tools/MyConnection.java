@@ -14,6 +14,7 @@ public class MyConnection {
 
     private MyConnection() throws SQLException {
         connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        SchemaMigration.ensureFootballDataColumns(connection);
     }
 
     public static MyConnection getInstance() throws SQLException {

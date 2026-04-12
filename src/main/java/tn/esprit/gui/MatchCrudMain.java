@@ -14,7 +14,7 @@ import java.util.Objects;
 public class MatchCrudMain extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(MatchCrudMain.class.getResource("/tn/esprit/views/match-crud-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(MatchCrudMain.class.getResource("/tn/esprit/views/match-competitions-view.fxml"));
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         double width = Math.min(1420, visualBounds.getWidth() - 40);
         double height = Math.min(900, visualBounds.getHeight() - 40);
@@ -31,7 +31,7 @@ public class MatchCrudMain extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Base stylesheet is missing").toExternalForm());
 
         ThemeManager.registerScene(scene);
-        stage.setTitle("Matchs | Sport Insight");
+        stage.setTitle("Matchs | Competitions");
         stage.setMinWidth(960);
         stage.setMinHeight(700);
         stage.setScene(scene);

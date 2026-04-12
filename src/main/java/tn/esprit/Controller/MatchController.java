@@ -1,27 +1,31 @@
 package tn.esprit.Controller;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -29,10 +33,15 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
+import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
+import tn.esprit.services.FootballDataSyncService;
+import tn.esprit.services.FootballDataSyncSummary;
 import tn.esprit.services.MatchsService;
+import tn.esprit.services.football.FootballDataCompetitions;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -64,22 +73,33 @@ public class MatchController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
-    private static final double SIDEBAR_EXPANDED_WIDTH = 256;
     private static final double CARD_LOGO_SIZE = 68;
+    private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
+    private static final Map<String, String> COMPETITION_CODES_BY_LABEL = COMPETITION_LABELS.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+    private static final String ALL_COMPETITIONS_LABEL = "Toutes competitions";
+    private static final String STATUS_FILTER_ALL = "Tous statuts";
     private static final String STATUS_PROGRAMME = "Programme";
+    private static final String STATUS_EN_DIRECT = "En direct";
     private static final String STATUS_FINI = "Fini";
+    private static final String STATUS_REPORTE = "Reporte";
+    private static final String STATUS_ANNULE = "Annule";
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("match-db-worker"));
 
     @FXML
-    private VBox sidebarRoot;
+    private HBox navbarRoot;
+    @FXML
+    private Button adminNavButton;
     @FXML
     private HBox sidebarBrandBox;
-    @FXML
-    private Button sidebarOpenButton;
     @FXML
     private Button equipesNavButton;
     @FXML
     private Button matchsNavButton;
+    @FXML
+    private HBox sidebarModuleChildrenBox;
+    @FXML
+    private Button leaguesNavButton;
     @FXML
     private Button joueursNavButton;
     @FXML
@@ -95,7 +115,35 @@ public class MatchController {
     @FXML
     private TextField searchField;
     @FXML
+    private ComboBox<String> statusFilterComboBox;
+    @FXML
+    private ComboBox<String> syncCompetitionComboBox;
+    @FXML
+    private Label syncMetaLabel;
+    @FXML
     private ListView<Matchs> matchListView;
+    @FXML
+    private TableView<Matchs> matchTableView;
+    @FXML
+    private TableColumn<Matchs, String> matchReferenceColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchDateColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchTimeColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchHomeColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchAwayColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchScoreColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchStatusColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchCompetitionColumn;
+    @FXML
+    private TableColumn<Matchs, String> matchLocationColumn;
+    @FXML
+    private VBox emptyStateBox;
     @FXML
     private Label detailBadgeLabel;
     @FXML
@@ -160,6 +208,10 @@ public class MatchController {
     private Button clearButton;
     @FXML
     private Button refreshButton;
+    @FXML
+    private Button syncTeamsButton;
+    @FXML
+    private Button syncMatchesButton;
 
     private final ObservableList<Matchs> matchs = FXCollections.observableArrayList();
     private final FilteredList<Matchs> filteredMatchs = new FilteredList<>(matchs, match -> true);
@@ -169,18 +221,24 @@ public class MatchController {
 
     private MatchsService matchsService;
     private EquipeService equipeService;
+    private FootballDataSyncService footballDataSyncService;
     private Map<Integer, Equipe> equipeById = Map.of();
     private Matchs selectedMatch;
+    private String selectedCompetitionCode;
     private boolean serviceReady;
     private boolean loadingData;
     private boolean mutatingData;
     private boolean equipesLoaded;
+    private boolean syncingData;
+    private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
         configureStatusLabel();
+        configureSyncSection();
+        configureStatusFilter();
         configureSearch();
         configureTeamComboBoxes();
         configureStatusChoices();
@@ -188,7 +246,7 @@ public class MatchController {
         configureMatchList();
         bindFormState();
         updateActionAvailability();
-        updateCounters();
+        updateCounters(null);
         updateDetailPanel();
 
         try {
@@ -201,6 +259,27 @@ public class MatchController {
             updateActionAvailability();
             showErrorStatus("Connexion base impossible.");
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de charger les matchs.\n" + e.getMessage());
+        }
+    }
+
+    public void setCompetitionFilter(String competitionCode) {
+        selectedCompetitionCode = emptyToNull(competitionCode);
+
+        if (statusFilterComboBox != null) {
+            statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
+        }
+
+        if (syncCompetitionComboBox != null) {
+            String selectedLabel = selectedCompetitionCode == null
+                    ? FootballDataCompetitions.ALL_LABEL
+                    : resolveCompetitionLabel(selectedCompetitionCode);
+            syncCompetitionComboBox.getSelectionModel().select(selectedLabel);
+        }
+
+        if (searchField != null && (matchTableView != null || matchListView != null)) {
+            applyFilters();
+        } else {
+            updateCounters(null);
         }
     }
 
@@ -296,19 +375,22 @@ public class MatchController {
     }
 
     @FXML
+    private void handleSyncTeamsAndPlayers() {
+        runSync(false);
+    }
+
+    @FXML
+    private void handleSyncMatches() {
+        runSync(true);
+    }
+
+    @FXML
     private void handleClear() {
+        searchField.clear();
+        statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
         clearForm();
-        showMutedStatus("Formulaire vide.");
-    }
-
-    @FXML
-    private void handleOpenSidebar() {
-        applySidebarState(true);
-    }
-
-    @FXML
-    private void handleToggleSidebar() {
-        applySidebarState(false);
+        applyFilters();
+        showMutedStatus("Recherche et formulaire reinitialises.");
     }
 
     @FXML
@@ -317,13 +399,29 @@ public class MatchController {
     }
 
     @FXML
-    private void handleOpenEquipes() {
-        SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/equipe-crud-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Sport Insight");
+    private void handleOpenAdmin() {
+        AdminNavigation.openAdmin(adminNavButton);
     }
 
     @FXML
-    private void handleOpenMatchs() {
-        showMutedStatus("Vous etes deja dans le module Matchs.");
+    private void handleOpenEquipes() {
+        SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/equipe-competitions-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Competitions");
+    }
+
+    @FXML
+    private void handleOpenMatchs(ActionEvent event) {
+        if (event != null
+                && event.getSource() == matchsNavButton
+                && sidebarModuleGroup != null
+                && sidebarModuleGroup.handleMatchsClick()) {
+            return;
+        }
+        SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/match-competitions-view.fxml", "/tn/esprit/styles/match-theme.css", "Matchs | Competitions");
+    }
+
+    @FXML
+    private void handleOpenLeagues() {
+        SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
     }
 
     @FXML
@@ -332,10 +430,14 @@ public class MatchController {
     }
 
     private void configureSidebar() {
-        applySidebarState(true);
-        if (!matchsNavButton.getStyleClass().contains("sidebar-nav-button-active")) {
-            matchsNavButton.getStyleClass().add("sidebar-nav-button-active");
-        }
+        sidebarModuleGroup = new SidebarModuleGroup(
+                matchsNavButton,
+                sidebarModuleChildrenBox,
+                equipesNavButton,
+                leaguesNavButton,
+                joueursNavButton
+        );
+        sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.MATCHS);
     }
 
     private void configureStatusLabel() {
@@ -345,8 +447,29 @@ public class MatchController {
         statusLabel.setText("Pret");
     }
 
+    private void configureSyncSection() {
+        ObservableList<String> competitionOptions = FXCollections.observableArrayList();
+        competitionOptions.add(FootballDataCompetitions.ALL_LABEL);
+        competitionOptions.addAll(COMPETITION_LABELS.values());
+
+        syncCompetitionComboBox.setItems(competitionOptions);
+        syncCompetitionComboBox.getSelectionModel().select(FootballDataCompetitions.ALL_LABEL);
+
+        syncMetaLabel.setText("Plan gratuit : un lot complet sur les 6 competitions prend environ 40 secondes.");
+    }
+
     private void configureSearch() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+        statusFilterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+    }
+
+    private void configureStatusFilter() {
+        statusFilterComboBox.setItems(FXCollections.observableArrayList(
+                STATUS_FILTER_ALL,
+                STATUS_PROGRAMME,
+                STATUS_FINI
+        ));
+        statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
     }
 
     private void configureTeamComboBoxes() {
@@ -359,7 +482,13 @@ public class MatchController {
     }
 
     private void configureStatusChoices() {
-        statutComboBox.setItems(FXCollections.observableArrayList(STATUS_PROGRAMME, STATUS_FINI));
+        statutComboBox.setItems(FXCollections.observableArrayList(
+                STATUS_PROGRAMME,
+                STATUS_EN_DIRECT,
+                STATUS_FINI,
+                STATUS_REPORTE,
+                STATUS_ANNULE
+        ));
         statutComboBox.getSelectionModel().select(STATUS_PROGRAMME);
         updateScoreFieldsForStatus(true);
     }
@@ -381,36 +510,59 @@ public class MatchController {
     }
 
     private void configureMatchList() {
-        matchListView.setItems(filteredMatchs);
-        matchListView.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(Matchs item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(null);
-                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        if (matchTableView != null) {
+            matchReferenceColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchReference(cell.getValue())));
+            matchDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDate(cell.getValue().getDateMatch())));
+            matchTimeColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatTime(cell.getValue().getHeureDebut())));
+            matchHomeColumn.setCellValueFactory(cell -> new SimpleStringProperty(getEquipeName(cell.getValue().getEquipeDomicileId())));
+            matchAwayColumn.setCellValueFactory(cell -> new SimpleStringProperty(getEquipeName(cell.getValue().getEquipeExterieurId())));
+            matchScoreColumn.setCellValueFactory(cell -> new SimpleStringProperty(buildScore(cell.getValue())));
+            matchStatusColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveStatus(cell.getValue())));
+            matchCompetitionColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveCompetitionTag(cell.getValue())));
+            matchLocationColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchLocation(cell.getValue())));
 
-                if (empty || item == null) {
-                    setGraphic(null);
-                    return;
+            matchTableView.setItems(filteredMatchs);
+            matchTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            matchTableView.setPlaceholder(new Label(""));
+            matchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                    handleSelectedMatchChange(newValue));
+        }
+
+        if (matchListView != null) {
+            matchListView.setItems(filteredMatchs);
+            matchListView.setPlaceholder(new Label(""));
+            matchListView.setCellFactory(listView -> new ListCell<>() {
+                @Override
+                protected void updateItem(Matchs item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    setText(null);
+                    VBox card = buildMatchCard(item);
+                    card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
+                    setGraphic(card);
                 }
+            });
+            matchListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                    handleSelectedMatchChange(newValue));
+        }
+    }
 
-                setGraphic(buildMatchCard(item));
-            }
-        });
+    private void handleSelectedMatchChange(Matchs newValue) {
+        selectedMatch = newValue;
+        if (newValue != null) {
+            populateForm(newValue);
+        } else if (!hasDraftContent()) {
+            clearFormFieldsOnly();
+        }
 
-        matchListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            selectedMatch = newValue;
-            if (newValue != null) {
-                populateForm(newValue);
-            } else if (!hasDraftContent()) {
-                clearFormFieldsOnly();
-            }
-
-            clearValidation();
-            updateActionAvailability();
-            updateSelectionState();
-            updateDetailPanel();
-        });
+        clearValidation();
+        updateActionAvailability();
+        updateSelectionState();
+        updateDetailPanel();
     }
 
     private VBox buildMatchCard(Matchs match) {
@@ -453,24 +605,29 @@ public class MatchController {
         HBox.setHgrow(homeBox, Priority.ALWAYS);
         HBox.setHgrow(awayBox, Priority.ALWAYS);
 
+        Label competitionChip = new Label(resolveCompetitionTag(match));
+        competitionChip.getStyleClass().add("fixture-meta-chip");
+
         Label locationChip = new Label(emptyToNull(match.getLieu()) == null ? "Lieu non renseigne" : match.getLieu());
         locationChip.getStyleClass().add("fixture-meta-chip");
 
         Label typeChip = new Label(emptyToNull(match.getType()) == null ? "Type non renseigne" : match.getType());
         typeChip.getStyleClass().add("fixture-meta-chip");
 
-        Label detailChip = new Label("Voir les details");
+        Label detailChip = new Label("Selectionner");
         detailChip.getStyleClass().add("fixture-link-chip");
 
         Region metaSpacer = new Region();
         HBox.setHgrow(metaSpacer, Priority.ALWAYS);
 
-        HBox metaRow = new HBox(10, locationChip, typeChip, metaSpacer, detailChip);
+        HBox metaRow = new HBox(10, competitionChip, locationChip, typeChip, metaSpacer, detailChip);
         metaRow.setAlignment(Pos.CENTER_LEFT);
         metaRow.getStyleClass().add("fixture-meta-row");
 
         VBox card = new VBox(14, head, teamsRow, metaRow);
         card.getStyleClass().add("fixture-card");
+        card.getStyleClass().add("fixture-card-clickable");
+        card.setMaxWidth(Double.MAX_VALUE);
         return card;
     }
 
@@ -536,6 +693,24 @@ public class MatchController {
             clearFieldError(scoreExterieurField);
             updateDetailPanel();
         });
+    }
+
+    private void openMatchDetail(Matchs match) {
+        if (match == null) {
+            return;
+        }
+
+        SceneNavigator.switchScene(
+                resolveMatchNavigationSource(),
+                "/tn/esprit/views/match-detail-view.fxml",
+                "/tn/esprit/styles/match-theme.css",
+                "Fiche match",
+                controller -> {
+                    if (controller instanceof MatchDetailController matchDetailController) {
+                        matchDetailController.setMatchContext(match);
+                    }
+                }
+        );
     }
 
     private void refreshDataAsync(
@@ -619,12 +794,19 @@ public class MatchController {
 
     private void applyFilters() {
         String query = normalize(searchField.getText());
-        filteredMatchs.setPredicate(match -> query == null || matchesQuery(match, query));
-        updateCounters();
+        String competitionCode = selectedCompetitionFilterCode();
+        String statusFilter = selectedStatusFilter();
+        filteredMatchs.setPredicate(match ->
+                (query == null || matchesQuery(match, query))
+                        && matchesStatusFilter(match, statusFilter)
+                        && matchesCompetitionFilter(match, competitionCode)
+        );
+        updateCounters(query);
+        updateEmptyState();
 
         if (selectedMatch != null && !filteredMatchs.contains(selectedMatch)) {
             selectedMatch = null;
-            matchListView.getSelectionModel().clearSelection();
+            clearMatchSelection();
             updateActionAvailability();
         }
     }
@@ -635,15 +817,39 @@ public class MatchController {
                 || containsNormalized(getEquipeName(match.getEquipeExterieurId()), query)
                 || containsNormalized(match.getLieu(), query)
                 || containsNormalized(match.getType(), query)
+                || containsNormalized(resolveCompetitionLabel(match.getCompetitionCode()), query)
                 || containsNormalized(match.getStatut(), query)
                 || containsNormalized(formatDate(match.getDateMatch()), query);
     }
 
-    private void updateCounters() {
+    private boolean matchesCompetitionFilter(Matchs match, String competitionCode) {
+        return competitionCode == null || Objects.equals(competitionCode, emptyToNull(match.getCompetitionCode()));
+    }
+
+    private boolean matchesStatusFilter(Matchs match, String statusFilter) {
+        return statusFilter == null || Objects.equals(statusFilter, normalizeMatchStatus(match == null ? null : match.getStatut()));
+    }
+
+    private void updateCounters(String query) {
         int count = filteredMatchs.size();
         resultCountLabel.setText(count + " match(s)");
-        resultsMetaLabel.setText(count + " rencontre(s) affichee(s)");
+        StringBuilder meta = new StringBuilder(count + (isCardLayout() ? " carte(s)" : " rencontre(s)"));
+        if (competitionCodeSelected()) {
+            meta.append(" | ").append(selectedCompetitionLabel());
+        } else if (!isCardLayout()) {
+            meta.append(" affichee(s)");
+        }
+        if (selectedStatusFilter() != null) {
+            meta.append(" | ").append(selectedStatusFilter());
+        }
+        resultsMetaLabel.setText(meta.toString());
         updateSelectionState();
+    }
+
+    private void updateEmptyState() {
+        boolean empty = filteredMatchs.isEmpty();
+        emptyStateBox.setManaged(empty);
+        emptyStateBox.setVisible(empty);
     }
 
     private void updateSelectionState() {
@@ -652,7 +858,14 @@ public class MatchController {
             return;
         }
 
-        selectionStateLabel.setText(hasDraftContent() ? "Brouillon en cours" : "Aucune selection");
+        if (hasDraftContent()) {
+            selectionStateLabel.setText("Brouillon en cours");
+            return;
+        }
+
+        selectionStateLabel.setText(competitionCodeSelected()
+                ? "Competition : " + selectedCompetitionLabel()
+                : "Aucune selection");
     }
 
     private void applyLoadedEquipes(List<Equipe> loadedEquipes, Integer selectedDomicileId, Integer selectedExterieurId) {
@@ -740,15 +953,15 @@ public class MatchController {
 
         Integer scoreDomicile = null;
         Integer scoreExterieur = null;
-        if (STATUS_PROGRAMME.equals(statut)) {
+        if (isScoreLockedStatus(statut)) {
             if (scoreDomicileText != null || scoreExterieurText != null) {
                 markFieldInvalid(scoreDomicileField);
                 markFieldInvalid(scoreExterieurField);
-                showValidation("Un match programme ne peut pas avoir de score.");
+                showValidation("Ce statut ne permet pas de score.");
                 return null;
             }
         } else {
-            if (scoreDomicileText == null || scoreExterieurText == null) {
+            if (requiresFinalScores(statut) && (scoreDomicileText == null || scoreExterieurText == null)) {
                 if (scoreDomicileText == null) {
                     markFieldInvalid(scoreDomicileField);
                 }
@@ -759,14 +972,18 @@ public class MatchController {
                 return null;
             }
 
-            scoreDomicile = parseScore(scoreDomicileText, scoreDomicileField);
-            if (scoreDomicile == null) {
-                return null;
+            if (scoreDomicileText != null) {
+                scoreDomicile = parseScore(scoreDomicileText, scoreDomicileField);
+                if (scoreDomicile == null) {
+                    return null;
+                }
             }
 
-            scoreExterieur = parseScore(scoreExterieurText, scoreExterieurField);
-            if (scoreExterieur == null) {
-                return null;
+            if (scoreExterieurText != null) {
+                scoreExterieur = parseScore(scoreExterieurText, scoreExterieurField);
+                if (scoreExterieur == null) {
+                    return null;
+                }
             }
         }
 
@@ -774,7 +991,7 @@ public class MatchController {
                 ? selectedMatch.getIdMatch()
                 : generateMatchReference();
 
-        return new Matchs(
+        Matchs match = new Matchs(
                 idMatch,
                 dateMatch,
                 heureDebut,
@@ -788,6 +1005,8 @@ public class MatchController {
                 equipeDomicile.getId(),
                 equipeExterieur.getId()
         );
+        match.setCompetitionCode(resolveFormCompetitionCode(updateMode));
+        return match;
     }
 
     private Integer parseScore(String scoreText, Control field) {
@@ -827,23 +1046,25 @@ public class MatchController {
     private void restoreSelection(Integer preferredSelectionId) {
         if (preferredSelectionId == null) {
             selectedMatch = null;
-            matchListView.getSelectionModel().clearSelection();
+            clearMatchSelection();
+            updateActionAvailability();
             updateSelectionState();
             return;
         }
 
         for (Matchs match : filteredMatchs) {
             if (Objects.equals(match.getId(), preferredSelectionId)) {
-                matchListView.getSelectionModel().select(match);
-                matchListView.scrollTo(match);
+                selectMatch(match);
                 selectedMatch = match;
+                updateActionAvailability();
                 updateSelectionState();
                 return;
             }
         }
 
         selectedMatch = null;
-        matchListView.getSelectionModel().clearSelection();
+        clearMatchSelection();
+        updateActionAvailability();
         updateSelectionState();
     }
 
@@ -884,7 +1105,7 @@ public class MatchController {
         detailStatusChipLabel.setText(status);
         applyDetailStatusStyle(detailStatusChipLabel, status);
         detailTitleLabel.setText(title);
-        detailSubtitleLabel.setText(buildDetailSubtitle(homeTeam, awayTeam));
+        detailSubtitleLabel.setText(buildDetailSubtitle(effectiveMatch, homeTeam, awayTeam));
         detailScoreValueLabel.setText(buildDraftScore(effectiveMatch));
         detailDateValueLabel.setText(formatDate(dateMatchPicker.getValue() != null ? dateMatchPicker.getValue() : effectiveMatch == null ? null : effectiveMatch.getDateMatch()));
         detailHeureValueLabel.setText(formatTime(parseTimeSafely(heureDebutField.getText(), effectiveMatch == null ? null : effectiveMatch.getHeureDebut())));
@@ -898,10 +1119,16 @@ public class MatchController {
         updateDetailLogo(detailAwayLogoView, detailAwayLogoFallbackLabel, awayTeam, "E");
     }
 
-    private String buildDetailSubtitle(Equipe homeTeam, Equipe awayTeam) {
+    private String buildDetailSubtitle(Matchs effectiveMatch, Equipe homeTeam, Equipe awayTeam) {
         String home = homeTeam == null ? "Equipe domicile" : emptyIfNull(homeTeam.getNom());
         String away = awayTeam == null ? "Equipe exterieur" : emptyIfNull(awayTeam.getNom());
-        return home + " recoit " + away + " dans une presentation inspiree du front-office Symfony.";
+        String competitionLabel = effectiveMatch == null
+                ? (competitionCodeSelected() ? selectedCompetitionLabel() : null)
+                : resolveCompetitionLabel(effectiveMatch.getCompetitionCode());
+        if (competitionLabel == null) {
+            return home + " recoit " + away + " dans une presentation inspiree du front-office Symfony.";
+        }
+        return competitionLabel + " | " + home + " recoit " + away + ".";
     }
 
     private void updateDetailLogo(ImageView imageView, Label fallbackLabel, Equipe equipe, String defaultLetter) {
@@ -917,7 +1144,7 @@ public class MatchController {
     }
 
     private void clearForm() {
-        matchListView.getSelectionModel().clearSelection();
+        clearMatchSelection();
         selectedMatch = null;
         clearFormFieldsOnly();
         clearValidation();
@@ -939,14 +1166,209 @@ public class MatchController {
         updateScoreFieldsForStatus(true);
     }
 
+    private void runSync(boolean matchesOnly) {
+        clearValidation();
+
+        FootballDataSyncService syncService = ensureSyncService();
+        if (syncService == null) {
+            return;
+        }
+
+        List<String> competitionCodes = selectedSyncCompetitionCodes();
+        syncingData = true;
+        updateActionAvailability();
+
+        String scopeLabel = competitionCodes.size() == 1
+                ? FootballDataCompetitions.labelOf(competitionCodes.get(0))
+                : FootballDataCompetitions.ALL_LABEL;
+        syncMetaLabel.setText("Synchronisation en cours : " + scopeLabel + ".");
+        showMutedStatus(matchesOnly
+                ? "Import du calendrier en cours..."
+                : "Import des clubs et effectifs en cours...");
+
+        Task<FootballDataSyncSummary> syncTask = new Task<>() {
+            @Override
+            protected FootballDataSyncSummary call() throws Exception {
+                updateMessage("Preparation de la synchronisation...");
+                if (matchesOnly) {
+                    return syncService.syncMatches(competitionCodes, this::updateMessage);
+                }
+                return syncService.syncTeamsAndPlayers(competitionCodes, this::updateMessage);
+            }
+        };
+
+        syncTask.messageProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.isBlank()) {
+                return;
+            }
+            syncMetaLabel.setText(newValue);
+            showMutedStatus(newValue);
+        });
+
+        syncTask.setOnSucceeded(event -> {
+            syncingData = false;
+            updateActionAvailability();
+
+            FootballDataSyncSummary summary = syncTask.getValue();
+            String summaryMessage = summary.toHumanMessage(!matchesOnly, matchesOnly);
+            syncMetaLabel.setText("Synchronise : " + summaryMessage);
+            refreshDataAsync(getSelectedMatchId(), true, null, "status-success", summaryMessage);
+        });
+
+        syncTask.setOnFailed(event -> {
+            syncingData = false;
+            updateActionAvailability();
+
+            syncMetaLabel.setText("La synchronisation a echoue.");
+            showErrorStatus("Erreur pendant la synchronisation.");
+            Throwable throwable = syncTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Synchronisation football-data.org", details);
+        });
+
+        DB_EXECUTOR.execute(syncTask);
+    }
+
+    private FootballDataSyncService ensureSyncService() {
+        if (footballDataSyncService != null) {
+            return footballDataSyncService;
+        }
+
+        try {
+            footballDataSyncService = new FootballDataSyncService();
+            return footballDataSyncService;
+        } catch (Exception e) {
+            showErrorStatus("Configuration football-data.org invalide.");
+            showAlert(Alert.AlertType.ERROR, "football-data.org",
+                    "Impossible de preparer la synchronisation.\n" + e.getMessage());
+            return null;
+        }
+    }
+
+    private String selectedCompetitionFilterCode() {
+        return selectedCompetitionCode;
+    }
+
+    private String selectedStatusFilter() {
+        String selectedStatus = statusFilterComboBox == null ? null : statusFilterComboBox.getValue();
+        if (selectedStatus == null || STATUS_FILTER_ALL.equals(selectedStatus)) {
+            return null;
+        }
+        return normalizeMatchStatus(selectedStatus);
+    }
+
+    private List<String> selectedSyncCompetitionCodes() {
+        String code = resolveCompetitionCode(syncCompetitionComboBox.getValue());
+        return code == null ? FootballDataCompetitions.DEFAULT_CODES : List.of(code);
+    }
+
+    private boolean competitionCodeSelected() {
+        return selectedCompetitionCode != null;
+    }
+
+    private String resolveCompetitionCode(String label) {
+        if (label == null || FootballDataCompetitions.ALL_LABEL.equals(label)) {
+            return null;
+        }
+        return COMPETITION_CODES_BY_LABEL.get(label);
+    }
+
+    private String resolveCompetitionLabel(String competitionCode) {
+        if (competitionCode == null) {
+            return null;
+        }
+        return COMPETITION_LABELS.getOrDefault(competitionCode, competitionCode);
+    }
+
+    private String resolveCompetitionTag(Matchs match) {
+        String competitionLabel = resolveCompetitionLabel(match == null ? null : match.getCompetitionCode());
+        return competitionLabel == null ? "Autre competition" : competitionLabel;
+    }
+
+    private String resolveMatchReference(Matchs match) {
+        if (match == null) {
+            return "-";
+        }
+        String reference = emptyToNull(match.getIdMatch());
+        if (reference != null) {
+            return reference;
+        }
+        return match.getId() == null ? "-" : "#" + match.getId();
+    }
+
+    private String resolveMatchLocation(Matchs match) {
+        String location = emptyToNull(match == null ? null : match.getLieu());
+        return location == null ? "Non renseigne" : location;
+    }
+
+    private String resolveFormCompetitionCode(boolean updateMode) {
+        String currentCompetitionCode = emptyToNull(selectedCompetitionCode);
+        if (currentCompetitionCode != null) {
+            return currentCompetitionCode;
+        }
+        if (updateMode && selectedMatch != null) {
+            return emptyToNull(selectedMatch.getCompetitionCode());
+        }
+        return null;
+    }
+
+    private String selectedCompetitionLabel() {
+        return selectedCompetitionCode == null ? ALL_COMPETITIONS_LABEL : resolveCompetitionLabel(selectedCompetitionCode);
+    }
+
     private void updateActionAvailability() {
         boolean hasSelection = selectedMatch != null;
-        boolean busy = loadingData || mutatingData;
+        boolean busy = loadingData || mutatingData || syncingData;
         addButton.setDisable(!serviceReady || busy);
         updateButton.setDisable(!serviceReady || !hasSelection || busy);
         deleteButton.setDisable(!serviceReady || !hasSelection || busy);
         clearButton.setDisable(!serviceReady || busy);
         refreshButton.setDisable(!serviceReady || busy);
+        searchField.setDisable(!serviceReady || busy);
+        statusFilterComboBox.setDisable(!serviceReady || busy);
+        syncCompetitionComboBox.setDisable(!serviceReady || busy);
+        syncTeamsButton.setDisable(!serviceReady || busy);
+        syncMatchesButton.setDisable(!serviceReady || busy);
+        if (matchTableView != null) {
+            matchTableView.setDisable(!serviceReady || busy);
+        }
+        if (matchListView != null) {
+            matchListView.setDisable(!serviceReady || busy);
+        }
+    }
+
+    private boolean isCardLayout() {
+        return matchListView != null;
+    }
+
+    private void clearMatchSelection() {
+        if (matchTableView != null) {
+            matchTableView.getSelectionModel().clearSelection();
+        }
+        if (matchListView != null) {
+            matchListView.getSelectionModel().clearSelection();
+        }
+    }
+
+    private void selectMatch(Matchs match) {
+        if (matchTableView != null) {
+            matchTableView.getSelectionModel().select(match);
+            matchTableView.scrollTo(match);
+        }
+        if (matchListView != null) {
+            matchListView.getSelectionModel().select(match);
+            matchListView.scrollTo(match);
+        }
+    }
+
+    private Node resolveMatchNavigationSource() {
+        if (matchListView != null) {
+            return matchListView;
+        }
+        if (matchTableView != null) {
+            return matchTableView;
+        }
+        return detailTitleLabel;
     }
 
     private boolean hasDraftContent() {
@@ -1023,7 +1445,7 @@ public class MatchController {
                 normalizeMatchStatus(effectiveMatch == null ? null : effectiveMatch.getStatut()),
                 STATUS_PROGRAMME
         );
-        if (STATUS_PROGRAMME.equals(status)) {
+        if (isScoreLockedStatus(status)) {
             return "-  :  -";
         }
 
@@ -1137,16 +1559,6 @@ public class MatchController {
         control.getStyleClass().remove("invalid-field");
     }
 
-    private void applySidebarState(boolean visible) {
-        sidebarRoot.setManaged(visible);
-        sidebarRoot.setVisible(visible);
-        sidebarRoot.setMinWidth(visible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarRoot.setPrefWidth(visible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarRoot.setMaxWidth(visible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarOpenButton.setManaged(!visible);
-        sidebarOpenButton.setVisible(!visible);
-    }
-
     private void applyFixtureStatusStyle(Label label, String status) {
         label.getStyleClass().removeAll("fixture-status-scheduled", "fixture-status-live", "fixture-status-finished", "fixture-status-cancelled");
         label.getStyleClass().add(resolveFixtureStatusClass(status));
@@ -1179,6 +1591,9 @@ public class MatchController {
         if (normalized.contains("annul")) {
             return "fixture-status-cancelled";
         }
+        if (normalized.contains("report") || normalized.contains("postpon") || normalized.contains("suspend")) {
+            return "fixture-status-scheduled";
+        }
         if (normalized.contains("prog")) {
             return "fixture-status-scheduled";
         }
@@ -1187,10 +1602,10 @@ public class MatchController {
 
     private void updateScoreFieldsForStatus(boolean clearWhenProgramme) {
         String status = normalizeMatchStatus(statutComboBox.getValue());
-        boolean programme = status == null || STATUS_PROGRAMME.equals(status);
-        scoreDomicileField.setDisable(programme);
-        scoreExterieurField.setDisable(programme);
-        if (programme && clearWhenProgramme) {
+        boolean locked = isScoreLockedStatus(status);
+        scoreDomicileField.setDisable(locked);
+        scoreExterieurField.setDisable(locked);
+        if (locked && clearWhenProgramme) {
             scoreDomicileField.clear();
             scoreExterieurField.clear();
         }
@@ -1204,10 +1619,31 @@ public class MatchController {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
+        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
+            return STATUS_EN_DIRECT;
+        }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
             return STATUS_FINI;
         }
+        if (normalized.contains("report") || normalized.contains("postpon") || normalized.contains("suspend")) {
+            return STATUS_REPORTE;
+        }
+        if (normalized.contains("annul") || normalized.contains("cancel")) {
+            return STATUS_ANNULE;
+        }
         return null;
+    }
+
+    private boolean isScoreLockedStatus(String status) {
+        String normalizedStatus = normalizeMatchStatus(status);
+        return normalizedStatus == null
+                || STATUS_PROGRAMME.equals(normalizedStatus)
+                || STATUS_REPORTE.equals(normalizedStatus)
+                || STATUS_ANNULE.equals(normalizedStatus);
+    }
+
+    private boolean requiresFinalScores(String status) {
+        return STATUS_FINI.equals(normalizeMatchStatus(status));
     }
 
     private StackPane createLogoPane(String imagePath, String teamName, double size, String shellStyle, String fallbackStyle) {

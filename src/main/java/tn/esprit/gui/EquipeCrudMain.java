@@ -14,7 +14,7 @@ import java.util.Objects;
 public class EquipeCrudMain extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(EquipeCrudMain.class.getResource("/tn/esprit/views/equipe-crud-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(EquipeCrudMain.class.getResource("/tn/esprit/views/equipe-competitions-view.fxml"));
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         double width = Math.min(1420, visualBounds.getWidth() - 40);
         double height = Math.min(900, visualBounds.getHeight() - 40);
@@ -31,7 +31,7 @@ public class EquipeCrudMain extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Equipe theme stylesheet is missing").toExternalForm());
 
         ThemeManager.registerScene(scene);
-        stage.setTitle("Equipes | Sport Insight");
+        stage.setTitle("Equipes | Competitions");
         stage.setMinWidth(940);
         stage.setMinHeight(680);
         stage.setScene(scene);

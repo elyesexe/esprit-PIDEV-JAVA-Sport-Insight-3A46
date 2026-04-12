@@ -1,0 +1,183 @@
+@import "equipe-theme.css";
+
+.league-hero-photo {
+    -fx-background-image: url("../images/league.jpeg");
+    -fx-background-size: cover;
+    -fx-background-position: 50% 50%;
+    -fx-background-radius: 30;
+}
+
+.league-table-hero-photo {
+    -fx-background-image: url("../images/match-hero.webp");
+    -fx-background-size: cover;
+    -fx-background-position: 50% 50%;
+    -fx-background-radius: 30;
+}
+
+.standings-panel-card {
+    -fx-padding: 20 22 18 22;
+}
+
+.standings-header-grid {
+    -fx-padding: 4 12 4 12;
+    -fx-hgap: 12;
+    -fx-background-color: rgba(15, 23, 42, 0.92);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(30, 41, 59, 0.24);
+    -fx-border-radius: 20;
+    -fx-min-height: 48;
+    -fx-alignment: center-left;
+}
+
+.standings-header-pill,
+.standings-header-stat,
+.standings-header-main,
+.standings-header-points {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #cbd5e1;
+}
+
+.standings-header-pill,
+.standings-header-stat,
+.standings-header-points {
+    -fx-alignment: center;
+    -fx-max-width: infinity;
+}
+
+.standings-header-main {
+    -fx-alignment: center-left;
+}
+
+.standings-header-points {
+    -fx-text-fill: #86efac;
+}
+
+.standings-list-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 2 2 2 2;
+}
+
+.standings-list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.standings-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 10 0;
+}
+
+.standings-row-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 15, 26, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(51, 65, 85, 0.85);
+    -fx-border-radius: 20;
+    -fx-padding: 12 14 12 14;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.2), 18, 0.18, 0, 8);
+}
+
+.standings-list-view .list-cell:filled:hover .standings-row-shell {
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.18), 26, 0.18, 0, 10);
+}
+
+.standings-list-view .list-cell:filled:selected,
+.standings-list-view .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.standings-list-view .list-cell:filled:selected .standings-row-shell,
+.standings-list-view .list-cell:filled:selected:focused .standings-row-shell {
+    -fx-border-color: rgba(110, 231, 183, 0.62);
+}
+
+.standings-row-grid {
+    -fx-alignment: center-left;
+}
+
+.standings-position-badge {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+}
+
+.standings-position-label {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+}
+
+.position-zone-champions {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #0ea5e9 100%);
+    -fx-border-color: rgba(147, 197, 253, 0.72);
+}
+
+.position-zone-europe {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f59e0b 0%, #f97316 100%);
+    -fx-border-color: rgba(253, 186, 116, 0.72);
+}
+
+.position-zone-relegation {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #ef4444 100%);
+    -fx-border-color: rgba(252, 165, 165, 0.72);
+}
+
+.position-zone-neutral {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #334155 0%, #475569 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.58);
+}
+
+.standings-team-crest-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 18;
+    -fx-padding: 6;
+}
+
+.standings-team-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+}
+
+.standings-team-name {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.standings-team-meta {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.standings-stat-value,
+.standings-points-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e2e8f0;
+    -fx-alignment: center;
+    -fx-max-width: infinity;
+}
+
+.standings-points-value {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .standings-header-grid {
+    -fx-background-color: rgba(2, 6, 23, 0.94);
+    -fx-border-color: rgba(71, 85, 105, 0.88);
+}
+
+.theme-dark .standings-row-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.92);
+}

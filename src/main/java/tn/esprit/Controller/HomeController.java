@@ -3,6 +3,7 @@ package tn.esprit.Controller;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -10,13 +11,17 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.MatchsService;
@@ -26,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -35,7 +39,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public class HomeController {
-    private static final double SIDEBAR_EXPANDED_WIDTH = 256;
     private static final String MATCH_STATUS_PROGRAMME = "Programme";
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("home-db-worker"));
     private static final DateTimeFormatter HEADER_DATE_FORMAT =
@@ -44,19 +47,19 @@ public class HomeController {
             Path.of(System.getProperty("user.home"), ".sport-insight", "home-notes.log");
 
     @FXML
-    private VBox sidebarRoot;
+    private HBox navbarRoot;
+    @FXML
+    private Button adminNavButton;
     @FXML
     private HBox sidebarBrandBox;
-    @FXML
-    private Label sidebarSectionLabel;
-    @FXML
-    private Button sidebarToggleButton;
-    @FXML
-    private Button sidebarOpenButton;
     @FXML
     private Button equipesNavButton;
     @FXML
     private Button matchsNavButton;
+    @FXML
+    private HBox sidebarModuleChildrenBox;
+    @FXML
+    private Button leaguesNavButton;
     @FXML
     private Button joueursNavButton;
     @FXML
@@ -77,15 +80,29 @@ public class HomeController {
     private Label activePlayersMetricLabel;
     @FXML
     private Label pendingTasksMetricLabel;
+    @FXML
+    private TextField homeSearchField;
+    @FXML
+    private VBox annoncesModuleBox;
+    @FXML
+    private VBox trainModuleBox;
+    @FXML
+    private VBox storeModuleBox;
 
     private Timeline dateRefreshTimeline;
-    private boolean sidebarVisible;
+    private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
     public void initialize() {
-        sidebarVisible = true;
         ThemeManager.bindToggle(themeToggleButton);
-        applySidebarState();
+        sidebarModuleGroup = new SidebarModuleGroup(
+                matchsNavButton,
+                sidebarModuleChildrenBox,
+                equipesNavButton,
+                leaguesNavButton,
+                joueursNavButton
+        );
+        sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.NONE);
 
         refreshHeaderDate();
         startDateRefreshTimeline();
@@ -95,6 +112,129 @@ public class HomeController {
         pendingTasksMetricLabel.setText("…");
 
         loadDashboardMetricsAsync();
+
+        if (homeSearchField != null) {
+            homeSearchField.textProperty().addListener((obs, oldVal, newVal) -> applyHomeSearchFilter(newVal));
+        }
+    }
+
+    /**
+     * Filters Core Modules tiles; Enter runs {@link #handleHomeSearch()} to open a module when unambiguous.
+     */
+    private void applyHomeSearchFilter(String raw) {
+        String n = normalizeSearchQuery(raw);
+        if (n.isEmpty()) {
+            setModuleVisible(equipesButton, true);
+            setModuleVisible(joueursButton, true);
+            setModuleVisible(matchsButton, true);
+            setModuleVisible(annoncesModuleBox, true);
+            setModuleVisible(trainModuleBox, true);
+            setModuleVisible(storeModuleBox, true);
+            return;
+        }
+        boolean teams = matchesTokens(n, "team", "teams", "equipe", "equipes", "club", "clubs", "roster");
+        boolean players = matchesTokens(n, "player", "players", "joueur", "joueurs", "profile", "profiles");
+        boolean matches = matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games");
+        boolean news = matchesTokens(n, "news", "annonce", "annonces", "update", "updates");
+        boolean training = matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions");
+        boolean store = matchesTokens(n, "store", "shop", "product", "products", "order", "orders");
+        boolean any = teams || players || matches || news || training || store;
+        if (!any) {
+            setModuleVisible(equipesButton, true);
+            setModuleVisible(joueursButton, true);
+            setModuleVisible(matchsButton, true);
+            setModuleVisible(annoncesModuleBox, true);
+            setModuleVisible(trainModuleBox, true);
+            setModuleVisible(storeModuleBox, true);
+            return;
+        }
+        setModuleVisible(equipesButton, teams);
+        setModuleVisible(joueursButton, players);
+        setModuleVisible(matchsButton, matches);
+        setModuleVisible(annoncesModuleBox, news);
+        setModuleVisible(trainModuleBox, training);
+        setModuleVisible(storeModuleBox, store);
+    }
+
+    private static void setModuleVisible(Node node, boolean visible) {
+        if (node != null) {
+            node.setManaged(visible);
+            node.setVisible(visible);
+        }
+    }
+
+    private static String normalizeSearchQuery(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        return raw.trim()
+                .toLowerCase(Locale.ROOT)
+                .replace('é', 'e')
+                .replace('è', 'e')
+                .replace('ê', 'e')
+                .replace('à', 'a')
+                .replace('ù', 'u')
+                .replace('ç', 'c');
+    }
+
+    private static boolean matchesTokens(String normalizedQuery, String... tokens) {
+        for (String t : tokens) {
+            if (normalizedQuery.contains(t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @FXML
+    private void handleHomeSearch() {
+        if (homeSearchField == null) {
+            return;
+        }
+        applyHomeSearchFilter(homeSearchField.getText());
+        Button soleMain = soleVisibleMainModule();
+        if (soleMain != null) {
+            if (soleMain == equipesButton) {
+                handleOpenEquipes();
+            } else if (soleMain == joueursButton) {
+                handleOpenJoueurs();
+            } else if (soleMain == matchsButton) {
+                openMatchsModule();
+            }
+            return;
+        }
+        String n = normalizeSearchQuery(homeSearchField.getText());
+        if (n.isEmpty()) {
+            return;
+        }
+        if (matchesTokens(n, "team", "teams", "equipe", "equipes", "club", "clubs", "roster")) {
+            handleOpenEquipes();
+        } else if (matchesTokens(n, "player", "players", "joueur", "joueurs", "profile", "profiles")) {
+            handleOpenJoueurs();
+        } else if (matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games")) {
+            openMatchsModule();
+        } else {
+            Alert hint = new Alert(Alert.AlertType.INFORMATION);
+            hint.setTitle("Search");
+            hint.setHeaderText(null);
+            hint.setContentText(
+                    "Type part of a keyword to filter tiles (e.g. team, player, match), then press Enter to open a module.\n"
+                            + "Examples: \"team\" → Teams, \"joueur\" → Players, \"match\" → Matches.");
+            hint.initOwner(homeSearchField.getScene() != null ? homeSearchField.getScene().getWindow() : null);
+            hint.showAndWait();
+        }
+    }
+
+    private Button soleVisibleMainModule() {
+        int count = 0;
+        Button last = null;
+        for (Button b : new Button[] { equipesButton, joueursButton, matchsButton }) {
+            if (b != null && b.isVisible()) {
+                count++;
+                last = b;
+            }
+        }
+        return count == 1 ? last : null;
     }
 
     private void startDateRefreshTimeline() {
@@ -210,20 +350,13 @@ public class HomeController {
     }
 
     @FXML
-    private void handleOpenSidebar() {
-        sidebarVisible = true;
-        applySidebarState();
-    }
-
-    @FXML
-    private void handleToggleSidebar() {
-        sidebarVisible = false;
-        applySidebarState();
+    private void handleOpenAdmin() {
+        AdminNavigation.openAdmin(adminNavButton);
     }
 
     @FXML
     private void handleOpenEquipes() {
-        SceneNavigator.switchScene(resolveNavigationSource(equipesButton, equipesNavButton), "/tn/esprit/views/equipe-crud-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Sport Insight");
+        SceneNavigator.switchScene(resolveNavigationSource(equipesButton, equipesNavButton), "/tn/esprit/views/equipe-competitions-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Competitions");
     }
 
     @FXML
@@ -232,29 +365,27 @@ public class HomeController {
     }
 
     @FXML
-    private void handleOpenMatchs() {
-        SceneNavigator.switchScene(resolveNavigationSource(matchsButton, matchsNavButton), "/tn/esprit/views/match-crud-view.fxml", "/tn/esprit/styles/match-theme.css", "Matchs | Sport Insight");
+    private void handleOpenMatchs(ActionEvent event) {
+        if (event != null
+                && event.getSource() == matchsNavButton
+                && sidebarModuleGroup != null
+                && sidebarModuleGroup.handleMatchsClick()) {
+            return;
+        }
+        openMatchsModule();
+    }
+
+    private void openMatchsModule() {
+        SceneNavigator.switchScene(resolveNavigationSource(matchsButton, matchsNavButton), "/tn/esprit/views/match-competitions-view.fxml", "/tn/esprit/styles/match-theme.css", "Matchs | Competitions");
+    }
+
+    @FXML
+    private void handleOpenLeagues() {
+        SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
     }
 
     private Button resolveNavigationSource(Button primary, Button fallback) {
         return primary != null ? primary : fallback;
-    }
-
-    private void applySidebarState() {
-        sidebarRoot.setManaged(sidebarVisible);
-        sidebarRoot.setVisible(sidebarVisible);
-        sidebarSectionLabel.setManaged(sidebarVisible);
-        sidebarSectionLabel.setVisible(sidebarVisible);
-        sidebarOpenButton.setManaged(!sidebarVisible);
-        sidebarOpenButton.setVisible(!sidebarVisible);
-
-        sidebarBrandBox.setVisible(sidebarVisible);
-        sidebarBrandBox.setManaged(sidebarVisible);
-        sidebarToggleButton.setText("<");
-
-        sidebarRoot.setMinWidth(sidebarVisible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarRoot.setPrefWidth(sidebarVisible ? SIDEBAR_EXPANDED_WIDTH : 0);
-        sidebarRoot.setMaxWidth(sidebarVisible ? SIDEBAR_EXPANDED_WIDTH : 0);
     }
 
     private static ThreadFactory daemonFactory(String name) {

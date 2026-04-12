@@ -23,7 +23,7 @@ public class MatchsService implements IService<Matchs> {
 
     @Override
     public void add(Matchs matchs) throws SQLException {
-        String sql = "INSERT INTO matchs (id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO matchs (id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, competition_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, matchs.getIdMatch());
@@ -38,13 +38,14 @@ public class MatchsService implements IService<Matchs> {
             setNullableInt(statement, 10, matchs.getScoreEquipeExterieur());
             setNullableInt(statement, 11, matchs.getEquipeDomicileId());
             setNullableInt(statement, 12, matchs.getEquipeExterieurId());
+            statement.setString(13, matchs.getCompetitionCode());
             statement.executeUpdate();
         }
     }
 
     @Override
     public void update(Matchs matchs) throws SQLException {
-        String sql = "UPDATE matchs SET id_match = ?, date_match = ?, heure_debut = ?, lieu = ?, type = ?, statut = ?, lineup_domicile = ?, lineup_exterieur = ?, score_equipe_domicile = ?, score_equipe_exterieur = ?, equipe_domicile_id = ?, equipe_exterieur_id = ? WHERE id = ?";
+        String sql = "UPDATE matchs SET id_match = ?, date_match = ?, heure_debut = ?, lieu = ?, type = ?, statut = ?, lineup_domicile = ?, lineup_exterieur = ?, score_equipe_domicile = ?, score_equipe_exterieur = ?, equipe_domicile_id = ?, equipe_exterieur_id = ?, competition_code = ? WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, matchs.getIdMatch());
@@ -59,7 +60,8 @@ public class MatchsService implements IService<Matchs> {
             setNullableInt(statement, 10, matchs.getScoreEquipeExterieur());
             setNullableInt(statement, 11, matchs.getEquipeDomicileId());
             setNullableInt(statement, 12, matchs.getEquipeExterieurId());
-            statement.setInt(13, matchs.getId());
+            statement.setString(13, matchs.getCompetitionCode());
+            statement.setInt(14, matchs.getId());
             statement.executeUpdate();
         }
     }
@@ -76,7 +78,7 @@ public class MatchsService implements IService<Matchs> {
 
     @Override
     public List<Matchs> getAll() throws SQLException {
-        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id FROM matchs";
+        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, external_api_id, external_source, competition_code FROM matchs";
         List<Matchs> matchsList = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -91,7 +93,7 @@ public class MatchsService implements IService<Matchs> {
 
     @Override
     public Matchs getById(int id) throws SQLException {
-        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id FROM matchs WHERE id = ?";
+        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, external_api_id, external_source, competition_code FROM matchs WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -114,7 +116,7 @@ public class MatchsService implements IService<Matchs> {
         Integer equipeDomicileId = getNullableInt(rs, "equipe_domicile_id");
         Integer equipeExterieurId = getNullableInt(rs, "equipe_exterieur_id");
 
-        return new Matchs(
+        Matchs matchs = new Matchs(
                 rs.getInt("id"),
                 rs.getString("id_match"),
                 dateMatch != null ? dateMatch.toLocalDate() : null,
@@ -129,6 +131,11 @@ public class MatchsService implements IService<Matchs> {
                 equipeDomicileId,
                 equipeExterieurId
         );
+        long externalApiId = rs.getLong("external_api_id");
+        matchs.setExternalApiId(rs.wasNull() ? null : externalApiId);
+        matchs.setExternalSource(rs.getString("external_source"));
+        matchs.setCompetitionCode(rs.getString("competition_code"));
+        return matchs;
     }
 
     private void setNullableInt(PreparedStatement statement, int index, Integer value) throws SQLException {

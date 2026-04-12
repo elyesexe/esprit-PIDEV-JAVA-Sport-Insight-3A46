@@ -1,0 +1,1262 @@
+@import "equipe-theme.css";
+@import "joueur-theme.css";
+@import "match-theme.css";
+
+.admin-page-root {
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%, #f1f5f9 0%, #e2e8f0 48%, #f8fafc 100%);
+}
+
+.theme-dark.admin-page-root {
+    -fx-background-color:
+        radial-gradient(center 50% 20%, radius 90%, #0f172a 0%, #020617 100%);
+}
+
+.admin-sidebar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1e293b 0%, #0f172a 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-width: 0 1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.35), 28, 0.2, 4, 0);
+}
+
+.theme-dark .admin-sidebar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #020617 0%, #0f172a 100%);
+    -fx-border-color: rgba(51, 65, 85, 0.6);
+}
+
+.admin-sidebar-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+    -fx-padding: 0 0 8 0;
+}
+
+.admin-sidebar-section {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(148, 163, 184, 0.9);
+    -fx-padding: 12 0 4 2;
+}
+
+.admin-nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 12;
+    -fx-text-fill: #e2e8f0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 10 14 10 14;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.admin-nav-button:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.22);
+    -fx-border-color: rgba(96, 165, 250, 0.45);
+}
+
+.admin-nav-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(59, 130, 246, 0.35) 0%, rgba(37, 99, 235, 0.28) 100%);
+    -fx-border-color: rgba(147, 197, 253, 0.55);
+    -fx-text-fill: #f8fafc;
+}
+
+.admin-sidebar-sep {
+    -fx-padding: 4 0 4 0;
+}
+
+.admin-sidebar-user-button {
+    -fx-background-color: rgba(16, 185, 129, 0.2);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(52, 211, 153, 0.45);
+    -fx-border-radius: 12;
+    -fx-text-fill: #ecfdf5;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-padding: 12 14 12 14;
+    -fx-cursor: hand;
+}
+
+.admin-sidebar-user-button:hover {
+    -fx-background-color: rgba(16, 185, 129, 0.32);
+    -fx-border-color: rgba(110, 231, 183, 0.65);
+}
+
+.admin-sidebar-theme-row {
+    -fx-padding: 8 0 0 0;
+}
+
+.admin-sidebar-theme-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #cbd5e1;
+}
+
+.admin-content-stack {
+    -fx-background-color: transparent;
+}
+
+.admin-dashboard-shell {
+    -fx-background-color: transparent;
+}
+
+.admin-dashboard-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.admin-dashboard-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+    -fx-max-width: 560;
+}
+
+.theme-dark .admin-dashboard-title {
+    -fx-text-fill: #f1f5f9;
+}
+
+.theme-dark .admin-dashboard-subtitle {
+    -fx-text-fill: #94a3b8;
+}
+
+.admin-kpi-card {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 16;
+    -fx-padding: 18 20 18 20;
+    -fx-min-width: 200;
+    -fx-pref-width: 240;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 24, 0.15, 0, 8);
+}
+
+.theme-dark .admin-kpi-card {
+    -fx-background-color: rgba(15, 23, 42, 0.75);
+    -fx-border-color: rgba(71, 85, 105, 0.55);
+}
+
+.admin-kpi-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.theme-dark .admin-kpi-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.admin-kpi-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 36px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.admin-kpi-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.theme-dark .admin-kpi-value {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .admin-kpi-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.admin-hint-card {
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 16;
+    -fx-padding: 18 20 18 20;
+    -fx-max-width: 720;
+}
+
+.theme-dark .admin-hint-card {
+    -fx-background-color: rgba(15, 23, 42, 0.55);
+    -fx-border-color: rgba(71, 85, 105, 0.45);
+}
+
+.admin-dashboard-grid {
+    -fx-alignment: top-left;
+}
+
+.admin-table-card {
+    -fx-padding: 18 20 20 20;
+}
+
+.admin-dashboard-table {
+    -fx-pref-height: 280;
+}
+
+.admin-section-title {
+    -fx-font-size: 22px;
+}
+
+.admin-workspace-root.page-root {
+    -fx-background-color: transparent;
+}
+
+.admin-workspace-root .page-scroll,
+.admin-workspace-root .page-scroll > .viewport,
+.admin-workspace-root .page-shell {
+    -fx-background-color: transparent;
+}
+
+.admin-workspace-root .toolbar-panel,
+.admin-workspace-root .results-panel,
+.admin-workspace-root .detail-card,
+.admin-workspace-root .form-card {
+    -fx-background-color: rgba(255, 255, 255, 0.84);
+}
+
+.theme-dark .admin-workspace-root .toolbar-panel,
+.theme-dark .admin-workspace-root .results-panel,
+.theme-dark .admin-workspace-root .detail-card,
+.theme-dark .admin-workspace-root .form-card {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+}
+
+/* Neutral admin palette */
+.admin-page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f4f4f5 0%, #e4e4e7 48%, #fafafa 100%);
+}
+
+.theme-dark.admin-page-root,
+.theme-dark .admin-page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #18181b 0%, #09090b 100%);
+}
+
+.admin-page-root .admin-sidebar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #18181b 0%, #09090b 100%);
+    -fx-border-color: rgba(113, 113, 122, 0.42);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.34), 24, 0.18, 4, 0);
+}
+
+.admin-page-root .admin-sidebar-section {
+    -fx-text-fill: rgba(161, 161, 170, 0.9);
+}
+
+.admin-page-root .admin-nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+    -fx-border-color: rgba(113, 113, 122, 0.28);
+}
+
+.admin-page-root .admin-nav-button:hover {
+    -fx-background-color: rgba(113, 113, 122, 0.22);
+    -fx-border-color: rgba(161, 161, 170, 0.42);
+}
+
+.admin-page-root .admin-nav-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(82, 82, 91, 0.62) 0%, rgba(63, 63, 70, 0.78) 100%);
+    -fx-border-color: rgba(228, 228, 231, 0.28);
+}
+
+.admin-page-root .admin-sidebar-user-button {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-border-color: rgba(113, 113, 122, 0.34);
+    -fx-text-fill: #f4f4f5;
+}
+
+.admin-page-root .admin-sidebar-user-button:hover {
+    -fx-background-color: rgba(113, 113, 122, 0.22);
+    -fx-border-color: rgba(212, 212, 216, 0.42);
+}
+
+.admin-page-root .admin-dashboard-title,
+.admin-page-root .section-title,
+.admin-page-root .detail-title,
+.admin-page-root .empty-title,
+.admin-page-root .card-title,
+.admin-page-root .competition-card-title,
+.admin-page-root .fixture-team-name,
+.admin-page-root .match-detail-team-name,
+.admin-page-root .player-card-title {
+    -fx-text-fill: #111827;
+}
+
+.admin-page-root .admin-dashboard-subtitle,
+.admin-page-root .section-subtitle,
+.admin-page-root .detail-subtitle,
+.admin-page-root .empty-text,
+.admin-page-root .card-subtitle,
+.admin-page-root .card-subtitle-muted,
+.admin-page-root .card-meta,
+.admin-page-root .player-card-meta,
+.admin-page-root .player-card-team,
+.admin-page-root .fixture-date,
+.admin-page-root .fixture-id,
+.admin-page-root .fixture-team-role,
+.admin-page-root .match-detail-team-role,
+.admin-page-root .fixture-score-caption,
+.admin-page-root .match-detail-score-caption,
+.admin-page-root .stat-caption,
+.admin-page-root .field-label,
+.admin-page-root .toolbar-summary-caption,
+.admin-page-root .form-helper {
+    -fx-text-fill: #52525b;
+}
+
+.admin-page-root .panel-card,
+.admin-page-root .admin-kpi-card,
+.admin-page-root .admin-hint-card,
+.admin-page-root .admin-workspace-root .toolbar-panel,
+.admin-page-root .admin-workspace-root .results-panel,
+.admin-page-root .admin-workspace-root .detail-card,
+.admin-page-root .admin-workspace-root .form-card,
+.admin-page-root .toolbar-summary-card,
+.admin-page-root .detail-logo-shell,
+.admin-page-root .player-avatar-shell,
+.admin-page-root .player-detail-photo-shell,
+.admin-page-root .stat-chip,
+.admin-page-root .empty-state-box,
+.admin-page-root .fixture-card,
+.admin-page-root .fixture-team-logo-shell,
+.admin-page-root .match-detail-logo-shell,
+.admin-page-root .fixture-score-shell,
+.admin-page-root .match-detail-score-shell,
+.admin-page-root .match-detail-board {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: rgba(212, 212, 216, 0.74);
+}
+
+.admin-page-root .toolbar-chip {
+    -fx-background-color: rgba(226, 232, 240, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.45);
+    -fx-text-fill: #334155;
+}
+
+.admin-page-root .toolbar-chip-soft,
+.admin-page-root .status-muted {
+    -fx-background-color: rgba(244, 244, 245, 0.96);
+    -fx-border-color: rgba(212, 212, 216, 0.82);
+    -fx-text-fill: #3f3f46;
+}
+
+.admin-page-root .status-success {
+    -fx-background-color: rgba(220, 252, 231, 0.92);
+    -fx-border-color: rgba(74, 222, 128, 0.45);
+    -fx-text-fill: #166534;
+}
+
+.admin-page-root .status-warning {
+    -fx-background-color: rgba(254, 249, 195, 0.96);
+    -fx-border-color: rgba(250, 204, 21, 0.5);
+    -fx-text-fill: #854d0e;
+}
+
+.admin-page-root .status-error {
+    -fx-background-color: rgba(254, 226, 226, 0.94);
+    -fx-border-color: rgba(248, 113, 113, 0.48);
+    -fx-text-fill: #991b1b;
+}
+
+.admin-page-root .primary-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #374151 0%, #1f2937 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.78);
+    -fx-text-fill: #f9fafb;
+    -fx-effect: dropshadow(gaussian, rgba(31, 41, 55, 0.22), 18, 0.18, 0, 6);
+}
+
+.admin-page-root .primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1f2937 0%, #111827 100%);
+}
+
+.admin-page-root .ghost-button {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(161, 161, 170, 0.62);
+    -fx-text-fill: #27272a;
+}
+
+.admin-page-root .ghost-button:hover {
+    -fx-background-color: rgba(244, 244, 245, 0.98);
+    -fx-border-color: rgba(113, 113, 122, 0.7);
+    -fx-text-fill: #18181b;
+}
+
+.admin-page-root .soft-button {
+    -fx-background-color: rgba(244, 244, 245, 0.96);
+    -fx-border-color: rgba(212, 212, 216, 0.8);
+    -fx-text-fill: #3f3f46;
+}
+
+.admin-page-root .soft-button:hover {
+    -fx-background-color: rgba(228, 228, 231, 0.98);
+}
+
+.admin-page-root .danger-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #b91c1c 100%);
+    -fx-border-color: rgba(248, 113, 113, 0.52);
+}
+
+.admin-page-root .form-text-field,
+.admin-page-root .glass-combo,
+.admin-page-root .form-date-picker,
+.admin-page-root .match-date-picker {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-border-color: rgba(161, 161, 170, 0.56);
+    -fx-text-fill: #111827;
+    -fx-prompt-text-fill: #71717a;
+}
+
+.admin-page-root .form-text-field:focused,
+.admin-page-root .glass-combo:focused,
+.admin-page-root .form-date-picker:focused,
+.admin-page-root .match-date-picker:focused {
+    -fx-border-color: rgba(71, 85, 105, 0.84);
+    -fx-effect: dropshadow(gaussian, rgba(71, 85, 105, 0.12), 14, 0.18, 0, 0);
+}
+
+.admin-page-root .glass-combo .list-cell,
+.admin-page-root .form-date-picker .text-field,
+.admin-page-root .match-date-picker .text-field {
+    -fx-text-fill: #111827;
+    -fx-prompt-text-fill: #71717a;
+}
+
+.admin-page-root .glass-combo .arrow,
+.admin-page-root .form-date-picker .arrow,
+.admin-page-root .match-date-picker .arrow {
+    -fx-background-color: #374151;
+}
+
+.admin-page-root .data-table {
+    -fx-control-inner-background: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(212, 212, 216, 0.86);
+    -fx-selection-bar: rgba(203, 213, 225, 0.94);
+    -fx-selection-bar-non-focused: rgba(228, 228, 231, 0.92);
+}
+
+.admin-page-root .data-table .column-header-background {
+    -fx-background-color: rgba(244, 244, 245, 0.98);
+    -fx-border-color: transparent transparent rgba(212, 212, 216, 0.9) transparent;
+}
+
+.admin-page-root .data-table .column-header .label {
+    -fx-text-fill: #52525b;
+}
+
+.admin-page-root .data-table .table-row-cell {
+    -fx-border-color: transparent transparent rgba(228, 228, 231, 0.86) transparent;
+}
+
+.admin-page-root .data-table .table-row-cell:odd {
+    -fx-background-color: rgba(250, 250, 250, 0.86);
+}
+
+.admin-page-root .data-table .table-row-cell:selected .table-cell,
+.admin-page-root .data-table .table-row-cell:selected:focused .table-cell {
+    -fx-text-fill: #111827;
+}
+
+.theme-dark .admin-page-root .admin-sidebar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #18181b 0%, #09090b 100%);
+    -fx-border-color: rgba(82, 82, 91, 0.7);
+}
+
+.theme-dark .admin-page-root .admin-dashboard-title,
+.theme-dark .admin-page-root .section-title,
+.theme-dark .admin-page-root .detail-title,
+.theme-dark .admin-page-root .empty-title,
+.theme-dark .admin-page-root .card-title,
+.theme-dark .admin-page-root .competition-card-title,
+.theme-dark .admin-page-root .fixture-team-name,
+.theme-dark .admin-page-root .match-detail-team-name,
+.theme-dark .admin-page-root .player-card-title,
+.theme-dark .admin-page-root .stat-value,
+.theme-dark .admin-page-root .admin-kpi-value,
+.theme-dark .admin-page-root .toolbar-summary-value {
+    -fx-text-fill: #fafafa;
+}
+
+.theme-dark .admin-page-root .admin-dashboard-subtitle,
+.theme-dark .admin-page-root .section-subtitle,
+.theme-dark .admin-page-root .detail-subtitle,
+.theme-dark .admin-page-root .empty-text,
+.theme-dark .admin-page-root .card-subtitle,
+.theme-dark .admin-page-root .card-subtitle-muted,
+.theme-dark .admin-page-root .card-meta,
+.theme-dark .admin-page-root .player-card-meta,
+.theme-dark .admin-page-root .player-card-team,
+.theme-dark .admin-page-root .fixture-date,
+.theme-dark .admin-page-root .fixture-id,
+.theme-dark .admin-page-root .fixture-team-role,
+.theme-dark .admin-page-root .match-detail-team-role,
+.theme-dark .admin-page-root .fixture-score-caption,
+.theme-dark .admin-page-root .match-detail-score-caption,
+.theme-dark .admin-page-root .stat-caption,
+.theme-dark .admin-page-root .field-label,
+.theme-dark .admin-page-root .toolbar-summary-caption,
+.theme-dark .admin-page-root .form-helper,
+.theme-dark .admin-page-root .admin-kpi-label,
+.theme-dark .admin-page-root .admin-kpi-meta {
+    -fx-text-fill: #a1a1aa;
+}
+
+.theme-dark .admin-page-root .panel-card,
+.theme-dark .admin-page-root .admin-kpi-card,
+.theme-dark .admin-page-root .admin-hint-card,
+.theme-dark .admin-page-root .admin-workspace-root .toolbar-panel,
+.theme-dark .admin-page_root .admin-workspace-root .results-panel,
+.theme-dark .admin-page_root .admin-workspace-root .detail-card,
+.theme-dark .admin-page_root .admin-workspace-root .form-card,
+.theme-dark .admin-page_root .toolbar-summary-card,
+.theme-dark .admin-page_root .detail-logo-shell,
+.theme-dark .admin-page_root .player-avatar-shell,
+.theme-dark .admin-page_root .player-detail-photo-shell,
+.theme-dark .admin-page_root .stat-chip,
+.theme-dark .admin-page_root .empty-state-box,
+.theme-dark .admin-page_root .fixture-card,
+.theme-dark .admin-page_root .fixture-team-logo-shell,
+.theme-dark .admin-page_root .match-detail-logo-shell,
+.theme-dark .admin-page_root .fixture-score-shell,
+.theme-dark .admin-page_root .match-detail-score-shell,
+.theme-dark .admin-page_root .match-detail-board {
+    -fx-background-color: rgba(39, 39, 42, 0.94);
+    -fx-border-color: rgba(82, 82, 91, 0.86);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.34), 20, 0.18, 0, 8);
+}
+
+.theme-dark .admin-page-root .toolbar-chip {
+    -fx-background-color: rgba(63, 63, 70, 0.96);
+    -fx-border-color: rgba(113, 113, 122, 0.78);
+    -fx-text-fill: #e4e4e7;
+}
+
+.theme-dark .admin-page-root .toolbar-chip-soft,
+.theme-dark .admin-page-root .status-muted {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.82);
+    -fx-text-fill: #d4d4d8;
+}
+
+.theme-dark .admin-page-root .status-success {
+    -fx-background-color: rgba(20, 83, 45, 0.74);
+    -fx-border-color: rgba(74, 222, 128, 0.34);
+    -fx-text-fill: #dcfce7;
+}
+
+.theme-dark .admin-page-root .status-warning {
+    -fx-background-color: rgba(113, 63, 18, 0.78);
+    -fx-border-color: rgba(250, 204, 21, 0.3);
+    -fx-text-fill: #fef3c7;
+}
+
+.theme-dark .admin-page-root .status-error {
+    -fx-background-color: rgba(127, 29, 29, 0.78);
+    -fx-border-color: rgba(248, 113, 113, 0.34);
+    -fx-text-fill: #fee2e2;
+}
+
+.theme-dark .admin-page-root .primary-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #52525b 0%, #3f3f46 100%);
+    -fx-border-color: rgba(161, 161, 170, 0.38);
+    -fx-text-fill: #fafafa;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 14, 0.16, 0, 4);
+}
+
+.theme-dark .admin-page-root .primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #3f3f46 0%, #27272a 100%);
+}
+
+.theme-dark .admin-page-root .ghost-button {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.86);
+    -fx-text-fill: #f4f4f5;
+}
+
+.theme-dark .admin-page-root .ghost-button:hover {
+    -fx-background-color: rgba(63, 63, 70, 0.94);
+    -fx-border-color: rgba(161, 161, 170, 0.42);
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .admin-page-root .soft-button {
+    -fx-background-color: rgba(24, 24, 27, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.78);
+    -fx-text-fill: #e4e4e7;
+}
+
+.theme-dark .admin-page-root .soft-button:hover {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+}
+
+.theme-dark .admin-page-root .danger-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #991b1b 100%);
+    -fx-border-color: rgba(248, 113, 113, 0.3);
+}
+
+.theme-dark .admin-page-root .form-text-field,
+.theme-dark .admin-page-root .glass-combo,
+.theme-dark .admin-page-root .form-date-picker,
+.theme-dark .admin-page-root .match-date-picker {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.88);
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.theme-dark .admin-page-root .form-text-field:focused,
+.theme-dark .admin-page-root .glass-combo:focused,
+.theme-dark .admin-page-root .form-date-picker:focused,
+.theme-dark .admin-page-root .match-date-picker:focused {
+    -fx-border-color: rgba(212, 212, 216, 0.56);
+    -fx-effect: dropshadow(gaussian, rgba(212, 212, 216, 0.08), 12, 0.14, 0, 0);
+}
+
+.theme-dark .admin-page-root .glass-combo .list-cell,
+.theme-dark .admin-page-root .form-date-picker .text-field,
+.theme-dark .admin-page-root .match-date-picker .text-field {
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.theme-dark .admin-page-root .glass-combo .arrow,
+.theme-dark .admin-page-root .form-date-picker .arrow,
+.theme-dark .admin-page-root .match-date-picker .arrow {
+    -fx-background-color: #e4e4e7;
+}
+
+.theme-dark .admin-page-root .data-table {
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.94);
+    -fx-selection-bar: rgba(82, 82, 91, 0.96);
+    -fx-selection-bar-non-focused: rgba(63, 63, 70, 0.92);
+}
+
+.theme-dark .admin-page-root .data-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.94) transparent;
+}
+
+.theme-dark .admin-page-root .data-table .column-header .label {
+    -fx-text-fill: #d4d4d8;
+}
+
+.theme-dark .admin-page-root .data-table .table-row-cell {
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.82) transparent;
+}
+
+.theme-dark .admin-page-root .data-table .table-row-cell:odd {
+    -fx-background-color: rgba(24, 24, 27, 0.44);
+}
+
+.theme-dark .admin-page-root .data-table .table-cell {
+    -fx-text-fill: #f4f4f5;
+}
+
+.theme-dark .admin-page-root .data-table .table-row-cell:selected .table-cell,
+.theme-dark .admin-page-root .data-table .table-row-cell:selected:focused .table-cell {
+    -fx-text-fill: #ffffff;
+}
+
+/* Final dark-mode admin override: target the actual root node carrying both classes */
+.theme-dark.admin-page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2a2a2e 0%, #1f1f23 52%, #2f2f34 100%);
+}
+
+.theme-dark.admin-page-root .admin-content-stack,
+.theme-dark.admin-page_root .admin-workspace-root.page-root,
+.theme-dark.admin-page_root .admin-workspace-root .page-shell,
+.theme-dark.admin-page_root .admin-workspace-root .page-scroll,
+.theme-dark.admin-page_root .admin-workspace-root .page-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.theme-dark.admin-page-root .admin-sidebar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #09090b 0%, #000000 100%);
+    -fx-border-color: rgba(82, 82, 91, 0.78);
+}
+
+.theme-dark.admin-page-root .admin-sidebar-title,
+.theme-dark.admin-page_root .admin-nav-button,
+.theme-dark.admin-page_root .admin-sidebar-user-button,
+.theme-dark.admin-page_root .admin-sidebar-theme-label {
+    -fx-text-fill: #f5f5f5;
+}
+
+.theme-dark.admin-page-root .admin-sidebar-section {
+    -fx-text-fill: rgba(161, 161, 170, 0.92);
+}
+
+.theme-dark.admin-page-root .admin-nav-button {
+    -fx-background-color: rgba(24, 24, 27, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.74);
+}
+
+.theme-dark.admin-page-root .admin-nav-button:hover {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(113, 113, 122, 0.7);
+}
+
+.theme-dark.admin-page-root .admin-nav-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 41, 59, 0.86) 0%, rgba(39, 39, 42, 0.96) 100%);
+    -fx-border-color: rgba(212, 212, 216, 0.22);
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark.admin-page-root .admin-sidebar-user-button,
+.theme-dark.admin-page_root .ghost-button,
+.theme-dark.admin-page_root .soft-button,
+.theme-dark.admin-page_root .navbar-admin-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #18181b 0%, #09090b 100%);
+    -fx-border-color: rgba(82, 82, 91, 0.82);
+    -fx-text-fill: #f5f5f5;
+}
+
+.theme-dark.admin-page-root .admin-sidebar-user-button:hover,
+.theme-dark.admin-page_root .ghost-button:hover,
+.theme-dark.admin-page_root .soft-button:hover,
+.theme-dark.admin-page_root .navbar-admin-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #27272a 0%, #18181b 100%);
+    -fx-border-color: rgba(161, 161, 170, 0.46);
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark.admin-page-root .primary-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #166534 0%, #14532d 100%);
+    -fx-border-color: rgba(74, 222, 128, 0.34);
+    -fx-text-fill: #f0fdf4;
+}
+
+.theme-dark.admin-page-root .primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #14532d 0%, #052e16 100%);
+}
+
+.theme-dark.admin-page-root .danger-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #b91c1c 0%, #7f1d1d 100%);
+    -fx-border-color: rgba(248, 113, 113, 0.32);
+    -fx-text-fill: #fef2f2;
+}
+
+.theme-dark.admin-page-root .panel-card,
+.theme-dark.admin-page_root .admin-kpi-card,
+.theme-dark.admin-page_root .admin-hint-card,
+.theme-dark.admin-page_root .toolbar-summary-card,
+.theme-dark.admin-page_root .detail-logo-shell,
+.theme-dark.admin-page_root .player-avatar-shell,
+.theme-dark.admin-page_root .player-detail-photo-shell,
+.theme-dark.admin-page_root .stat-chip,
+.theme-dark.admin-page_root .empty-state-box,
+.theme-dark.admin-page_root .fixture-card,
+.theme-dark.admin-page_root .fixture-team-logo-shell,
+.theme-dark.admin-page_root .match-detail-logo-shell,
+.theme-dark.admin-page_root .fixture-score-shell,
+.theme-dark.admin-page_root .match-detail-score-shell,
+.theme-dark.admin-page_root .match-detail-board,
+.theme-dark.admin-page_root .admin-workspace-root .toolbar-panel,
+.theme-dark.admin-page_root .admin-workspace-root .results-panel,
+.theme-dark.admin-page_root .admin-workspace-root .detail-card,
+.theme-dark.admin-page_root .admin-workspace-root .form-card,
+.theme-dark.admin-page_root .admin-workspace-root .match-toolbar,
+.theme-dark.admin-page_root .admin-workspace-root .sync-toolbar-row {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.9);
+}
+
+.theme-dark.admin-page-root .admin-dashboard-title,
+.theme-dark.admin-page_root .section-title,
+.theme-dark.admin-page_root .detail-title,
+.theme-dark.admin-page_root .empty-title,
+.theme-dark.admin-page_root .card-title,
+.theme-dark.admin-page_root .competition-card-title,
+.theme-dark.admin-page_root .fixture-team-name,
+.theme-dark.admin-page_root .match-detail-team-name,
+.theme-dark.admin-page_root .player-card-title,
+.theme-dark.admin-page_root .stat-value,
+.theme-dark.admin-page_root .admin-kpi-value,
+.theme-dark.admin-page_root .toolbar-summary-value,
+.theme-dark.admin-page_root .data-table .table-cell {
+    -fx-text-fill: #fafafa;
+}
+
+.theme-dark.admin-page-root .admin-dashboard-subtitle,
+.theme-dark.admin-page_root .section-subtitle,
+.theme-dark.admin-page_root .detail-subtitle,
+.theme-dark.admin-page_root .empty-text,
+.theme-dark.admin-page_root .card-subtitle,
+.theme-dark.admin-page_root .card-subtitle-muted,
+.theme-dark.admin-page_root .card-meta,
+.theme-dark.admin-page_root .player-card-meta,
+.theme-dark.admin-page_root .player-card-team,
+.theme-dark.admin-page_root .fixture-date,
+.theme-dark.admin-page_root .fixture-id,
+.theme-dark.admin-page_root .fixture-team-role,
+.theme-dark.admin-page_root .match-detail-team-role,
+.theme-dark.admin-page_root .fixture-score-caption,
+.theme-dark.admin-page_root .match-detail-score-caption,
+.theme-dark.admin-page_root .stat-caption,
+.theme-dark.admin-page_root .field-label,
+.theme-dark.admin-page_root .toolbar-summary-caption,
+.theme-dark.admin-page_root .form-helper,
+.theme-dark.admin-page_root .admin-kpi-label,
+.theme-dark.admin-page_root .admin-kpi-meta {
+    -fx-text-fill: #a1a1aa;
+}
+
+.theme-dark.admin-page-root .toolbar-chip,
+.theme-dark.admin-page_root .toolbar-chip-soft,
+.theme-dark.admin-page_root .status-muted {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.86);
+    -fx-text-fill: #d4d4d8;
+}
+
+.theme-dark.admin-page-root .status-success {
+    -fx-background-color: rgba(20, 83, 45, 0.82);
+    -fx-border-color: rgba(74, 222, 128, 0.3);
+    -fx-text-fill: #dcfce7;
+}
+
+.theme-dark.admin-page-root .status-warning {
+    -fx-background-color: rgba(120, 53, 15, 0.82);
+    -fx-border-color: rgba(250, 204, 21, 0.3);
+    -fx-text-fill: #fef3c7;
+}
+
+.theme-dark.admin-page-root .status-error {
+    -fx-background-color: rgba(127, 29, 29, 0.82);
+    -fx-border-color: rgba(248, 113, 113, 0.3);
+    -fx-text-fill: #fee2e2;
+}
+
+.theme-dark.admin-page-root .form-text-field,
+.theme-dark.admin-page_root .glass-combo,
+.theme-dark.admin-page_root .form-date-picker,
+.theme-dark.admin-page_root .match-date-picker,
+.theme-dark.admin-page_root .match-search-field,
+.theme-dark.admin-page_root #searchField {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.9);
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.theme-dark.admin-page-root .form-text-field:focused,
+.theme-dark.admin-page_root .glass-combo:focused,
+.theme-dark.admin-page_root .form-date-picker:focused,
+.theme-dark.admin-page_root .match-date-picker:focused,
+.theme-dark.admin-page_root .match-search-field:focused,
+.theme-dark.admin-page_root #searchField:focused {
+    -fx-border-color: rgba(212, 212, 216, 0.56);
+}
+
+.theme-dark.admin-page-root .glass-combo .list-cell,
+.theme-dark.admin-page_root .form-date-picker .text-field,
+.theme-dark.admin-page_root .match-date-picker .text-field {
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.theme-dark.admin-page-root .glass-combo .arrow,
+.theme-dark.admin-page_root .form-date-picker .arrow,
+.theme-dark.admin-page_root .match-date-picker .arrow {
+    -fx-background-color: #f4f4f5;
+}
+
+.theme-dark.admin-page-root .data-table {
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.94);
+    -fx-selection-bar: rgba(63, 63, 70, 0.98);
+    -fx-selection-bar-non-focused: rgba(39, 39, 42, 0.94);
+}
+
+.theme-dark.admin-page-root .data-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.92) transparent;
+}
+
+.theme-dark.admin-page-root .data-table .column-header .label {
+    -fx-text-fill: #d4d4d8;
+}
+
+/* Deterministic admin dark mode: driven by AdminShellController via admin-dark class */
+.admin-dark {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2b2b30 0%, #232328 48%, #313138 100%);
+}
+
+.admin-dark .admin-sidebar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #050505 0%, #000000 100%);
+    -fx-border-color: rgba(82, 82, 91, 0.82);
+}
+
+.admin-dark .admin-sidebar-title,
+.admin-dark .admin-nav-button,
+.admin-dark .admin-sidebar-user-button,
+.admin-dark .admin-sidebar-theme-label,
+.admin-dark .admin-dashboard-title,
+.admin-dark .section-title,
+.admin-dark .detail-title,
+.admin-dark .empty-title,
+.admin-dark .card-title,
+.admin-dark .competition-card-title,
+.admin-dark .fixture-team-name,
+.admin-dark .match-detail-team-name,
+.admin-dark .player-card-title,
+.admin-dark .stat-value,
+.admin-dark .admin-kpi-value,
+.admin-dark .toolbar-summary-value {
+    -fx-text-fill: #f5f5f5;
+}
+
+.admin-dark .admin-sidebar-section,
+.admin-dark .admin-dashboard-subtitle,
+.admin-dark .section-subtitle,
+.admin-dark .detail-subtitle,
+.admin-dark .empty-text,
+.admin-dark .card-subtitle,
+.admin-dark .card-subtitle-muted,
+.admin-dark .card-meta,
+.admin-dark .player-card-meta,
+.admin-dark .player-card-team,
+.admin-dark .fixture-date,
+.admin-dark .fixture-id,
+.admin-dark .fixture-team-role,
+.admin-dark .match-detail-team-role,
+.admin-dark .fixture-score-caption,
+.admin-dark .match-detail-score-caption,
+.admin-dark .stat-caption,
+.admin-dark .field-label,
+.admin-dark .toolbar-summary-caption,
+.admin-dark .form-helper,
+.admin-dark .admin-kpi-label,
+.admin-dark .admin-kpi-meta {
+    -fx-text-fill: #a1a1aa;
+}
+
+.admin-dark .admin-content-stack,
+.admin-dark .page-shell,
+.admin-dark .page-scroll,
+.admin-dark .page-scroll > .viewport,
+.admin-dark.page-root,
+.admin-dark .admin-workspace-root.page-root {
+    -fx-background-color: transparent;
+}
+
+.admin-dark .panel-card,
+.admin-dark .admin-kpi-card,
+.admin-dark .admin-hint-card,
+.admin-dark .toolbar-summary-card,
+.admin-dark .detail-logo-shell,
+.admin-dark .player-avatar-shell,
+.admin-dark .player-detail-photo-shell,
+.admin-dark .stat-chip,
+.admin-dark .empty-state-box,
+.admin-dark .fixture-card,
+.admin-dark .fixture-team-logo-shell,
+.admin-dark .match-detail-logo-shell,
+.admin-dark .fixture-score-shell,
+.admin-dark .match-detail-score-shell,
+.admin-dark .match-detail-board,
+.admin-dark .admin-workspace-root .toolbar-panel,
+.admin-dark .admin-workspace-root .results-panel,
+.admin-dark .admin-workspace-root .detail-card,
+.admin-dark .admin-workspace-root .form-card,
+.admin-dark .admin-workspace-root .match-toolbar,
+.admin-dark .admin-workspace-root .sync-toolbar-row {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.30), 18, 0.16, 0, 6);
+}
+
+.admin-dark .admin-nav-button,
+.admin-dark .ghost-button,
+.admin-dark .soft-button,
+.admin-dark .navbar-admin-button,
+.admin-dark .admin-sidebar-user-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #18181b 0%, #09090b 100%);
+    -fx-border-color: rgba(82, 82, 91, 0.84);
+    -fx-text-fill: #f5f5f5;
+}
+
+.admin-dark .admin-nav-button:hover,
+.admin-dark .ghost-button:hover,
+.admin-dark .soft-button:hover,
+.admin-dark .navbar-admin-button:hover,
+.admin-dark .admin-sidebar-user-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #27272a 0%, #18181b 100%);
+    -fx-border-color: rgba(161, 161, 170, 0.46);
+    -fx-text-fill: #ffffff;
+}
+
+.admin-dark .admin-nav-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 41, 59, 0.88) 0%, rgba(39, 39, 42, 0.98) 100%);
+    -fx-border-color: rgba(212, 212, 216, 0.24);
+    -fx-text-fill: #ffffff;
+}
+
+.admin-dark .primary-button,
+.admin-dark .card-link,
+.admin-dark .player-number-badge,
+.admin-dark .fixture-link-chip {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #166534 0%, #14532d 100%);
+    -fx-border-color: rgba(74, 222, 128, 0.32);
+    -fx-text-fill: #f0fdf4;
+}
+
+.admin-dark .primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #14532d 0%, #052e16 100%);
+}
+
+.admin-dark .danger-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #b91c1c 0%, #7f1d1d 100%);
+    -fx-border-color: rgba(248, 113, 113, 0.32);
+    -fx-text-fill: #fef2f2;
+}
+
+.admin-dark .toolbar-chip,
+.admin-dark .toolbar-chip-soft,
+.admin-dark .status-muted {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.86);
+    -fx-text-fill: #d4d4d8;
+}
+
+.admin-dark .status-success,
+.admin-dark .fixture-status-live,
+.admin-dark .team-card-competition-badge {
+    -fx-background-color: rgba(20, 83, 45, 0.82);
+    -fx-border-color: rgba(74, 222, 128, 0.3);
+    -fx-text-fill: #dcfce7;
+}
+
+.admin-dark .status-warning {
+    -fx-background-color: rgba(120, 53, 15, 0.82);
+    -fx-border-color: rgba(250, 204, 21, 0.3);
+    -fx-text-fill: #fef3c7;
+}
+
+.admin-dark .status-error {
+    -fx-background-color: rgba(127, 29, 29, 0.82);
+    -fx-border-color: rgba(248, 113, 113, 0.3);
+    -fx-text-fill: #fee2e2;
+}
+
+.admin-dark .form-text-field,
+.admin-dark .glass-combo,
+.admin-dark .form-date-picker,
+.admin-dark .match-date-picker,
+.admin-dark .match-search-field,
+.admin-dark #searchField {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.9);
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.admin-dark .form-text-field:focused,
+.admin-dark .glass-combo:focused,
+.admin-dark .form-date-picker:focused,
+.admin-dark .match-date-picker:focused,
+.admin-dark .match-search-field:focused,
+.admin-dark #searchField:focused {
+    -fx-border-color: rgba(212, 212, 216, 0.56);
+    -fx-effect: dropshadow(gaussian, rgba(212, 212, 216, 0.08), 10, 0.14, 0, 0);
+}
+
+.admin-dark .glass-combo .list-cell,
+.admin-dark .form-date-picker .text-field,
+.admin-dark .match-date-picker .text-field {
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.admin-dark .glass-combo .arrow,
+.admin-dark .form-date-picker .arrow,
+.admin-dark .match-date-picker .arrow {
+    -fx-background-color: #f4f4f5;
+}
+
+.admin-dark .data-table {
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.94);
+    -fx-selection-bar: rgba(63, 63, 70, 0.98);
+    -fx-selection-bar-non-focused: rgba(39, 39, 42, 0.94);
+}
+
+.admin-dark .data-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.92) transparent;
+}
+
+.admin-dark .data-table .column-header .label {
+    -fx-text-fill: #d4d4d8;
+}
+
+.admin-dark .data-table .table-row-cell {
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.84) transparent;
+}
+
+.admin-dark .data-table .table-row-cell:odd {
+    -fx-background-color: rgba(24, 24, 27, 0.58);
+}
+
+.admin-dark .data-table .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #f5f5f5;
+}
+
+/* Admin Dashboard Table specific dark mode overrides */
+.admin-dark .admin-dashboard-table,
+.admin-dark .admin-dashboard-table .virtual-flow,
+.admin-dark .admin-dashboard-table .clipped-container,
+.admin-dark .admin-dashboard-table .sheet,
+.admin-dark .admin-dashboard-table .filler,
+.admin-dark .admin-dashboard-table .corner,
+.admin-dark .admin-dashboard-table .scroll-bar,
+.theme-dark.admin-page-root .admin-dashboard-table,
+.theme-dark.admin-page-root .admin-dashboard-table .virtual-flow,
+.theme-dark.admin-page-root .admin-dashboard-table .clipped-container,
+.theme-dark.admin-page_root .admin-dashboard-table .sheet,
+.theme-dark.admin-page_root .admin-dashboard-table .filler,
+.theme-dark.admin-page_root .admin-dashboard-table .corner,
+.theme-dark.admin-page_root .admin-dashboard-table .scroll-bar {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+}
+
+.admin-dark .admin-dashboard-table .table-row-cell,
+.theme-dark.admin-page-root .admin-dashboard-table .table-row-cell {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-text-fill: #f5f5f5;
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.84) transparent;
+}
+
+.admin-dark .admin-dashboard-table .table-row-cell:odd,
+.theme-dark.admin-page-root .admin-dashboard-table .table-row-cell:odd {
+    -fx-background-color: rgba(31, 31, 35, 0.98);
+}
+
+.admin-dark .admin-dashboard-table .column-header-background,
+.theme-dark.admin-page-root .admin-dashboard-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.92) transparent;
+}
+
+.admin-dark .admin-dashboard-table .table-cell,
+.theme-dark.admin-page-root .admin-dashboard-table .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #f5f5f5;
+}
+
+.admin-dark .data-table,
+.theme-dark.admin-page-root .data-table {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background-alt: rgba(31, 31, 35, 0.98);
+    -fx-table-cell-border-color: rgba(63, 63, 70, 0.84);
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.admin-dark .data-table .virtual-flow,
+.admin-dark .data-table .clipped-container,
+.admin-dark .data-table .sheet,
+.admin-dark .data-table .filler,
+.admin-dark .data-table .corner,
+.admin-dark .data-table .placeholder,
+.admin-dark .data-table .column-header,
+.admin-dark .data-table .column-header-background,
+.theme-dark.admin-page-root .data-table .virtual-flow,
+.theme-dark.admin-page-root .data-table .clipped-container,
+.theme-dark.admin-page_root .data-table .sheet,
+.theme-dark.admin-page_root .data-table .filler,
+.theme-dark.admin-page_root .data-table .corner,
+.theme-dark.admin-page_root .data-table .placeholder,
+.theme-dark.admin-page_root .data-table .column-header,
+.theme-dark.admin-page_root .data-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
+.admin-dark .data-table .table-row-cell,
+.theme-dark.admin-page-root .data-table .table-row-cell {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.84) transparent;
+}
+
+.admin-dark .data-table .table-row-cell:odd,
+.theme-dark.admin-page-root .data-table .table-row-cell:odd {
+    -fx-background-color: rgba(31, 31, 35, 0.98);
+}
+
+.admin-dark .data-table .table-cell,
+.theme-dark.admin-page-root .data-table .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #f5f5f5;
+}
+
+.admin-dark .data-table .placeholder .label,
+.theme-dark.admin-page-root .data-table .placeholder .label {
+    -fx-text-fill: #a1a1aa;
+}
+
+.admin-dark .data-table .scroll-bar:horizontal,
+.admin-dark .data-table .scroll-bar:vertical,
+.theme-dark.admin-page-root .data-table .scroll-bar:horizontal,
+.theme-dark.admin-page-root .data-table .scroll-bar:vertical {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
+.admin-dark .data-table .scroll-bar .track,
+.theme-dark.admin-page-root .data-table .scroll-bar .track {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
+.admin-dark .data-table .scroll-bar .thumb,
+.theme-dark.admin-page-root .data-table .scroll-bar .thumb {
+    -fx-background-color: rgba(82, 82, 91, 0.94);
+    -fx-background-radius: 999;
+}
+
+/* Admin Dashboard Table specific dark mode overrides */
+.admin-dark .admin-dashboard-table,
+.admin-dark .admin-dashboard-table .virtual-flow,
+.admin-dark .admin-dashboard-table .clipped-container,
+.admin-dark .admin-dashboard-table .sheet,
+.admin-dark .admin-dashboard-table .filler,
+.admin-dark .admin-dashboard-table .corner,
+.admin-dark .admin-dashboard-table .scroll-bar,
+.theme-dark.admin-page-root .admin-dashboard-table,
+.theme-dark.admin-page-root .admin-dashboard-table .virtual-flow,
+.theme-dark.admin-page-root .admin-dashboard-table .clipped-container,
+.theme-dark.admin-page_root .admin-dashboard-table .sheet,
+.theme-dark.admin-page_root .admin-dashboard-table .filler,
+.theme-dark.admin-page_root .admin-dashboard-table .corner,
+.theme-dark.admin-page_root .admin-dashboard-table .scroll-bar {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+}
+
+.admin-dark .admin-dashboard-table .table-row-cell,
+.theme-dark.admin-page-root .admin-dashboard-table .table-row-cell {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-text-fill: #f5f5f5;
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.84) transparent;
+}
+
+.admin-dark .admin-dashboard-table .table-row-cell:odd,
+.theme-dark.admin-page-root .admin-dashboard-table .table-row-cell:odd {
+    -fx-background-color: rgba(31, 31, 35, 0.98);
+}
+
+.admin-dark .admin-dashboard-table .column-header-background,
+.theme-dark.admin-page-root .admin-dashboard-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.92) transparent;
+}
+
+.admin-dark .admin-dashboard-table .table-cell,
+.theme-dark.admin-page-root .admin-dashboard-table .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #f5f5f5;
+}

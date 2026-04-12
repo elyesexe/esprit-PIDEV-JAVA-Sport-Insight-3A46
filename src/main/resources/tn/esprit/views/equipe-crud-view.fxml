@@ -4,8 +4,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
@@ -20,15 +21,21 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.Controller.EquipeController"
             styleClass="page-root">
-    <left>
-        <VBox fx:id="sidebarRoot" spacing="18" styleClass="sidebar-root" BorderPane.alignment="CENTER">
+    <top>
+        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="18" right="14" bottom="18" left="14"/>
+                <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
 
-            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="12" styleClass="sidebar-header" onMouseClicked="#handleOpenHome">
-                <StackPane styleClass="sidebar-logo-shell">
-                    <ImageView fitWidth="186" fitHeight="62" preserveRatio="true" smooth="true">
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="10" styleClass="navbar-brand" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
                         <image>
                             <Image url="@../images/sport-insight-logo.png"/>
                         </image>
@@ -36,58 +43,53 @@
                 </StackPane>
             </HBox>
 
-            <Label fx:id="sidebarSectionLabel"
-                   text="Modules"
-                   styleClass="sidebar-section"/>
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchsSoon"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueursSoon"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+                </HBox>
+            </StackPane>
 
-            <VBox spacing="10">
-                <Button fx:id="equipesNavButton"
-                        onAction="#handleOpenEquipes"
-                        text="Equipes"
-                        styleClass="sidebar-nav-button"/>
-                <Button fx:id="matchsNavButton"
-                        onAction="#handleOpenMatchsSoon"
-                        text="Matchs"
-                        styleClass="sidebar-nav-button"/>
-                <Button fx:id="joueursNavButton"
-                        onAction="#handleOpenJoueursSoon"
-                        text="Joueurs"
-                        styleClass="sidebar-nav-button"/>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <VBox spacing="8" styleClass="sidebar-theme-box">
-                <Label text="Theme" styleClass="sidebar-theme-title"/>
-                <HBox alignment="CENTER" spacing="9" styleClass="sidebar-theme-row">
-                    <Label text="Light" styleClass="sidebar-theme-label"/>
-                    <ToggleButton fx:id="themeToggleButton"
-                                  mnemonicParsing="false"
-                                  contentDisplay="GRAPHIC_ONLY"
-                                  styleClass="theme-toggle">
-                        <graphic>
-                            <StackPane styleClass="theme-toggle-track">
-                                <StackPane styleClass="theme-toggle-thumb">
-                                    <StackPane styleClass="theme-toggle-icon-shell">
-                                        <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                        <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
-                                    </StackPane>
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
                                 </StackPane>
                             </StackPane>
-                        </graphic>
-                    </ToggleButton>
-                    <Label text="Dark" styleClass="sidebar-theme-label"/>
-                </HBox>
-            </VBox>
-
-            <Button fx:id="sidebarToggleButton"
-                    onAction="#handleToggleSidebar"
-                    text="&lt;"
-                    styleClass="sidebar-toggle-button"/>
-
-            <Label text="v1" styleClass="sidebar-footer"/>
-        </VBox>
-    </left>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
 
     <center>
         <ScrollPane fitToWidth="true"
@@ -101,98 +103,94 @@
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
 
-            <HBox alignment="CENTER_LEFT">
-                <Button fx:id="sidebarOpenButton"
-                        onAction="#handleOpenSidebar"
-                        text="Menu"
-                        managed="false"
-                        visible="false"
-                        styleClass="sidebar-open-button"/>
-            </HBox>
+                    <VBox spacing="16" styleClass="panel-card toolbar-panel">
+                        <HBox spacing="16" alignment="CENTER_LEFT">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Equipe admin" styleClass="section-title"/>
+                                <Label text="Gestion des equipes, recherche rapide, edition et suppression depuis une vue de type back-office."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Label fx:id="statusLabel"
+                                   text="Pret"
+                                   managed="false"
+                                   visible="false"
+                                   styleClass="status-pill"/>
+                        </HBox>
 
-            <StackPane styleClass="hero-shell">
-                <Region styleClass="hero-photo"/>
-                <Region styleClass="hero-overlay"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <VBox spacing="4" styleClass="toolbar-summary-card">
+                                <Label text="Enregistrements" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="resultCountLabel" text="0 equipe(s)" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                            <VBox spacing="4" styleClass="toolbar-summary-card">
+                                <Label text="Etat courant" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="selectionStateLabel" text="Mode creation" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                        </HBox>
 
-                <VBox spacing="12" styleClass="hero-content">
-                    <Label text="Squads" styleClass="hero-eyebrow"/>
-                    <Label text="Recherchez et pilotez vos equipes" styleClass="hero-title"/>
-                    <Label text="Une interpretation JavaFX du front-office Symfony : hero immersif, cartes arrondies, verre depoli et accents verts."
-                           wrapText="true"
-                           styleClass="hero-text"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="Recherche" styleClass="field-label"/>
+                                <TextField fx:id="searchField"
+                                           promptText="Rechercher par nom ou coach"
+                                           styleClass="form-text-field"/>
+                            </VBox>
 
-                    <HBox spacing="10">
-                        <Label fx:id="resultCountLabel" text="0 equipe(s)" styleClass="toolbar-chip-soft"/>
-                        <Label fx:id="selectionStateLabel" text="Mode creation" styleClass="toolbar-chip"/>
-                    </HBox>
-                </VBox>
-            </StackPane>
+                            <VBox spacing="6">
+                                <Label text="Tri" styleClass="field-label"/>
+                                <ComboBox fx:id="sortChoiceBox" prefWidth="150" styleClass="glass-combo"/>
+                            </VBox>
 
-            <VBox spacing="16" styleClass="panel-card toolbar-panel">
-                <HBox spacing="16" alignment="CENTER_LEFT">
-                    <VBox spacing="4" HBox.hgrow="ALWAYS">
-                        <Label text="Equipes" styleClass="section-title"/>
-                        <Label text="Recherchez, triez et ouvrez une fiche equipe sans quitter l'ecran."
-                               wrapText="true"
-                               styleClass="section-subtitle"/>
-                    </VBox>
-                    <Label fx:id="statusLabel"
-                           text="Pret"
-                           managed="false"
-                           visible="false"
-                           styleClass="status-pill"/>
-                </HBox>
+                            <VBox spacing="6">
+                                <Label text="Ordre" styleClass="field-label"/>
+                                <Button fx:id="sortOrderButton"
+                                        onAction="#handleToggleSortOrder"
+                                        text="Croissant"
+                                        prefWidth="132"
+                                        styleClass="ghost-button"/>
+                            </VBox>
 
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Recherche" styleClass="field-label"/>
-                        <TextField fx:id="searchField"
-                                   promptText="Rechercher par nom ou coach"
-                                   styleClass="form-text-field"/>
-                    </VBox>
-
-                    <VBox spacing="6">
-                        <Label text="Tri" styleClass="field-label"/>
-                        <ComboBox fx:id="sortChoiceBox" prefWidth="150" styleClass="glass-combo"/>
-                    </VBox>
-
-                    <VBox spacing="6">
-                        <Label text="Ordre" styleClass="field-label"/>
-                        <Button fx:id="sortOrderButton"
-                                onAction="#handleToggleSortOrder"
-                                text="Croissant"
-                                prefWidth="132"
-                                styleClass="ghost-button"/>
-                    </VBox>
-
-                    <VBox spacing="6">
-                        <Label text="Actions" styleClass="field-label"/>
-                        <HBox spacing="10">
-                            <Button fx:id="refreshButton"
-                                    onAction="#handleRefresh"
-                                    text="Actualiser"
-                                    styleClass="primary-button"/>
-                            <Button onAction="#handleResetFilters"
-                                    text="Reinitialiser"
-                                    styleClass="ghost-button"/>
+                            <VBox spacing="6">
+                                <Label text="Actions" styleClass="field-label"/>
+                                <HBox spacing="10">
+                                    <Button fx:id="refreshButton"
+                                            onAction="#handleRefresh"
+                                            text="Actualiser"
+                                            styleClass="primary-button"/>
+                                    <Button onAction="#handleResetFilters"
+                                            text="Reinitialiser"
+                                            styleClass="ghost-button"/>
+                                </HBox>
+                            </VBox>
                         </HBox>
                     </VBox>
-                </HBox>
-            </VBox>
+
                     <HBox spacing="18" styleClass="content-shell">
-                        <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                        <VBox spacing="14" styleClass="panel-card results-panel admin-table-panel" HBox.hgrow="ALWAYS">
                             <HBox spacing="12" alignment="CENTER_LEFT">
                                 <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                    <Label text="Liste des equipes" styleClass="section-title"/>
-                                    <Label text="Cartes inspirees du catalogue front-office Symfony."
+                                    <Label text="Table des equipes" styleClass="section-title"/>
+                                    <Label text="Selectionnez une ligne pour alimenter la fiche detail et le formulaire d'edition."
                                            wrapText="true"
                                            styleClass="section-subtitle"/>
                                 </VBox>
-                                <Label fx:id="resultsMetaLabel" text="0 resultat(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="resultsMetaLabel" text="0 ligne(s)" styleClass="toolbar-chip-soft"/>
                             </HBox>
 
                             <StackPane VBox.vgrow="ALWAYS">
-                                <ListView fx:id="equipeListView" styleClass="team-list-view"/>
+                                <TableView fx:id="equipeTableView"
+                                           prefHeight="540"
+                                           styleClass="data-table">
+                                    <columns>
+                                        <TableColumn fx:id="idColumn" text="ID" prefWidth="80"/>
+                                        <TableColumn fx:id="nomColumn" text="Equipe" prefWidth="230"/>
+                                        <TableColumn fx:id="coachColumn" text="Coach" prefWidth="210"/>
+                                        <TableColumn fx:id="competitionColumn" text="Competition" prefWidth="160"/>
+                                        <TableColumn fx:id="sourceColumn" text="Source" prefWidth="140"/>
+                                        <TableColumn fx:id="logoColumn" text="Logo" prefWidth="100"/>
+                                    </columns>
+                                </TableView>
 
                                 <VBox fx:id="emptyStateBox"
                                       alignment="CENTER"
@@ -203,7 +201,7 @@
                                       styleClass="empty-state-box">
                                     <Label text="+" styleClass="empty-icon"/>
                                     <Label text="Aucune equipe trouvee" styleClass="empty-title"/>
-                                    <Label text="Essayez un autre mot-cle ou reinitialisez le filtre pour revoir toutes les equipes."
+                                    <Label text="Essayez un autre filtre ou rechargez la liste pour retrouver les fiches en base."
                                            wrapText="true"
                                            styleClass="empty-text"/>
                                 </VBox>
@@ -231,7 +229,7 @@
                                 <VBox spacing="6">
                                     <Label fx:id="detailNameLabel" text="Aucune equipe selectionnee" styleClass="detail-title"/>
                                     <Label fx:id="detailSubtitleLabel"
-                                           text="Selectionnez une carte ou commencez une nouvelle creation pour afficher la fiche detail."
+                                           text="Selectionnez une ligne du tableau ou creez une nouvelle fiche pour afficher le detail."
                                            wrapText="true"
                                            styleClass="detail-subtitle"/>
                                 </VBox>
@@ -256,9 +254,9 @@
 
                             <VBox spacing="16" styleClass="panel-card form-card">
                                 <VBox spacing="4">
-                                    <Label text="Edition de la fiche" styleClass="section-title"/>
+                                    <Label text="Formulaire equipe" styleClass="section-title admin-form-section-title"/>
                                     <Label fx:id="formHintLabel"
-                                           text="Composez une nouvelle fiche equipe avec le meme esprit que le front-office Symfony."
+                                           text="Renseignez les champs ci-dessous pour creer une nouvelle fiche equipe."
                                            wrapText="true"
                                            styleClass="section-subtitle"/>
                                 </VBox>
@@ -295,7 +293,7 @@
                                                 text="Parcourir..."
                                                 styleClass="ghost-button"/>
                                     </HBox>
-                                    <Label text="Le logo alimente directement la carte et la fiche detail."
+                                    <Label text="Le logo alimente l'aperu detail et la fiche equipe."
                                            wrapText="true"
                                            styleClass="form-helper"/>
                                 </VBox>
@@ -333,4 +331,3 @@
         </ScrollPane>
     </center>
 </BorderPane>
-
