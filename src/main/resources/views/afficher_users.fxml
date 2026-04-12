@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="650" prefWidth="1000" spacing="0" style="-fx-background-color: #f4f6f8;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.AfficherUsersController">
+
+    <!-- TOP BAR -->
+    <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #1a3a5c; -fx-padding: 16 24 16 24;">
+        <Label style="-fx-font-size: 20px;" text="⚽" />
+        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;                       -fx-text-fill: white; -fx-font-family: 'Georgia';" text="Sport Insight — Gestion des utilisateurs" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="errorLabel" style="-fx-text-fill: #ff9999; -fx-font-size: 12px;" text="" />
+    </HBox>
+
+    <!-- ACTION BUTTONS -->
+    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 16 24 12 24; -fx-background-color: #f4f6f8;">
+        <Button fx:id="ajouterBtn" onAction="#handleAjouter" prefHeight="36" style="-fx-background-color: #1a3a5c; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="+ Ajouter" />
+        <Button fx:id="modifierBtn" onAction="#handleModifier" prefHeight="36" style="-fx-background-color: #3a7abd; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="Modifier" />
+        <Button fx:id="supprimerBtn" onAction="#handleSupprimer" prefHeight="36" style="-fx-background-color: #c0392b; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="Supprimer" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="rafraichirBtn" onAction="#handleRafraichir" prefHeight="36" style="-fx-background-color: #5a6a7c; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="Rafraichir" />
+    </HBox>
+
+    <!-- TABLE -->
+    <TableView fx:id="tableView" style="-fx-background-color: white;" VBox.vgrow="ALWAYS">
+
+        <columns>
+            <TableColumn fx:id="colId" prefWidth="50" text="ID" />
+            <TableColumn fx:id="colNom" prefWidth="130" text="Nom" />
+            <TableColumn fx:id="colPrenom" prefWidth="130" text="Prenom" />
+            <TableColumn fx:id="colEmail" prefWidth="220" text="Email" />
+            <TableColumn fx:id="colTelephone" prefWidth="140" text="Telephone" />
+            <TableColumn fx:id="colStatut" prefWidth="90" text="Statut" />
+            <TableColumn fx:id="colRoles" prefWidth="130" text="Role" />
+        </columns>
+
+        <placeholder>
+            <Label style="-fx-text-fill: #888; -fx-font-size: 13px;" text="Aucun utilisateur trouve." />
+        </placeholder>
+    </TableView>
+
+    <!-- FOOTER -->
+    <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="862.0" style="-fx-background-color: #e8edf2; -fx-padding: 10 24 10 24;">
+        <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Selectionnez une ligne puis cliquez sur Modifier ou Supprimer" />
+    </HBox>
+</VBox>

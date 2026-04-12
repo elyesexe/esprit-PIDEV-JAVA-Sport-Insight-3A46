@@ -46,10 +46,22 @@ public class UserService {
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM user";
-        Statement st = cnx.createStatement();
-        ResultSet rs = st.executeQuery(sql);
-        while (rs.next()) {
-            users.add(mapRow(rs));
+
+        // Using try-with-resources ensures the connection closes automatically
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setNom(rs.getString("nom"));
+                user.setPrenom(rs.getString("prenom"));
+                user.setEmail(rs.getString("email"));
+                user.setTelephone(rs.getString("telephone"));
+                user.setStatut(rs.getString("statut"));
+                user.setRoles(rs.getString("roles"));
+                users.add(user);
+            }
         }
         return users;
     }

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<HBox prefHeight="580" prefWidth="860" style="-fx-background-color: #2b2b2b;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.RegisterController">
+
+    <!-- LEFT -->
+    <StackPane prefHeight="580" prefWidth="380">
+        <ImageView fitHeight="580" fitWidth="380" preserveRatio="false">
+            <image><Image url="@../images/football_bg.jpg" /></image>
+        </ImageView>
+        <Rectangle fill="rgba(0,0,0,0.50)" height="580" width="380" />
+        <VBox alignment="TOP_LEFT" spacing="14" style="-fx-padding: 48 36 40 36;">
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold;                           -fx-text-fill: white; -fx-font-family: 'Georgia';                           -fx-wrap-text: true; -fx-max-width: 280;" text="Join Sport Insight" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: #d0d0d0;                           -fx-line-spacing: 4;" text="Create your account and start&#10;tracking players, matchs&#10;and performance stats." />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button fx:id="goLoginBtn" onAction="#handleGoLogin" prefHeight="40" prefWidth="260" style="-fx-background-color: rgba(255,255,255,0.85);                            -fx-text-fill: #2c3e50; -fx-font-size: 13px;                            -fx-background-radius: 4; -fx-cursor: hand;" text="Already have an account? Sign In" />
+        </VBox>
+    </StackPane>
+
+    <!-- RIGHT -->
+    <VBox alignment="CENTER" prefHeight="584.0" prefWidth="483.0" spacing="14" style="-fx-background-color: #3a4a5c; -fx-padding: 40 44 40 44;">
+
+        <Label style="-fx-font-size: 26px; -fx-font-weight: bold;                       -fx-text-fill: white; -fx-font-family: 'Georgia';" text="Create Account" />
+
+        <HBox spacing="12">
+            <TextField fx:id="nomField" prefHeight="42" prefWidth="186" promptText="Last Name" style="-fx-background-color: white; -fx-background-radius: 4;                               -fx-font-size: 13px; -fx-padding: 0 12 0 12;" />
+            <TextField fx:id="prenomField" prefHeight="42" prefWidth="186" promptText="First Name" style="-fx-background-color: white; -fx-background-radius: 4;                               -fx-font-size: 13px; -fx-padding: 0 12 0 12;" />
+        </HBox>
+
+        <TextField fx:id="emailField" prefHeight="42" prefWidth="384" promptText="Email Address" style="-fx-background-color: white; -fx-background-radius: 4;                           -fx-font-size: 13px; -fx-padding: 0 12 0 12;" />
+
+        <TextField fx:id="telephoneField" prefHeight="42" prefWidth="384" promptText="Phone Number" style="-fx-background-color: white; -fx-background-radius: 4;                           -fx-font-size: 13px; -fx-padding: 0 12 0 12;" />
+
+        <DatePicker fx:id="dateNaissancePicker" prefHeight="42" prefWidth="384" promptText="Date of Birth" style="-fx-background-color: white; -fx-background-radius: 4;                            -fx-font-size: 13px;" />
+
+        <PasswordField fx:id="passwordField" prefHeight="42" prefWidth="384" promptText="Password" style="-fx-background-color: white; -fx-background-radius: 4;                               -fx-font-size: 13px; -fx-padding: 0 12 0 12;" />
+
+        <PasswordField fx:id="confirmPasswordField" prefHeight="42" prefWidth="384" promptText="Confirm Password" style="-fx-background-color: white; -fx-background-radius: 4;                               -fx-font-size: 13px; -fx-padding: 0 12 0 12;" />
+
+        <Label fx:id="errorLabel" prefWidth="384" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;" text="" wrapText="true" />
+
+        <Button fx:id="registerBtn" defaultButton="true" onAction="#handleRegister" prefHeight="40" prefWidth="200" style="-fx-background-color: #5a6a7c; -fx-text-fill: white;                        -fx-font-size: 14px; -fx-background-radius: 4;                        -fx-cursor: hand;" text="Create Account" />
+    </VBox>
+</HBox>

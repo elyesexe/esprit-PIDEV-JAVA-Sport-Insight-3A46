@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.ModifierUserController"
+      prefWidth="500" prefHeight="520" spacing="0"
+      style="-fx-background-color: #f4f6f8;">
+
+    <!-- HEADER -->
+    <HBox style="-fx-background-color: #1a3a5c; -fx-padding: 16 24 16 24;"
+          alignment="CENTER_LEFT">
+        <Label text="Modifier l'utilisateur"
+               style="-fx-font-size: 15px; -fx-font-weight: bold;
+                      -fx-text-fill: white; -fx-font-family: 'Georgia';"/>
+    </HBox>
+
+    <!-- FORM -->
+    <VBox spacing="14"
+          style="-fx-padding: 28 32 28 32; -fx-background-color: white;
+                 -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+        <VBox.vgrow>ALWAYS</VBox.vgrow>
+
+        <!-- Nom + Prenom -->
+        <HBox spacing="12">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Nom" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                <TextField fx:id="nomField" promptText="Nom"
+                           prefHeight="38"
+                           style="-fx-background-radius: 4; -fx-border-color: #ddd;
+                                  -fx-border-radius: 4; -fx-font-size: 13px;
+                                  -fx-padding: 0 10 0 10;"/>
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Prénom" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                <TextField fx:id="prenomField" promptText="Prénom"
+                           prefHeight="38"
+                           style="-fx-background-radius: 4; -fx-border-color: #ddd;
+                                  -fx-border-radius: 4; -fx-font-size: 13px;
+                                  -fx-padding: 0 10 0 10;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Email -->
+        <VBox spacing="5">
+            <Label text="Email" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+            <TextField fx:id="emailField" promptText="Email"
+                       prefHeight="38"
+                       style="-fx-background-radius: 4; -fx-border-color: #ddd;
+                              -fx-border-radius: 4; -fx-font-size: 13px;
+                              -fx-padding: 0 10 0 10;"/>
+        </VBox>
+
+        <!-- Telephone -->
+        <VBox spacing="5">
+            <Label text="Téléphone" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+            <TextField fx:id="telephoneField" promptText="Téléphone"
+                       prefHeight="38"
+                       style="-fx-background-radius: 4; -fx-border-color: #ddd;
+                              -fx-border-radius: 4; -fx-font-size: 13px;
+                              -fx-padding: 0 10 0 10;"/>
+        </VBox>
+
+        <!-- Date naissance -->
+        <VBox spacing="5">
+            <Label text="Date de naissance" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+            <DatePicker fx:id="dateNaissancePicker"
+                        prefWidth="9999" prefHeight="38"
+                        style="-fx-background-radius: 4; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Statut + Role -->
+        <HBox spacing="12">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Statut" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                <ComboBox fx:id="statutCombo" prefWidth="9999" prefHeight="38"
+                          style="-fx-font-size: 13px;"/>
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Rôle" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                <ComboBox fx:id="rolesCombo" prefWidth="9999" prefHeight="38"
+                          style="-fx-font-size: 13px;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Error -->
+        <Label fx:id="errorLabel" text="" wrapText="true"
+               style="-fx-text-fill: #c0392b; -fx-font-size: 12px;"/>
+    </VBox>
+
+    <!-- BUTTONS -->
+    <HBox spacing="10" alignment="CENTER_RIGHT"
+          style="-fx-padding: 16 24 16 24; -fx-background-color: #f4f6f8;">
+        <Button fx:id="cancelBtn"
+                text="Annuler"
+                onAction="#handleCancel"
+                prefWidth="100" prefHeight="36"
+                style="-fx-background-color: #aaa; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand;"/>
+        <Button fx:id="saveBtn"
+                text="Enregistrer"
+                onAction="#handleSave"
+                defaultButton="true"
+                prefWidth="130" prefHeight="36"
+                style="-fx-background-color: #1a3a5c; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand;"/>
+    </HBox>
+</VBox>
