@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="920.0" prefWidth="1440.0" stylesheets="@../styles/entrainement-dashboard.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.EntrainementDashboardController">
+    <top>
+        <VBox spacing="10.0" styleClass="top-shell">
+            <padding>
+                <Insets bottom="20.0" left="28.0" right="28.0" top="24.0" />
+            </padding>
+            <Label styleClass="eyebrow" text="SPORT INSIGHT / TRAINING MANAGEMENT" />
+            <HBox alignment="CENTER_LEFT" spacing="14.0">
+                <VBox spacing="4.0">
+                    <Label styleClass="page-title" text="Entrainement, Evaluation, Participation" />
+                    <Label styleClass="page-subtitle" text="FXML dashboard wired to your existing services and database tables." />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="statusLabel" styleClass="status-chip" text="Loading..." />
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <TabPane fx:id="contentTabs" styleClass="content-tabs" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="entrainementTab" text="Entrainement">
+                    <content>
+                        <VBox spacing="18.0" styleClass="tab-shell">
+                            <padding>
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                            </padding>
+                            <HBox spacing="18.0">
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="430.0" styleClass="training-scroll">
+                                    <content>
+                                        <VBox prefWidth="420.0" spacing="16.0" styleClass="card">
+                                            <Label styleClass="card-title" text="Training Form" />
+                                            <Label styleClass="section-hint" text="Choose an available coach by first name and last name." />
+                                            <GridPane hgap="12.0" vgap="12.0">
+                                                <columnConstraints>
+                                                    <ColumnConstraints percentWidth="34.0" />
+                                                    <ColumnConstraints percentWidth="66.0" />
+                                                </columnConstraints>
+                                                <Label text="Date" GridPane.rowIndex="0" />
+                                                <DatePicker fx:id="entrainementDateField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label text="Start" GridPane.rowIndex="1" />
+                                                <TextField fx:id="entrainementStartField" promptText="08:30" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="End" GridPane.rowIndex="2" />
+                                                <TextField fx:id="entrainementEndField" promptText="10:00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Label text="Type" GridPane.rowIndex="3" />
+                                                <TextField fx:id="entrainementTypeField" promptText="Technique" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                <Label text="Objectif" GridPane.rowIndex="4" />
+                                                <TextField fx:id="entrainementObjectifField" promptText="Ball control" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                <Label text="Lieu" GridPane.rowIndex="5" />
+                                                <TextField fx:id="entrainementLieuField" promptText="Terrain A" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                <Label text="Coach" GridPane.rowIndex="6" />
+                                                <ComboBox fx:id="entrainementCoachField" promptText="Select an available coach" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                            </GridPane>
+                                            <VBox spacing="10.0" styleClass="selector-panel">
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <Label styleClass="subsection-title" text="Available Coaches" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <Label fx:id="availableCoachCountLabel" styleClass="mini-chip" text="0 disponible(s)" />
+                                                </HBox>
+                                                <FlowPane fx:id="availableCoachPane" hgap="12.0" prefWrapLength="360.0" vgap="12.0" />
+                                            </VBox>
+                                            <HBox spacing="10.0">
+                                                <Button mnemonicParsing="false" onAction="#handleSaveEntrainement" styleClass="primary-button" text="Save" />
+                                                <Button mnemonicParsing="false" onAction="#handleDeleteEntrainement" styleClass="danger-button" text="Delete" />
+                                                <Button mnemonicParsing="false" onAction="#handleResetEntrainement" text="Reset" />
+                                            </HBox>
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
+                                <VBox spacing="16.0" styleClass="card" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <TextField fx:id="entrainementSearchField" promptText="Search by type, location, objectif" HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#handleSearchEntrainement" text="Search" />
+                                        <ComboBox fx:id="entrainementSortBox" prefWidth="160.0" promptText="Sort by" />
+                                        <Button mnemonicParsing="false" onAction="#handleSortEntrainement" text="Sort" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT">
+                                        <Label styleClass="subsection-title" text="Training Sessions" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="entrainementCountLabel" styleClass="mini-chip" text="0 sessions" />
+                                    </HBox>
+                                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="training-scroll" VBox.vgrow="ALWAYS">
+                                        <content>
+                                            <VBox spacing="18.0">
+                                                <FlowPane fx:id="entrainementCardsPane" hgap="16.0" prefWrapLength="760.0" vgap="16.0" />
+                                                <VBox spacing="12.0" styleClass="selector-panel">
+                                                    <HBox alignment="CENTER_LEFT">
+                                                        <Label styleClass="subsection-title" text="My Participation" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="connectedUserLabel" styleClass="mini-chip" text="Connected player: not set" />
+                                                    </HBox>
+                                                    <Label fx:id="participationTrainingContextLabel" styleClass="section-hint" text="Select a training" />
+                                                    <ComboBox fx:id="participationPresenceField" promptText="Present / Absent" />
+                                                    <TextArea fx:id="participationJustificationField" prefRowCount="3" promptText="Justification if absent" />
+                                                    <HBox spacing="10.0">
+                                                        <Button mnemonicParsing="false" onAction="#handleSaveParticipation" styleClass="primary-button" text="Save attendance" />
+                                                        <Button mnemonicParsing="false" onAction="#handleDeleteParticipation" styleClass="danger-button" text="Delete attendance" />
+                                                    </HBox>
+                                                    <FlowPane fx:id="participationCardsPane" hgap="14.0" prefWrapLength="760.0" vgap="14.0" />
+                                                </VBox>
+                                                <VBox spacing="12.0" styleClass="selector-panel">
+                                                    <HBox alignment="CENTER_LEFT">
+                                                        <Label styleClass="subsection-title" text="My Notes" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label styleClass="mini-chip" text="My notes" />
+                                                    </HBox>
+                                                    <FlowPane fx:id="evaluationCardsPane" hgap="14.0" prefWrapLength="760.0" vgap="14.0" />
+                                                </VBox>
+                                            </VBox>
+                                        </content>
+                                    </ScrollPane>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </Tab>
+                <Tab fx:id="evaluationTab" text="Evaluation">
+                    <content>
+                        <VBox spacing="18.0" styleClass="tab-shell">
+                            <padding>
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                            </padding>
+                            <HBox spacing="18.0">
+                                <VBox prefWidth="420.0" spacing="16.0" styleClass="card">
+                                    <Label styleClass="card-title" text="Evaluation Form" />
+                                    <Label fx:id="evaluationTrainingContextLabel" styleClass="section-hint" text="Connected as admin. Select a training card first." />
+                                    <GridPane hgap="12.0" vgap="12.0">
+                                        <columnConstraints>
+                                            <ColumnConstraints percentWidth="34.0" />
+                                            <ColumnConstraints percentWidth="66.0" />
+                                        </columnConstraints>
+                                        <Label text="Physique" GridPane.rowIndex="0" />
+                                        <TextField fx:id="evaluationPhysiqueField" promptText="14.5" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Technique" GridPane.rowIndex="1" />
+                                        <TextField fx:id="evaluationTechniqueField" promptText="16.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Tactique" GridPane.rowIndex="2" />
+                                        <TextField fx:id="evaluationTactiqueField" promptText="15.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Commentaire" GridPane.rowIndex="3" />
+                                        <TextArea fx:id="evaluationCommentaireField" prefRowCount="4" promptText="Player performed well in transitions" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Player" GridPane.rowIndex="4" />
+                                        <ComboBox fx:id="evaluationJoueurField" promptText="Select player" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    </GridPane>
+                                    <HBox spacing="10.0">
+                                        <Button mnemonicParsing="false" onAction="#handleSaveEvaluation" styleClass="primary-button" text="Save" />
+                                        <Button mnemonicParsing="false" onAction="#handleDeleteEvaluation" styleClass="danger-button" text="Delete" />
+                                        <Button mnemonicParsing="false" onAction="#handleResetEvaluation" text="Reset" />
+                                    </HBox>
+                                </VBox>
+                                <VBox spacing="16.0" styleClass="card" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <TextField fx:id="evaluationSearchField" promptText="Search in commentaire" HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#handleSearchEvaluation" text="Search" />
+                                        <ComboBox fx:id="evaluationSortBox" prefWidth="180.0" promptText="Sort by" />
+                                        <Button mnemonicParsing="false" onAction="#handleSortEvaluation" text="Sort" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT">
+                                        <Label styleClass="subsection-title" text="Evaluation Cards" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="evaluationCardsContextLabel" styleClass="mini-chip" text="No training selected" />
+                                    </HBox>
+                                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="training-scroll" VBox.vgrow="ALWAYS">
+                                        <content>
+                                            <FlowPane fx:id="evaluationListPane" hgap="14.0" prefWrapLength="760.0" vgap="14.0" />
+                                        </content>
+                                    </ScrollPane>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>
