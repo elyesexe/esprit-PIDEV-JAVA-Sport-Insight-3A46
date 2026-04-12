@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.MatchCompetitionController"
+            styleClass="page-root">
+    <top>
+        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="10" styleClass="navbar-brand" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="18" styleClass="page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+                    <StackPane styleClass="hero-shell">
+                        <StackPane styleClass="hero-photo"/>
+                        <StackPane styleClass="hero-overlay"/>
+                        <VBox spacing="14" styleClass="hero-content">
+                            <Label text="Competitions" styleClass="hero-eyebrow"/>
+                            <Label text="Choisissez un championnat" styleClass="hero-title"/>
+                            <Label text="Chaque carte ouvre une nouvelle page avec la liste des matchs de cette competition."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+                            <HBox spacing="10">
+                                <Label text="6 competitions" styleClass="toolbar-chip"/>
+                                <Label text="Logo en haut, nom en dessous" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+
+                    <VBox spacing="16" styleClass="panel-card">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4">
+                                <Label text="Liste des competitions" styleClass="section-title"/>
+                                <Label text="Cliquez sur une carte pour ouvrir la page des matchs correspondants." styleClass="section-subtitle"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Navigation seule" styleClass="toolbar-chip-soft"/>
+                        </HBox>
+
+                        <FlowPane fx:id="competitionCardsPane"
+                                  alignment="CENTER"
+                                  hgap="18"
+                                  vgap="18"
+                                  prefWrapLength="760"
+                                  styleClass="competition-cards-pane"/>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

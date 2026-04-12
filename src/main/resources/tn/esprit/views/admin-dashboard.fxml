@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            styleClass="page-scroll"
+            fx:controller="tn.esprit.Controller.AdminDashboardController">
+    <content>
+        <VBox spacing="22" styleClass="page-shell admin-dashboard-shell">
+            <padding>
+                <Insets top="24" right="28" bottom="28" left="28"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Dashboard admin" styleClass="admin-dashboard-title"/>
+                    <Label text="Vue de pilotage des modules Equipes, Joueurs et Matchs avec les dernieres donnees chargees depuis la base."
+                           wrapText="true"
+                           styleClass="admin-dashboard-subtitle"/>
+                </VBox>
+                <Label fx:id="dashboardStatusLabel"
+                       text="Chargement..."
+                       styleClass="status-pill status-muted"/>
+            </HBox>
+
+            <FlowPane hgap="16" vgap="16" prefWrapLength="1000" styleClass="admin-kpi-row">
+                <VBox spacing="8" styleClass="admin-kpi-card">
+                    <Label text="Equipes" styleClass="admin-kpi-label"/>
+                    <Label fx:id="equipeCountLabel" text="..." styleClass="admin-kpi-value"/>
+                    <Label text="enregistrements actifs" styleClass="admin-kpi-meta"/>
+                </VBox>
+                <VBox spacing="8" styleClass="admin-kpi-card">
+                    <Label text="Joueurs" styleClass="admin-kpi-label"/>
+                    <Label fx:id="joueurCountLabel" text="..." styleClass="admin-kpi-value"/>
+                    <Label text="profils disponibles" styleClass="admin-kpi-meta"/>
+                </VBox>
+                <VBox spacing="8" styleClass="admin-kpi-card">
+                    <Label text="Matchs" styleClass="admin-kpi-label"/>
+                    <Label fx:id="matchCountLabel" text="..." styleClass="admin-kpi-value"/>
+                    <Label text="rencontres en base" styleClass="admin-kpi-meta"/>
+                </VBox>
+            </FlowPane>
+
+            <HBox spacing="18" styleClass="admin-dashboard-grid">
+                <VBox spacing="12" styleClass="panel-card admin-table-card" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Equipes recentes" styleClass="section-title admin-section-title"/>
+                            <Label text="Dernieres fiches equipe disponibles pour edition."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+                        </VBox>
+                        <Label text="6 lignes" styleClass="toolbar-chip-soft"/>
+                    </HBox>
+
+                    <TableView fx:id="teamsTableView"
+                               prefHeight="300"
+                               styleClass="data-table admin-dashboard-table">
+                        <columns>
+                            <TableColumn fx:id="teamIdColumn" text="ID" prefWidth="80"/>
+                            <TableColumn fx:id="teamNameColumn" text="Equipe" prefWidth="220"/>
+                            <TableColumn fx:id="teamCoachColumn" text="Coach" prefWidth="220"/>
+                            <TableColumn fx:id="teamCompetitionColumn" text="Competition" prefWidth="170"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucune equipe disponible." styleClass="empty-text"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+                <VBox spacing="12" styleClass="panel-card admin-table-card" minWidth="340" prefWidth="360">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Joueurs recents" styleClass="section-title admin-section-title"/>
+                            <Label text="Profils charges avec leur equipe de rattachement."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+                        </VBox>
+                        <Label text="6 lignes" styleClass="toolbar-chip-soft"/>
+                    </HBox>
+
+                    <TableView fx:id="playersTableView"
+                               prefHeight="300"
+                               styleClass="data-table admin-dashboard-table">
+                        <columns>
+                            <TableColumn fx:id="playerIdColumn" text="ID" prefWidth="75"/>
+                            <TableColumn fx:id="playerNameColumn" text="Joueur" prefWidth="190"/>
+                            <TableColumn fx:id="playerTeamColumn" text="Equipe" prefWidth="170"/>
+                            <TableColumn fx:id="playerNumberColumn" text="#" prefWidth="60"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucun joueur disponible." styleClass="empty-text"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="12" styleClass="panel-card admin-table-card">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Calendrier recent" styleClass="section-title admin-section-title"/>
+                        <Label text="Dernieres rencontres ou rencontres planifiees selon les donnees synchronisees."
+                               wrapText="true"
+                               styleClass="section-subtitle"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="8 lignes" styleClass="toolbar-chip-soft"/>
+                </HBox>
+
+                <TableView fx:id="matchesTableView"
+                           prefHeight="280"
+                           styleClass="data-table admin-dashboard-table">
+                    <columns>
+                        <TableColumn fx:id="matchReferenceColumn" text="Reference" prefWidth="120"/>
+                        <TableColumn fx:id="matchLabelColumn" text="Affiche" prefWidth="320"/>
+                        <TableColumn fx:id="matchDateColumn" text="Date" prefWidth="160"/>
+                        <TableColumn fx:id="matchStatusColumn" text="Statut" prefWidth="120"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Aucun match disponible." styleClass="empty-text"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

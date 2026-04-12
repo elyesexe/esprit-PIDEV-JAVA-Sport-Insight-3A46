@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.MatchFormController"
+            styleClass="page-root">
+    <top>
+        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="10" styleClass="navbar-brand" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="18" styleClass="page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+                    <StackPane styleClass="hero-shell">
+                        <StackPane styleClass="hero-photo"/>
+                        <StackPane styleClass="hero-overlay"/>
+                        <VBox spacing="14" styleClass="hero-content">
+                            <Label fx:id="formModeChipLabel" text="Ajout" styleClass="hero-eyebrow"/>
+                            <Label fx:id="pageTitleLabel" text="Ajouter un match" styleClass="hero-title"/>
+                            <Label fx:id="pageSubtitleLabel"
+                                   text="Renseignez le formulaire pour creer un nouveau match."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+                        </VBox>
+                    </StackPane>
+
+                    <VBox spacing="18" styleClass="panel-card form-card">
+                        <Label fx:id="validationLabel"
+                               text=""
+                               managed="false"
+                               visible="false"
+                               wrapText="true"
+                               styleClass="validation-label"/>
+
+                        <HBox spacing="10">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Type match" styleClass="field-label"/>
+                                <ComboBox fx:id="typeMatchComboBox"
+                                          promptText="Choisir parmi les 6 competitions"
+                                          styleClass="glass-combo"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Statut" styleClass="field-label"/>
+                                <ComboBox fx:id="statutComboBox"
+                                          promptText="Choisir le statut"
+                                          styleClass="glass-combo"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="10">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Date du match" styleClass="field-label"/>
+                                <DatePicker fx:id="dateMatchPicker" styleClass="match-date-picker"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Heure de debut" styleClass="field-label"/>
+                                <TextField fx:id="heureDebutField"
+                                           promptText="HH:mm"
+                                           styleClass="form-text-field"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="8">
+                            <Label text="Lieu" styleClass="field-label"/>
+                            <TextField fx:id="lieuField"
+                                       promptText="Ex: Allianz Arena"
+                                       styleClass="form-text-field"/>
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label text="Equipe domicile" styleClass="field-label"/>
+                            <ComboBox fx:id="equipeDomicileComboBox"
+                                      promptText="Choisir l'equipe domicile"
+                                      styleClass="glass-combo"/>
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label text="Equipe exterieur" styleClass="field-label"/>
+                            <ComboBox fx:id="equipeExterieurComboBox"
+                                      promptText="Choisir l'equipe exterieur"
+                                      styleClass="glass-combo"/>
+                        </VBox>
+
+                        <HBox spacing="10">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Score domicile" styleClass="field-label"/>
+                                <TextField fx:id="scoreDomicileField"
+                                           promptText="0"
+                                           styleClass="form-text-field"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Score exterieur" styleClass="field-label"/>
+                                <TextField fx:id="scoreExterieurField"
+                                           promptText="0"
+                                           styleClass="form-text-field"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="10">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Onze de depart domicile" styleClass="field-label"/>
+                                <TextArea fx:id="lineupDomicileArea"
+                                          promptText="Ex: Neuer, Kimmich, ..."
+                                          prefRowCount="6"
+                                          styleClass="form-text-area"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Onze de depart exterieur" styleClass="field-label"/>
+                                <TextArea fx:id="lineupExterieurArea"
+                                          promptText="Ex: Courtois, Carvajal, ..."
+                                          prefRowCount="6"
+                                          styleClass="form-text-area"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="10">
+                            <Button fx:id="saveButton"
+                                    onAction="#handleSave"
+                                    text="Ajouter"
+                                    styleClass="primary-button"
+                                    HBox.hgrow="ALWAYS"/>
+                            <Button onAction="#handleCancel"
+                                    text="Annuler"
+                                    styleClass="ghost-button"
+                                    HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

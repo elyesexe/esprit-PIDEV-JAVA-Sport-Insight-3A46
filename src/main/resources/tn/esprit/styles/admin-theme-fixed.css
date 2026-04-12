@@ -1,0 +1,168 @@
+@import "admin-theme.css";
+
+/* Fix: enforce dark admin tables even when imported selectors miss the shell root classes */
+.theme-dark.admin-page-root .data-table,
+.theme-dark.admin-page-root .admin-dashboard-table,
+.admin-page-root.admin-dark .data-table,
+.admin-page-root.admin-dark .admin-dashboard-table,
+.admin-dark .data-table,
+.admin-dark .admin-dashboard-table {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background-alt: rgba(31, 31, 35, 0.98);
+    -fx-table-cell-border-color: rgba(63, 63, 70, 0.84);
+    -fx-border-color: rgba(82, 82, 91, 0.94);
+    -fx-selection-bar: rgba(63, 63, 70, 0.98);
+    -fx-selection-bar-non-focused: rgba(39, 39, 42, 0.94);
+}
+
+.theme-dark.admin-page-root .data-table .virtual-flow,
+.theme-dark.admin-page-root .data-table .clipped-container,
+.theme-dark.admin-page-root .data-table .sheet,
+.theme-dark.admin-page-root .data-table .filler,
+.theme-dark.admin-page-root .data-table .corner,
+.theme-dark.admin-page-root .admin-dashboard-table .virtual-flow,
+.theme-dark.admin-page-root .admin-dashboard-table .clipped-container,
+.theme-dark.admin-page-root .admin-dashboard-table .sheet,
+.theme-dark.admin-page-root .admin-dashboard-table .filler,
+.theme-dark.admin-page-root .admin-dashboard-table .corner,
+.admin-page-root.admin-dark .data-table .virtual-flow,
+.admin-page-root.admin-dark .data-table .clipped-container,
+.admin-page-root.admin-dark .data-table .sheet,
+.admin-page-root.admin-dark .data-table .filler,
+.admin-page-root.admin-dark .data-table .corner,
+.admin-page-root.admin-dark .admin-dashboard-table .virtual-flow,
+.admin-page-root.admin-dark .admin-dashboard-table .clipped-container,
+.admin-page-root.admin-dark .admin-dashboard-table .sheet,
+.admin-page-root.admin-dark .admin-dashboard-table .filler,
+.admin-page-root.admin-dark .admin-dashboard-table .corner,
+.admin-dark .data-table .virtual-flow,
+.admin-dark .data-table .clipped-container,
+.admin-dark .data-table .sheet,
+.admin-dark .data-table .filler,
+.admin-dark .data-table .corner,
+.admin-dark .admin-dashboard-table .virtual-flow,
+.admin-dark .admin-dashboard-table .clipped-container,
+.admin-dark .admin-dashboard-table .sheet,
+.admin-dark .admin-dashboard-table .filler,
+.admin-dark .admin-dashboard-table .corner {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
+.theme-dark.admin-page-root .data-table .column-header-background,
+.theme-dark.admin-page-root .admin-dashboard-table .column-header-background,
+.admin-page-root.admin-dark .data-table .column-header-background,
+.admin-page-root.admin-dark .admin-dashboard-table .column-header-background,
+.admin-dark .data-table .column-header-background,
+.admin-dark .admin-dashboard-table .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.92) transparent;
+}
+
+.theme-dark.admin-page-root .data-table .column-header .label,
+.theme-dark.admin-page-root .admin-dashboard-table .column-header .label,
+.admin-page-root.admin-dark .data-table .column-header .label,
+.admin-page-root.admin-dark .admin-dashboard-table .column-header .label,
+.admin-dark .data-table .column-header .label,
+.admin-dark .admin-dashboard-table .column-header .label {
+    -fx-text-fill: #d4d4d8;
+}
+
+.theme-dark.admin-page-root .data-table .table-row-cell,
+.theme-dark.admin-page-root .admin-dashboard-table .table-row-cell,
+.admin-page-root.admin-dark .data-table .table-row-cell,
+.admin-page-root.admin-dark .admin-dashboard-table .table-row-cell,
+.admin-dark .data-table .table-row-cell,
+.admin-dark .admin-dashboard-table .table-row-cell {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.84) transparent;
+}
+
+.theme-dark.admin-page-root .data-table .table-row-cell:odd,
+.theme-dark.admin-page-root .admin-dashboard-table .table-row-cell:odd,
+.admin-page-root.admin-dark .data-table .table-row-cell:odd,
+.admin-page-root.admin-dark .admin-dashboard-table .table-row-cell:odd,
+.admin-dark .data-table .table-row-cell:odd,
+.admin-dark .admin-dashboard-table .table-row-cell:odd {
+    -fx-background-color: rgba(31, 31, 35, 0.98);
+}
+
+.theme-dark.admin-page-root .data-table .table-cell,
+.theme-dark.admin-page-root .admin-dashboard-table .table-cell,
+.admin-page-root.admin-dark .data-table .table-cell,
+.admin-page-root.admin-dark .admin-dashboard-table .table-cell,
+.admin-dark .data-table .table-cell,
+.admin-dark .admin-dashboard-table .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #f4f4f5;
+}
+
+.theme-dark.admin-page-root .data-table .placeholder .label,
+.theme-dark.admin-page-root .admin-dashboard-table .placeholder .label,
+.admin-page-root.admin-dark .data-table .placeholder .label,
+.admin-page-root.admin-dark .admin-dashboard-table .placeholder .label,
+.admin-dark .data-table .placeholder .label,
+.admin-dark .admin-dashboard-table .placeholder .label {
+    -fx-text-fill: #a1a1aa;
+}
+
+/* Dashboard-only hard override applied directly to TableView style classes */
+.admin-dashboard-force-dark {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background: rgba(39, 39, 42, 0.98);
+    -fx-control-inner-background-alt: rgba(31, 31, 35, 0.98);
+    -fx-table-cell-border-color: rgba(63, 63, 70, 0.84);
+    -fx-border-color: rgba(82, 82, 91, 0.94);
+    -fx-selection-bar: rgba(63, 63, 70, 0.98);
+    -fx-selection-bar-non-focused: rgba(39, 39, 42, 0.94);
+}
+
+.admin-dashboard-force-dark .virtual-flow,
+.admin-dashboard-force-dark .clipped-container,
+.admin-dashboard-force-dark .sheet,
+.admin-dashboard-force-dark .filler,
+.admin-dashboard-force-dark .corner,
+.admin-dashboard-force-dark .placeholder,
+.admin-dashboard-force-dark .scroll-bar {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
+.admin-dashboard-force-dark .column-header,
+.admin-dashboard-force-dark .column-header-background {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: transparent transparent rgba(82, 82, 91, 0.92) transparent;
+}
+
+.admin-dashboard-force-dark .column-header .label,
+.admin-dashboard-force-dark .label {
+    -fx-text-fill: #d4d4d8;
+}
+
+.admin-dashboard-force-dark .table-row-cell {
+    -fx-background-color: rgba(39, 39, 42, 0.98);
+    -fx-border-color: transparent transparent rgba(63, 63, 70, 0.84) transparent;
+}
+
+.admin-dashboard-force-dark .table-row-cell:odd {
+    -fx-background-color: rgba(31, 31, 35, 0.98);
+}
+
+.admin-dashboard-force-dark .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #f4f4f5;
+}
+
+.admin-dashboard-force-dark .placeholder .label {
+    -fx-text-fill: #a1a1aa;
+}
+
+.admin-dashboard-force-dark .scroll-bar .track {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
+.admin-dashboard-force-dark .scroll-bar .thumb {
+    -fx-background-color: rgba(82, 82, 91, 0.94);
+    -fx-background-radius: 999;
+}
