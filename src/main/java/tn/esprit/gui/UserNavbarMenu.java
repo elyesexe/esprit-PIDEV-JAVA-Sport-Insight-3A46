@@ -26,6 +26,8 @@ public final class UserNavbarMenu {
     private static final String PROFILE_CSS = "/tn/esprit/styles/profile-theme.css";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
+    private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
+    private static final double SETTINGS_MENU_ACTION_WIDTH = 112;
 
     private UserNavbarMenu() {
     }
@@ -101,6 +103,9 @@ public final class UserNavbarMenu {
             VBox accountBox = new VBox(2);
             accountBox.getStyleClass().add("settings-menu-panel");
             accountBox.setAlignment(Pos.CENTER);
+            accountBox.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
+            accountBox.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
+            accountBox.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
 
             Label nameLabel = new Label(currentUser.getDisplayName());
             nameLabel.getStyleClass().add("settings-menu-user");
@@ -124,24 +129,27 @@ public final class UserNavbarMenu {
         HBox themeRow = new HBox(12, lightLabel, menuThemeToggle, darkLabel);
         themeRow.setAlignment(Pos.CENTER);
         themeRow.getStyleClass().add("settings-menu-row");
+        themeRow.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        themeRow.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        themeRow.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
         contextMenu.getItems().add(wrapNode(themeRow, false));
 
         contextMenu.getItems().add(new SeparatorMenuItem());
-        contextMenu.getItems().add(wrapNode(createActionButton("Profile", false, () -> {
+        contextMenu.getItems().add(wrapActionButton(createActionButton("Profile", false, () -> {
             contextMenu.hide();
             String title = AuthSession.isAdmin() ? "Sport Insight | Admin profile" : "Sport Insight | Profile";
             SceneNavigator.switchScene(ownerButton, PROFILE_VIEW, PROFILE_CSS, title);
         }), true));
 
         if (AuthSession.isAdmin()) {
-            contextMenu.getItems().add(wrapNode(createActionButton("Admin", false, () -> {
+            contextMenu.getItems().add(wrapActionButton(createActionButton("Admin", false, () -> {
                 contextMenu.hide();
                 AdminNavigation.openAdmin(ownerButton);
             }), true));
         }
 
         contextMenu.getItems().add(new SeparatorMenuItem());
-        contextMenu.getItems().add(wrapNode(createActionButton("Logout", true, () -> {
+        contextMenu.getItems().add(wrapActionButton(createActionButton("Logout", true, () -> {
             contextMenu.hide();
             AuthSession.logout();
             SceneNavigator.switchScene(ownerButton, LOGIN_VIEW, AUTH_CSS, "Sport Insight | Sign in");
@@ -154,7 +162,9 @@ public final class UserNavbarMenu {
         Button actionButton = new Button(text);
         actionButton.setMnemonicParsing(false);
         actionButton.setFocusTraversable(false);
-        actionButton.setMaxWidth(Double.MAX_VALUE);
+        actionButton.setMinWidth(SETTINGS_MENU_ACTION_WIDTH);
+        actionButton.setPrefWidth(SETTINGS_MENU_ACTION_WIDTH);
+        actionButton.setMaxWidth(SETTINGS_MENU_ACTION_WIDTH);
         actionButton.setAlignment(Pos.CENTER);
         actionButton.getStyleClass().add("settings-menu-action");
         if (danger) {
@@ -162,6 +172,16 @@ public final class UserNavbarMenu {
         }
         actionButton.setOnAction(event -> action.run());
         return actionButton;
+    }
+
+    private static CustomMenuItem wrapActionButton(Button button, boolean hideOnClick) {
+        HBox wrapper = new HBox(button);
+        wrapper.setAlignment(Pos.CENTER);
+        wrapper.getStyleClass().add("settings-menu-action-row");
+        wrapper.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        wrapper.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        wrapper.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        return wrapNode(wrapper, hideOnClick);
     }
 
     private static CustomMenuItem wrapNode(Node node, boolean hideOnClick) {

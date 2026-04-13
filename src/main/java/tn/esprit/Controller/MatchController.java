@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -67,6 +68,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MatchController {
@@ -85,6 +87,11 @@ public class MatchController {
     private static final String STATUS_REPORTE = "Reporte";
     private static final String STATUS_ANNULE = "Annule";
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("match-db-worker"));
+    private static final Pattern LOCATION_INPUT_PATTERN = Pattern.compile("[\\p{L}0-9 .,'()/_-]{0,120}");
+    private static final Pattern LOCATION_PATTERN = Pattern.compile("[\\p{L}0-9 .,'()/_-]{2,120}");
+    private static final Pattern TYPE_INPUT_PATTERN = Pattern.compile("[\\p{L}0-9 .&'()/_-]{0,80}");
+    private static final Pattern TYPE_PATTERN = Pattern.compile("[\\p{L}0-9 .&'()/_-]{3,80}");
+    private static final LocalDate EARLIEST_MATCH_DATE = LocalDate.of(1900, 1, 1);
 
     @FXML
     private HBox navbarRoot;
@@ -514,6 +521,23 @@ public class MatchController {
         scoreDomicileField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d{0,3}") ? change : null));
         scoreExterieurField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d{0,3}") ? change : null));
         heureDebutField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("[0-9:]{0,5}") ? change : null));
+        lieuField.setTextFormatter(createPatternFormatter(LOCATION_INPUT_PATTERN));
+        typeField.setTextFormatter(createPatternFormatter(TYPE_INPUT_PATTERN));
+        dateMatchPicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setDisable(false);
+                    return;
+                }
+                setDisable(item.isBefore(EARLIEST_MATCH_DATE) || item.isAfter(LocalDate.now().plusYears(10)));
+            }
+        });
+    }
+
+    private TextFormatter<String> createPatternFormatter(Pattern pattern) {
+        return new TextFormatter<>(change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
     }
 
     private void configureMatchList() {
@@ -906,6 +930,18 @@ public class MatchController {
             return null;
         }
 
+        if (dateMatch.isBefore(EARLIEST_MATCH_DATE)) {
+            markFieldInvalid(dateMatchPicker);
+            showValidation("La date du match semble invalide.");
+            return null;
+        }
+
+        if (dateMatch.isAfter(LocalDate.now().plusYears(10))) {
+            markFieldInvalid(dateMatchPicker);
+            showValidation("La date du match est trop lointaine.");
+            return null;
+        }
+
         if (heureText == null) {
             markFieldInvalid(heureDebutField);
             showValidation("L'heure de debut est obligatoire.");
@@ -927,9 +963,21 @@ public class MatchController {
             return null;
         }
 
+        if (!LOCATION_PATTERN.matcher(lieu).matches()) {
+            markFieldInvalid(lieuField);
+            showValidation("Le lieu doit contenir entre 2 et 120 caracteres valides.");
+            return null;
+        }
+
         if (type == null) {
             markFieldInvalid(typeField);
             showValidation("Le type est obligatoire.");
+            return null;
+        }
+
+        if (!TYPE_PATTERN.matcher(type).matches()) {
+            markFieldInvalid(typeField);
+            showValidation("Le type du match doit contenir entre 3 et 80 caracteres valides.");
             return null;
         }
 
@@ -958,6 +1006,16 @@ public class MatchController {
             return null;
         }
 
+        Integer ignoredMatchId = updateMode && selectedMatch != null ? selectedMatch.getId() : null;
+        if (isDuplicateMatch(dateMatch, heureDebut, equipeDomicile.getId(), equipeExterieur.getId(), ignoredMatchId)) {
+            markFieldInvalid(dateMatchPicker);
+            markFieldInvalid(heureDebutField);
+            markFieldInvalid(equipeDomicileComboBox);
+            markFieldInvalid(equipeExterieurComboBox);
+            showValidation("Un match avec les memes equipes, a la meme date et a la meme heure, existe deja.");
+            return null;
+        }
+
         Integer scoreDomicile = null;
         Integer scoreExterieur = null;
         if (isScoreLockedStatus(statut)) {
@@ -968,6 +1026,17 @@ public class MatchController {
                 return null;
             }
         } else {
+            if ((scoreDomicileText == null) != (scoreExterieurText == null)) {
+                if (scoreDomicileText == null) {
+                    markFieldInvalid(scoreDomicileField);
+                }
+                if (scoreExterieurText == null) {
+                    markFieldInvalid(scoreExterieurField);
+                }
+                showValidation("Renseignez les deux scores ou laissez-les tous les deux vides.");
+                return null;
+            }
+
             if (requiresFinalScores(statut) && (scoreDomicileText == null || scoreExterieurText == null)) {
                 if (scoreDomicileText == null) {
                     markFieldInvalid(scoreDomicileField);
@@ -1564,6 +1633,21 @@ public class MatchController {
 
     private void clearFieldError(Control control) {
         control.getStyleClass().remove("invalid-field");
+    }
+
+    private boolean isDuplicateMatch(
+            LocalDate dateMatch,
+            LocalTime heureDebut,
+            Integer equipeDomicileId,
+            Integer equipeExterieurId,
+            Integer ignoredId
+    ) {
+        return matchs.stream()
+                .filter(match -> ignoredId == null || !Objects.equals(match.getId(), ignoredId))
+                .anyMatch(match -> Objects.equals(match.getDateMatch(), dateMatch)
+                        && Objects.equals(match.getHeureDebut(), heureDebut)
+                        && Objects.equals(match.getEquipeDomicileId(), equipeDomicileId)
+                        && Objects.equals(match.getEquipeExterieurId(), equipeExterieurId));
     }
 
     private void applyFixtureStatusStyle(Label label, String status) {

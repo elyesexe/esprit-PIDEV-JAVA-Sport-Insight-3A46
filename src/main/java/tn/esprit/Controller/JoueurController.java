@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -58,11 +59,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class JoueurController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final Path SYMFONY_JOUEURS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "joueurs");
     private static final double CARD_IMAGE_SIZE = 82;
+    private static final Pattern PERSON_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L} .'-]{0,100}");
+    private static final Pattern PERSON_NAME_PATTERN = Pattern.compile("[\\p{L} .'-]{2,100}");
+    private static final Pattern IMAGE_REFERENCE_PATTERN = Pattern.compile("(?i).+\\.(png|jpe?g|gif|bmp|webp)$");
 
     @FXML
     private HBox navbarRoot;
@@ -182,6 +187,7 @@ public class JoueurController {
         configureStatusLabel();
         configureEquipeComboBoxes();
         configureNumeroField();
+        configureFieldRestrictions();
         configurePlayerList();
         bindUiState();
         updateActionAvailability();
@@ -406,6 +412,27 @@ public class JoueurController {
             String newText = change.getControlNewText();
             return newText.matches("\\d{0,2}") ? change : null;
         }));
+    }
+
+    private void configureFieldRestrictions() {
+        nomField.setTextFormatter(createPatternFormatter(PERSON_NAME_INPUT_PATTERN));
+        prenomField.setTextFormatter(createPatternFormatter(PERSON_NAME_INPUT_PATTERN));
+        dateNaissancePicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setDisable(false);
+                    return;
+                }
+                LocalDate today = LocalDate.now();
+                setDisable(item.isAfter(today) || item.isBefore(today.minusYears(100)));
+            }
+        });
+    }
+
+    private TextFormatter<String> createPatternFormatter(Pattern pattern) {
+        return new TextFormatter<>(change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
     }
 
     private void configurePlayerList() {
@@ -704,6 +731,18 @@ public class JoueurController {
             return null;
         }
 
+        if (dateNaissance.isAfter(LocalDate.now())) {
+            markFieldInvalid(dateNaissancePicker);
+            showValidation("La date de naissance ne peut pas etre dans le futur.");
+            return null;
+        }
+
+        if (dateNaissance.isBefore(LocalDate.now().minusYears(100))) {
+            markFieldInvalid(dateNaissancePicker);
+            showValidation("La date de naissance semble invalide.");
+            return null;
+        }
+
         if (numeroText == null) {
             markFieldInvalid(numeroField);
             showValidation("Le numero est obligatoire.");
@@ -731,15 +770,28 @@ public class JoueurController {
             return null;
         }
 
-        if (nom.length() > 100) {
+        if (!PERSON_NAME_PATTERN.matcher(nom).matches()) {
             markFieldInvalid(nomField);
-            showValidation("Le nom ne peut pas depasser 100 caracteres.");
+            showValidation("Le nom doit contenir entre 2 et 100 lettres maximum.");
             return null;
         }
 
-        if (prenom.length() > 100) {
+        if (!PERSON_NAME_PATTERN.matcher(prenom).matches()) {
             markFieldInvalid(prenomField);
-            showValidation("Le prenom ne peut pas depasser 100 caracteres.");
+            showValidation("Le prenom doit contenir entre 2 et 100 lettres maximum.");
+            return null;
+        }
+
+        if (isDuplicateJerseyNumber(equipe.getId(), numero, updateMode && selectedJoueur != null ? selectedJoueur.getId() : null)) {
+            markFieldInvalid(numeroField);
+            markFieldInvalid(equipeComboBox);
+            showValidation("Ce numero est deja attribue dans l'equipe selectionnee.");
+            return null;
+        }
+
+        if (image != null && !isValidImageReference(image)) {
+            markFieldInvalid(imageField);
+            showValidation("L'image du joueur doit etre une image valide (.png, .jpg, .jpeg, .gif, .bmp, .webp).");
             return null;
         }
 
@@ -1102,6 +1154,23 @@ public class JoueurController {
 
     private void clearFieldError(Control control) {
         control.getStyleClass().remove("invalid-field");
+    }
+
+    private boolean isDuplicateJerseyNumber(Integer equipeId, int numero, Integer ignoredId) {
+        return joueurs.stream()
+                .filter(joueur -> ignoredId == null || !Objects.equals(joueur.getId(), ignoredId))
+                .anyMatch(joueur -> Objects.equals(joueur.getEquipeId(), equipeId) && joueur.getNumero() == numero);
+    }
+
+    private boolean isValidImageReference(String imagePath) {
+        String normalizedPath = emptyToNull(imagePath);
+        if (normalizedPath == null) {
+            return true;
+        }
+
+        Path path = toPathIfValid(normalizedPath);
+        String fileName = path == null ? normalizedPath : path.getFileName().toString();
+        return IMAGE_REFERENCE_PATTERN.matcher(fileName).matches();
     }
 
     private String emptyIfNull(String value) {
