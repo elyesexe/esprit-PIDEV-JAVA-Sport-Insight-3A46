@@ -209,6 +209,35 @@
     -fx-border-color: rgba(37, 99, 235, 0.55);
 }
 
+.navbar-settings-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(17, 94, 89, 0.9) 100%);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(110, 231, 183, 0.34);
+    -fx-border-radius: 14;
+    -fx-text-fill: #ecfdf5;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 8 14 8 14;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 8;
+}
+
+.navbar-settings-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 78, 59, 0.96) 0%, rgba(15, 118, 110, 0.94) 100%);
+    -fx-border-color: rgba(167, 243, 208, 0.44);
+}
+
+.navbar-settings-icon {
+    -fx-text-fill: #99f6e4;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.settings-theme-toggle {
+    -fx-scale-x: 0.92;
+    -fx-scale-y: 0.92;
+}
+
 .page-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -1070,6 +1099,21 @@
 
 .theme-dark .navbar-admin-button:hover {
     -fx-background-color: rgba(59, 130, 246, 0.35);
+}
+
+.theme-dark .navbar-settings-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.98) 52%, rgba(17, 94, 89, 0.92) 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.42);
+    -fx-text-fill: #f0fdfa;
+}
+
+.theme-dark .navbar-settings-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.98) 0%, rgba(17, 94, 89, 0.96) 100%);
+    -fx-border-color: rgba(153, 246, 228, 0.48);
+}
+
+.theme-dark .navbar-settings-icon {
+    -fx-text-fill: #ccfbf1;
 }
 
 .theme-dark .hero-shell,

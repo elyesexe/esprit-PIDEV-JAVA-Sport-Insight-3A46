@@ -56,6 +56,12 @@
                     maxWidth="Infinity"
                     styleClass="admin-nav-button"/>
 
+            <Button fx:id="usersNavButton"
+                    onAction="#handleUsers"
+                    text="Users"
+                    maxWidth="Infinity"
+                    styleClass="admin-nav-button"/>
+
             <Region VBox.vgrow="ALWAYS"/>
 
             <Separator styleClass="admin-sidebar-sep"/>

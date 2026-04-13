@@ -142,3 +142,85 @@
 .date-picker-popup > .month-year-pane .spinner .right-arrow {
     -fx-background-color: #374151;
 }
+
+.context-menu.settings-context-menu {
+    -fx-background-color: rgba(10, 18, 36, 0.98);
+    -fx-border-color: rgba(59, 130, 246, 0.38);
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+    -fx-padding: 8;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.42), 20, 0.24, 0, 8);
+}
+
+.context-menu.settings-context-menu .menu-item,
+.context-menu.settings-context-menu .custom-menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.context-menu.settings-context-menu .separator:horizontal .line {
+    -fx-border-color: rgba(59, 130, 246, 0.22);
+}
+
+.settings-menu-panel,
+.settings-menu-row {
+    -fx-background-color: rgba(15, 23, 42, 0.96);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(59, 130, 246, 0.24);
+    -fx-border-radius: 14;
+    -fx-padding: 12 14 12 14;
+}
+
+.settings-menu-user {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+}
+
+.settings-menu-role,
+.settings-menu-caption {
+    -fx-font-size: 12px;
+    -fx-text-fill: #93c5fd;
+}
+
+.settings-menu-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #e0f2fe;
+}
+
+.settings-menu-copy {
+    -fx-alignment: center;
+}
+
+.settings-menu-mode-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #bfdbfe;
+}
+
+.settings-menu-action {
+    -fx-background-color: rgba(15, 23, 42, 0.98);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(59, 130, 246, 0.24);
+    -fx-border-radius: 12;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 11 14 11 14;
+    -fx-cursor: hand;
+}
+
+.settings-menu-action:hover {
+    -fx-background-color: rgba(30, 41, 59, 0.98);
+    -fx-border-color: rgba(96, 165, 250, 0.5);
+}
+
+.settings-menu-danger {
+    -fx-text-fill: #fda4af;
+}
+
+.settings-menu-danger:hover {
+    -fx-background-color: rgba(127, 29, 29, 0.9);
+    -fx-border-color: rgba(251, 113, 133, 0.4);
+}

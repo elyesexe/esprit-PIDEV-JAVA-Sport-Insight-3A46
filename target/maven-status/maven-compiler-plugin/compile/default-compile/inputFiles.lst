@@ -1,5 +1,6 @@
 C:\PI Java\src\main\java\tn\esprit\Controller\AdminDashboardController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\AdminShellController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\AdminUserModerationController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\AnnonceController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\AnnonceUserController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\EquipeCompetitionController.java
@@ -13,11 +14,14 @@ C:\PI Java\src\main\java\tn\esprit\Controller\JoueurDetailController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\JoueurListController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\LeagueCompetitionController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\LeagueTableController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\LoginController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchCompetitionController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchDetailController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchFormController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\ProfileController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\SignupController.java
 C:\PI Java\src\main\java\tn\esprit\entities\Annonce.java
 C:\PI Java\src\main\java\tn\esprit\entities\ChatMessage.java
 C:\PI Java\src\main\java\tn\esprit\entities\Commentaire.java
@@ -49,6 +53,7 @@ C:\PI Java\src\main\java\tn\esprit\gui\MatchCrudMain.java
 C:\PI Java\src\main\java\tn\esprit\gui\SceneNavigator.java
 C:\PI Java\src\main\java\tn\esprit\gui\SidebarModuleGroup.java
 C:\PI Java\src\main\java\tn\esprit\gui\ThemeManager.java
+C:\PI Java\src\main\java\tn\esprit\gui\UserNavbarMenu.java
 C:\PI Java\src\main\java\tn\esprit\mains\AnnonceMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\EntrainementMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\LauncherMain.java
@@ -57,6 +62,9 @@ C:\PI Java\src\main\java\tn\esprit\mains\MatchMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\ProductMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\SponsorMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\UserMain.java
+C:\PI Java\src\main\java\tn\esprit\security\AuthSession.java
+C:\PI Java\src\main\java\tn\esprit\security\PasswordSupport.java
+C:\PI Java\src\main\java\tn\esprit\security\UserRoles.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
 C:\PI Java\src\main\java\tn\esprit\services\ContratSponsorService.java

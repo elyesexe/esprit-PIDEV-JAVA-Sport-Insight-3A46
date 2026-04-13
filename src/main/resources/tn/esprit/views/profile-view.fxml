@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.ProfileController"
+            styleClass="page-root">
+
+    <top>
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs +"
+                            styleClass="navbar-nav-button"/>
+
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="22" styleClass="page-shell profile-shell">
+                        <padding>
+                            <Insets top="18" right="20" bottom="28" left="20"/>
+                        </padding>
+
+                        <StackPane styleClass="profile-hero-card">
+                            <VBox spacing="10" styleClass="profile-hero-content">
+                                <Label text="Profile workspace" styleClass="home-kicker"/>
+                                <Label text="Manage your Sport Insight account" styleClass="profile-hero-title"/>
+                                <Label text="Keep your profile picture, contact details, and password up to date from one place."
+                                       wrapText="true"
+                                       styleClass="profile-hero-copy"/>
+                            </VBox>
+                        </StackPane>
+
+                        <HBox spacing="20" styleClass="profile-grid">
+                            <VBox spacing="18" styleClass="profile-side-column">
+                                <VBox spacing="16" styleClass="panel-card profile-photo-card">
+                                    <StackPane styleClass="profile-photo-shell">
+                                        <ImageView fx:id="profileImageView"
+                                                   fitWidth="180"
+                                                   fitHeight="180"
+                                                   managed="false"
+                                                   pickOnBounds="true"
+                                                   preserveRatio="true"
+                                                   smooth="true"
+                                                   visible="false"/>
+                                        <StackPane fx:id="profileImageFallback" styleClass="profile-photo-fallback">
+                                            <Label fx:id="profileInitialsLabel" text="SI" styleClass="profile-photo-initials"/>
+                                        </StackPane>
+                                    </StackPane>
+
+                                    <VBox spacing="6" alignment="CENTER">
+                                        <Label fx:id="profileNameLabel" text="Sport Insight user" styleClass="profile-title"/>
+                                        <Label fx:id="profileEmailLabel" text="name@example.com" styleClass="profile-subtitle"/>
+                                    </VBox>
+
+                                    <HBox spacing="8" alignment="CENTER">
+                                        <Label fx:id="roleValueLabel" text="User" styleClass="toolbar-chip"/>
+                                        <Label fx:id="statusValueLabel" text="Active" styleClass="toolbar-chip-soft"/>
+                                    </HBox>
+
+                                    <Button onAction="#handleBrowsePhoto"
+                                            text="Choose photo"
+                                            maxWidth="Infinity"
+                                            styleClass="ghost-button"/>
+                                </VBox>
+
+                                <VBox spacing="12" styleClass="panel-card profile-info-card">
+                                    <Label text="Account overview" styleClass="section-title"/>
+
+                                    <VBox spacing="8">
+                                        <Label text="Member since" styleClass="field-label"/>
+                                        <Label fx:id="memberSinceValueLabel" text="Unknown" styleClass="profile-info-value"/>
+                                    </VBox>
+
+                                    <VBox spacing="8">
+                                        <Label text="Role access" styleClass="field-label"/>
+                                        <Label text="Role changes stay under admin moderation, but your own profile details and picture can be updated here."
+                                               wrapText="true"
+                                               styleClass="profile-note"/>
+                                    </VBox>
+                                </VBox>
+                            </VBox>
+
+                            <VBox spacing="16" styleClass="panel-card form-card profile-form-card" HBox.hgrow="ALWAYS">
+                                <VBox spacing="6">
+                                    <Label fx:id="formTitleLabel" text="My profile" styleClass="section-title"/>
+                                    <Label fx:id="formSubtitleLabel"
+                                           text="Update your contact information, profile picture, and password."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+
+                                <Label fx:id="statusLabel"
+                                       managed="false"
+                                       visible="false"
+                                       wrapText="true"
+                                       styleClass="status-pill"/>
+
+                                <HBox spacing="12">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="First name" styleClass="field-label"/>
+                                        <TextField fx:id="prenomField" promptText="First name" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Last name" styleClass="field-label"/>
+                                        <TextField fx:id="nomField" promptText="Last name" styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Email" styleClass="field-label"/>
+                                    <TextField fx:id="emailField" promptText="name@example.com" styleClass="form-text-field"/>
+                                </VBox>
+
+                                <HBox spacing="12">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Telephone" styleClass="field-label"/>
+                                        <TextField fx:id="telephoneField" promptText="+216 ..." styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Birth date" styleClass="field-label"/>
+                                        <DatePicker fx:id="dateNaissancePicker" styleClass="form-date-picker"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Profile picture path" styleClass="field-label"/>
+                                    <TextField fx:id="photoPathField"
+                                               promptText="C:\Users\...\photo.png"
+                                               styleClass="form-text-field"/>
+                                    <Label text="You can paste a local file path or use the Choose photo button to browse."
+                                           wrapText="true"
+                                           styleClass="profile-note"/>
+                                </VBox>
+
+                                <HBox spacing="12">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="New password" styleClass="field-label"/>
+                                        <PasswordField fx:id="passwordField"
+                                                       promptText="Leave blank to keep the current password"
+                                                       styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Confirm password" styleClass="field-label"/>
+                                        <PasswordField fx:id="confirmPasswordField"
+                                                       promptText="Repeat the new password"
+                                                       styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <Button fx:id="saveButton"
+                                        onAction="#handleSaveProfile"
+                                        text="Save profile"
+                                        maxWidth="Infinity"
+                                        styleClass="primary-button"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
