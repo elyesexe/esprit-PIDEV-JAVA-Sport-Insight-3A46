@@ -412,3 +412,39 @@
     -fx-border-color: rgba(71, 85, 105, 0.5);
     -fx-text-fill: #cbd5e1;
 }
+
+/* Admin shell neutral overrides */
+.admin-light .panel-card,
+.admin-light .annonce-post-card,
+.admin-light .annonce-comment-card,
+.admin-light .annonce-user-description-box {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-border-color: rgba(212, 212, 216, 0.82);
+}
+
+.admin-dark .panel-card,
+.admin-dark .annonce-post-card,
+.admin-dark .annonce-comment-card,
+.admin-dark .annonce-user-description-box {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.9);
+}
+
+.admin-dark .section-title,
+.admin-dark .annonce-post-title,
+.admin-dark .annonce-comments-title,
+.admin-dark .annonce-comment-author {
+    -fx-text-fill: #f5f5f5;
+}
+
+.admin-dark .section-subtitle,
+.admin-dark .field-label,
+.admin-dark .annonce-post-subtitle,
+.admin-dark .annonce-post-date,
+.admin-dark .annonce-user-description-text,
+.admin-dark .annonce-comment-body,
+.admin-dark .annonce-comment-date,
+.admin-dark .annonce-comment-empty,
+.admin-dark .annonce-section-note {
+    -fx-text-fill: #a1a1aa;
+}

@@ -291,6 +291,44 @@
                                     </graphic>
                                 </Button>
 
+                                <!-- ENTRAINEMENTS -->
+                                <Button fx:id="trainModuleBox"
+                                        onAction="#handleOpenEntrainements"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/entrainement-hero.jpg"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-training"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Entrainements" styleClass="home-link-title"/>
+                                                <Label text="Planifier les sessions"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
+
                             </FlowPane>
                         </VBox>
 
