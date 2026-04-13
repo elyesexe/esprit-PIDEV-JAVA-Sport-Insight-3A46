@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -45,10 +46,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 public class EquipeController {
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("equipe-db-worker"));
+    private static final Pattern TEAM_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L}0-9 .&'()/_-]{0,100}");
+    private static final Pattern TEAM_NAME_PATTERN = Pattern.compile("[\\p{L}0-9 .&'()/_-]{2,100}");
+    private static final Pattern COACH_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L} .'-]{0,100}");
+    private static final Pattern COACH_NAME_PATTERN = Pattern.compile("[\\p{L} .'-]{2,100}");
+    private static final Pattern IMAGE_REFERENCE_PATTERN = Pattern.compile("(?i).+\\.(png|jpe?g|gif|bmp|webp)$");
 
     @FXML
     private HBox navbarRoot;
@@ -155,6 +162,7 @@ public class EquipeController {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
         configureToolbar();
+        configureFieldRestrictions();
         configureTableView();
         bindFormPreview();
         updateSortOrderButtonText();
@@ -370,6 +378,15 @@ public class EquipeController {
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort(getSelectedEquipeId()));
     }
 
+    private void configureFieldRestrictions() {
+        nomField.setTextFormatter(createPatternFormatter(TEAM_NAME_INPUT_PATTERN));
+        coachField.setTextFormatter(createPatternFormatter(COACH_NAME_INPUT_PATTERN));
+    }
+
+    private TextFormatter<String> createPatternFormatter(Pattern pattern) {
+        return new TextFormatter<>(change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
+    }
+
     private void configureTableView() {
         idColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
         nomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
@@ -399,8 +416,14 @@ public class EquipeController {
             clearFieldError(nomField);
             updateDetailCard();
         });
-        coachField.textProperty().addListener((observable, oldValue, newValue) -> updateDetailCard());
-        imageField.textProperty().addListener((observable, oldValue, newValue) -> updateDetailCard());
+        coachField.textProperty().addListener((observable, oldValue, newValue) -> {
+            clearFieldError(coachField);
+            updateDetailCard();
+        });
+        imageField.textProperty().addListener((observable, oldValue, newValue) -> {
+            clearFieldError(imageField);
+            updateDetailCard();
+        });
     }
 
     private void refreshTableAsync(
@@ -529,6 +552,7 @@ public class EquipeController {
         String nom = emptyToNull(nomField.getText());
         String coach = emptyToNull(coachField.getText());
         String image = emptyToNull(imageField.getText());
+        Equipe selectedEquipe = equipeTableView.getSelectionModel().getSelectedItem();
 
         if (nom == null) {
             markFieldInvalid(nomField);
@@ -536,19 +560,31 @@ public class EquipeController {
             return null;
         }
 
-        if (nom.length() > 100) {
+        if (!TEAM_NAME_PATTERN.matcher(nom).matches()) {
             markFieldInvalid(nomField);
-            showValidation("Le nom de l'equipe ne peut pas depasser 100 caracteres.");
+            showValidation("Le nom de l'equipe doit contenir entre 2 et 100 caracteres valides.");
             return null;
         }
 
-        if (coach != null && coach.length() > 100) {
+        if (coach != null && !COACH_NAME_PATTERN.matcher(coach).matches()) {
             markFieldInvalid(coachField);
-            showValidation("Le nom du coach ne peut pas depasser 100 caracteres.");
+            showValidation("Le nom du coach doit contenir entre 2 et 100 lettres maximum.");
             return null;
         }
 
-        if (updateMode && equipeTableView.getSelectionModel().getSelectedItem() == null) {
+        if (isDuplicateTeamName(nom, selectedEquipe == null ? null : selectedEquipe.getId())) {
+            markFieldInvalid(nomField);
+            showValidation("Une equipe avec ce nom existe deja.");
+            return null;
+        }
+
+        if (image != null && !isValidImageReference(image)) {
+            markFieldInvalid(imageField);
+            showValidation("Le logo doit pointer vers une image valide (.png, .jpg, .jpeg, .gif, .bmp, .webp).");
+            return null;
+        }
+
+        if (updateMode && selectedEquipe == null) {
             showValidation("Selectionnez une equipe avant de lancer une modification.");
             return null;
         }
@@ -680,6 +716,7 @@ public class EquipeController {
         validationLabel.setVisible(false);
         clearFieldError(nomField);
         clearFieldError(coachField);
+        clearFieldError(imageField);
     }
 
     private void markFieldInvalid(TextField field) {
@@ -690,6 +727,30 @@ public class EquipeController {
 
     private void clearFieldError(TextField field) {
         field.getStyleClass().remove("invalid-field");
+    }
+
+    private boolean isDuplicateTeamName(String teamName, Integer ignoredId) {
+        String normalizedTeamName = normalizeIdentity(teamName);
+        return masterEquipes.stream()
+                .filter(equipe -> ignoredId == null || !Objects.equals(equipe.getId(), ignoredId))
+                .map(Equipe::getNom)
+                .map(this::normalizeIdentity)
+                .anyMatch(normalizedTeamName::equals);
+    }
+
+    private String normalizeIdentity(String value) {
+        return value == null ? "" : value.trim().replaceAll("\\s+", " ").toLowerCase();
+    }
+
+    private boolean isValidImageReference(String imagePath) {
+        String normalizedPath = emptyToNull(imagePath);
+        if (normalizedPath == null) {
+            return true;
+        }
+
+        Path path = toPathIfValid(normalizedPath);
+        String fileName = path == null ? normalizedPath : path.getFileName().toString();
+        return IMAGE_REFERENCE_PATTERN.matcher(fileName).matches();
     }
 
     private String resolveCompetitionLabel(Equipe equipe) {

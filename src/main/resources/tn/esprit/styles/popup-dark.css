@@ -198,6 +198,11 @@
     -fx-text-fill: #bfdbfe;
 }
 
+.settings-menu-action-row {
+    -fx-alignment: center;
+    -fx-padding: 0;
+}
+
 .settings-menu-action {
     -fx-background-color: rgba(15, 23, 42, 0.98);
     -fx-background-radius: 12;
@@ -206,6 +211,7 @@
     -fx-text-fill: #fafafa;
     -fx-font-size: 12px;
     -fx-font-weight: 800;
+    -fx-alignment: center;
     -fx-padding: 11 14 11 14;
     -fx-cursor: hand;
 }

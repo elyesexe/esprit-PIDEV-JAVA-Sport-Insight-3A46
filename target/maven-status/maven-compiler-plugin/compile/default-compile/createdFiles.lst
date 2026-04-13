@@ -34,6 +34,7 @@ tn\esprit\entities\User.class
 tn\esprit\Controller\SignupController.class
 tn\esprit\Controller\AdminUserModerationController.class
 tn\esprit\gui\JoueurUiSupport.class
+tn\esprit\Controller\MatchController$6.class
 tn\esprit\gui\ThemeManager$ThemeMode.class
 tn\esprit\gui\MatchCrudMain.class
 tn\esprit\services\EntrainementService.class
@@ -58,6 +59,7 @@ tn\esprit\services\ProductService.class
 tn\esprit\Controller\AdminDashboardController$DashboardPayload.class
 tn\esprit\entities\Matchs.class
 tn\esprit\entities\Participation.class
+tn\esprit\Controller\JoueurController$3.class
 tn\esprit\gui\UserNavbarMenu.class
 tn\esprit\mains\EntrainementMain.class
 tn\esprit\Controller\HomeController.class
