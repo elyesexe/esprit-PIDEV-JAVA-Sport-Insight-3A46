@@ -43,6 +43,8 @@ public final class SchemaMigration {
                 System.err.println("Team competition backfill skipped: " + e.getMessage());
             }
         }
+
+        ensureAnnonceSchema(connection);
     }
 
     private static void backfillEquipeCompetitionCodes(Statement statement) throws SQLException {
@@ -139,5 +141,80 @@ public final class SchemaMigration {
             }
         }
         return false;
+    }
+
+    private static void ensureAnnonceSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        try (Statement statement = connection.createStatement()) {
+            if (!tableExists(metaData, "annonce")) {
+                statement.executeUpdate("""
+                        CREATE TABLE annonce (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            titre VARCHAR(255) NOT NULL,
+                            description TEXT,
+                            poste_recherche VARCHAR(100),
+                            niveau_requis VARCHAR(100),
+                            date_publication DATE NOT NULL,
+                            statut VARCHAR(32) DEFAULT 'ACTIVE',
+                            entraineur_id INT NULL,
+                            comments_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+                            urgent BOOLEAN NOT NULL DEFAULT FALSE,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, statement, "annonce", "comments_enabled", "BOOLEAN NOT NULL DEFAULT TRUE");
+            addColumnIfMissing(metaData, statement, "annonce", "urgent", "BOOLEAN NOT NULL DEFAULT FALSE");
+            addIndexIfMissing(metaData, statement, "annonce", "idx_annonce_titre",
+                    "CREATE INDEX idx_annonce_titre ON annonce (titre)");
+            addIndexIfMissing(metaData, statement, "annonce", "idx_annonce_date_publication",
+                    "CREATE INDEX idx_annonce_date_publication ON annonce (date_publication)");
+            addIndexIfMissing(metaData, statement, "annonce", "idx_annonce_poste_recherche",
+                    "CREATE INDEX idx_annonce_poste_recherche ON annonce (poste_recherche)");
+            addIndexIfMissing(metaData, statement, "annonce", "idx_annonce_statut",
+                    "CREATE INDEX idx_annonce_statut ON annonce (statut)");
+            addIndexIfMissing(metaData, statement, "annonce", "idx_annonce_urgent",
+                    "CREATE INDEX idx_annonce_urgent ON annonce (urgent)");
+
+            if (!tableExists(metaData, "commentaire")) {
+                statement.executeUpdate("""
+                        CREATE TABLE commentaire (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            contenu TEXT NOT NULL,
+                            date_commentaire DATE NOT NULL,
+                            joueur_id INT NULL,
+                            annonce_id INT NULL,
+                            auteur_anonyme VARCHAR(100),
+                            nb_likes INT DEFAULT 0,
+                            moderation_status VARCHAR(32) DEFAULT 'PENDING',
+                            moderation_reason TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                        """);
+            }
+
+            addIndexIfMissing(metaData, statement, "commentaire", "idx_commentaire_annonce_id",
+                    "CREATE INDEX idx_commentaire_annonce_id ON commentaire (annonce_id)");
+            addIndexIfMissing(metaData, statement, "commentaire", "idx_commentaire_joueur_id",
+                    "CREATE INDEX idx_commentaire_joueur_id ON commentaire (joueur_id)");
+            addIndexIfMissing(metaData, statement, "commentaire", "idx_commentaire_date_commentaire",
+                    "CREATE INDEX idx_commentaire_date_commentaire ON commentaire (date_commentaire)");
+            addIndexIfMissing(metaData, statement, "commentaire", "idx_commentaire_moderation_status",
+                    "CREATE INDEX idx_commentaire_moderation_status ON commentaire (moderation_status)");
+        }
+    }
+
+    private static boolean tableExists(DatabaseMetaData metaData, String tableName) throws SQLException {
+        try (ResultSet resultSet = metaData.getTables(null, null, tableName, null)) {
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+        try (ResultSet resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null)) {
+            return resultSet.next();
+        }
     }
 }

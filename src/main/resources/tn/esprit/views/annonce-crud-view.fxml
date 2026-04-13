@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.AnnonceController"
+            styleClass="page-root annonce-page-root">
+    <top>
+        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton" onAction="#handleOpenAdmin" text="Admin" styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="10" styleClass="navbar-brand" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton" onAction="#handleOpenMatchs" text="Matchs" styleClass="navbar-nav-button"/>
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          alignment="CENTER"
+                          managed="false"
+                          spacing="8"
+                          styleClass="navbar-submenu"
+                          visible="false">
+                        <Button fx:id="equipesNavButton" onAction="#handleOpenEquipes" text="Equipes" styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton" onAction="#handleOpenLeagues" text="Leagues" styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton" onAction="#handleOpenJoueurs" text="Joueurs" styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll" BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                <VBox spacing="18" styleClass="page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+                    <StackPane styleClass="hero-shell">
+                        <Region styleClass="hero-photo"/>
+                        <Region styleClass="hero-overlay"/>
+
+                        <VBox spacing="14" styleClass="hero-content">
+                            <Label text="Recruitment" styleClass="hero-eyebrow"/>
+                            <Label text="Integrate annonces into the local workspace" styleClass="hero-title"/>
+                            <Label text="Manage announcements and their comments from one designed module that works in both the user experience and the admin shell."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+
+                            <HBox spacing="10">
+                                <Label fx:id="resultCountLabel" text="0 total announcement(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="selectionStateLabel" text="Select an announcement" styleClass="toolbar-chip"/>
+                            </HBox>
+
+                            <FlowPane hgap="10" vgap="10" styleClass="annonce-metric-row">
+                                <VBox styleClass="annonce-metric-card">
+                                    <Label text="Total announcements" styleClass="annonce-metric-label"/>
+                                    <Label fx:id="totalAnnoncesMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                </VBox>
+                                <VBox styleClass="annonce-metric-card">
+                                    <Label text="Active" styleClass="annonce-metric-label"/>
+                                    <Label fx:id="activeAnnoncesMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                </VBox>
+                                <VBox styleClass="annonce-metric-card">
+                                    <Label text="Urgent" styleClass="annonce-metric-label"/>
+                                    <Label fx:id="urgentAnnoncesMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                </VBox>
+                                <VBox styleClass="annonce-metric-card">
+                                    <Label text="Pending comments" styleClass="annonce-metric-label"/>
+                                    <Label fx:id="pendingCommentsMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                </VBox>
+                            </FlowPane>
+                        </VBox>
+                    </StackPane>
+
+                    <VBox spacing="16" styleClass="panel-card toolbar-panel">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Announcement search" styleClass="section-title"/>
+                                <Label text="Filter by text, role, status, or urgency without leaving the local design system."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Label fx:id="resultsMetaLabel" text="0 announcement(s) visible" styleClass="toolbar-chip-soft"/>
+                            <Label fx:id="statusLabel" text="Ready" styleClass="status-pill status-muted"/>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="Search" styleClass="field-label"/>
+                                <TextField fx:id="searchField" promptText="Search title, description, role, or level" styleClass="form-text-field"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Role" styleClass="field-label"/>
+                                <ComboBox fx:id="posteFilterComboBox" prefWidth="180" styleClass="glass-combo"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Status" styleClass="field-label"/>
+                                <ComboBox fx:id="statutFilterComboBox" prefWidth="170" styleClass="glass-combo"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Flags" styleClass="field-label"/>
+                                <CheckBox fx:id="urgentOnlyCheck" text="Urgent only"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Actions" styleClass="field-label"/>
+                                <HBox spacing="10">
+                                    <Button onAction="#handleRefresh" text="Refresh" styleClass="primary-button"/>
+                                    <Button onAction="#handleResetFilters" text="Reset" styleClass="ghost-button"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <HBox spacing="18" styleClass="content-shell">
+                        <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                            <VBox spacing="4">
+                                <Label text="Announcements table" styleClass="section-title"/>
+                                <Label text="Select a row to edit it, review its state, and unlock the related comments panel below."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+
+                            <TableView fx:id="annonceTableView" prefHeight="480" styleClass="data-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="annonceIdColumn" text="ID" prefWidth="64"/>
+                                    <TableColumn fx:id="annonceTitreColumn" text="Title" prefWidth="190"/>
+                                    <TableColumn fx:id="annoncePosteColumn" text="Role" prefWidth="120"/>
+                                    <TableColumn fx:id="annonceNiveauColumn" text="Level" prefWidth="120"/>
+                                    <TableColumn fx:id="annonceDateColumn" text="Date" prefWidth="98"/>
+                                    <TableColumn fx:id="annonceStatutColumn" text="Status" prefWidth="100"/>
+                                    <TableColumn fx:id="annonceUrgentColumn" text="Priority" prefWidth="90"/>
+                                    <TableColumn fx:id="annonceCommentairesColumn" text="Comments" prefWidth="92"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <VBox spacing="18" minWidth="390" prefWidth="430" styleClass="side-column">
+                            <VBox spacing="14" styleClass="panel-card detail-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label fx:id="detailBadgeLabel" text="Preview" styleClass="toolbar-chip"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="detailStatusLabel" text="Draft" styleClass="status-pill status-muted"/>
+                                </HBox>
+
+                                <VBox spacing="6">
+                                    <Label fx:id="detailTitleLabel" text="No announcement selected" styleClass="detail-title"/>
+                                    <Label fx:id="detailSubtitleLabel"
+                                           text="Choose an announcement from the list or start a new one."
+                                           wrapText="true"
+                                           styleClass="detail-subtitle"/>
+                                </VBox>
+
+                                <GridPane hgap="10" vgap="10" styleClass="annonce-detail-grid">
+                                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="annonce-detail-pill">
+                                        <Label text="Comments" styleClass="field-label"/>
+                                        <Label fx:id="detailCommentsValueLabel" text="0" styleClass="detail-title"/>
+                                    </VBox>
+                                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="annonce-detail-pill">
+                                        <Label text="Coach" styleClass="field-label"/>
+                                        <Label fx:id="detailOwnerValueLabel" text="No coach ID" styleClass="detail-title"/>
+                                    </VBox>
+                                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="annonce-detail-pill">
+                                        <Label text="Priority" styleClass="field-label"/>
+                                        <Label fx:id="detailUrgentValueLabel" text="Standard" styleClass="detail-title"/>
+                                    </VBox>
+                                </GridPane>
+                            </VBox>
+
+                            <VBox spacing="14" styleClass="panel-card form-card">
+                                <VBox spacing="4">
+                                    <Label text="Announcement form" styleClass="section-title"/>
+                                    <Label fx:id="formHintLabel"
+                                           text="Create a new announcement with the same visual language as the local modules."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+
+                                <Label fx:id="validationLabel" managed="false" visible="false" wrapText="true" styleClass="validation-label"/>
+
+                                <VBox spacing="8">
+                                    <Label text="Title" styleClass="field-label"/>
+                                    <TextField fx:id="titreField" promptText="Announcement title" styleClass="form-text-field"/>
+                                </VBox>
+                                <VBox spacing="8">
+                                    <Label text="Description" styleClass="field-label"/>
+                                    <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="Describe the recruitment need" styleClass="annonce-text-area" wrapText="true"/>
+                                </VBox>
+                                <HBox spacing="10">
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Role" styleClass="field-label"/>
+                                        <TextField fx:id="posteField" promptText="Example: Goalkeeper" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Level" styleClass="field-label"/>
+                                        <TextField fx:id="niveauField" promptText="Example: Advanced" styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+                                <HBox spacing="10">
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Publication date" styleClass="field-label"/>
+                                        <DatePicker fx:id="datePublicationPicker" styleClass="form-date-picker"/>
+                                    </VBox>
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <Label text="Status" styleClass="field-label"/>
+                                        <ComboBox fx:id="statutComboBox" styleClass="glass-combo"/>
+                                    </VBox>
+                                </HBox>
+                                <VBox spacing="8">
+                                    <Label text="Coach ID" styleClass="field-label"/>
+                                    <TextField fx:id="entraineurIdField" promptText="Optional numeric ID" styleClass="form-text-field"/>
+                                </VBox>
+                                <HBox spacing="18">
+                                    <CheckBox fx:id="commentsEnabledCheck" text="Comments enabled"/>
+                                    <CheckBox fx:id="urgentCheck" text="Mark as urgent"/>
+                                </HBox>
+                                <HBox spacing="10" styleClass="annonce-form-actions">
+                                    <Button fx:id="addAnnonceButton" onAction="#handleAddAnnonce" text="Add" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="updateAnnonceButton" onAction="#handleUpdateAnnonce" text="Update" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                                <HBox spacing="10" styleClass="annonce-form-actions">
+                                    <Button fx:id="deleteAnnonceButton" onAction="#handleDeleteAnnonce" text="Delete" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="clearAnnonceButton" onAction="#handleClearAnnonce" text="Clear" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="18" styleClass="content-shell annonce-comment-stack">
+                        <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Comments" styleClass="section-title"/>
+                                    <Label fx:id="selectedAnnonceCommentsLabel"
+                                           text="Select an announcement to manage comments."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Label fx:id="commentResultsMetaLabel" text="0 comment(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="commentStatusLabel" text="Select an announcement to manage comments." styleClass="status-pill status-muted"/>
+                            </HBox>
+
+                            <TableView fx:id="commentaireTableView" prefHeight="330" styleClass="data-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="commentaireIdColumn" text="ID" prefWidth="64"/>
+                                    <TableColumn fx:id="commentaireAuteurColumn" text="Author" prefWidth="130"/>
+                                    <TableColumn fx:id="commentaireContenuColumn" text="Content" prefWidth="260"/>
+                                    <TableColumn fx:id="commentaireDateColumn" text="Date" prefWidth="98"/>
+                                    <TableColumn fx:id="commentaireLikesColumn" text="Likes" prefWidth="80"/>
+                                    <TableColumn fx:id="commentaireModerationColumn" text="Moderation" prefWidth="120"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <VBox spacing="14" minWidth="390" prefWidth="430" styleClass="panel-card form-card">
+                            <VBox spacing="4">
+                                <Label text="Comment form" styleClass="section-title"/>
+                                <Label fx:id="commentFormHintLabel"
+                                       text="Select an announcement first."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+
+                            <Label fx:id="commentValidationLabel" managed="false" visible="false" wrapText="true" styleClass="validation-label"/>
+
+                            <HBox spacing="10">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Author" styleClass="field-label"/>
+                                    <TextField fx:id="auteurField" promptText="Visible label for the comment" styleClass="form-text-field"/>
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Player ID" styleClass="field-label"/>
+                                    <TextField fx:id="joueurIdField" promptText="Optional numeric ID" styleClass="form-text-field"/>
+                                </VBox>
+                            </HBox>
+                            <HBox spacing="10">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Comment date" styleClass="field-label"/>
+                                    <DatePicker fx:id="commentDatePicker" styleClass="form-date-picker"/>
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Likes" styleClass="field-label"/>
+                                    <TextField fx:id="likesField" promptText="0" styleClass="form-text-field"/>
+                                </VBox>
+                            </HBox>
+                            <VBox spacing="8">
+                                <Label text="Moderation status" styleClass="field-label"/>
+                                <ComboBox fx:id="moderationComboBox" styleClass="glass-combo"/>
+                            </VBox>
+                            <VBox spacing="8">
+                                <Label text="Moderation reason" styleClass="field-label"/>
+                                <TextArea fx:id="moderationReasonArea" prefRowCount="2" promptText="Optional reason" styleClass="annonce-text-area" wrapText="true"/>
+                            </VBox>
+                            <VBox spacing="8">
+                                <Label text="Comment content" styleClass="field-label"/>
+                                <TextArea fx:id="commentaireArea" prefRowCount="4" promptText="Write the comment body" styleClass="annonce-text-area" wrapText="true"/>
+                            </VBox>
+                            <HBox spacing="10" styleClass="annonce-form-actions">
+                                <Button fx:id="addCommentButton" onAction="#handleAddCommentaire" text="Add" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="updateCommentButton" onAction="#handleUpdateCommentaire" text="Update" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <HBox spacing="10" styleClass="annonce-form-actions">
+                                <Button fx:id="deleteCommentButton" onAction="#handleDeleteCommentaire" text="Delete" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="clearCommentButton" onAction="#handleClearCommentaire" text="Clear" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
+
+

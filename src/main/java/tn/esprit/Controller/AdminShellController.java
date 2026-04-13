@@ -31,6 +31,7 @@ public class AdminShellController {
     private static final String EQUIPE_CRUD = "/tn/esprit/views/equipe-crud-view.fxml";
     private static final String JOUEUR_CRUD = "/tn/esprit/views/joueur-admin-view.fxml";
     private static final String MATCH_CRUD = "/tn/esprit/views/match-admin-view.fxml";
+    private static final String ANNONCE_CRUD = "/tn/esprit/views/annonce-crud-view.fxml";
 
     @FXML
     private BorderPane adminRoot;
@@ -48,6 +49,8 @@ public class AdminShellController {
     private Button joueursNavButton;
     @FXML
     private Button matchsNavButton;
+    @FXML
+    private Button annoncesNavButton;
 
     private Object activeContentController;
 
@@ -80,6 +83,12 @@ public class AdminShellController {
     private void handleMatchs() {
         loadStrippedCrud(MATCH_CRUD);
         highlightNav(matchsNavButton);
+    }
+
+    @FXML
+    private void handleAnnonces() {
+        loadStrippedCrud(ANNONCE_CRUD);
+        highlightNav(annoncesNavButton);
     }
 
     @FXML
@@ -189,7 +198,7 @@ public class AdminShellController {
     }
 
     private void highlightNav(Button active) {
-        for (Button b : new Button[] { dashboardNavButton, equipesNavButton, joueursNavButton, matchsNavButton }) {
+        for (Button b : new Button[] { dashboardNavButton, equipesNavButton, joueursNavButton, matchsNavButton, annoncesNavButton }) {
             if (b == null) {
                 continue;
             }

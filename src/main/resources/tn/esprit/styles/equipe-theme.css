@@ -236,6 +236,12 @@
 
 .page-shell {
     -fx-background-color: transparent;
+    -fx-max-width: 1280;
+}
+
+.page-shell-wrap {
+    -fx-alignment: top-center;
+    -fx-padding: 0 14 0 14;
 }
 
 .page-root .button,

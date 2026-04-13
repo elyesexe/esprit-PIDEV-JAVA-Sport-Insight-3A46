@@ -46,6 +46,7 @@ tn\esprit\gui\EquipeCrudMain.class
 tn\esprit\tools\FootballDataConfig.class
 tn\esprit\Controller\MatchCompetitionController.class
 tn\esprit\Controller\LeagueTableController$2.class
+tn\esprit\Controller\AnnonceController.class
 tn\esprit\Controller\MatchListController$2.class
 tn\esprit\Controller\EquipeListController.class
 tn\esprit\entities\EntrainementUser.class
@@ -105,6 +106,7 @@ tn\esprit\entities\Evaluation.class
 tn\esprit\Controller\AdminDashboardController.class
 tn\esprit\entities\Commentaire.class
 tn\esprit\mains\SponsorMain.class
+tn\esprit\Controller\AnnonceUserController.class
 tn\esprit\services\AnnonceService.class
 tn\esprit\Controller\EquipeListController$2.class
 tn\esprit\Controller\JoueurController$1.class
