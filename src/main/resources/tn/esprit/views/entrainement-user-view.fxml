@@ -119,10 +119,11 @@
                     styleClass="page-scroll"
                     BorderPane.alignment="CENTER">
             <content>
-                <VBox spacing="20" styleClass="page-shell" maxWidth="1280">
-                    <padding>
-                        <Insets top="18" right="18" bottom="28" left="18"/>
-                    </padding>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="20" styleClass="page-shell" maxWidth="1280">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
 
                         <StackPane styleClass="hero-shell">
                         <Region styleClass="entrainement-hero-photo"/>
@@ -206,6 +207,7 @@
                         </VBox>
                     </HBox>
                 </VBox>
+                </StackPane>
             </content>
         </ScrollPane>
     </center>
