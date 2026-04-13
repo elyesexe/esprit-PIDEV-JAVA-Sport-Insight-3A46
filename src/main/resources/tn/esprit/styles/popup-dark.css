@@ -171,6 +171,14 @@
     -fx-padding: 12 14 12 14;
 }
 
+.settings-menu-panel {
+    -fx-padding: 14 14 18 14;
+}
+
+.settings-menu-row {
+    -fx-padding: 16 14 12 14;
+}
+
 .settings-menu-user,
 .settings-menu-label {
     -fx-font-size: 12px;
@@ -200,7 +208,7 @@
 
 .settings-menu-action-row {
     -fx-alignment: center;
-    -fx-padding: 0;
+    -fx-padding: 4 0 4 0;
 }
 
 .settings-menu-action {

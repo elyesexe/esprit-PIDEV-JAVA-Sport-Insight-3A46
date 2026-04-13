@@ -30,6 +30,7 @@ public final class SceneNavigator {
             "/tn/esprit/views/joueur-admin-view.fxml",
             "/tn/esprit/views/match-admin-view.fxml",
             "/tn/esprit/views/annonce-crud-view.fxml",
+            "/tn/esprit/views/entrainement-admin-view.fxml",
             "/tn/esprit/views/equipe-form-view.fxml",
             "/tn/esprit/views/match-form-view.fxml"
     );

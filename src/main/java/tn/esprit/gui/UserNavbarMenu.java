@@ -26,6 +26,8 @@ public final class UserNavbarMenu {
     private static final String PROFILE_CSS = "/tn/esprit/styles/profile-theme.css";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
+    private static final String TRAINING_VIEW = "/tn/esprit/views/entrainement-user-view.fxml";
+    private static final String TRAINING_CSS = "/tn/esprit/styles/entrainement-theme.css";
     private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
     private static final double SETTINGS_MENU_ACTION_WIDTH = 112;
 
@@ -52,6 +54,7 @@ public final class UserNavbarMenu {
 
         hideNode(adminNavButton);
         hideNode(themeToggleButton);
+        ensureTrainingNavButton(navbarRoot);
 
         Button settingsButton = createSettingsButton();
         ContextMenu settingsMenu = createSettingsMenu(settingsButton);
@@ -115,6 +118,7 @@ public final class UserNavbarMenu {
 
             accountBox.getChildren().addAll(nameLabel, roleLabel);
             contextMenu.getItems().add(wrapNode(accountBox, false));
+            contextMenu.getItems().add(new SeparatorMenuItem());
         }
 
         ToggleButton menuThemeToggle = createThemeToggle();
@@ -227,6 +231,74 @@ public final class UserNavbarMenu {
         }
         node.setManaged(false);
         node.setVisible(false);
+    }
+
+    private static void ensureTrainingNavButton(HBox navbarRoot) {
+        HBox modules = findModulesContainer(navbarRoot);
+        if (modules == null) {
+            return;
+        }
+
+        boolean exists = modules.getChildren().stream()
+                .filter(node -> node instanceof Button)
+                .map(node -> (Button) node)
+                .anyMatch(button -> "Entrainements".equalsIgnoreCase(button.getText()));
+        if (exists) {
+            return;
+        }
+
+        Button trainingButton = new Button("Entrainements");
+        trainingButton.setMnemonicParsing(false);
+        trainingButton.getStyleClass().add("navbar-nav-button");
+        trainingButton.setOnAction(event ->
+                SceneNavigator.switchScene(trainingButton, TRAINING_VIEW, TRAINING_CSS, "Entrainements | Sport Insight"));
+
+        int insertIndex = modules.getChildren().size();
+        for (int i = 0; i < modules.getChildren().size(); i++) {
+            Node node = modules.getChildren().get(i);
+            if (node instanceof Button button) {
+                String label = button.getText() == null ? "" : button.getText().toLowerCase();
+                if (label.contains("annonc")) {
+                    insertIndex = i;
+                    break;
+                }
+            }
+        }
+        modules.getChildren().add(insertIndex, trainingButton);
+    }
+
+    private static HBox findModulesContainer(HBox navbarRoot) {
+        if (navbarRoot == null) {
+            return null;
+        }
+        if (navbarRoot.getStyleClass().contains("navbar-modules")) {
+            return navbarRoot;
+        }
+        for (Node child : navbarRoot.getChildren()) {
+            HBox found = findModulesContainer(child);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
+    private static HBox findModulesContainer(Node node) {
+        if (node == null) {
+            return null;
+        }
+        if (node instanceof HBox hBox && hBox.getStyleClass().contains("navbar-modules")) {
+            return hBox;
+        }
+        if (node instanceof javafx.scene.Parent parent) {
+            for (Node child : parent.getChildrenUnmodifiable()) {
+                HBox found = findModulesContainer(child);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     private static <T> T getFieldValue(Object controller, String fieldName, Class<T> type) {

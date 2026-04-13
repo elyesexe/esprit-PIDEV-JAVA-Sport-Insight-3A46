@@ -87,7 +87,7 @@ public class HomeController {
     @FXML
     private Button annoncesModuleBox;
     @FXML
-    private VBox trainModuleBox;
+    private Button trainModuleBox;
     @FXML
     private VBox storeModuleBox;
 
@@ -218,6 +218,8 @@ public class HomeController {
             openMatchsModule();
         } else if (matchesTokens(n, "news", "annonce", "annonces", "update", "updates")) {
             handleOpenAnnonces();
+        } else if (matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions")) {
+            handleOpenEntrainements();
         } else {
             Alert hint = new Alert(Alert.AlertType.INFORMATION);
             hint.setTitle("Search");
@@ -394,6 +396,12 @@ public class HomeController {
     private void handleOpenAnnonces() {
         Node source = annonceNavButton != null ? annonceNavButton : annoncesModuleBox;
         SceneNavigator.switchScene(source, "/tn/esprit/views/annonce-user-view.fxml", "/tn/esprit/styles/annonce-theme.css", "Anonce | Sport Insight");
+    }
+
+    @FXML
+    private void handleOpenEntrainements() {
+        Node source = trainModuleBox != null ? trainModuleBox : sidebarBrandBox;
+        SceneNavigator.switchScene(source, "/tn/esprit/views/entrainement-user-view.fxml", "/tn/esprit/styles/entrainement-theme.css", "Entrainements | Sport Insight");
     }
 
     @FXML

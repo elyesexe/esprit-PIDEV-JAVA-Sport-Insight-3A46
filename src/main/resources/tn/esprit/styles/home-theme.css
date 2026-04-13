@@ -213,6 +213,10 @@
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ca8a04 0%, #facc15 100%);
 }
 
+.home-link-icon-training {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #34d399 100%);
+}
+
 .home-link-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 18px;
