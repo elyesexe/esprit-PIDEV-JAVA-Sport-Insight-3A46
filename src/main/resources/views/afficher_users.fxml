@@ -1,52 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
 
-<VBox prefHeight="650" prefWidth="1000" spacing="0" style="-fx-background-color: #f4f6f8;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.AfficherUsersController">
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.AfficherUsersController"
+      prefWidth="1000" prefHeight="650" spacing="0"
+      style="-fx-background-color: #f4f6f8;">
 
     <!-- TOP BAR -->
-    <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #1a3a5c; -fx-padding: 16 24 16 24;">
-        <Label style="-fx-font-size: 20px;" text="⚽" />
-        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;                       -fx-text-fill: white; -fx-font-family: 'Georgia';" text="Sport Insight — Gestion des utilisateurs" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="errorLabel" style="-fx-text-fill: #ff9999; -fx-font-size: 12px;" text="" />
+    <HBox style="-fx-background-color: #1a3a5c; -fx-padding: 14 24 14 24;"
+          alignment="CENTER_LEFT" spacing="12">
+        <Label text="Sport Insight - Gestion des utilisateurs"
+               style="-fx-font-size: 15px; -fx-font-weight: bold;
+                      -fx-text-fill: white; -fx-font-family: 'Georgia';"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="errorLabel" text=""
+               style="-fx-text-fill: #ff9999; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <!-- SEARCH BAR -->
+    <HBox style="-fx-padding: 12 24 8 24; -fx-background-color: #eaf0f6;"
+          spacing="10" alignment="CENTER_LEFT">
+        <Label text="Recherche par ID :"
+               style="-fx-font-size: 12px; -fx-text-fill: #444;"/>
+        <TextField fx:id="searchIdField" promptText="Ex: 3"
+                   prefWidth="90" prefHeight="32"
+                   style="-fx-background-radius: 4; -fx-border-color: #ccc;
+                          -fx-border-radius: 4; -fx-font-size: 13px;"/>
+        <Button text="Chercher" onAction="#handleSearchById"
+                prefHeight="32"
+                style="-fx-background-color: #1a3a5c; -fx-text-fill: white;
+                       -fx-font-size: 12px; -fx-background-radius: 4; -fx-cursor: hand;"/>
+        <Separator orientation="VERTICAL"/>
+        <Label text="Recherche par nom :"
+               style="-fx-font-size: 12px; -fx-text-fill: #444;"/>
+        <TextField fx:id="searchNomField" promptText="Ex: Dupont"
+                   prefWidth="150" prefHeight="32"
+                   style="-fx-background-radius: 4; -fx-border-color: #ccc;
+                          -fx-border-radius: 4; -fx-font-size: 13px;"/>
+        <Button text="Chercher" onAction="#handleSearchByNom"
+                prefHeight="32"
+                style="-fx-background-color: #1a3a5c; -fx-text-fill: white;
+                       -fx-font-size: 12px; -fx-background-radius: 4; -fx-cursor: hand;"/>
+        <Button text="Reinitialiser" onAction="#handleReset"
+                prefHeight="32"
+                style="-fx-background-color: #888; -fx-text-fill: white;
+                       -fx-font-size: 12px; -fx-background-radius: 4; -fx-cursor: hand;"/>
     </HBox>
 
     <!-- ACTION BUTTONS -->
-    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 16 24 12 24; -fx-background-color: #f4f6f8;">
-        <Button fx:id="ajouterBtn" onAction="#handleAjouter" prefHeight="36" style="-fx-background-color: #1a3a5c; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="+ Ajouter" />
-        <Button fx:id="modifierBtn" onAction="#handleModifier" prefHeight="36" style="-fx-background-color: #3a7abd; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="Modifier" />
-        <Button fx:id="supprimerBtn" onAction="#handleSupprimer" prefHeight="36" style="-fx-background-color: #c0392b; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="Supprimer" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="rafraichirBtn" onAction="#handleRafraichir" prefHeight="36" style="-fx-background-color: #5a6a7c; -fx-text-fill: white;                        -fx-font-size: 13px; -fx-background-radius: 4;                        -fx-cursor: hand; -fx-padding: 0 18 0 18;" text="Rafraichir" />
+    <HBox style="-fx-padding: 10 24 10 24; -fx-background-color: #f4f6f8;"
+          spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="ajouterBtn" text="+ Ajouter" onAction="#handleAjouter"
+                prefHeight="34"
+                style="-fx-background-color: #1a3a5c; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand; -fx-padding: 0 16 0 16;"/>
+        <Button fx:id="modifierBtn" text="Modifier" onAction="#handleModifier"
+                prefHeight="34"
+                style="-fx-background-color: #3a7abd; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand; -fx-padding: 0 16 0 16;"/>
+        <Button fx:id="supprimerBtn" text="Supprimer" onAction="#handleSupprimer"
+                prefHeight="34"
+                style="-fx-background-color: #c0392b; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand; -fx-padding: 0 16 0 16;"/>
+        <Separator orientation="VERTICAL"/>
+        <Button text="Tri A-Z" onAction="#handleTriAlpha"
+                prefHeight="34"
+                style="-fx-background-color: #5a6a7c; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand; -fx-padding: 0 16 0 16;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Exporter PDF" onAction="#handleExportPdf"
+                prefHeight="34"
+                style="-fx-background-color: #c0392b; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand; -fx-padding: 0 16 0 16;"/>
+        <Button fx:id="rafraichirBtn" text="Rafraichir" onAction="#handleRafraichir"
+                prefHeight="34"
+                style="-fx-background-color: #888; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-background-radius: 4;
+                       -fx-cursor: hand; -fx-padding: 0 16 0 16;"/>
     </HBox>
 
     <!-- TABLE -->
-    <TableView fx:id="tableView" style="-fx-background-color: white;" VBox.vgrow="ALWAYS">
-
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS"
+               style="-fx-background-color: white;">
         <columns>
-            <TableColumn fx:id="colId" prefWidth="50" text="ID" />
-            <TableColumn fx:id="colNom" prefWidth="130" text="Nom" />
-            <TableColumn fx:id="colPrenom" prefWidth="130" text="Prenom" />
-            <TableColumn fx:id="colEmail" prefWidth="220" text="Email" />
-            <TableColumn fx:id="colTelephone" prefWidth="140" text="Telephone" />
-            <TableColumn fx:id="colStatut" prefWidth="90" text="Statut" />
-            <TableColumn fx:id="colRoles" prefWidth="130" text="Role" />
+            <TableColumn fx:id="colId"        text="ID"        prefWidth="55"/>
+            <TableColumn fx:id="colNom"       text="Nom"       prefWidth="130"/>
+            <TableColumn fx:id="colPrenom"    text="Prenom"    prefWidth="130"/>
+            <TableColumn fx:id="colEmail"     text="Email"     prefWidth="220"/>
+            <TableColumn fx:id="colTelephone" text="Telephone" prefWidth="130"/>
+            <TableColumn fx:id="colStatut"    text="Statut"    prefWidth="90"/>
+            <TableColumn fx:id="colRoles"     text="Role"      prefWidth="130"/>
         </columns>
-
         <placeholder>
-            <Label style="-fx-text-fill: #888; -fx-font-size: 13px;" text="Aucun utilisateur trouve." />
+            <Label text="Aucun utilisateur trouve."
+                   style="-fx-text-fill: #888; -fx-font-size: 13px;"/>
         </placeholder>
     </TableView>
 
     <!-- FOOTER -->
-    <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="862.0" style="-fx-background-color: #e8edf2; -fx-padding: 10 24 10 24;">
-        <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Selectionnez une ligne puis cliquez sur Modifier ou Supprimer" />
+    <HBox style="-fx-background-color: #e8edf2; -fx-padding: 8 24 8 24;"
+          alignment="CENTER_LEFT" spacing="16">
+        <Label fx:id="countLabel" text="0 utilisateur(s)"
+               style="-fx-font-size: 11px; -fx-text-fill: #555;"/>
+        <Label text="| Selectionnez une ligne pour Modifier ou Supprimer"
+               style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
     </HBox>
 </VBox>
