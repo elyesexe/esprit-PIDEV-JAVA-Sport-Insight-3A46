@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.ContratSponsorFormController" hgap="10" vgap="10" alignment="CENTER">
+   <children>
+      <Label text="Date Début:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+      <DatePicker fx:id="dateDebutPicker" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+      <Label text="Date Fin:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+      <DatePicker fx:id="dateFinPicker" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+      <Label text="Montant:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+      <TextField fx:id="montantField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+      <Label text="Description:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+      <TextField fx:id="descriptionField" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+      <Label text="Statut:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+      <ComboBox fx:id="statutCombo" GridPane.rowIndex="4" GridPane.columnIndex="1">
+         <items>
+            <FXCollections fx:factory="observableArrayList">
+               <String fx:value="Actif" />
+               <String fx:value="Inactif" />
+               <String fx:value="Terminé" />
+            </FXCollections>
+         </items>
+      </ComboBox>
+
+      <Label text="Sponsor:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+      <ComboBox fx:id="sponsorCombo" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+      <Label text="Equipe:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+      <ComboBox fx:id="equipeCombo" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+      <Label text="Statut Paiement:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+      <ComboBox fx:id="statutPaiementCombo" GridPane.rowIndex="7" GridPane.columnIndex="1">
+         <items>
+            <FXCollections fx:factory="observableArrayList">
+               <String fx:value="Payé" />
+               <String fx:value="En attente" />
+               <String fx:value="Annulé" />
+            </FXCollections>
+         </items>
+      </ComboBox>
+
+      <CheckBox fx:id="notifiedCheck" text="Notifié" GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2" />
+
+      <HBox spacing="10" alignment="CENTER" GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2">
+         <Button text="Sauvegarder" onAction="#saveContrat" />
+         <Button text="Annuler" onAction="#cancel" />
+      </HBox>
+   </children>
+</GridPane>

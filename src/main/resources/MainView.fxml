@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.MainController">
+   <children>
+      <MenuBar>
+         <menus>
+            <Menu text="File">
+               <items>
+                  <MenuItem text="Exit" onAction="#exitApplication" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+      <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+         <tabs>
+            <Tab text="Gestion des Sponsors">
+               <content>
+                  <fx:include source="SponsorView.fxml" />
+               </content>
+            </Tab>
+            <Tab text="Gestion des Contrats Sponsors">
+               <content>
+                  <fx:include source="ContratSponsorView.fxml" />
+               </content>
+            </Tab>
+            <Tab text="📊 Statistiques">
+               <content>
+                  <fx:include source="StatisticsView.fxml" />
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
+   </children>
+</VBox>

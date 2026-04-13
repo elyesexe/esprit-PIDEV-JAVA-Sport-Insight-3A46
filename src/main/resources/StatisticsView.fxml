@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.StatisticsController" spacing="15">
+   <children>
+      <Label text="📊 STATISTIQUES" style="-fx-font-size: 18; -fx-font-weight: bold;" />
+
+      <GridPane hgap="15" vgap="15">
+         <children>
+            <!-- Sponsors Statistics -->
+            <Label text="Nombre de Sponsors:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <Label fx:id="sponsorCountLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2196F3;" />
+
+            <Label text="Budget Total:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <Label fx:id="totalBudgetLabel" text="0.00 DT" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+
+            <Label text="Budget Moyen:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+            <Label fx:id="averageBudgetLabel" text="0.00 DT" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+
+            <Label text="Top Sponsor:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+            <Label fx:id="topSponsorLabel" text="N/A" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #FF9800;" />
+
+            <!-- Contrats Statistics -->
+            <Label text="Nombre de Contrats:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+            <Label fx:id="contratCountLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="3" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2196F3;" />
+
+            <Label text="Contrats Actifs:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+            <Label fx:id="activeContratLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="3" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+
+            <Label text="Montant Total:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+            <Label fx:id="totalMontantLabel" text="0.00 DT" GridPane.rowIndex="2" GridPane.columnIndex="3" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+
+            <Label text="Montant Moyen:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+            <Label fx:id="averageMontantLabel" text="0.00 DT" GridPane.rowIndex="3" GridPane.columnIndex="3" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+         </children>
+      </GridPane>
+
+      <Separator />
+
+      <HBox spacing="10" alignment="CENTER">
+         <Button text="🔄 Rafraîchir" onAction="#refreshStatistics" />
+      </HBox>
+   </children>
+</VBox>

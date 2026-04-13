@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.ContratSponsorController" spacing="10">
+    <children>
+       <HBox spacing="10" alignment="CENTER_LEFT">
+          <Label text="Date Début Min:" />
+          <DatePicker fx:id="dateDebutMinPicker" promptText="Sélectionner date min" prefWidth="150" />
+          <Label text="Date Début Max:" />
+          <DatePicker fx:id="dateDebutMaxPicker" promptText="Sélectionner date max" prefWidth="150" />
+          <Button text="🔍 Rechercher par date" onAction="#searchContrats" />
+          <Button text="🔄 Réinitialiser" onAction="#resetSearch" />
+       </HBox>
+      <HBox spacing="10" alignment="CENTER_LEFT">
+         <Label text="Montant min:" />
+         <TextField fx:id="minMontantField" promptText="0.0" prefWidth="100" />
+         <Label text="Montant max:" />
+         <TextField fx:id="maxMontantField" promptText="1000000.0" prefWidth="100" />
+         <Button text="Rechercher par montant" onAction="#searchByMontant" />
+      </HBox>
+      <TableView fx:id="contratTable" VBox.vgrow="ALWAYS">
+         <columns>
+            <TableColumn text="ID" fx:id="idColumn" prefWidth="50" />
+            <TableColumn text="Date Début" fx:id="dateDebutColumn" prefWidth="100" />
+            <TableColumn text="Date Fin" fx:id="dateFinColumn" prefWidth="100" />
+            <TableColumn text="Montant" fx:id="montantColumn" prefWidth="100" />
+            <TableColumn text="Description" fx:id="descriptionColumn" prefWidth="150" />
+            <TableColumn text="Statut" fx:id="statutColumn" prefWidth="100" />
+            <TableColumn text="Sponsor" fx:id="sponsorColumn" prefWidth="150" />
+            <TableColumn text="Equipe" fx:id="equipeColumn" prefWidth="150" />
+            <TableColumn text="Actions" fx:id="actionsColumn" prefWidth="150" />
+         </columns>
+      </TableView>
+      <HBox spacing="10" alignment="CENTER">
+         <Button text="➕ Ajouter Contrat" onAction="#showAddContratDialog" />
+         <Button text="✏️ Modifier" onAction="#showEditContratDialog" />
+         <Button text="🗑️ Supprimer" onAction="#deleteContrat" />
+         <Separator />
+         <Button text="📊 Stats" onAction="#showStatistics" />
+         <Button text="📄 PDF Export" onAction="#exportToPDF" />
+      </HBox>
+   </children>
+</VBox>

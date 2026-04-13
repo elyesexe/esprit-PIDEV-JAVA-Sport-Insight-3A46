@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.SponsorController" spacing="10">
+   <children>
+      <HBox spacing="10" alignment="CENTER_LEFT">
+         <Label text="Rechercher par nom:" />
+         <TextField fx:id="searchField" promptText="Entrez le nom du sponsor" HBox.hgrow="ALWAYS" />
+         <Button text="Rechercher" onAction="#searchSponsors" />
+         <Button text="Afficher tous" onAction="#loadAllSponsors" />
+      </HBox>
+      <HBox spacing="10" alignment="CENTER_LEFT">
+         <Label text="Budget min:" />
+         <TextField fx:id="minBudgetField" promptText="0.0" prefWidth="100" />
+         <Label text="Budget max:" />
+         <TextField fx:id="maxBudgetField" promptText="1000000.0" prefWidth="100" />
+         <Button text="Rechercher par budget" onAction="#searchByBudget" />
+      </HBox>
+      <TableView fx:id="sponsorTable" VBox.vgrow="ALWAYS">
+         <columns>
+            <TableColumn text="ID" fx:id="idColumn" prefWidth="50" />
+            <TableColumn text="Nom" fx:id="nomColumn" prefWidth="150" />
+            <TableColumn text="Email" fx:id="emailColumn" prefWidth="200" />
+            <TableColumn text="Téléphone" fx:id="telephoneColumn" prefWidth="120" />
+            <TableColumn text="Budget" fx:id="budgetColumn" prefWidth="100" />
+            <TableColumn text="Adresse" fx:id="adresseColumn" prefWidth="150" />
+            <TableColumn text="Actions" fx:id="actionsColumn" prefWidth="150" />
+         </columns>
+      </TableView>
+      <HBox spacing="10" alignment="CENTER">
+         <Button text="➕ Ajouter Sponsor" onAction="#showAddSponsorDialog" />
+         <Button text="✏️ Modifier" onAction="#showEditSponsorDialog" />
+         <Button text="🗑️ Supprimer" onAction="#deleteSponsor" />
+      </HBox>
+   </children>
+</VBox>

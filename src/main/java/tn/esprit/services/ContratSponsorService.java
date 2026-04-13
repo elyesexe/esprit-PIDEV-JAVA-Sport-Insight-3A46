@@ -168,6 +168,37 @@ public class ContratSponsorService implements IService<ContratSponsor> {
         return contrats;
     }
 
+    public List<ContratSponsor> searchBySponsorName(String sponsorName) throws SQLException {
+        List<ContratSponsor> contrats = new ArrayList<>();
+        String query = "SELECT cs.* FROM contrat_sponsor cs JOIN sponsor s ON cs.sponsor_id = s.id WHERE LOWER(s.nom) LIKE LOWER(?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, "%" + sponsorName + "%");
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    ContratSponsor contrat = mapResultSetToContrat(resultSet);
+                    contrats.add(contrat);
+                }
+            }
+        }
+        return contrats;
+    }
+
+    public List<ContratSponsor> searchByDateDebutRange(java.time.LocalDate dateDebut, java.time.LocalDate dateFin) throws SQLException {
+        List<ContratSponsor> contrats = new ArrayList<>();
+        String query = "SELECT * FROM contrat_sponsor WHERE date_debut BETWEEN ? AND ? ORDER BY date_debut DESC";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setObject(1, dateDebut);
+            statement.setObject(2, dateFin);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    ContratSponsor contrat = mapResultSetToContrat(resultSet);
+                    contrats.add(contrat);
+                }
+            }
+        }
+        return contrats;
+    }
+
     // Recherche par montant minimum
     public List<ContratSponsor> searchByMinMontant(double minMontant) throws SQLException {
         List<ContratSponsor> contrats = new ArrayList<>();
