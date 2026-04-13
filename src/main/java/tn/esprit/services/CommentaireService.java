@@ -206,11 +206,9 @@ public class CommentaireService implements IService<Commentaire> {
         }
 
         if (commentaire.getJoueurId() != null) {
-            if (tableExists("joueur")) {
-                if (!recordExists("joueur", commentaire.getJoueurId())) {
-                    throw new SQLException("The selected player does not exist.");
-                }
-            } else if (tableExists("user") && !recordExists("user", commentaire.getJoueurId())) {
+            boolean joueurExists = tableExists("joueur") && recordExists("joueur", commentaire.getJoueurId());
+            boolean userExists = tableExists("user") && recordExists("user", commentaire.getJoueurId());
+            if (!joueurExists && !userExists) {
                 throw new SQLException("The selected user does not exist.");
             }
         }

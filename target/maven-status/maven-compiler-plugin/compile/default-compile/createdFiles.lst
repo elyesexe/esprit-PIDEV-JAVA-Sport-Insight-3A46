@@ -1,3 +1,4 @@
+tn\esprit\Controller\AdminDashboardController$EntrainementRow.class
 tn\esprit\services\ParticipationService.class
 tn\esprit\Controller\LeagueCompetitionController.class
 tn\esprit\Controller\MatchListController.class
@@ -31,9 +32,11 @@ tn\esprit\Controller\AdminDashboardController$DashboardPayload.class
 tn\esprit\mains\EntrainementMain.class
 tn\esprit\Controller\HomeController.class
 tn\esprit\entities\Entrainement.class
+tn\esprit\Controller\AdminDashboardController$OperationRow.class
 tn\esprit\Controller\MatchController.class
 tn\esprit\Controller\HomeController$DashboardCounts.class
 tn\esprit\Controller\EquipeFormController.class
+tn\esprit\Controller\AdminDashboardController$AnnonceRow.class
 tn\esprit\Controller\JoueurListController$2.class
 tn\esprit\services\CommentaireService.class
 tn\esprit\gui\ThemeManager.class
@@ -76,7 +79,7 @@ tn\esprit\Controller\JoueurListController.class
 tn\esprit\Controller\MatchFormController.class
 tn\esprit\mains\AnnonceMain.class
 tn\esprit\services\football\FootballDataStandingsService.class
-tn\esprit\Controller\AdminDashboardController$MatchRow.class
+tn\esprit\Controller\AdminDashboardController$UserRow.class
 tn\esprit\entities\User.class
 tn\esprit\Controller\SignupController.class
 tn\esprit\Controller\AdminUserModerationController.class
@@ -127,5 +130,4 @@ tn\esprit\Controller\AnnonceUserController.class
 tn\esprit\Controller\EquipeListController$2.class
 tn\esprit\Controller\JoueurController$1.class
 tn\esprit\services\MatchsService.class
-tn\esprit\Controller\AdminDashboardController$PlayerRow.class
 tn\esprit\Controller\MatchDetailController.class

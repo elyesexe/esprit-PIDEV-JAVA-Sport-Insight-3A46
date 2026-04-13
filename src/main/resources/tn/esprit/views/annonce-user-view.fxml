@@ -117,6 +117,9 @@
             <content>
                 <StackPane styleClass="page-shell-wrap">
                     <VBox spacing="20" styleClass="page-shell">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
 
                         <!-- HERO -->
                         <StackPane styleClass="annonce-user-hero-shell hero-shell">
