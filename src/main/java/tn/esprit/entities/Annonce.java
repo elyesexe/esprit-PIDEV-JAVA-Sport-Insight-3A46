@@ -11,11 +11,37 @@ public class Annonce {
     private LocalDate datePublication;
     private String statut;
     private Integer entraineurId;
+    private Boolean commentsEnabled;
+    private Boolean urgent;
 
     public Annonce() {
+        this.commentsEnabled = true;
+        this.urgent = false;
     }
 
-    public Annonce(String titre, String description, String posteRecherche, String niveauRequis, LocalDate datePublication, String statut, Integer entraineurId) {
+    public Annonce(
+            String titre,
+            String description,
+            String posteRecherche,
+            String niveauRequis,
+            LocalDate datePublication,
+            String statut,
+            Integer entraineurId
+    ) {
+        this(titre, description, posteRecherche, niveauRequis, datePublication, statut, entraineurId, true, false);
+    }
+
+    public Annonce(
+            String titre,
+            String description,
+            String posteRecherche,
+            String niveauRequis,
+            LocalDate datePublication,
+            String statut,
+            Integer entraineurId,
+            Boolean commentsEnabled,
+            Boolean urgent
+    ) {
         this.titre = titre;
         this.description = description;
         this.posteRecherche = posteRecherche;
@@ -23,9 +49,35 @@ public class Annonce {
         this.datePublication = datePublication;
         this.statut = statut;
         this.entraineurId = entraineurId;
+        this.commentsEnabled = commentsEnabled != null ? commentsEnabled : true;
+        this.urgent = urgent != null ? urgent : false;
     }
 
-    public Annonce(Integer id, String titre, String description, String posteRecherche, String niveauRequis, LocalDate datePublication, String statut, Integer entraineurId) {
+    public Annonce(
+            Integer id,
+            String titre,
+            String description,
+            String posteRecherche,
+            String niveauRequis,
+            LocalDate datePublication,
+            String statut,
+            Integer entraineurId
+    ) {
+        this(id, titre, description, posteRecherche, niveauRequis, datePublication, statut, entraineurId, true, false);
+    }
+
+    public Annonce(
+            Integer id,
+            String titre,
+            String description,
+            String posteRecherche,
+            String niveauRequis,
+            LocalDate datePublication,
+            String statut,
+            Integer entraineurId,
+            Boolean commentsEnabled,
+            Boolean urgent
+    ) {
         this.id = id;
         this.titre = titre;
         this.description = description;
@@ -34,6 +86,8 @@ public class Annonce {
         this.datePublication = datePublication;
         this.statut = statut;
         this.entraineurId = entraineurId;
+        this.commentsEnabled = commentsEnabled != null ? commentsEnabled : true;
+        this.urgent = urgent != null ? urgent : false;
     }
 
     public Integer getId() {
@@ -100,6 +154,22 @@ public class Annonce {
         this.entraineurId = entraineurId;
     }
 
+    public Boolean getCommentsEnabled() {
+        return commentsEnabled;
+    }
+
+    public void setCommentsEnabled(Boolean commentsEnabled) {
+        this.commentsEnabled = commentsEnabled;
+    }
+
+    public Boolean getUrgent() {
+        return urgent;
+    }
+
+    public void setUrgent(Boolean urgent) {
+        this.urgent = urgent;
+    }
+
     @Override
     public String toString() {
         return "Annonce{" +
@@ -110,6 +180,8 @@ public class Annonce {
                 ", datePublication=" + datePublication +
                 ", statut='" + statut + '\'' +
                 ", entraineurId=" + entraineurId +
+                ", commentsEnabled=" + commentsEnabled +
+                ", urgent=" + urgent +
                 '}';
     }
 }

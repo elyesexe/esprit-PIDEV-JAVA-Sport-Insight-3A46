@@ -50,6 +50,12 @@
                     maxWidth="Infinity"
                     styleClass="admin-nav-button"/>
 
+            <Button fx:id="annoncesNavButton"
+                    onAction="#handleAnnonces"
+                    text="Annonces"
+                    maxWidth="Infinity"
+                    styleClass="admin-nav-button"/>
+
             <Region VBox.vgrow="ALWAYS"/>
 
             <Separator styleClass="admin-sidebar-sep"/>
@@ -85,3 +91,4 @@
         <StackPane fx:id="contentStack" styleClass="admin-content-stack" BorderPane.alignment="CENTER"/>
     </center>
 </BorderPane>
+

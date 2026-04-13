@@ -66,6 +66,10 @@
                                 text="Joueurs"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                     </HBox>
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button"/>
                 </HBox>
             </StackPane>
 
@@ -96,6 +100,7 @@
                     styleClass="page-scroll"
                     BorderPane.alignment="CENTER">
             <content>
+                <StackPane styleClass="page-shell-wrap">
                 <VBox spacing="18" styleClass="page-shell">
                     <padding>
                         <Insets top="24" right="28" bottom="28" left="28"/>
@@ -160,7 +165,10 @@
                         </VBox>
                     </VBox>
                 </VBox>
+                </StackPane>
             </content>
         </ScrollPane>
     </center>
 </BorderPane>
+
+

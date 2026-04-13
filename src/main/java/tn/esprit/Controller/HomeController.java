@@ -57,6 +57,8 @@ public class HomeController {
     @FXML
     private Button matchsNavButton;
     @FXML
+    private Button annonceNavButton;
+    @FXML
     private HBox sidebarModuleChildrenBox;
     @FXML
     private Button leaguesNavButton;
@@ -83,7 +85,7 @@ public class HomeController {
     @FXML
     private TextField homeSearchField;
     @FXML
-    private VBox annoncesModuleBox;
+    private Button annoncesModuleBox;
     @FXML
     private VBox trainModuleBox;
     @FXML
@@ -107,11 +109,12 @@ public class HomeController {
         refreshHeaderDate();
         startDateRefreshTimeline();
 
-        matchesTodayMetricLabel.setText("…");
-        activePlayersMetricLabel.setText("…");
-        pendingTasksMetricLabel.setText("…");
-
-        loadDashboardMetricsAsync();
+        if (matchesTodayMetricLabel != null && activePlayersMetricLabel != null && pendingTasksMetricLabel != null) {
+            matchesTodayMetricLabel.setText("...");
+            activePlayersMetricLabel.setText("...");
+            pendingTasksMetricLabel.setText("...");
+            loadDashboardMetricsAsync();
+        }
 
         if (homeSearchField != null) {
             homeSearchField.textProperty().addListener((obs, oldVal, newVal) -> applyHomeSearchFilter(newVal));
@@ -213,13 +216,15 @@ public class HomeController {
             handleOpenJoueurs();
         } else if (matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games")) {
             openMatchsModule();
+        } else if (matchesTokens(n, "news", "annonce", "annonces", "update", "updates")) {
+            handleOpenAnnonces();
         } else {
             Alert hint = new Alert(Alert.AlertType.INFORMATION);
             hint.setTitle("Search");
             hint.setHeaderText(null);
             hint.setContentText(
                     "Type part of a keyword to filter tiles (e.g. team, player, match), then press Enter to open a module.\n"
-                            + "Examples: \"team\" → Teams, \"joueur\" → Players, \"match\" → Matches.");
+                            + "Examples: \"team\" -> Teams, \"joueur\" -> Players, \"match\" -> Matches.");
             hint.initOwner(homeSearchField.getScene() != null ? homeSearchField.getScene().getWindow() : null);
             hint.showAndWait();
         }
@@ -247,11 +252,17 @@ public class HomeController {
     }
 
     private void refreshHeaderDate() {
+        if (headerDateLabel == null) {
+            return;
+        }
         LocalDate today = LocalDate.now();
         headerDateLabel.setText(HEADER_DATE_FORMAT.format(today));
     }
 
     private void loadDashboardMetricsAsync() {
+        if (matchesTodayMetricLabel == null || activePlayersMetricLabel == null || pendingTasksMetricLabel == null) {
+            return;
+        }
         Task<DashboardCounts> task = new Task<>() {
             @Override
             protected DashboardCounts call() throws Exception {
@@ -272,9 +283,9 @@ public class HomeController {
         });
         task.setOnFailed(e -> {
             Throwable ex = task.getException();
-            matchesTodayMetricLabel.setText("—");
-            activePlayersMetricLabel.setText("—");
-            pendingTasksMetricLabel.setText("—");
+            matchesTodayMetricLabel.setText("-");
+            activePlayersMetricLabel.setText("-");
+            pendingTasksMetricLabel.setText("-");
             if (ex != null) {
                 ex.printStackTrace();
             }
@@ -293,7 +304,7 @@ public class HomeController {
         dialog.initOwner(newNoteButton != null ? newNoteButton.getScene().getWindow() : null);
 
         TextArea area = new TextArea();
-        area.setPromptText("Write your note…");
+        area.setPromptText("Write your note...");
         area.setPrefRowCount(8);
         area.setWrapText(true);
         GridPane grid = new GridPane();
@@ -332,7 +343,7 @@ public class HomeController {
         String line = LocalDate.now()
                 + " "
                 + java.time.LocalTime.now()
-                + " — "
+                + " - "
                 + body.replace("\r\n", " ").replace('\n', ' ')
                 + System.lineSeparator();
         Files.writeString(
@@ -377,6 +388,12 @@ public class HomeController {
 
     private void openMatchsModule() {
         SceneNavigator.switchScene(resolveNavigationSource(matchsButton, matchsNavButton), "/tn/esprit/views/match-competitions-view.fxml", "/tn/esprit/styles/match-theme.css", "Matchs | Competitions");
+    }
+
+    @FXML
+    private void handleOpenAnnonces() {
+        Node source = annonceNavButton != null ? annonceNavButton : annoncesModuleBox;
+        SceneNavigator.switchScene(source, "/tn/esprit/views/annonce-user-view.fxml", "/tn/esprit/styles/annonce-theme.css", "Anonce | Sport Insight");
     }
 
     @FXML

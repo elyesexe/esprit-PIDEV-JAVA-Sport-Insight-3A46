@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -14,13 +13,19 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.Controller.HomeController"
             styleClass="page-root">
+
     <top>
-        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
             <padding>
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
@@ -49,8 +54,9 @@
                 <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
                     <Button fx:id="matchsNavButton"
                             onAction="#handleOpenMatchs"
-                            text="Matchs"
+                            text="Matchs +"
                             styleClass="navbar-nav-button"/>
+
                     <HBox fx:id="sidebarModuleChildrenBox"
                           spacing="8"
                           alignment="CENTER"
@@ -70,6 +76,11 @@
                                 text="Joueurs"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                     </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button"/>
                 </HBox>
             </StackPane>
 
@@ -82,8 +93,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-                                    <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -100,266 +111,193 @@
                     styleClass="page-scroll"
                     BorderPane.alignment="CENTER">
             <content>
-                <VBox spacing="22" styleClass="page-shell home-shell">
-                    <padding>
-                        <Insets top="24" right="28" bottom="28" left="28"/>
-                    </padding>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="22" styleClass="page-shell home-shell">
 
-                    <VBox spacing="4" styleClass="home-page-heading">
-                        <Label text="Overview" styleClass="home-page-title"/>
-                        <Label text="Teams, players, and fixtures in one calm workspace."
-                               wrapText="true"
-                               styleClass="home-page-subtitle"/>
-                    </VBox>
+                        <StackPane styleClass="home-welcome-card">
+                            <Region styleClass="home-welcome-glow"/>
+                            <VBox spacing="10" styleClass="home-welcome-content">
+                                <HBox alignment="CENTER_LEFT" spacing="12">
+                                    <Label text="Welcome" styleClass="home-kicker"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="headerDateLabel" styleClass="home-date-chip"/>
+                                </HBox>
 
-                    <HBox alignment="CENTER_LEFT" spacing="16" styleClass="home-topbar">
-                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="home-search-box">
-                            <Label text="Search" styleClass="home-search-icon"/>
-                            <TextField fx:id="homeSearchField"
-                                       onAction="#handleHomeSearch"
-                                       promptText="Filter teams, players, matches… (Enter to open)"
-                                       styleClass="home-search-field"/>
-                        </HBox>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="headerDateLabel" styleClass="home-top-chip"/>
-                        <Button fx:id="newNoteButton" onAction="#handleNewNote" text="+ New Note" styleClass="primary-button"/>
-                    </HBox>
+                                <Label text="Welcome to Sport Insight" styleClass="home-title"/>
 
-                    <StackPane styleClass="home-hero-shell">
-                        <Region styleClass="home-hero-photo"/>
-                        <Region styleClass="home-hero-overlay"/>
-                        <Region styleClass="home-hero-glow"/>
-                        <HBox spacing="24" alignment="CENTER_LEFT" styleClass="home-hero-inner">
-                            <VBox spacing="14" HBox.hgrow="ALWAYS" styleClass="home-hero-copy">
-                                <Label text="PERFORMANCE OVERVIEW" styleClass="home-hero-eyebrow"/>
-                                <Label text="Welcome back to Sport Insight" styleClass="home-hero-title"/>
-                                <Label text="Your operations hub for teams, players, and matches in one place."
+                                <Label text="Sport Insight is a simple workspace for managing teams, players, matches and announcements in one place."
                                        wrapText="true"
-                                       styleClass="home-hero-text"/>
-                                <HBox spacing="10" styleClass="home-hero-cta-row">
-                                    <Button onAction="#handleOpenEquipes" text="Open Teams" styleClass="hero-cta-primary"/>
-                                    <Button onAction="#handleOpenMatchs" text="Open Matchs" styleClass="hero-cta-secondary"/>
-                                    <Button onAction="#handleOpenJoueurs" text="Joueurs" styleClass="hero-cta-ghost"/>
-                                </HBox>
+                                       styleClass="home-description"/>
                             </VBox>
-                            <VBox spacing="10" styleClass="home-hero-metrics-column">
-                                <Label text="Live stats" styleClass="home-hero-metrics-heading"/>
-                                <VBox spacing="4" styleClass="home-hero-metric-card">
-                                    <Label text="Matches today" styleClass="home-metric-label"/>
-                                    <Label fx:id="matchesTodayMetricLabel" styleClass="home-metric-value"/>
-                                </VBox>
-                                <VBox spacing="4" styleClass="home-hero-metric-card">
-                                    <Label text="Active players" styleClass="home-metric-label"/>
-                                    <Label fx:id="activePlayersMetricLabel" styleClass="home-metric-value"/>
-                                </VBox>
-                                <VBox spacing="4" styleClass="home-hero-metric-card">
-                                    <Label text="Scheduled (Programme)" styleClass="home-metric-label"/>
-                                    <Label fx:id="pendingTasksMetricLabel" styleClass="home-metric-value"/>
-                                </VBox>
-                            </VBox>
-                        </HBox>
-                    </StackPane>
+                        </StackPane>
 
-                    <VBox spacing="14" styleClass="home-section-card">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="Core Modules" styleClass="section-title"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="Quick Access" styleClass="toolbar-chip"/>
-                        </HBox>
+                        <VBox spacing="12" styleClass="home-links-section">
+                            <Label text="Open a module" styleClass="home-section-title"/>
 
-                        <FlowPane hgap="14"
-                                  vgap="14"
-                                  prefWrapLength="1100"
-                                  styleClass="home-module-grid">
-                            <Button fx:id="equipesButton"
-                                    onAction="#handleOpenEquipes"
-                                    text=""
-                                    mnemonicParsing="false"
-                                    styleClass="home-module-button home-module-button-teams">
-                                <graphic>
-                                    <VBox spacing="8" styleClass="home-module-content">
-                                        <StackPane styleClass="home-module-icon-wrap" maxWidth="40" maxHeight="40">
-                                            <Region styleClass="home-module-icon home-module-icon-teams"/>
+                            <FlowPane hgap="18"
+                                      vgap="18"
+                                      prefWrapLength="980"
+                                      styleClass="home-links-grid">
+
+                                <!-- EQUIPES -->
+                                <Button fx:id="equipesButton"
+                                        onAction="#handleOpenEquipes"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/equipe-hero.jpg"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-teams"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Equipes" styleClass="home-link-title"/>
+                                                <Label text="Open the teams space"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
                                         </StackPane>
-                                        <Label text="Equipes" styleClass="home-module-title"/>
-                                        <Label text="Manage roster and club data" wrapText="true" styleClass="home-module-subtitle"/>
-                                        <Label text="Open module →" styleClass="home-module-link"/>
-                                    </VBox>
-                                </graphic>
-                            </Button>
+                                    </graphic>
+                                </Button>
 
-                            <Button fx:id="joueursButton"
-                                    onAction="#handleOpenJoueurs"
-                                    text=""
-                                    mnemonicParsing="false"
-                                    styleClass="home-module-button home-module-button-players">
-                                <graphic>
-                                    <VBox spacing="8" styleClass="home-module-content">
-                                        <StackPane styleClass="home-module-icon-wrap" maxWidth="40" maxHeight="40">
-                                            <Region styleClass="home-module-icon home-module-icon-players"/>
+                                <!-- JOUEURS -->
+                                <Button fx:id="joueursButton"
+                                        onAction="#handleOpenJoueurs"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/league.jpeg"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-players"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Joueurs" styleClass="home-link-title"/>
+                                                <Label text="Open the players space"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
                                         </StackPane>
-                                        <Label text="Joueurs" styleClass="home-module-title"/>
-                                        <Label text="Track profiles and assignments" wrapText="true" styleClass="home-module-subtitle"/>
-                                        <Label text="Open module →" styleClass="home-module-link"/>
-                                    </VBox>
-                                </graphic>
-                            </Button>
+                                    </graphic>
+                                </Button>
 
-                            <Button fx:id="matchsButton"
-                                    onAction="#handleOpenMatchs"
-                                    text=""
-                                    mnemonicParsing="false"
-                                    styleClass="home-module-button home-module-button-matches">
-                                <graphic>
-                                    <VBox spacing="8" styleClass="home-module-content">
-                                        <StackPane styleClass="home-module-icon-wrap" maxWidth="40" maxHeight="40">
-                                            <Region styleClass="home-module-icon home-module-icon-matches"/>
+                                <!-- MATCHS -->
+                                <Button fx:id="matchsButton"
+                                        onAction="#handleOpenMatchs"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/match-hero.png"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-matches"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Matchs" styleClass="home-link-title"/>
+                                                <Label text="Open the matches space"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
                                         </StackPane>
-                                        <Label text="Matchs" styleClass="home-module-title"/>
-                                        <Label text="View fixtures and match details" wrapText="true" styleClass="home-module-subtitle"/>
-                                        <Label text="Open module →" styleClass="home-module-link"/>
-                                    </VBox>
-                                </graphic>
-                            </Button>
+                                    </graphic>
+                                </Button>
 
-                            <VBox fx:id="annoncesModuleBox"
-                                  spacing="8"
-                                  styleClass="home-module-static home-module-static-news">
-                                <StackPane styleClass="home-module-icon-wrap" maxWidth="40" maxHeight="40">
-                                    <Region styleClass="home-module-icon home-module-icon-news"/>
-                                </StackPane>
-                                <Label text="Annonces" styleClass="home-module-title"/>
-                                <Label text="Latest club updates" wrapText="true" styleClass="home-module-subtitle"/>
-                                <Label text="Coming soon" styleClass="home-module-link"/>
-                            </VBox>
+                                <!-- ANNONCES -->
+                                <Button fx:id="annoncesModuleBox"
+                                        onAction="#handleOpenAnnonces"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
 
-                            <VBox fx:id="trainModuleBox"
-                                  spacing="8"
-                                  styleClass="home-module-static home-module-static-train">
-                                <StackPane styleClass="home-module-icon-wrap" maxWidth="40" maxHeight="40">
-                                    <Region styleClass="home-module-icon home-module-icon-train"/>
-                                </StackPane>
-                                <Label text="Entrainements" styleClass="home-module-title"/>
-                                <Label text="Session plans and load tracking" wrapText="true" styleClass="home-module-subtitle"/>
-                                <Label text="Coming soon" styleClass="home-module-link"/>
-                            </VBox>
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/annonce.jpg"/>
+                                                </image>
+                                            </ImageView>
 
-                            <VBox fx:id="storeModuleBox"
-                                  spacing="8"
-                                  styleClass="home-module-static home-module-static-store">
-                                <StackPane styleClass="home-module-icon-wrap" maxWidth="40" maxHeight="40">
-                                    <Region styleClass="home-module-icon home-module-icon-store"/>
-                                </StackPane>
-                                <Label text="Store" styleClass="home-module-title"/>
-                                <Label text="Products and order monitoring" wrapText="true" styleClass="home-module-subtitle"/>
-                                <Label text="Coming soon" styleClass="home-module-link"/>
-                            </VBox>
-                        </FlowPane>
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-news"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Annonces" styleClass="home-link-title"/>
+                                                <Label text="Open the announcements space"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
+
+                            </FlowPane>
+                        </VBox>
+
                     </VBox>
-
-                    <HBox spacing="16" alignment="TOP_LEFT">
-                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="home-section-card home-feed-panel">
-                            <HBox alignment="CENTER_LEFT">
-                                <Label text="Recent Announcements" styleClass="section-title"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Button text="View All" styleClass="ghost-button"/>
-                            </HBox>
-
-                            <HBox spacing="12" styleClass="home-feed-row">
-                                <Region styleClass="home-feed-thumb home-thumb-one"/>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                    <Label text="New Off-Season Training Protocol" styleClass="home-feed-title"/>
-                                    <Label text="Coaching staff published updated endurance guidelines for next month."
-                                           wrapText="true"
-                                           styleClass="home-feed-text"/>
-                                    <Label text="2 hours ago" styleClass="home-feed-meta"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox spacing="12" styleClass="home-feed-row">
-                                <Region styleClass="home-feed-thumb home-thumb-two"/>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                    <Label text="New GPS Tracker Inventory" styleClass="home-feed-title"/>
-                                    <Label text="Latest batch is ready for assignment to the U21 squad."
-                                           wrapText="true"
-                                           styleClass="home-feed-text"/>
-                                    <Label text="Yesterday" styleClass="home-feed-meta"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox spacing="12" styleClass="home-feed-row">
-                                <Region styleClass="home-feed-thumb home-thumb-three"/>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                    <Label text="Tournament Bracket Updated" styleClass="home-feed-title"/>
-                                    <Label text="Semi-final dates moved forward. Confirm travel plans by end of day."
-                                           wrapText="true"
-                                           styleClass="home-feed-text"/>
-                                    <Label text="Critical" styleClass="home-feed-meta-error"/>
-                                </VBox>
-                            </HBox>
-                        </VBox>
-
-                        <VBox spacing="12" prefWidth="340" minWidth="340" styleClass="home-section-card home-schedule-panel">
-                            <Label text="Schedule" styleClass="section-title"/>
-
-                            <HBox spacing="12" styleClass="home-schedule-row">
-                                <VBox alignment="CENTER" spacing="2" styleClass="home-day-box">
-                                    <Label text="Mon" styleClass="home-day-name"/>
-                                    <Label text="15" styleClass="home-day-number"/>
-                                </VBox>
-                                <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                    <Label text="Tactical Workshop" styleClass="home-schedule-title"/>
-                                    <Label text="09:00 AM | Pitch A" styleClass="home-schedule-meta"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox spacing="12" styleClass="home-schedule-row">
-                                <VBox alignment="CENTER" spacing="2" styleClass="home-day-box home-day-box-active">
-                                    <Label text="Tue" styleClass="home-day-name-active"/>
-                                    <Label text="16" styleClass="home-day-number-active"/>
-                                </VBox>
-                                <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                    <Label text="High-Intensity Session" styleClass="home-schedule-title"/>
-                                    <Label text="14:30 PM | Gym 2" styleClass="home-schedule-meta"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox spacing="12" styleClass="home-schedule-row">
-                                <VBox alignment="CENTER" spacing="2" styleClass="home-day-box">
-                                    <Label text="Wed" styleClass="home-day-name"/>
-                                    <Label text="17" styleClass="home-day-number"/>
-                                </VBox>
-                                <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                    <Label text="First Team Scrimmage" styleClass="home-schedule-title"/>
-                                    <Label text="11:00 AM | Main Field" styleClass="home-schedule-meta"/>
-                                </VBox>
-                            </HBox>
-
-                            <Button text="Open Calendar" styleClass="soft-button"/>
-
-                            <VBox spacing="8" styleClass="home-live-card">
-                                <HBox alignment="CENTER_LEFT" spacing="6">
-                                    <Region styleClass="home-live-dot"/>
-                                    <Label text="Live Session Vibe" styleClass="home-live-label"/>
-                                </HBox>
-                                <Label text="142 BPM" styleClass="home-live-value"/>
-                                <Label text="Average heart rate (Pitch A)" styleClass="home-live-text"/>
-                                <HBox spacing="3" alignment="BOTTOM_LEFT">
-                                    <Region styleClass="home-wave-bar home-wave-1"/>
-                                    <Region styleClass="home-wave-bar home-wave-2"/>
-                                    <Region styleClass="home-wave-bar home-wave-3"/>
-                                    <Region styleClass="home-wave-bar home-wave-4"/>
-                                    <Region styleClass="home-wave-bar home-wave-5"/>
-                                    <Region styleClass="home-wave-bar home-wave-6"/>
-                                    <Region styleClass="home-wave-bar home-wave-7"/>
-                                    <Region styleClass="home-wave-bar home-wave-8"/>
-                                    <Region styleClass="home-wave-bar home-wave-9"/>
-                                </HBox>
-                            </VBox>
-                        </VBox>
-                    </HBox>
-                </VBox>
+                </StackPane>
             </content>
         </ScrollPane>
     </center>
+
 </BorderPane>

@@ -41,6 +41,8 @@ public class EquipeDetailController {
     @FXML
     private Button matchsNavButton;
     @FXML
+    private Button annonceNavButton;
+    @FXML
     private HBox sidebarModuleChildrenBox;
     @FXML
     private Button leaguesNavButton;
@@ -306,6 +308,11 @@ public class EquipeDetailController {
         SceneNavigator.switchScene(equipesNavButton, "/tn/esprit/views/equipe-competitions-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Competitions");
     }
 
+
+    @FXML
+    private void handleOpenAnnonces() {
+        SceneNavigator.switchScene(annonceNavButton != null ? annonceNavButton : matchsNavButton, "/tn/esprit/views/annonce-user-view.fxml", "/tn/esprit/styles/annonce-theme.css", "Anonce | Sport Insight");
+    }
     private void configureSidebar() {
         sidebarModuleGroup = new SidebarModuleGroup(
                 matchsNavButton,
@@ -348,3 +355,4 @@ public class EquipeDetailController {
         alert.showAndWait();
     }
 }
+

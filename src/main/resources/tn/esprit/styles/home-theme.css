@@ -1,763 +1,226 @@
 @import "equipe-theme.css";
 
-.page-root {
-    -fx-background-color:
-        radial-gradient(center 12% 10%, radius 38%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 100%),
-        radial-gradient(center 90% 16%, radius 30%, rgba(4, 120, 87, 0.14) 0%, rgba(4, 120, 87, 0) 100%),
-        linear-gradient(from 0% 0% to 100% 100%, #f5fbf8 0%, #edf9f3 44%, #f8fcfa 100%);
+/* Page spacing */
+.page-shell-wrap {
+    -fx-alignment: top-center;
+    -fx-padding: 30 70 40 70;
 }
 
 .home-shell {
     -fx-background-color: transparent;
-    -fx-spacing: 22;
+    -fx-spacing: 20;
+    -fx-max-width: 920;
+    -fx-padding: 10 0 30 0;
 }
 
-.home-page-heading {
-    -fx-padding: 0 0 2 0;
-}
-
-.home-page-title {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 28px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
-}
-
-.home-page-subtitle {
-    -fx-font-size: 13px;
-    -fx-line-spacing: 2px;
-    -fx-text-fill: #64748b;
-    -fx-max-width: 520;
-}
-
-.home-topbar {
-    -fx-background-color: rgba(255, 255, 255, 0.82);
-    -fx-background-radius: 22;
-    -fx-border-color: rgba(148, 163, 184, 0.18);
-    -fx-border-radius: 22;
-    -fx-padding: 12 16 12 16;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.06), 20, 0.15, 0, 6);
-}
-
-.home-search-box {
-    -fx-background-color: rgba(248, 250, 252, 0.95);
-    -fx-background-radius: 14;
-    -fx-border-color: rgba(203, 213, 225, 0.85);
-    -fx-border-radius: 14;
-    -fx-padding: 7 10 7 10;
-    -fx-min-width: 440;
-}
-
-.home-search-icon {
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #64748b;
-    -fx-padding: 0 2 0 0;
-}
-
-.home-search-field {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
+/* Welcome block */
+.home-welcome-card {
+    -fx-background-color: rgba(15, 23, 42, 0.78);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.16);
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
     -fx-padding: 0;
-    -fx-font-size: 13px;
-    -fx-text-fill: #0f172a;
-    -fx-prompt-text-fill: #94a3b8;
-}
-
-.home-search-field:focused {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-
-.home-top-chip {
-    -fx-background-color: rgba(236, 253, 245, 0.96);
-    -fx-background-radius: 999;
-    -fx-border-color: rgba(16, 185, 129, 0.26);
-    -fx-border-radius: 999;
-    -fx-padding: 8 12 8 12;
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #047857;
-}
-
-.home-hero-shell {
-    -fx-background-color: rgba(5, 46, 37, 0.8);
-    -fx-background-radius: 30;
-    -fx-border-color: rgba(255, 255, 255, 0.18);
-    -fx-border-radius: 30;
-    -fx-min-height: 320;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.22), 48, 0.22, 0, 20);
-}
-
-.home-hero-photo {
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.10), 18, 0.18, 0, 6);
     -fx-background-image: url("../images/bg11.jpg");
     -fx-background-size: cover;
     -fx-background-position: center center;
-    -fx-background-radius: 30;
+    -fx-background-repeat: no-repeat;
 }
 
-.home-hero-overlay {
+.home-welcome-glow {
     -fx-background-color:
-        linear-gradient(from 0% 0% to 100% 100%, rgba(2, 44, 34, 0.88) 0%, rgba(3, 105, 83, 0.65) 52%, rgba(5, 150, 105, 0.52) 100%);
-    -fx-background-radius: 30;
+            linear-gradient(from 0% 0% to 100% 100%,
+            rgba(2, 6, 23, 0.74) 0%,
+            rgba(15, 23, 42, 0.58) 44%,
+            rgba(6, 78, 59, 0.34) 100%);
+    -fx-background-radius: 24;
 }
 
-.home-hero-glow {
-    -fx-background-color: radial-gradient(center 18% 42%, radius 55%, rgba(52, 211, 153, 0.35) 0%, rgba(52, 211, 153, 0) 70%);
-    -fx-background-radius: 30;
+.home-welcome-content {
+    -fx-padding: 24 26 24 26;
 }
 
-.home-hero-inner {
-    -fx-padding: 26 28 28 28;
-    -fx-max-width: infinity;
-}
-
-.home-hero-copy {
-    -fx-alignment: top-left;
-}
-
-.home-hero-metrics-column {
-    -fx-min-width: 168;
-    -fx-pref-width: 188;
-    -fx-max-width: 220;
-    -fx-padding: 4 0 0 0;
-    -fx-alignment: top-right;
-}
-
-.home-hero-metrics-heading {
-    -fx-font-size: 10px;
+.home-kicker {
+    -fx-font-size: 11px;
     -fx-font-weight: 800;
-    -fx-text-fill: rgba(236, 253, 245, 0.75);
-    -fx-padding: 0 2 4 0;
+    -fx-text-fill: #86efac;
 }
 
-.hero-cta-primary {
-    -fx-background-color: #f8fafc;
-    -fx-background-radius: 12;
-    -fx-border-color: transparent;
-    -fx-text-fill: #065f46;
-    -fx-font-size: 12px;
-    -fx-font-weight: 800;
-    -fx-padding: 10 16 10 16;
-    -fx-cursor: hand;
-}
-
-.hero-cta-primary:hover {
-    -fx-background-color: #ecfdf5;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 12, 0.2, 0, 4);
-}
-
-.hero-cta-secondary {
-    -fx-background-color: rgba(255, 255, 255, 0.16);
-    -fx-background-radius: 12;
-    -fx-border-color: rgba(255, 255, 255, 0.35);
-    -fx-border-radius: 12;
-    -fx-text-fill: #f8fafc;
-    -fx-font-size: 12px;
-    -fx-font-weight: 800;
-    -fx-padding: 10 16 10 16;
-    -fx-cursor: hand;
-}
-
-.hero-cta-secondary:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.24);
-}
-
-.hero-cta-ghost {
-    -fx-background-color: transparent;
-    -fx-background-radius: 12;
-    -fx-border-color: transparent;
-    -fx-text-fill: rgba(248, 250, 252, 0.92);
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
-    -fx-padding: 10 12 10 12;
-    -fx-cursor: hand;
-    -fx-underline: true;
-}
-
-.hero-cta-ghost:hover {
-    -fx-text-fill: #ffffff;
-}
-
-.home-hero-eyebrow {
-    -fx-background-color: rgba(255, 255, 255, 0.14);
+.home-date-chip {
+    -fx-background-color: rgba(6, 95, 70, 0.58);
     -fx-background-radius: 999;
-    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: rgba(52, 211, 153, 0.24);
     -fx-border-radius: 999;
-    -fx-padding: 6 10 6 10;
+    -fx-border-width: 1;
+    -fx-padding: 6 11 6 11;
     -fx-font-size: 11px;
     -fx-font-weight: 800;
     -fx-text-fill: #dcfce7;
 }
 
-.home-hero-title {
+.home-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 38px;
+    -fx-font-size: 32px;
     -fx-font-weight: 700;
     -fx-text-fill: #f8fafc;
 }
 
-.home-hero-text {
+.home-description {
     -fx-font-size: 14px;
     -fx-line-spacing: 2px;
-    -fx-text-fill: #dcfce7;
-    -fx-max-width: 620;
+    -fx-text-fill: #cbd5e1;
+    -fx-max-width: 700;
 }
 
-.home-hero-metric-card {
-    -fx-background-color: rgba(255, 255, 255, 0.12);
-    -fx-background-radius: 14;
-    -fx-border-color: rgba(255, 255, 255, 0.14);
-    -fx-border-radius: 14;
-    -fx-padding: 8 10 8 10;
-    -fx-min-width: 0;
-    -fx-pref-width: infinity;
-    -fx-max-width: infinity;
-}
-
-.home-metric-label {
-    -fx-font-size: 11px;
-    -fx-font-weight: 800;
-    -fx-text-fill: rgba(236, 253, 245, 0.86);
-}
-
-.home-metric-value {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 26px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #f8fafc;
-}
-
-.home-hero-metrics-column .home-metric-value {
-    -fx-font-size: 22px;
-}
-
-.home-section-card {
-    -fx-background-color: rgba(255, 255, 255, 0.88);
-    -fx-background-radius: 26;
-    -fx-border-color: rgba(148, 163, 184, 0.16);
-    -fx-border-radius: 26;
-    -fx-padding: 20 22 22 22;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 28, 0.18, 0, 10);
-}
-
-.home-module-grid {
-    -fx-hgap: 14;
-    -fx-vgap: 14;
-}
-
-.home-module-button,
-.home-module-static {
-    -fx-background-radius: 22;
-    -fx-border-radius: 22;
-    -fx-padding: 12 12 12 12;
-    -fx-min-width: 168;
-    -fx-pref-width: 168;
-    -fx-max-width: 168;
-    -fx-min-height: 148;
-    -fx-pref-height: 148;
-    -fx-max-height: 148;
-}
-
-.home-module-icon-wrap {
-    -fx-min-width: 40;
-    -fx-min-height: 40;
-    -fx-max-width: 40;
-    -fx-max-height: 40;
-    -fx-alignment: center;
-}
-
-.home-module-icon {
-    -fx-min-width: 36;
-    -fx-min-height: 36;
-    -fx-max-width: 36;
-    -fx-max-height: 36;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 8, 0.2, 0, 2);
-}
-
-.home-module-icon-teams {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #34d399 100%);
-}
-
-.home-module-icon-players {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #475569 0%, #94a3b8 100%);
-}
-
-.home-module-icon-matches {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0d9488 0%, #2dd4bf 100%);
-}
-
-.home-module-icon-news {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ca8a04 0%, #fbbf24 100%);
-}
-
-.home-module-icon-train {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #15803d 0%, #4ade80 100%);
-}
-
-.home-module-icon-store {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #6366f1 0%, #a5b4fc 100%);
-}
-
-.home-module-button {
-    -fx-cursor: hand;
-    -fx-border-color: transparent;
-    -fx-background-color: transparent;
-}
-
-.home-module-button > .label {
-    -fx-text-fill: transparent;
-}
-
-.home-module-button .home-module-content,
-.home-module-static {
-    -fx-background-radius: 22;
-    -fx-border-radius: 22;
-    -fx-padding: 12 12 12 12;
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #f1f5f9 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.24);
-}
-
-.home-module-button-teams .home-module-content {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0fdf4 0%, #ecfdf5 100%);
-    -fx-border-color: rgba(16, 185, 129, 0.3);
-}
-
-.home-module-button-players .home-module-content {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #f1f5f9 100%);
-    -fx-border-color: rgba(100, 116, 139, 0.28);
-}
-
-.home-module-button-matches .home-module-content {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ecfeff 0%, #f0fdfa 100%);
-    -fx-border-color: rgba(20, 184, 166, 0.3);
-}
-
-.home-module-button:hover .home-module-content {
-    -fx-translate-y: -2;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 18, 0.18, 0, 8);
-}
-
-.home-module-static-news {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fefce8 0%, #fffbeb 100%);
-    -fx-border-color: rgba(202, 138, 4, 0.32);
-}
-
-.home-module-static-train {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0fdf4 0%, #ecfdf5 100%);
-    -fx-border-color: rgba(22, 163, 74, 0.3);
-}
-
-.home-module-static-store {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #eef2ff 100%);
-    -fx-border-color: rgba(129, 140, 248, 0.3);
-}
-
-.home-module-title {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 18px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
-}
-
-.home-module-subtitle {
-    -fx-font-size: 11px;
-    -fx-line-spacing: 1px;
-    -fx-text-fill: #475569;
-}
-
-.home-module-link {
-    -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #047857;
-}
-
-.home-feed-panel {
+.home-links-section {
     -fx-spacing: 12;
 }
 
-.home-feed-row {
-    -fx-background-color: rgba(248, 250, 252, 0.96);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(148, 163, 184, 0.14);
-    -fx-border-radius: 18;
-    -fx-padding: 12 14 12 12;
-}
-
-.home-feed-row:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.98);
-    -fx-border-color: rgba(16, 185, 129, 0.22);
-}
-
-.home-feed-thumb {
-    -fx-min-width: 70;
-    -fx-min-height: 70;
-    -fx-background-radius: 14;
-}
-
-.home-thumb-one {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #14b8a6 100%);
-}
-
-.home-thumb-two {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #16a34a 0%, #22c55e 100%);
-}
-
-.home-thumb-three {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #b91c1c 0%, #ef4444 100%);
-}
-
-.home-feed-title {
-    -fx-font-size: 14px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
-}
-
-.home-feed-text {
-    -fx-font-size: 12px;
-    -fx-line-spacing: 1px;
-    -fx-text-fill: #64748b;
-}
-
-.home-feed-meta {
-    -fx-font-size: 11px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #047857;
-}
-
-.home-feed-meta-error {
-    -fx-font-size: 11px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #b91c1c;
-}
-
-.home-schedule-panel {
-    -fx-spacing: 10;
-}
-
-.home-schedule-row {
-    -fx-background-color: rgba(248, 250, 252, 0.95);
-    -fx-background-radius: 16;
-    -fx-border-color: rgba(148, 163, 184, 0.14);
-    -fx-border-radius: 16;
-    -fx-padding: 8 10 8 10;
-}
-
-.home-day-box {
-    -fx-background-color: #f1f5f9;
-    -fx-background-radius: 10;
-    -fx-padding: 6 10 6 10;
-    -fx-min-width: 44;
-}
-
-.home-day-box-active {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #10b981 100%);
-}
-
-.home-day-name {
-    -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #64748b;
-}
-
-.home-day-number {
+.home-section-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 17px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
-}
-
-.home-day-name-active {
-    -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: rgba(236, 253, 245, 0.86);
-}
-
-.home-day-number-active {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 17px;
+    -fx-font-size: 22px;
     -fx-font-weight: 700;
     -fx-text-fill: #f8fafc;
 }
 
-.home-schedule-title {
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
+.home-links-grid {
+    -fx-hgap: 18;
+    -fx-vgap: 18;
 }
 
-.home-schedule-meta {
-    -fx-font-size: 11px;
-    -fx-text-fill: #64748b;
-}
+/* Card button reset */
+.home-link-card {
+    -fx-min-width: 220;
+    -fx-pref-width: 220;
+    -fx-max-width: 220;
+    -fx-min-height: 220;
+    -fx-pref-height: 220;
+    -fx-max-height: 220;
 
-.home-live-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #064e3b 0%, #047857 100%);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(255, 255, 255, 0.2);
-    -fx-border-radius: 18;
-    -fx-padding: 12 12 12 12;
-}
-
-.home-live-dot {
-    -fx-min-width: 7;
-    -fx-min-height: 7;
-    -fx-background-color: #ef4444;
-    -fx-background-radius: 999;
-}
-
-.home-live-label {
-    -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: rgba(220, 252, 231, 0.88);
-}
-
-.home-live-value {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 26px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #f8fafc;
-}
-
-.home-live-text {
-    -fx-font-size: 11px;
-    -fx-text-fill: rgba(220, 252, 231, 0.8);
-}
-
-.home-wave-bar {
-    -fx-min-width: 3;
-    -fx-background-color: rgba(236, 253, 245, 0.42);
-    -fx-background-radius: 3;
-}
-
-.home-wave-1 { -fx-min-height: 8; }
-.home-wave-2 { -fx-min-height: 11; }
-.home-wave-3 { -fx-min-height: 15; }
-.home-wave-4 { -fx-min-height: 10; }
-.home-wave-5 { -fx-min-height: 17; }
-.home-wave-6 { -fx-min-height: 14; }
-.home-wave-7 { -fx-min-height: 16; }
-.home-wave-8 {
-    -fx-min-height: 20;
-    -fx-background-color: rgba(236, 253, 245, 0.95);
-}
-.home-wave-9 { -fx-min-height: 12; }
-
-.theme-dark.page-root {
-    -fx-background-color:
-        radial-gradient(center 12% 10%, radius 38%, rgba(52, 211, 153, 0.12) 0%, rgba(52, 211, 153, 0) 100%),
-        radial-gradient(center 90% 16%, radius 32%, rgba(14, 116, 144, 0.16) 0%, rgba(14, 116, 144, 0) 100%),
-        radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
-}
-
-.theme-dark .home-page-title {
-    -fx-text-fill: #f1f5f9;
-}
-
-.theme-dark .home-page-subtitle {
-    -fx-text-fill: #94a3b8;
-}
-
-.theme-dark .home-hero-glow {
-    -fx-background-color: radial-gradient(center 18% 42%, radius 55%, rgba(52, 211, 153, 0.22) 0%, rgba(52, 211, 153, 0) 70%);
-}
-
-.theme-dark .hero-cta-primary {
-    -fx-background-color: #ecfdf5;
-    -fx-text-fill: #064e3b;
-}
-
-.theme-dark .hero-cta-primary:hover {
-    -fx-background-color: #ffffff;
-}
-
-.theme-dark .hero-cta-secondary {
-    -fx-background-color: rgba(15, 23, 42, 0.45);
-    -fx-border-color: rgba(148, 163, 184, 0.45);
-}
-
-.theme-dark .hero-cta-secondary:hover {
-    -fx-background-color: rgba(15, 23, 42, 0.62);
-}
-
-.theme-dark .hero-cta-ghost {
-    -fx-text-fill: rgba(248, 250, 252, 0.88);
-}
-
-.theme-dark .home-module-icon {
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 10, 0.2, 0, 3);
-}
-
-.theme-dark .home-topbar {
-    -fx-background-color: rgba(15, 23, 42, 0.72);
-    -fx-border-color: rgba(148, 163, 184, 0.3);
-}
-
-.theme-dark .home-search-box {
-    -fx-background-color: rgba(11, 18, 32, 0.84);
-    -fx-border-color: rgba(148, 163, 184, 0.34);
-}
-
-.theme-dark .home-search-icon {
-    -fx-text-fill: #94a3b8;
-}
-
-.theme-dark .home-search-field {
-    -fx-text-fill: #e2e8f0;
-    -fx-prompt-text-fill: #94a3b8;
-}
-
-.theme-dark .home-top-chip {
-    -fx-background-color: rgba(6, 95, 70, 0.5);
-    -fx-border-color: rgba(52, 211, 153, 0.45);
-    -fx-text-fill: #86efac;
-}
-
-.theme-dark .home-hero-shell {
-    -fx-border-color: rgba(148, 163, 184, 0.32);
-    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.56), 40, 0.24, 0, 20);
-}
-
-.theme-dark .home-hero-overlay {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.9) 0%, rgba(5, 46, 37, 0.72) 54%, rgba(15, 118, 110, 0.56) 100%);
-}
-
-.theme-dark .home-hero-eyebrow {
-    -fx-background-color: rgba(15, 23, 42, 0.62);
-    -fx-border-color: rgba(148, 163, 184, 0.34);
-    -fx-text-fill: #bbf7d0;
-}
-
-.theme-dark .home-hero-text,
-.theme-dark .home-metric-label {
-    -fx-text-fill: #cbd5e1;
-}
-
-.theme-dark .home-section-card {
-    -fx-background-color: rgba(15, 23, 42, 0.74);
-    -fx-border-color: rgba(148, 163, 184, 0.3);
-}
-
-.theme-dark .home-module-button .home-module-content,
-.theme-dark .home-module-static {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.92) 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.3);
-}
-
-.theme-dark #equipesButton,
-.theme-dark #joueursButton,
-.theme-dark #matchsButton {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.92) 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.34);
-    -fx-border-radius: 22;
-    -fx-background-radius: 22;
-}
-
-.theme-dark #equipesButton .home-module-content,
-.theme-dark #joueursButton .home-module-content,
-.theme-dark #matchsButton .home-module-content {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-effect: none;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
-.theme-dark #equipesButton {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.52) 0%, rgba(15, 23, 42, 0.9) 100%);
-    -fx-border-color: rgba(52, 211, 153, 0.5);
+.button.home-link-card,
+.button.home-link-card:hover,
+.button.home-link-card:armed,
+.button.home-link-card:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-effect: none;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
-.theme-dark #joueursButton {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.9) 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.34);
+.home-link-card > .label {
+    -fx-text-fill: transparent;
 }
 
-.theme-dark #matchsButton {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 55, 52, 0.86) 0%, rgba(10, 30, 38, 0.88) 100%);
-    -fx-border-color: rgba(45, 212, 191, 0.4);
+/* Card container */
+.home-link-content {
+    -fx-min-width: 220;
+    -fx-pref-width: 220;
+    -fx-max-width: 220;
+    -fx-min-height: 220;
+    -fx-pref-height: 220;
+    -fx-max-height: 220;
+
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+    -fx-effect: none;
 }
 
-.theme-dark .home-module-button-teams .home-module-content {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.52) 0%, rgba(15, 23, 42, 0.9) 100%);
-    -fx-border-color: rgba(52, 211, 153, 0.5);
+.home-link-card:hover .home-link-content {
+    -fx-border-color: rgba(148, 163, 184, 0.30);
 }
 
-.theme-dark .home-module-button-players .home-module-content {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(11, 18, 32, 0.9) 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.34);
+/* Image layer */
+.home-link-bg {
+    -fx-translate-x: 0;
+    -fx-translate-y: 0;
 }
 
-.theme-dark .home-module-button-matches .home-module-content {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 55, 52, 0.86) 0%, rgba(10, 30, 38, 0.88) 100%);
-    -fx-border-color: rgba(45, 212, 191, 0.4);
+/* Overlay content */
+.home-link-inner {
+    -fx-min-width: 220;
+    -fx-pref-width: 220;
+    -fx-max-width: 220;
+    -fx-min-height: 220;
+    -fx-pref-height: 220;
+    -fx-max-height: 220;
+
+    -fx-padding: 14;
+    -fx-spacing: 10;
+    -fx-background-color: linear-gradient(
+            from 0% 100% to 0% 0%,
+            rgba(0, 0, 0, 0.72) 0%,
+            rgba(0, 0, 0, 0.18) 100%
+    );
+    -fx-background-radius: 10;
 }
 
-.theme-dark .home-module-static-news {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(66, 32, 6, 0.56) 0%, rgba(30, 41, 59, 0.82) 100%);
-    -fx-border-color: rgba(245, 158, 11, 0.42);
-}
-
-.theme-dark .home-module-static-train {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(5, 46, 22, 0.62) 0%, rgba(11, 18, 32, 0.88) 100%);
-    -fx-border-color: rgba(34, 197, 94, 0.4);
-}
-
-.theme-dark .home-module-static-store {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 41, 59, 0.9) 0%, rgba(11, 18, 32, 0.9) 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.3);
-}
-
-.theme-dark .home-module-title,
-.theme-dark .home-feed-title,
-.theme-dark .home-schedule-title,
-.theme-dark .home-day-number {
-    -fx-text-fill: #e2e8f0;
-}
-
-.theme-dark .home-module-subtitle,
-.theme-dark .home-feed-text,
-.theme-dark .home-schedule-meta,
-.theme-dark .home-day-name,
-.theme-dark .home-day-name-active {
-    -fx-text-fill: #94a3b8;
-}
-
-.theme-dark .home-module-link,
-.theme-dark .home-feed-meta {
-    -fx-text-fill: #86efac;
-}
-
-.theme-dark .home-feed-meta-error {
-    -fx-text-fill: #fca5a5;
-}
-
-.theme-dark .home-feed-row,
-.theme-dark .home-schedule-row {
-    -fx-background-color: rgba(11, 18, 32, 0.88);
-    -fx-border-color: rgba(148, 163, 184, 0.3);
-}
-
-.theme-dark .home-feed-row:hover {
+/* Icon */
+.home-link-icon-wrap {
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-max-width: 34;
+    -fx-max-height: 34;
     -fx-background-color: rgba(30, 41, 59, 0.92);
-    -fx-border-color: rgba(52, 211, 153, 0.28);
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-alignment: center;
 }
 
-.theme-dark .home-day-box {
-    -fx-background-color: rgba(30, 41, 59, 0.82);
+.home-link-icon {
+    -fx-min-width: 16;
+    -fx-min-height: 16;
+    -fx-max-width: 16;
+    -fx-max-height: 16;
+    -fx-background-radius: 5;
 }
 
-.theme-dark .home-day-box-active {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #047857 0%, #059669 100%);
+.home-link-icon-teams {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #16a34a 0%, #4ade80 100%);
 }
 
-.theme-dark .home-day-number-active {
-    -fx-text-fill: #e2e8f0;
+.home-link-icon-players {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #475569 0%, #94a3b8 100%);
 }
 
-.theme-dark .home-feed-thumb {
-    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.45), 16, 0.2, 0, 6);
+.home-link-icon-matches {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #38bdf8 100%);
 }
 
-.theme-dark .home-live-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #022c22 0%, #0f766e 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.3);
+.home-link-icon-news {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ca8a04 0%, #facc15 100%);
+}
+
+.home-link-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.home-link-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #cbd5e1;
 }

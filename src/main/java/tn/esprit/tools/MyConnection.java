@@ -17,8 +17,8 @@ public class MyConnection {
         SchemaMigration.ensureFootballDataColumns(connection);
     }
 
-    public static MyConnection getInstance() throws SQLException {
-        if (instance == null) {
+    public static synchronized MyConnection getInstance() throws SQLException {
+        if (instance == null || instance.hasInvalidConnection()) {
             instance = new MyConnection();
         }
         return instance;
@@ -26,5 +26,13 @@ public class MyConnection {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    private boolean hasInvalidConnection() {
+        try {
+            return connection == null || connection.isClosed() || !connection.isValid(2);
+        } catch (SQLException e) {
+            return true;
+        }
     }
 }
