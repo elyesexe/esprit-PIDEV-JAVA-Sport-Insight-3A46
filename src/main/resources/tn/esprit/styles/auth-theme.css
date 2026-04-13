@@ -1,0 +1,344 @@
+@import "home-theme.css";
+
+.auth-page-root {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.auth-scene-backdrop {
+    -fx-background-color:
+            radial-gradient(center 18% 20%, radius 48%, rgba(52, 211, 153, 0.22), transparent),
+            radial-gradient(center 82% 76%, radius 54%, rgba(59, 130, 246, 0.2), transparent),
+            linear-gradient(to bottom right, #eff6ff 0%, #f8fafc 34%, #eef2ff 66%, #ecfeff 100%);
+    -fx-background-insets: 0;
+}
+
+.theme-dark .auth-scene-backdrop {
+    -fx-background-color:
+            radial-gradient(center 18% 20%, radius 48%, rgba(52, 211, 153, 0.16), transparent),
+            radial-gradient(center 82% 76%, radius 54%, rgba(59, 130, 246, 0.14), transparent),
+            linear-gradient(to bottom right, #030712 0%, #111827 45%, #0b1f1d 100%);
+    -fx-background-insets: 0;
+}
+
+.auth-layout,
+.auth-layout > .top,
+.auth-layout > .center {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.auth-topbar {
+    -fx-background-color: transparent;
+}
+
+.auth-logo-shell {
+    -fx-padding: 8 12 8 12;
+    -fx-background-color: rgba(15, 23, 42, 0.38);
+    -fx-border-color: rgba(226, 232, 240, 0.18);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.theme-dark .auth-logo-shell {
+    -fx-background-color: rgba(15, 23, 42, 0.7);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.auth-scroll,
+.auth-scroll > .viewport,
+.auth-scroll > .corner,
+.auth-scroll .viewport,
+.auth-scroll .content,
+.auth-scroll .page-shell-wrap,
+.auth-shell {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-background-insets: 0;
+}
+
+.auth-shell {
+    -fx-max-width: 1180;
+}
+
+.auth-hero {
+    -fx-min-height: 220;
+}
+
+.auth-hero-glow {
+    -fx-pref-width: 220;
+    -fx-pref-height: 220;
+    -fx-background-radius: 999;
+}
+
+.auth-hero-glow-left {
+    -fx-translate-x: -360;
+    -fx-translate-y: -36;
+    -fx-background-color: rgba(52, 211, 153, 0.22);
+}
+
+.auth-hero-glow-right {
+    -fx-translate-x: 360;
+    -fx-translate-y: 42;
+    -fx-background-color: rgba(96, 165, 250, 0.18);
+}
+
+.auth-hero-card {
+    -fx-background-color: rgba(2, 6, 23, 0.2);
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(226, 232, 240, 0.2);
+    -fx-border-radius: 28;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.3), 32, 0.15, 0, 18);
+    -fx-padding: 0;
+    -fx-min-height: 220;
+    -fx-max-width: 1120;
+}
+
+.auth-hero-photo,
+.auth-hero-overlay {
+    -fx-background-radius: 28;
+}
+
+.auth-hero-photo {
+    -fx-background-image: url("../images/home-bg.webp");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+.auth-hero-overlay {
+    -fx-background-color: linear-gradient(to right, rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.72) 46%, rgba(16, 185, 129, 0.56) 100%);
+}
+
+.auth-hero-content {
+    -fx-padding: 28 32 28 32;
+    -fx-alignment: center-left;
+}
+
+.auth-eyebrow {
+    -fx-padding: 6 12 6 12;
+    -fx-background-color: rgba(2, 6, 23, 0.44);
+    -fx-border-color: rgba(226, 232, 240, 0.34);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.auth-hero-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 34px;
+    -fx-font-weight: 800;
+}
+
+.auth-hero-text {
+    -fx-text-fill: #dbeafe;
+    -fx-font-size: 15px;
+    -fx-max-width: 680;
+}
+
+.auth-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 26;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.14), 24, 0.16, 0, 16);
+}
+
+.theme-dark .auth-panel {
+    -fx-background-color: rgba(15, 23, 42, 0.92);
+    -fx-border-color: rgba(51, 65, 85, 0.7);
+}
+
+.auth-panel-aside {
+    -fx-padding: 24 24 24 24;
+    -fx-background-color: linear-gradient(to bottom right, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.08));
+    -fx-background-radius: 26 0 0 26;
+    -fx-border-color: rgba(148, 163, 184, 0.16);
+    -fx-border-width: 0 1 0 0;
+    -fx-border-radius: 26 0 0 26;
+}
+
+.theme-dark .auth-panel-aside {
+    -fx-background-color: linear-gradient(to bottom right, rgba(16, 185, 129, 0.18), rgba(59, 130, 246, 0.12));
+    -fx-border-color: rgba(51, 65, 85, 0.7);
+}
+
+.auth-panel-form {
+    -fx-padding: 24 24 24 24;
+}
+
+.auth-panel-badge {
+    -fx-padding: 6 10 6 10;
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-border-color: rgba(16, 185, 129, 0.4);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-text-fill: #059669;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.auth-panel-title,
+.auth-form-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 29px;
+    -fx-font-weight: 800;
+}
+
+.theme-dark .auth-panel-title,
+.theme-dark .auth-form-title {
+    -fx-text-fill: #f8fafc;
+}
+
+.auth-panel-copy,
+.auth-form-copy,
+.auth-switch-copy,
+.auth-help {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+}
+
+.theme-dark .auth-panel-copy,
+.theme-dark .auth-form-copy,
+.theme-dark .auth-switch-copy,
+.theme-dark .auth-help {
+    -fx-text-fill: #94a3b8;
+}
+
+.auth-point {
+    -fx-padding: 10 12 10 12;
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 14;
+}
+
+.theme-dark .auth-point {
+    -fx-background-color: rgba(15, 23, 42, 0.7);
+    -fx-border-color: rgba(51, 65, 85, 0.7);
+}
+
+.auth-point-dot {
+    -fx-min-width: 10;
+    -fx-min-height: 10;
+    -fx-pref-width: 10;
+    -fx-pref-height: 10;
+    -fx-background-color: linear-gradient(to bottom right, #34d399, #10b981);
+    -fx-background-radius: 999;
+}
+
+.auth-point-text {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+}
+
+.theme-dark .auth-point-text {
+    -fx-text-fill: #e2e8f0;
+}
+
+.auth-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.theme-dark .auth-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.auth-input,
+.auth-date-picker,
+.auth-date-picker .text-field {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-border-radius: 14;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+    -fx-padding: 12 14 12 14;
+    -fx-font-size: 14px;
+}
+
+.theme-dark .auth-input,
+.theme-dark .auth-date-picker,
+.theme-dark .auth-date-picker .text-field {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(71, 85, 105, 0.88);
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.auth-input:focused,
+.auth-date-picker:focused,
+.auth-date-picker .text-field:focused {
+    -fx-border-color: rgba(16, 185, 129, 0.82);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.18), 16, 0.16, 0, 0);
+}
+
+.auth-date-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.auth-date-picker .arrow {
+    -fx-background-color: #10b981;
+}
+
+.auth-feedback {
+    -fx-padding: 10 12 10 12;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.auth-feedback-error {
+    -fx-background-color: rgba(239, 68, 68, 0.12);
+    -fx-border-color: rgba(239, 68, 68, 0.36);
+    -fx-text-fill: #dc2626;
+}
+
+.auth-feedback-success {
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-border-color: rgba(16, 185, 129, 0.36);
+    -fx-text-fill: #059669;
+}
+
+.auth-actions {
+    -fx-padding: 4 0 0 0;
+}
+
+.auth-primary-button,
+.auth-ghost-button {
+    -fx-min-height: 46;
+    -fx-padding: 0 18 0 18;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.auth-primary-button {
+    -fx-background-color: linear-gradient(to right, #34d399, #10b981);
+    -fx-border-color: rgba(16, 185, 129, 0.36);
+    -fx-text-fill: #f8fafc;
+}
+
+.auth-ghost-button {
+    -fx-background-color: rgba(248, 250, 252, 0.94);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-dark .auth-ghost-button {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(71, 85, 105, 0.88);
+    -fx-text-fill: #f8fafc;
+}
+
+.auth-switch {
+    -fx-padding: 12 0 0 0;
+    -fx-border-color: rgba(148, 163, 184, 0.18) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}

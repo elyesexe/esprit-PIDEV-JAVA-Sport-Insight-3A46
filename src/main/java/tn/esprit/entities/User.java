@@ -1,7 +1,12 @@
 package tn.esprit.entities;
 
+import tn.esprit.security.UserRoles;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 
 public class User {
     private Integer id;
@@ -58,6 +63,26 @@ public class User {
 
     public void setRoles(String roles) {
         this.roles = roles;
+    }
+
+    public List<String> getRoleList() {
+        return UserRoles.parseRoles(roles);
+    }
+
+    public void setRoleList(Collection<String> roles) {
+        this.roles = UserRoles.toDatabaseValue(roles);
+    }
+
+    public String getPrimaryRole() {
+        return UserRoles.resolvePrimaryRole(roles);
+    }
+
+    public boolean hasRole(String role) {
+        return UserRoles.hasRole(roles, role);
+    }
+
+    public boolean isAdmin() {
+        return hasRole(UserRoles.ROLE_ADMIN);
     }
 
     public String getPassword() {
@@ -138,6 +163,22 @@ public class User {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isActiveAccount() {
+        String normalized = statut == null ? "" : statut.trim().toUpperCase(Locale.ROOT);
+        return normalized.isEmpty()
+                || "ACTIVE".equals(normalized)
+                || "ACTIF".equals(normalized)
+                || "ENABLED".equals(normalized);
+    }
+
+    public String getDisplayName() {
+        String fullName = ((prenom == null ? "" : prenom.trim()) + " " + (nom == null ? "" : nom.trim())).trim();
+        if (!fullName.isBlank()) {
+            return fullName;
+        }
+        return email == null || email.isBlank() ? "Sport Insight user" : email;
     }
 
     @Override

@@ -32,6 +32,7 @@ public class AdminShellController {
     private static final String JOUEUR_CRUD = "/tn/esprit/views/joueur-admin-view.fxml";
     private static final String MATCH_CRUD = "/tn/esprit/views/match-admin-view.fxml";
     private static final String ANNONCE_CRUD = "/tn/esprit/views/annonce-crud-view.fxml";
+    private static final String USER_MODERATION = "/tn/esprit/views/admin-users-view.fxml";
 
     @FXML
     private BorderPane adminRoot;
@@ -51,6 +52,8 @@ public class AdminShellController {
     private Button matchsNavButton;
     @FXML
     private Button annoncesNavButton;
+    @FXML
+    private Button usersNavButton;
 
     private Object activeContentController;
 
@@ -89,6 +92,12 @@ public class AdminShellController {
     private void handleAnnonces() {
         loadStrippedCrud(ANNONCE_CRUD);
         highlightNav(annoncesNavButton);
+    }
+
+    @FXML
+    private void handleUsers() {
+        loadStrippedCrud(USER_MODERATION);
+        highlightNav(usersNavButton);
     }
 
     @FXML
@@ -198,7 +207,7 @@ public class AdminShellController {
     }
 
     private void highlightNav(Button active) {
-        for (Button b : new Button[] { dashboardNavButton, equipesNavButton, joueursNavButton, matchsNavButton, annoncesNavButton }) {
+        for (Button b : new Button[] { dashboardNavButton, equipesNavButton, joueursNavButton, matchsNavButton, annoncesNavButton, usersNavButton }) {
             if (b == null) {
                 continue;
             }
@@ -212,6 +221,8 @@ public class AdminShellController {
     private void applyControllerModeStyles(Object controller) {
         if (controller instanceof AdminDashboardController adminDashboardController) {
             adminDashboardController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
+        } else if (controller instanceof AdminUserModerationController adminUserModerationController) {
+            adminUserModerationController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
         }
     }
 }

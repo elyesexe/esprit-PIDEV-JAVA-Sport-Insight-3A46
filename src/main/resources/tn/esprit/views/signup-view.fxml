@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="authRoot"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.Controller.SignupController"
+           styleClass="page-root auth-page-root">
+    <Region styleClass="auth-scene-backdrop"/>
+
+    <BorderPane styleClass="auth-layout">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="auth-topbar" BorderPane.alignment="CENTER">
+                <padding>
+                    <Insets top="14" right="24" bottom="8" left="24"/>
+                </padding>
+
+                <StackPane styleClass="auth-logo-shell">
+                    <ImageView fitWidth="156" fitHeight="52" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </top>
+
+        <center>
+            <ScrollPane fx:id="authScrollPane"
+                        fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        styleClass="auth-scroll"
+                        BorderPane.alignment="CENTER">
+                <content>
+                    <StackPane styleClass="page-shell-wrap">
+                        <VBox spacing="18" styleClass="page-shell auth-shell">
+                            <padding>
+                                <Insets top="12" right="28" bottom="28" left="28"/>
+                            </padding>
+
+                            <StackPane styleClass="auth-hero">
+                                <Region styleClass="auth-hero-glow auth-hero-glow-left"/>
+                                <Region styleClass="auth-hero-glow auth-hero-glow-right"/>
+
+                                <StackPane styleClass="auth-hero-card">
+                                    <Region styleClass="auth-hero-photo"/>
+                                    <Region styleClass="auth-hero-overlay"/>
+
+                                    <VBox spacing="12" styleClass="auth-hero-content">
+                                        <Label text="Registration" styleClass="auth-eyebrow"/>
+                                        <Label text="Create your Sport Insight account" styleClass="auth-hero-title"/>
+                                        <Label text="Join the platform to manage training, matches, teams, and announcements in one place."
+                                               wrapText="true"
+                                               styleClass="auth-hero-text"/>
+                                    </VBox>
+                                </StackPane>
+                            </StackPane>
+
+                            <HBox spacing="18" styleClass="auth-panel">
+                                <VBox spacing="16" styleClass="auth-panel-aside" HBox.hgrow="ALWAYS">
+                                    <Label text="New account" styleClass="auth-panel-badge"/>
+                                    <Label text="Build your profile in a minute." wrapText="true" styleClass="auth-panel-title"/>
+                                    <Label text="Complete the form to unlock your Sport Insight workspace."
+                                           wrapText="true"
+                                           styleClass="auth-panel-copy"/>
+
+                                    <VBox spacing="10">
+                                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
+                                            <Region styleClass="auth-point-dot"/>
+                                            <Label text="Personal profile and role-based access" wrapText="true" styleClass="auth-point-text"/>
+                                        </HBox>
+                                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
+                                            <Region styleClass="auth-point-dot"/>
+                                            <Label text="New registrations start as standard users" wrapText="true" styleClass="auth-point-text"/>
+                                        </HBox>
+                                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
+                                            <Region styleClass="auth-point-dot"/>
+                                            <Label text="Admins can later promote accounts to player, coach, or admin" wrapText="true" styleClass="auth-point-text"/>
+                                        </HBox>
+                                    </VBox>
+                                </VBox>
+
+                                <VBox spacing="14" styleClass="auth-panel-form" HBox.hgrow="ALWAYS">
+                                    <Label text="Create account" styleClass="auth-form-title"/>
+                                    <Label text="Fill in your information to get started."
+                                           wrapText="true"
+                                           styleClass="auth-form-copy"/>
+
+                                    <Label fx:id="feedbackLabel"
+                                           managed="false"
+                                           visible="false"
+                                           wrapText="true"
+                                           styleClass="auth-feedback"/>
+
+                                    <VBox spacing="12" styleClass="auth-form">
+                                        <HBox spacing="12">
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="First name" styleClass="auth-label"/>
+                                                <TextField fx:id="prenomField" promptText="First name" styleClass="auth-input"/>
+                                            </VBox>
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Last name" styleClass="auth-label"/>
+                                                <TextField fx:id="nomField" promptText="Last name" styleClass="auth-input"/>
+                                            </VBox>
+                                        </HBox>
+
+                                        <VBox spacing="6">
+                                            <Label text="Email" styleClass="auth-label"/>
+                                            <TextField fx:id="emailField"
+                                                       promptText="name@example.com"
+                                                       styleClass="auth-input"/>
+                                            <Label text="New accounts are created as standard users first; an admin can assign advanced roles later from moderation."
+                                                   wrapText="true"
+                                                   styleClass="auth-help"/>
+                                        </VBox>
+
+                                        <HBox spacing="12">
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Telephone" styleClass="auth-label"/>
+                                                <TextField fx:id="telephoneField" promptText="+216 ..." styleClass="auth-input"/>
+                                            </VBox>
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Birth date" styleClass="auth-label"/>
+                                                <DatePicker fx:id="dateNaissancePicker" styleClass="auth-date-picker"/>
+                                            </VBox>
+                                        </HBox>
+
+                                        <HBox spacing="12">
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Password" styleClass="auth-label"/>
+                                                <PasswordField fx:id="passwordField"
+                                                               promptText="Minimum 8 characters"
+                                                               styleClass="auth-input"/>
+                                            </VBox>
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Confirm password" styleClass="auth-label"/>
+                                                <PasswordField fx:id="confirmPasswordField"
+                                                               promptText="Repeat password"
+                                                               onAction="#handleCreateAccount"
+                                                               styleClass="auth-input"/>
+                                            </VBox>
+                                        </HBox>
+
+                                        <HBox spacing="10" styleClass="auth-actions">
+                                            <Button fx:id="createAccountButton"
+                                                    onAction="#handleCreateAccount"
+                                                    text="Create account"
+                                                    maxWidth="Infinity"
+                                                    styleClass="auth-primary-button"
+                                                    HBox.hgrow="ALWAYS"/>
+                                        </HBox>
+                                    </VBox>
+
+                                    <VBox spacing="8" styleClass="auth-switch">
+                                        <Label text="Already registered?" styleClass="auth-switch-copy"/>
+                                        <Button onAction="#handleOpenLogin"
+                                                text="Sign in"
+                                                maxWidth="Infinity"
+                                                styleClass="auth-ghost-button"/>
+                                    </VBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+                </content>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+</StackPane>
