@@ -99,6 +99,15 @@ public class JoueurService implements IService<Joueur> {
         return null;
     }
 
+    public void updateImage(int joueurId, String imagePath) throws SQLException {
+        String sql = "UPDATE joueur SET image = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, imagePath);
+            statement.setInt(2, joueurId);
+            statement.executeUpdate();
+        }
+    }
+
     private Joueur mapRow(ResultSet rs) throws SQLException {
         Date dateNaissance = rs.getDate("date_naissance");
         int equipeId = rs.getInt("equipe_id");

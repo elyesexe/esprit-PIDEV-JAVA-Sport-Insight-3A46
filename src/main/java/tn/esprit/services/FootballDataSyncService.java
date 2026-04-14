@@ -3,7 +3,9 @@ package tn.esprit.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import tn.esprit.services.football.FootballDataApiClient;
 import tn.esprit.services.football.FootballDataCompetitions;
+import tn.esprit.services.wikidata.WikidataPlayerImageService;
 import tn.esprit.tools.FootballDataConfig;
+import tn.esprit.tools.JoueurAvatarGenerator;
 import tn.esprit.tools.MyConnection;
 
 import java.io.IOException;
@@ -27,10 +29,47 @@ import java.util.function.Consumer;
 public class FootballDataSyncService {
     private final Connection connection;
     private final FootballDataApiClient apiClient;
+    private final WikidataPlayerImageService wikidataImageService;
 
     public FootballDataSyncService() throws SQLException {
         this.connection = MyConnection.getInstance().getConnection();
         this.apiClient = new FootballDataApiClient();
+        this.wikidataImageService = new WikidataPlayerImageService();
+    }
+
+    /**
+     * Clears the local players table before a fresh external sync.
+     * We try TRUNCATE (fast), fallback to DELETE if the DB user lacks privileges.
+     */
+    public void clearJoueurTable() throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            try {
+                statement.execute("SET FOREIGN_KEY_CHECKS=0");
+            } catch (SQLException ignored) {
+                // Non-MySQL or permissions; continue.
+            }
+
+            // Best-effort cleanup of known dependent tables if present.
+            for (String table : new String[] { "commentaire", "evaluation", "participation" }) {
+                try {
+                    statement.executeUpdate("DELETE FROM " + table);
+                } catch (SQLException ignored) {
+                    // Table missing or restricted; ignore.
+                }
+            }
+
+            try {
+                statement.executeUpdate("TRUNCATE TABLE joueur");
+            } catch (SQLException truncateFailed) {
+                statement.executeUpdate("DELETE FROM joueur");
+            }
+
+            try {
+                statement.execute("SET FOREIGN_KEY_CHECKS=1");
+            } catch (SQLException ignored) {
+                // ignore
+            }
+        }
     }
 
     public FootballDataSyncSummary syncTeamsAndPlayers(List<String> competitionCodes, Consumer<String> progressReporter)
@@ -74,6 +113,62 @@ public class FootballDataSyncService {
         }
 
         return new FootballDataSyncSummary(competitionCodes.size(), teamsUpserted, playersUpserted, playersSkipped, 0);
+    }
+
+    /**
+     * Enriches players (already in DB) with real photos from Wikidata (Commons) when available.
+     * This only updates existing rows and will never insert new players (no duplicates).
+     */
+    public int enrichPlayerImagesFromWikidata(Consumer<String> progressReporter) {
+        int updated = 0;
+        List<PlayerIdentityRow> candidates;
+        try {
+            candidates = listPlayersMissingImages();
+        } catch (SQLException e) {
+            return 0;
+        }
+
+        for (int i = 0; i < candidates.size(); i++) {
+            PlayerIdentityRow row = candidates.get(i);
+            if (progressReporter != null) {
+                progressReporter.accept("Enriching player photos (Wikidata) " + (i + 1) + "/" + candidates.size()
+                        + " (updated: " + updated + ")...");
+            }
+            try {
+                tn.esprit.entities.Joueur joueur = new tn.esprit.entities.Joueur();
+                joueur.setId(row.id);
+                joueur.setNom(row.nom);
+                joueur.setPrenom(row.prenom);
+                joueur.setDateNaissance(row.dateNaissance);
+
+                String pathOrUrl = wikidataImageService.resolvePlayerImagePath(joueur);
+                if (pathOrUrl == null || pathOrUrl.isBlank()) {
+                    continue;
+                }
+                if (updateJoueurImage(row.id, pathOrUrl)) {
+                    updated++;
+                }
+            } catch (Exception e) {
+                // Keep enrichment best-effort; move on to next player, but surface the reason.
+                if (progressReporter != null && updated == 0 && i < 3) {
+                    progressReporter.accept("Wikidata enrichment warning: " + safeOneLine(e.getMessage()));
+                }
+                System.err.println("Wikidata enrichment failed for joueur #" + row.id + ": " + e.getMessage());
+            }
+        }
+
+        if (progressReporter != null) {
+            progressReporter.accept("Wikidata enrichment complete: " + updated + " photo(s) updated.");
+        }
+        return updated;
+    }
+
+    private static String safeOneLine(String value) {
+        if (value == null) {
+            return "Unknown error";
+        }
+        String normalized = value.replace('\r', ' ').replace('\n', ' ').trim();
+        return normalized.length() <= 180 ? normalized : normalized.substring(0, 180) + "...";
     }
 
     public FootballDataSyncSummary syncMatches(List<String> competitionCodes, Consumer<String> progressReporter)
@@ -192,7 +287,10 @@ public class FootballDataSyncService {
         String nationalite = normalizeNullable(text(playerNode, "nationality"));
         PlayerRow existing = findPlayer(externalId, equipeId, nameParts);
         int numero = existing != null && existing.numero > 0 ? existing.numero : 0;
-        String image = existing == null ? null : existing.image;
+        String image = existing == null ? null : normalizeNullable(existing.image);
+        if (image == null) {
+            image = JoueurAvatarGenerator.ensureAvatarPath(externalId, nameParts.prenom, nameParts.nom);
+        }
 
         if (existing == null) {
             insertPlayer(externalId, nameParts.nom, nameParts.prenom, dateNaissance, numero, image, equipeId, position, nationalite);
@@ -277,6 +375,45 @@ public class FootballDataSyncService {
         }
 
         return null;
+    }
+
+    private List<PlayerIdentityRow> listPlayersMissingImages() throws SQLException {
+        // Also refresh placeholder avatars produced by earlier syncs.
+        String sql = """
+                SELECT id, nom, prenom, date_naissance
+                FROM joueur
+                WHERE date_naissance IS NOT NULL
+                  AND (
+                        image IS NULL
+                        OR TRIM(image) = ''
+                        OR image LIKE '%fd-player-%'
+                  )
+                ORDER BY id ASC
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            java.util.ArrayList<PlayerIdentityRow> rows = new java.util.ArrayList<>();
+            while (resultSet.next()) {
+                Date dob = resultSet.getDate("date_naissance");
+                rows.add(new PlayerIdentityRow(
+                        resultSet.getInt("id"),
+                        resultSet.getString("nom"),
+                        resultSet.getString("prenom"),
+                        dob == null ? null : dob.toLocalDate()
+                ));
+            }
+            return rows;
+        }
+    }
+
+    private boolean updateJoueurImage(int joueurId, String imageUrl) throws SQLException {
+        String sql = "UPDATE joueur SET image = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, imageUrl);
+            statement.setInt(2, joueurId);
+            return statement.executeUpdate() > 0;
+        }
     }
 
     private PlayerRow findPlayer(long externalId, int equipeId, NameParts nameParts) throws SQLException {
@@ -729,6 +866,9 @@ public class FootballDataSyncService {
     }
 
     private record PlayerRow(int id, int numero, String image, String position, String nationalite) {
+    }
+
+    private record PlayerIdentityRow(int id, String nom, String prenom, LocalDate dateNaissance) {
     }
 
     private record MatchRow(int id, String lieu, String lineupDomicile, String lineupExterieur) {

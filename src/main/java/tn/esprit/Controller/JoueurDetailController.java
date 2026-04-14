@@ -1,5 +1,7 @@
 package tn.esprit.Controller;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -17,6 +19,7 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+import tn.esprit.services.wikidata.WikidataPlayerImageService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -24,9 +27,15 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public class JoueurDetailController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("joueur-detail-image-import"));
 
     @FXML
     private HBox navbarRoot;
@@ -77,6 +86,7 @@ public class JoueurDetailController {
     private EquipeService equipeService;
     private Joueur joueur;
     private SidebarModuleGroup sidebarModuleGroup;
+    private boolean imageImportInProgress;
 
     @FXML
     public void initialize() {
@@ -188,6 +198,7 @@ public class JoueurDetailController {
 
             JoueurUiSupport.clearImageCache();
             updatePhoto();
+            triggerLazyImageImport();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations du joueur.\n" + e.getMessage());
         }
@@ -206,6 +217,75 @@ public class JoueurDetailController {
         detailImageFallbackLabel.setManaged(!hasImage);
         detailImageFallbackLabel.setVisible(!hasImage);
         detailImageFallbackLabel.setText(JoueurUiSupport.buildInitials(joueur.getPrenom(), joueur.getNom(), "J"));
+    }
+
+    private void triggerLazyImageImport() {
+        if (imageImportInProgress || joueur == null || joueur.getId() == null || !needsLazyImageImport(joueur)) {
+            return;
+        }
+
+        imageImportInProgress = true;
+        detailSourceValueLabel.setText("Importing photo...");
+
+        Integer joueurId = joueur.getId();
+
+        Task<Joueur> imageImportTask = new Task<>() {
+            @Override
+            protected Joueur call() throws Exception {
+                JoueurService backgroundService = new JoueurService();
+                Joueur fresh = backgroundService.getById(joueurId);
+                if (fresh == null || !needsLazyImageImport(fresh)) {
+                    return null;
+                }
+
+                WikidataPlayerImageService imageService = new WikidataPlayerImageService();
+                String imagePath = imageService.resolvePlayerImagePath(fresh);
+                if (imagePath == null || imagePath.isBlank()) {
+                    return null;
+                }
+
+                backgroundService.updateImage(joueurId, imagePath);
+                fresh.setImage(imagePath);
+                return fresh;
+            }
+        };
+
+        imageImportTask.setOnSucceeded(event -> {
+            imageImportInProgress = false;
+            Joueur imported = imageImportTask.getValue();
+            if (imported == null) {
+                detailSourceValueLabel.setText(emptyToFallback(joueur.getExternalSource(), "Manuel"));
+                return;
+            }
+
+            joueur = imported;
+            JoueurUiSupport.clearImageCache();
+            updatePhoto();
+            detailSourceValueLabel.setText(emptyToFallback(joueur.getExternalSource(), "Manuel") + " | Photo imported");
+        });
+
+        imageImportTask.setOnFailed(event -> {
+            imageImportInProgress = false;
+            detailSourceValueLabel.setText(emptyToFallback(joueur.getExternalSource(), "Manuel"));
+            Throwable throwable = imageImportTask.getException();
+            if (throwable != null) {
+                System.err.println("Detail lazy player image import failed: " + throwable.getMessage());
+            }
+        });
+
+        IMAGE_IMPORT_EXECUTOR.execute(imageImportTask);
+    }
+
+    private boolean needsLazyImageImport(Joueur currentJoueur) {
+        if (currentJoueur == null) {
+            return false;
+        }
+        String image = currentJoueur.getImage();
+        if (image == null || image.isBlank()) {
+            return true;
+        }
+        String normalized = image.replace('\\', '/').toLowerCase();
+        return normalized.contains("fd-player-");
     }
 
     private String buildSubtitle(String equipeName, LocalDate dateNaissance, String position, String nationalite) {
@@ -247,6 +327,14 @@ public class JoueurDetailController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }
 

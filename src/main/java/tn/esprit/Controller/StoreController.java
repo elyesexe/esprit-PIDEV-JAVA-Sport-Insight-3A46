@@ -16,6 +16,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -59,6 +64,7 @@ public class StoreController {
     @FXML private ScrollPane pageScroll;
     @FXML private StackPane pageShellWrap;
     @FXML private VBox pageShell;
+    @FXML private Region heroPhotoRegion;
     @FXML private HBox navbarRoot;
     @FXML private Button adminNavButton;
     @FXML private HBox sidebarBrandBox;
@@ -116,6 +122,7 @@ public class StoreController {
     public void initialize() {
         ThemeManager.bindToggle(themeToggleButton);
         configureNavigation();
+        configureHeroImage();
         applyThemeState(themeToggleButton != null && themeToggleButton.isSelected());
         if (themeToggleButton != null) {
             themeToggleButton.selectedProperty().addListener((obs, oldValue, selected) -> applyThemeState(selected));
@@ -140,6 +147,25 @@ public class StoreController {
             setStatus("Boutique indisponible.", "status-error");
             showAlert(Alert.AlertType.ERROR, "Store", exception.getMessage());
         }
+    }
+
+    private void configureHeroImage() {
+        if (heroPhotoRegion == null) {
+            return;
+        }
+        var imageUrl = getClass().getResource("/tn/esprit/images/store.png");
+        if (imageUrl == null) {
+            return;
+        }
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, true);
+        BackgroundImage backgroundImage = new BackgroundImage(
+                new Image(imageUrl.toExternalForm()),
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                backgroundSize
+        );
+        heroPhotoRegion.setBackground(new Background(backgroundImage));
     }
 
     @FXML

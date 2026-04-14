@@ -96,7 +96,11 @@ C:\PI Java\src\main\java\tn\esprit\services\SponsoringPdfService.java
 C:\PI Java\src\main\java\tn\esprit\services\SponsoringWorkspaceService.java
 C:\PI Java\src\main\java\tn\esprit\services\SponsorService.java
 C:\PI Java\src\main\java\tn\esprit\services\UserService.java
+C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataApiClient.java
+C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataPlayerImageService.java
+C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataSparqlClient.java
 C:\PI Java\src\main\java\tn\esprit\tools\FootballDataConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\JoueurAvatarGenerator.java
 C:\PI Java\src\main\java\tn\esprit\tools\MyConnection.java
 C:\PI Java\src\main\java\tn\esprit\tools\SchemaMigration.java
 C:\PI Java\src\main\java\tn\esprit\tools\SponsorAssets.java

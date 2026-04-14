@@ -325,6 +325,8 @@ public class EquipeListController {
         Task<FootballDataSyncSummary> syncTask = new Task<>() {
             @Override
             protected FootballDataSyncSummary call() throws Exception {
+                updateMessage("Clearing local players...");
+                syncService.clearJoueurTable();
                 updateMessage("Import des clubs et effectifs " + resolveCompetitionLabel(normalizedCode) + "...");
                 return syncService.syncTeamsAndPlayers(List.of(normalizedCode), this::updateMessage);
             }
