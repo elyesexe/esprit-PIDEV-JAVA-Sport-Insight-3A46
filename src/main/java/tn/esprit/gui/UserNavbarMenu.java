@@ -28,6 +28,8 @@ public final class UserNavbarMenu {
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
     private static final String TRAINING_VIEW = "/tn/esprit/views/entrainement-user-view.fxml";
     private static final String TRAINING_CSS = "/tn/esprit/styles/entrainement-theme.css";
+    private static final String SPONSOR_VIEW = "/tn/esprit/views/sponsor-user-view.fxml";
+    private static final String SPONSOR_CSS = "/tn/esprit/styles/sponsor-theme.css";
     private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
     private static final double SETTINGS_MENU_ACTION_WIDTH = 112;
 
@@ -54,6 +56,7 @@ public final class UserNavbarMenu {
 
         hideNode(adminNavButton);
         hideNode(themeToggleButton);
+        ensureSponsorNavButton(navbarRoot);
         ensureTrainingNavButton(navbarRoot);
 
         Button settingsButton = createSettingsButton();
@@ -265,6 +268,40 @@ public final class UserNavbarMenu {
             }
         }
         modules.getChildren().add(insertIndex, trainingButton);
+    }
+
+    private static void ensureSponsorNavButton(HBox navbarRoot) {
+        HBox modules = findModulesContainer(navbarRoot);
+        if (modules == null) {
+            return;
+        }
+
+        boolean exists = modules.getChildren().stream()
+                .filter(node -> node instanceof Button)
+                .map(node -> (Button) node)
+                .anyMatch(button -> "Sponsors".equalsIgnoreCase(button.getText()) || "Sponsoring".equalsIgnoreCase(button.getText()));
+        if (exists) {
+            return;
+        }
+
+        Button sponsorButton = new Button("Sponsors");
+        sponsorButton.setMnemonicParsing(false);
+        sponsorButton.getStyleClass().add("navbar-nav-button");
+        sponsorButton.setOnAction(event ->
+                SceneNavigator.switchScene(sponsorButton, SPONSOR_VIEW, SPONSOR_CSS, "Sponsors | Sport Insight"));
+
+        int insertIndex = modules.getChildren().size();
+        for (int i = 0; i < modules.getChildren().size(); i++) {
+            Node node = modules.getChildren().get(i);
+            if (node instanceof Button button) {
+                String label = button.getText() == null ? "" : button.getText().toLowerCase();
+                if (label.contains("annonc") || label.contains("entrain")) {
+                    insertIndex = i;
+                    break;
+                }
+            }
+        }
+        modules.getChildren().add(insertIndex, sponsorButton);
     }
 
     private static HBox findModulesContainer(HBox navbarRoot) {

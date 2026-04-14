@@ -33,6 +33,7 @@ public class AdminShellController {
     private static final String MATCH_CRUD = "/tn/esprit/views/match-admin-view.fxml";
     private static final String ANNONCE_CRUD = "/tn/esprit/views/annonce-crud-view.fxml";
     private static final String ENTRAINEMENT_CRUD = "/tn/esprit/views/entrainement-admin-view.fxml";
+    private static final String SPONSOR_CRUD = "/tn/esprit/views/sponsor-admin-view.fxml";
     private static final String USER_MODERATION = "/tn/esprit/views/admin-users-view.fxml";
 
     @FXML
@@ -55,6 +56,8 @@ public class AdminShellController {
     private Button annoncesNavButton;
     @FXML
     private Button entrainementsNavButton;
+    @FXML
+    private Button sponsorsNavButton;
     @FXML
     private Button usersNavButton;
 
@@ -101,6 +104,12 @@ public class AdminShellController {
     private void handleEntrainements() {
         loadStrippedCrud(ENTRAINEMENT_CRUD);
         highlightNav(entrainementsNavButton);
+    }
+
+    @FXML
+    private void handleSponsors() {
+        loadStrippedCrud(SPONSOR_CRUD);
+        highlightNav(sponsorsNavButton);
     }
 
     @FXML
@@ -216,7 +225,16 @@ public class AdminShellController {
     }
 
     private void highlightNav(Button active) {
-        for (Button b : new Button[] { dashboardNavButton, equipesNavButton, joueursNavButton, matchsNavButton, annoncesNavButton, entrainementsNavButton, usersNavButton }) {
+        for (Button b : new Button[] {
+                dashboardNavButton,
+                equipesNavButton,
+                joueursNavButton,
+                matchsNavButton,
+                annoncesNavButton,
+                entrainementsNavButton,
+                sponsorsNavButton,
+                usersNavButton
+        }) {
             if (b == null) {
                 continue;
             }
@@ -232,6 +250,8 @@ public class AdminShellController {
             adminDashboardController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
         } else if (controller instanceof AdminUserModerationController adminUserModerationController) {
             adminUserModerationController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
+        } else if (controller instanceof SponsorAdminController sponsorAdminController) {
+            sponsorAdminController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
         }
     }
 }

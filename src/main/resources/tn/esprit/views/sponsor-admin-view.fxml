@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.SponsorAdminController"
+            stylesheets="@../styles/sponsor-theme.css"
+            styleClass="page-root sponsor-admin-root">
+
+    <top>
+        <HBox alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll">
+            <content>
+                <VBox spacing="20" styleClass="page-shell sponsor-admin-shell" maxWidth="1320">
+                    <padding>
+                        <Insets top="18" right="18" bottom="28" left="18"/>
+                    </padding>
+
+                    <VBox spacing="10" styleClass="panel-card">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4">
+                                <Label text="Sponsoring workspace" styleClass="section-title"/>
+                                <Label text="Manage sponsors, contracts, statistics, and PDF exports from one admin module."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Export summary PDF"
+                                    onAction="#handleExportSummaryPdf"
+                                    styleClass="primary-button"/>
+                        </HBox>
+                        <Label fx:id="overviewStatusLabel" text="Workspace ready" styleClass="status-muted"/>
+                    </VBox>
+
+                    <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="sponsor-tab-pane">
+                        <tabs>
+                            <Tab text="Overview">
+                                <content>
+                                    <VBox spacing="18" styleClass="sponsor-overview-shell">
+                                        <FlowPane hgap="16" vgap="16" prefWrapLength="1240" styleClass="sponsor-overview-grid">
+                                            <VBox styleClass="sponsor-metric-card sponsor-admin-metric-card">
+                                                <Label text="Sponsors" styleClass="sponsor-metric-label"/>
+                                                <Label fx:id="overviewSponsorCountLabel" text="0" styleClass="sponsor-metric-value"/>
+                                            </VBox>
+                                            <VBox styleClass="sponsor-metric-card sponsor-admin-metric-card">
+                                                <Label text="Contracts" styleClass="sponsor-metric-label"/>
+                                                <Label fx:id="overviewContractCountLabel" text="0" styleClass="sponsor-metric-value"/>
+                                            </VBox>
+                                            <VBox styleClass="sponsor-metric-card sponsor-admin-metric-card">
+                                                <Label text="Active" styleClass="sponsor-metric-label"/>
+                                                <Label fx:id="overviewActiveCountLabel" text="0" styleClass="sponsor-metric-value"/>
+                                            </VBox>
+                                            <VBox styleClass="sponsor-metric-card sponsor-admin-metric-card">
+                                                <Label text="Expired" styleClass="sponsor-metric-label"/>
+                                                <Label fx:id="overviewExpiredCountLabel" text="0" styleClass="sponsor-metric-value"/>
+                                            </VBox>
+                                            <VBox styleClass="sponsor-metric-card sponsor-admin-metric-card">
+                                                <Label text="Budget total" styleClass="sponsor-metric-label"/>
+                                                <Label fx:id="overviewBudgetLabel" text="0" styleClass="sponsor-metric-value"/>
+                                            </VBox>
+                                            <VBox styleClass="sponsor-metric-card sponsor-admin-metric-card">
+                                                <Label text="Avg contract" styleClass="sponsor-metric-label"/>
+                                                <Label fx:id="overviewAverageLabel" text="0" styleClass="sponsor-metric-value"/>
+                                            </VBox>
+                                        </FlowPane>
+
+                                        <HBox spacing="18">
+                                            <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card sponsor-chart-card">
+                                                <Label text="Top sponsor budgets" styleClass="section-title"/>
+                                                <Label text="Highest sponsor budgets in the current database." styleClass="section-subtitle"/>
+                                                <BarChart fx:id="budgetChart" animated="false" legendVisible="false" prefHeight="320">
+                                                    <xAxis>
+                                                        <CategoryAxis/>
+                                                    </xAxis>
+                                                    <yAxis>
+                                                        <NumberAxis/>
+                                                    </yAxis>
+                                                </BarChart>
+                                            </VBox>
+
+                                            <VBox spacing="12" prefWidth="360" styleClass="panel-card sponsor-chart-card">
+                                                <Label text="Payment breakdown" styleClass="section-title"/>
+                                                <Label text="Distribution of contract payment states." styleClass="section-subtitle"/>
+                                                <PieChart fx:id="paymentChart" animated="false" labelsVisible="true" legendVisible="true" prefHeight="320"/>
+                                                <Button text="Refresh overview"
+                                                        onAction="#handleRefreshOverview"
+                                                        styleClass="ghost-button"/>
+                                            </VBox>
+                                        </HBox>
+                                    </VBox>
+                                </content>
+                            </Tab>
+
+                            <Tab text="Sponsors">
+                                <content>
+                                    <HBox spacing="18">
+                                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                            <HBox spacing="10" styleClass="toolbar-row">
+                                                <TextField fx:id="sponsorSearchField"
+                                                           promptText="Search sponsor by name, email, phone, or address"
+                                                           styleClass="search-field"
+                                                           HBox.hgrow="ALWAYS"/>
+                                                <ComboBox fx:id="sponsorSortComboBox" prefWidth="180" styleClass="form-combo"/>
+                                                <Button text="Refresh" onAction="#handleRefreshSponsors" styleClass="ghost-button"/>
+                                            </HBox>
+
+                                            <TableView fx:id="sponsorTableView" styleClass="data-table">
+                                                <columns>
+                                                    <TableColumn fx:id="sponsorNameColumn" text="Name"/>
+                                                    <TableColumn fx:id="sponsorEmailColumn" text="Email"/>
+                                                    <TableColumn fx:id="sponsorPhoneColumn" text="Phone"/>
+                                                    <TableColumn fx:id="sponsorBudgetColumn" text="Budget"/>
+                                                    <TableColumn fx:id="sponsorContractsColumn" text="Contracts"/>
+                                                    <TableColumn fx:id="sponsorAddressColumn" text="Address"/>
+                                                </columns>
+                                            </TableView>
+
+                                            <Label fx:id="sponsorTabStatusLabel" text="Sponsor table ready" styleClass="status-muted"/>
+                                        </VBox>
+
+                                        <VBox spacing="12" prefWidth="390" styleClass="panel-card">
+                                            <Label text="Create / update sponsor" styleClass="section-title"/>
+                                            <Label fx:id="sponsorFormHintLabel"
+                                                   text="Create a new sponsor or select one to edit it."
+                                                   styleClass="section-subtitle"/>
+
+                                            <StackPane fx:id="sponsorLogoPreviewBox" styleClass="sponsor-logo-preview-shell" prefHeight="120"/>
+
+                                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                                <TextField fx:id="sponsorLogoField"
+                                                           promptText="Logo reference"
+                                                           styleClass="form-field"
+                                                           HBox.hgrow="ALWAYS"/>
+                                                <Button text="Browse" onAction="#handleChooseLogo" styleClass="ghost-button"/>
+                                            </HBox>
+
+                                            <TextField fx:id="sponsorNameField" promptText="Sponsor name" styleClass="form-field"/>
+                                            <TextField fx:id="sponsorEmailField" promptText="Sponsor email" styleClass="form-field"/>
+                                            <TextField fx:id="sponsorPhoneField" promptText="Sponsor phone" styleClass="form-field"/>
+                                            <TextField fx:id="sponsorBudgetField" promptText="Budget" styleClass="form-field"/>
+                                            <TextField fx:id="sponsorAddressField" promptText="Address" styleClass="form-field"/>
+
+                                            <Label fx:id="sponsorValidationLabel" text="" styleClass="section-subtitle" visible="false" managed="false"/>
+
+                                            <HBox spacing="10">
+                                                <Button text="Add" onAction="#handleAddSponsor" styleClass="primary-button"/>
+                                                <Button text="Update" onAction="#handleUpdateSponsor" styleClass="ghost-button"/>
+                                                <Button text="Delete" onAction="#handleDeleteSponsor" styleClass="danger-button"/>
+                                            </HBox>
+                                            <Button text="Clear" onAction="#handleClearSponsor" styleClass="ghost-button"/>
+                                        </VBox>
+                                    </HBox>
+                                </content>
+                            </Tab>
+
+                            <Tab text="Contracts">
+                                <content>
+                                    <HBox spacing="18">
+                                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                            <HBox spacing="10" styleClass="toolbar-row">
+                                                <TextField fx:id="contractSearchField"
+                                                           promptText="Search by sponsor, team, payment, status, or description"
+                                                           styleClass="search-field"
+                                                           HBox.hgrow="ALWAYS"/>
+                                                <ComboBox fx:id="contractStatusFilterComboBox" prefWidth="180" styleClass="form-combo"/>
+                                                <ComboBox fx:id="contractSortComboBox" prefWidth="170" styleClass="form-combo"/>
+                                                <Button text="Refresh" onAction="#handleRefreshContracts" styleClass="ghost-button"/>
+                                            </HBox>
+
+                                            <TableView fx:id="contractTableView" styleClass="data-table">
+                                                <columns>
+                                                    <TableColumn fx:id="contractSponsorColumn" text="Sponsor"/>
+                                                    <TableColumn fx:id="contractTeamColumn" text="Team"/>
+                                                    <TableColumn fx:id="contractAmountColumn" text="Amount"/>
+                                                    <TableColumn fx:id="contractPaymentColumn" text="Payment"/>
+                                                    <TableColumn fx:id="contractPeriodColumn" text="Period"/>
+                                                    <TableColumn fx:id="contractStatusColumn" text="Status"/>
+                                                </columns>
+                                            </TableView>
+
+                                            <Label fx:id="contractTabStatusLabel" text="Contract table ready" styleClass="status-muted"/>
+                                        </VBox>
+
+                                        <VBox spacing="12" prefWidth="410" styleClass="panel-card">
+                                            <Label text="Create / update contract" styleClass="section-title"/>
+                                            <Label fx:id="contractFormHintLabel"
+                                                   text="Select a contract or create a new one."
+                                                   styleClass="section-subtitle"/>
+
+                                            <DatePicker fx:id="contractStartDateField" promptText="Start date" styleClass="form-date-picker"/>
+                                            <DatePicker fx:id="contractEndDateField" promptText="End date" styleClass="form-date-picker"/>
+                                            <TextField fx:id="contractAmountField" promptText="Amount" styleClass="form-field"/>
+                                            <ComboBox fx:id="contractSponsorField" promptText="Sponsor" styleClass="form-combo"/>
+                                            <ComboBox fx:id="contractTeamField" promptText="Team" styleClass="form-combo"/>
+                                            <ComboBox fx:id="contractStatusField" promptText="Contract status" styleClass="form-combo"/>
+                                            <ComboBox fx:id="contractPaymentField" promptText="Payment status" styleClass="form-combo"/>
+                                            <CheckBox fx:id="contractNotifiedCheckBox" text="Notified"/>
+                                            <TextArea fx:id="contractDescriptionArea"
+                                                      promptText="Contract description"
+                                                      wrapText="true"
+                                                      prefRowCount="5"
+                                                      styleClass="form-area"/>
+
+                                            <Label fx:id="contractValidationLabel" text="" styleClass="section-subtitle" visible="false" managed="false"/>
+
+                                            <HBox spacing="10">
+                                                <Button text="Add" onAction="#handleAddContract" styleClass="primary-button"/>
+                                                <Button text="Update" onAction="#handleUpdateContract" styleClass="ghost-button"/>
+                                                <Button text="Delete" onAction="#handleDeleteContract" styleClass="danger-button"/>
+                                            </HBox>
+                                            <HBox spacing="10">
+                                                <Button text="Clear" onAction="#handleClearContract" styleClass="ghost-button"/>
+                                                <Button text="Export PDF" onAction="#handleExportContractPdf" styleClass="primary-button"/>
+                                            </HBox>
+                                        </VBox>
+                                    </HBox>
+                                </content>
+                            </Tab>
+                        </tabs>
+                    </TabPane>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
