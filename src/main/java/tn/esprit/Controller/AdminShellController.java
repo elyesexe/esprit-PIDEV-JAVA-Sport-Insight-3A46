@@ -32,6 +32,7 @@ public class AdminShellController {
     private static final String JOUEUR_CRUD = "/tn/esprit/views/joueur-admin-view.fxml";
     private static final String MATCH_CRUD = "/tn/esprit/views/match-admin-view.fxml";
     private static final String ANNONCE_CRUD = "/tn/esprit/views/annonce-crud-view.fxml";
+    private static final String PRODUCT_CRUD = "/tn/esprit/views/product-crud-view.fxml";
     private static final String ENTRAINEMENT_CRUD = "/tn/esprit/views/entrainement-admin-view.fxml";
     private static final String SPONSOR_CRUD = "/tn/esprit/views/sponsor-admin-view.fxml";
     private static final String USER_MODERATION = "/tn/esprit/views/admin-users-view.fxml";
@@ -54,6 +55,8 @@ public class AdminShellController {
     private Button matchsNavButton;
     @FXML
     private Button annoncesNavButton;
+    @FXML
+    private Button productsNavButton;
     @FXML
     private Button entrainementsNavButton;
     @FXML
@@ -98,6 +101,12 @@ public class AdminShellController {
     private void handleAnnonces() {
         loadStrippedCrud(ANNONCE_CRUD);
         highlightNav(annoncesNavButton);
+    }
+
+    @FXML
+    private void handleProducts() {
+        loadStrippedCrud(PRODUCT_CRUD);
+        highlightNav(productsNavButton);
     }
 
     @FXML
@@ -231,6 +240,7 @@ public class AdminShellController {
                 joueursNavButton,
                 matchsNavButton,
                 annoncesNavButton,
+                productsNavButton,
                 entrainementsNavButton,
                 sponsorsNavButton,
                 usersNavButton
@@ -252,6 +262,8 @@ public class AdminShellController {
             adminUserModerationController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
         } else if (controller instanceof SponsorAdminController sponsorAdminController) {
             sponsorAdminController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
+        } else if (controller instanceof ProductController productController) {
+            productController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
         }
     }
 }

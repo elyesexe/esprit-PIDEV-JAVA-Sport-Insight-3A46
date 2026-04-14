@@ -28,6 +28,8 @@ public final class UserNavbarMenu {
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
     private static final String TRAINING_VIEW = "/tn/esprit/views/entrainement-user-view.fxml";
     private static final String TRAINING_CSS = "/tn/esprit/styles/entrainement-theme.css";
+    private static final String STORE_VIEW = "/tn/esprit/views/store-view.fxml";
+    private static final String STORE_CSS = "/tn/esprit/styles/store-theme.css";
     private static final String SPONSOR_VIEW = "/tn/esprit/views/sponsor-user-view.fxml";
     private static final String SPONSOR_CSS = "/tn/esprit/styles/sponsor-theme.css";
     private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
@@ -56,6 +58,7 @@ public final class UserNavbarMenu {
 
         hideNode(adminNavButton);
         hideNode(themeToggleButton);
+        ensureStoreNavButton(navbarRoot);
         ensureSponsorNavButton(navbarRoot);
         ensureTrainingNavButton(navbarRoot);
 
@@ -268,6 +271,43 @@ public final class UserNavbarMenu {
             }
         }
         modules.getChildren().add(insertIndex, trainingButton);
+    }
+
+    private static void ensureStoreNavButton(HBox navbarRoot) {
+        HBox modules = findModulesContainer(navbarRoot);
+        if (modules == null) {
+            return;
+        }
+
+        boolean exists = modules.getChildren().stream()
+                .filter(node -> node instanceof Button)
+                .map(node -> (Button) node)
+                .anyMatch(button -> {
+                    String label = button.getText() == null ? "" : button.getText().trim().toLowerCase();
+                    return "store".equals(label) || "product".equals(label) || "products".equals(label);
+                });
+        if (exists) {
+            return;
+        }
+
+        Button storeButton = new Button("Store");
+        storeButton.setMnemonicParsing(false);
+        storeButton.getStyleClass().add("navbar-nav-button");
+        storeButton.setOnAction(event ->
+                SceneNavigator.switchScene(storeButton, STORE_VIEW, STORE_CSS, "Store | Sport Insight"));
+
+        int insertIndex = modules.getChildren().size();
+        for (int i = 0; i < modules.getChildren().size(); i++) {
+            Node node = modules.getChildren().get(i);
+            if (node instanceof Button button) {
+                String label = button.getText() == null ? "" : button.getText().toLowerCase();
+                if (label.contains("annonc") || label.contains("sponsor") || label.contains("entrain")) {
+                    insertIndex = i;
+                    break;
+                }
+            }
+        }
+        modules.getChildren().add(insertIndex, storeButton);
     }
 
     private static void ensureSponsorNavButton(HBox navbarRoot) {

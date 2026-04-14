@@ -10,6 +10,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -20,24 +22,33 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Commentaire;
+import tn.esprit.entities.User;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.security.AuthSession;
+import tn.esprit.security.UserRoles;
 import tn.esprit.services.AnnonceService;
 import tn.esprit.services.CommentaireService;
+import tn.esprit.services.UserService;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -71,15 +82,30 @@ public class AnnonceUserController {
     @FXML private Label resultsMetaLabel;
     @FXML private Label statusLabel;
     @FXML private VBox annonceCardsPane;
+    @FXML private VBox composerCard;
+    @FXML private StackPane composerAvatarShell;
+    @FXML private ImageView composerAvatarImage;
+    @FXML private Label composerAvatarInitialsLabel;
+    @FXML private Label composerIdentityLabel;
+    @FXML private Label composerHintLabel;
+    @FXML private TextField postTitleField;
+    @FXML private TextField postRoleField;
+    @FXML private TextField postLevelField;
+    @FXML private TextArea postDescriptionArea;
+    @FXML private Label composerValidationLabel;
+    @FXML private Button publishPostButton;
+    @FXML private Button clearPostButton;
 
     private final List<Annonce> annonces = new ArrayList<>();
     private final List<Commentaire> commentaires = new ArrayList<>();
     private final List<Annonce> visibleAnnonces = new ArrayList<>();
-    private final java.util.HashMap<Integer, Integer> commentCounts = new java.util.HashMap<>();
+    private final HashMap<Integer, Integer> commentCounts = new HashMap<>();
+    private final Map<Integer, User> userCache = new HashMap<>();
 
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+    private UserService userService;
     private boolean serviceReady;
 
     @FXML
@@ -96,11 +122,14 @@ public class AnnonceUserController {
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+            userService = new UserService();
             serviceReady = true;
             refreshData();
+            updateComposerState();
             showSuccessStatus("Announcement feed ready.");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             serviceReady = false;
+            updateComposerState();
             showErrorStatus("Database connection unavailable.");
             showAlert(Alert.AlertType.ERROR, "Announcements",
                     "Could not load the user announcement feed.\n" + e.getMessage());
@@ -175,6 +204,87 @@ public class AnnonceUserController {
         applyFilters();
     }
 
+    @FXML
+    private void handlePublishPost() {
+        clearComposerValidation();
+        clearFieldError(postTitleField);
+        clearFieldError(postRoleField);
+        clearFieldError(postLevelField);
+        clearFieldError(postDescriptionArea);
+
+        User currentUser = getCurrentUser();
+        if (!isCurrentUserJoueur()) {
+            setComposerValidation("Only users with the joueur role can publish a post.");
+            return;
+        }
+        if (!serviceReady || annonceService == null || currentUser == null || currentUser.getId() == null) {
+            setComposerValidation("The post composer is not ready yet.");
+            return;
+        }
+
+        String title = emptyToNull(postTitleField.getText());
+        String role = emptyToNull(postRoleField.getText());
+        String level = emptyToNull(postLevelField.getText());
+        String description = emptyToNull(postDescriptionArea.getText());
+
+        boolean valid = true;
+        if (title == null) {
+            markFieldInvalid(postTitleField);
+            valid = false;
+        }
+        if (description == null) {
+            markFieldInvalid(postDescriptionArea);
+            valid = false;
+        }
+        if (!valid) {
+            setComposerValidation("Title and post content are required.");
+            return;
+        }
+
+        Annonce annonce = new Annonce(
+                title,
+                description,
+                role == null ? "Player" : role,
+                level == null ? "Community" : level,
+                LocalDate.now(),
+                "ACTIVE",
+                currentUser.getId(),
+                true,
+                false
+        );
+
+        try {
+            annonceService.add(annonce);
+            handleClearPostComposer();
+            refreshData();
+            showSuccessStatus("Post published.");
+        } catch (SQLException e) {
+            showErrorStatus("Could not publish the post.");
+            showAlert(Alert.AlertType.ERROR, "Announcements", "Publish failed.\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleClearPostComposer() {
+        if (postTitleField != null) {
+            postTitleField.clear();
+        }
+        if (postRoleField != null) {
+            postRoleField.clear();
+        }
+        if (postLevelField != null) {
+            postLevelField.clear();
+        }
+        if (postDescriptionArea != null) {
+            postDescriptionArea.clear();
+        }
+        clearComposerValidation();
+        clearFieldError(postTitleField);
+        clearFieldError(postRoleField);
+        clearFieldError(postLevelField);
+        clearFieldError(postDescriptionArea);
+    }
+
     private void configureSidebar() {
         sidebarModuleGroup = new SidebarModuleGroup(
                 matchsNavButton,
@@ -197,11 +307,9 @@ public class AnnonceUserController {
         if (imageUrl == null) {
             return;
         }
-        BackgroundSize backgroundSize = new BackgroundSize(
-                100, 100, true, true, true, true
-        );
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, true);
         BackgroundImage backgroundImage = new BackgroundImage(
-                new javafx.scene.image.Image(imageUrl.toExternalForm()),
+                new Image(imageUrl.toExternalForm()),
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
@@ -240,13 +348,62 @@ public class AnnonceUserController {
             commentaires.clear();
             commentaires.addAll(commentaireService.getAll());
 
+            userCache.clear();
+            User currentUser = getCurrentUser();
+            if (currentUser != null && currentUser.getId() != null) {
+                userCache.put(currentUser.getId(), currentUser);
+            }
+
             rebuildCommentCounts();
             rebuildLevelFilterItems();
             updateMetrics();
+            updateComposerState();
             applyFilters();
         } catch (SQLException e) {
             showErrorStatus("Could not refresh announcements.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Refresh failed.\n" + e.getMessage());
+        }
+    }
+
+    private void updateComposerState() {
+        User currentUser = getCurrentUser();
+        boolean isJoueur = isCurrentUserJoueur();
+        boolean enabled = serviceReady && isJoueur && currentUser != null;
+
+        if (composerIdentityLabel != null) {
+            composerIdentityLabel.setText("Post as " + buildDisplayName(currentUser));
+        }
+        if (composerHintLabel != null) {
+            composerHintLabel.setText(enabled
+                    ? "Your player profile is used automatically for posts and comments."
+                    : "Only users with the joueur role can create a post or add comments.");
+        }
+
+        updateAvatarGraphic(
+                composerAvatarShell,
+                composerAvatarImage,
+                composerAvatarInitialsLabel,
+                currentUser,
+                buildDisplayName(currentUser)
+        );
+
+        if (postTitleField != null) {
+            postTitleField.setDisable(!enabled);
+        }
+        if (postRoleField != null) {
+            postRoleField.setDisable(!enabled);
+        }
+        if (postLevelField != null) {
+            postLevelField.setDisable(!enabled);
+        }
+        if (postDescriptionArea != null) {
+            postDescriptionArea.setDisable(!enabled);
+        }
+        if (publishPostButton != null) {
+            publishPostButton.setDisable(!enabled);
+        }
+        if (clearPostButton != null) {
+            clearPostButton.setDisable(!enabled);
         }
     }
 
@@ -257,7 +414,8 @@ public class AnnonceUserController {
 
         Comparator<Annonce> comparator = SORT_ALPHA.equals(selectedSort)
                 ? Comparator.comparing(annonce -> emptyIfNull(annonce.getTitre()).toLowerCase(Locale.ROOT))
-                : Comparator.comparing(Annonce::getDatePublication, Comparator.nullsLast(Comparator.reverseOrder()));
+                : Comparator.comparing(Annonce::getDatePublication, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(Annonce::getId, Comparator.nullsLast(Comparator.reverseOrder()));
 
         visibleAnnonces.clear();
         visibleAnnonces.addAll(annonces.stream()
@@ -269,7 +427,7 @@ public class AnnonceUserController {
 
         resultsMetaLabel.setText(visibleAnnonces.size() + " announcement(s) visible");
         resultCountLabel.setText(annonces.size() + " total announcement(s)");
-        selectionStateLabel.setText("Feed mode");
+        selectionStateLabel.setText(isCurrentUserJoueur() ? "Player feed" : "Read-only feed");
     }
 
     private void rebuildCommentCounts() {
@@ -307,7 +465,8 @@ public class AnnonceUserController {
                 || containsNormalized(annonce.getTitre(), query)
                 || containsNormalized(annonce.getDescription(), query)
                 || containsNormalized(annonce.getPosteRecherche(), query)
-                || containsNormalized(annonce.getNiveauRequis(), query);
+                || containsNormalized(annonce.getNiveauRequis(), query)
+                || containsNormalized(resolveAnnonceAuthorName(annonce), query);
 
         boolean matchesLevel = selectedLevel == null
                 || Objects.equals(normalize(annonce.getNiveauRequis()), selectedLevel);
@@ -344,24 +503,26 @@ public class AnnonceUserController {
         VBox card = new VBox(14);
         card.getStyleClass().add("annonce-post-card");
 
-        HBox header = new HBox(10);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.getStyleClass().add("annonce-post-header");
+        User author = resolveAnnonceAuthor(annonce);
+        String authorName = resolveAnnonceAuthorName(annonce);
 
-        VBox headerText = new VBox(4);
+        HBox identityRow = new HBox(12);
+        identityRow.setAlignment(Pos.CENTER_LEFT);
+        identityRow.getStyleClass().add("annonce-post-author-row");
+
+        StackPane avatar = createAvatarNode(author, authorName, false);
+
+        VBox identityText = new VBox(4);
+        Label authorLabel = new Label(authorName);
+        authorLabel.getStyleClass().add("annonce-post-author");
 
         Label dateLabel = new Label(formatDate(annonce.getDatePublication()));
         dateLabel.getStyleClass().add("annonce-post-date");
 
-        Label titleLabel = new Label(fallbackText(annonce.getTitre(), "Untitled announcement"));
-        titleLabel.setWrapText(true);
-        titleLabel.getStyleClass().add("annonce-post-title");
-
         Label subtitleLabel = new Label(buildSubtitle(annonce));
         subtitleLabel.setWrapText(true);
         subtitleLabel.getStyleClass().add("annonce-post-subtitle");
-
-        headerText.getChildren().addAll(dateLabel, titleLabel, subtitleLabel);
+        identityText.getChildren().addAll(authorLabel, dateLabel, subtitleLabel);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -373,7 +534,11 @@ public class AnnonceUserController {
             rightMeta.getChildren().add(createMetaChip("Urgent"));
         }
 
-        header.getChildren().addAll(headerText, spacer, rightMeta);
+        identityRow.getChildren().addAll(avatar, identityText, spacer, rightMeta);
+
+        Label titleLabel = new Label(fallbackText(annonce.getTitre(), "Untitled announcement"));
+        titleLabel.setWrapText(true);
+        titleLabel.getStyleClass().add("annonce-post-title");
 
         FlowPane metaFlow = new FlowPane();
         metaFlow.setHgap(8);
@@ -406,7 +571,7 @@ public class AnnonceUserController {
         if (postComments.isEmpty()) {
             Label emptyComments = new Label(
                     isCommentsEnabled(annonce)
-                            ? "No comments yet. Be the first to comment."
+                            ? "No comments yet. Players can start the discussion."
                             : "Comments are disabled for this announcement."
             );
             emptyComments.getStyleClass().add("annonce-comment-empty");
@@ -420,7 +585,7 @@ public class AnnonceUserController {
         VBox addCommentSection = buildInlineCommentForm(annonce);
 
         commentsSection.getChildren().addAll(commentsTitle, commentsStack, addCommentSection);
-        card.getChildren().addAll(header, metaFlow, descriptionBox, commentsSection);
+        card.getChildren().addAll(identityRow, titleLabel, metaFlow, descriptionBox, commentsSection);
         return card;
     }
 
@@ -428,32 +593,26 @@ public class AnnonceUserController {
         VBox formBox = new VBox(10);
         formBox.getStyleClass().add("annonce-post-comment-form");
 
-        Label hint = new Label(
-                isCommentsEnabled(annonce)
-                        ? "Add a comment to this post."
-                        : "Comments are disabled for this post."
+        User currentUser = getCurrentUser();
+        boolean canComment = serviceReady && isCurrentUserJoueur() && isCommentsEnabled(annonce)
+                && currentUser != null && currentUser.getId() != null;
+
+        HBox authorRow = new HBox(10);
+        authorRow.setAlignment(Pos.CENTER_LEFT);
+        authorRow.getStyleClass().add("annonce-inline-author-row");
+        authorRow.getChildren().addAll(
+                createAvatarNode(currentUser, buildDisplayName(currentUser), true),
+                buildInlineAuthorInfo(currentUser, canComment, annonce)
         );
-        hint.getStyleClass().add("annonce-section-note");
-
-        TextField auteurField = new TextField();
-        auteurField.setPromptText("Your name");
-        auteurField.getStyleClass().add("form-text-field");
-
-        TextField joueurIdField = new TextField();
-        joueurIdField.setPromptText("Player ID (optional)");
-        joueurIdField.getStyleClass().add("form-text-field");
-        configureNumericField(joueurIdField);
-
-        HBox topRow = new HBox(10, auteurField, joueurIdField);
-        topRow.getStyleClass().add("annonce-form-inline");
-        HBox.setHgrow(auteurField, Priority.ALWAYS);
-        HBox.setHgrow(joueurIdField, Priority.ALWAYS);
 
         TextArea commentaireArea = new TextArea();
-        commentaireArea.setPromptText("Write a comment...");
+        commentaireArea.setPromptText(canComment
+                ? "Write a comment as " + buildDisplayName(currentUser) + "..."
+                : "Only joueur accounts can comment");
         commentaireArea.setWrapText(true);
         commentaireArea.setPrefRowCount(3);
         commentaireArea.getStyleClass().add("annonce-text-area");
+        commentaireArea.setDisable(!canComment);
 
         Label validationLabel = new Label();
         validationLabel.getStyleClass().add("annonce-section-note");
@@ -463,27 +622,19 @@ public class AnnonceUserController {
         HBox actions = new HBox(10);
         Button postButton = new Button("Post comment");
         postButton.getStyleClass().add("primary-button");
+        postButton.setDisable(!canComment);
 
         Button clearButton = new Button("Clear");
         clearButton.getStyleClass().add("ghost-button");
+        clearButton.setDisable(!canComment);
 
         actions.getChildren().addAll(postButton, clearButton);
 
-        boolean commentsOpen = isCommentsEnabled(annonce) && serviceReady;
-        auteurField.setDisable(!commentsOpen);
-        joueurIdField.setDisable(!commentsOpen);
-        commentaireArea.setDisable(!commentsOpen);
-        postButton.setDisable(!commentsOpen);
-
         clearButton.setOnAction(event -> {
-            auteurField.clear();
-            joueurIdField.clear();
             commentaireArea.clear();
             validationLabel.setText("");
             validationLabel.setManaged(false);
             validationLabel.setVisible(false);
-            clearFieldError(auteurField);
-            clearFieldError(joueurIdField);
             clearFieldError(commentaireArea);
         });
 
@@ -491,14 +642,9 @@ public class AnnonceUserController {
             validationLabel.setText("");
             validationLabel.setManaged(false);
             validationLabel.setVisible(false);
-            clearFieldError(auteurField);
-            clearFieldError(joueurIdField);
             clearFieldError(commentaireArea);
 
             String contenu = emptyToNull(commentaireArea.getText());
-            Integer joueurId = parseOptionalInteger(joueurIdField);
-            String auteur = emptyToNull(auteurField.getText());
-
             if (contenu == null) {
                 markFieldInvalid(commentaireArea);
                 validationLabel.setText("Comment content is required.");
@@ -507,19 +653,12 @@ public class AnnonceUserController {
                 return;
             }
 
-            if (joueurId == Integer.MIN_VALUE) {
-                validationLabel.setText("Player ID must be numeric.");
-                validationLabel.setManaged(true);
-                validationLabel.setVisible(true);
-                return;
-            }
-
             Commentaire commentaire = new Commentaire(
                     contenu,
                     LocalDate.now(),
-                    joueurId,
+                    currentUser.getId(),
                     annonce.getId(),
-                    auteur == null ? "Anonymous" : auteur,
+                    buildDisplayName(currentUser),
                     0,
                     "PENDING",
                     null
@@ -535,19 +674,42 @@ public class AnnonceUserController {
             }
         });
 
-        formBox.getChildren().addAll(hint, topRow, commentaireArea, validationLabel, actions);
+        formBox.getChildren().addAll(authorRow, commentaireArea, validationLabel, actions);
         return formBox;
+    }
+
+    private VBox buildInlineAuthorInfo(User currentUser, boolean canComment, Annonce annonce) {
+        VBox infoBox = new VBox(3);
+
+        Label authorLabel = new Label(buildDisplayName(currentUser));
+        authorLabel.getStyleClass().add("annonce-comment-author");
+
+        Label hint = new Label(canComment
+                ? "Commenting on " + fallbackText(annonce.getTitre(), "this post")
+                : isCommentsEnabled(annonce)
+                ? "Only joueur accounts can comment on posts."
+                : "Comments are disabled for this post.");
+        hint.setWrapText(true);
+        hint.getStyleClass().add("annonce-section-note");
+
+        infoBox.getChildren().addAll(authorLabel, hint);
+        return infoBox;
     }
 
     private VBox buildCommentCard(Commentaire commentaire) {
         VBox card = new VBox(10);
         card.getStyleClass().add("annonce-comment-card");
 
-        HBox header = new HBox(8);
+        User author = resolveCommentAuthor(commentaire);
+        String authorName = resolveCommentAuthorName(commentaire);
+
+        HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
 
+        StackPane avatar = createAvatarNode(author, authorName, true);
+
         VBox authorBox = new VBox(2);
-        Label authorLabel = new Label(fallbackText(commentaire.getAuteurAnonyme(), "Anonymous"));
+        Label authorLabel = new Label(authorName);
         authorLabel.getStyleClass().add("annonce-comment-author");
 
         Label dateLabel = new Label(formatDate(commentaire.getDateCommentaire()));
@@ -562,7 +724,7 @@ public class AnnonceUserController {
                 resolveCommentStatusStyle(commentaire.getModerationStatus())
         );
 
-        header.getChildren().addAll(authorBox, spacer, statusPill);
+        header.getChildren().addAll(avatar, authorBox, spacer, statusPill);
 
         Label bodyLabel = new Label(fallbackText(commentaire.getContenu(), ""));
         bodyLabel.setWrapText(true);
@@ -578,6 +740,49 @@ public class AnnonceUserController {
 
         card.getChildren().addAll(header, bodyLabel, footer);
         return card;
+    }
+
+    private StackPane createAvatarNode(User user, String displayName, boolean compact) {
+        StackPane shell = new StackPane();
+        shell.getStyleClass().add("annonce-avatar-shell");
+        shell.getStyleClass().add(compact ? "annonce-avatar-shell-sm" : "annonce-avatar-shell-md");
+
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(compact ? 42 : 54);
+        imageView.setFitHeight(compact ? 42 : 54);
+        imageView.setPreserveRatio(false);
+        imageView.setSmooth(true);
+        imageView.getStyleClass().add("annonce-avatar-image");
+
+        Label initialsLabel = new Label();
+        initialsLabel.getStyleClass().add("annonce-avatar-fallback");
+        initialsLabel.getStyleClass().add(compact ? "annonce-avatar-fallback-sm" : "annonce-avatar-fallback-md");
+
+        shell.getChildren().addAll(imageView, initialsLabel);
+        updateAvatarGraphic(shell, imageView, initialsLabel, user, displayName);
+        return shell;
+    }
+
+    private void updateAvatarGraphic(StackPane shell, ImageView imageView, Label fallbackLabel, User user, String displayName) {
+        Image image = loadProfileImage(user == null ? null : user.getPhoto());
+        boolean showImage = image != null;
+
+        if (shell != null) {
+            shell.getStyleClass().remove("annonce-avatar-shell-image");
+            if (showImage) {
+                shell.getStyleClass().add("annonce-avatar-shell-image");
+            }
+        }
+        if (imageView != null) {
+            imageView.setImage(image);
+            imageView.setVisible(showImage);
+            imageView.setManaged(showImage);
+        }
+        if (fallbackLabel != null) {
+            fallbackLabel.setText(buildInitials(displayName));
+            fallbackLabel.setVisible(!showImage);
+            fallbackLabel.setManaged(!showImage);
+        }
     }
 
     private Label createPill(String text, String statusStyle) {
@@ -625,41 +830,36 @@ public class AnnonceUserController {
         if (emptyToNull(annonce.getNiveauRequis()) != null) {
             parts.add(annonce.getNiveauRequis());
         }
-        if (annonce.getEntraineurId() != null) {
-            parts.add("Coach #" + annonce.getEntraineurId());
-        }
-        return parts.isEmpty() ? "Club announcement" : String.join(" • ", parts);
-    }
-
-    private void configureNumericField(TextField textField) {
-        textField.textProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue != null && !newValue.matches("\\d*")) {
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
-            }
-        });
-    }
-
-    private Integer parseOptionalInteger(TextField field) {
-        String value = emptyToNull(field.getText());
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            markFieldInvalid(field);
-            return Integer.MIN_VALUE;
-        }
+        parts.add(Boolean.TRUE.equals(annonce.getUrgent()) ? "Urgent update" : "Club feed");
+        return String.join(" • ", parts);
     }
 
     private void markFieldInvalid(Control control) {
-        if (!control.getStyleClass().contains("invalid-field")) {
+        if (control != null && !control.getStyleClass().contains("invalid-field")) {
             control.getStyleClass().add("invalid-field");
         }
     }
 
     private void clearFieldError(Control control) {
-        control.getStyleClass().remove("invalid-field");
+        if (control != null) {
+            control.getStyleClass().remove("invalid-field");
+        }
+    }
+
+    private void clearComposerValidation() {
+        if (composerValidationLabel != null) {
+            composerValidationLabel.setText("");
+            composerValidationLabel.setManaged(false);
+            composerValidationLabel.setVisible(false);
+        }
+    }
+
+    private void setComposerValidation(String message) {
+        if (composerValidationLabel != null) {
+            composerValidationLabel.setText(message);
+            composerValidationLabel.setManaged(true);
+            composerValidationLabel.setVisible(true);
+        }
     }
 
     private void showMutedStatus(String message) {
@@ -723,6 +923,117 @@ public class AnnonceUserController {
 
     private String formatDate(LocalDate date) {
         return date == null ? "-" : DATE_FORMATTER.format(date);
+    }
+
+    private User getCurrentUser() {
+        return AuthSession.getCurrentUser();
+    }
+
+    private boolean isCurrentUserJoueur() {
+        User currentUser = getCurrentUser();
+        return currentUser != null && currentUser.hasRole(UserRoles.ROLE_JOUEUR);
+    }
+
+    private User resolveAnnonceAuthor(Annonce annonce) {
+        if (annonce == null || annonce.getEntraineurId() == null) {
+            return null;
+        }
+        return resolveUserById(annonce.getEntraineurId());
+    }
+
+    private String resolveAnnonceAuthorName(Annonce annonce) {
+        User author = resolveAnnonceAuthor(annonce);
+        if (author != null) {
+            return buildDisplayName(author);
+        }
+        if (annonce != null && annonce.getEntraineurId() != null) {
+            return "User #" + annonce.getEntraineurId();
+        }
+        return "Sport Insight user";
+    }
+
+    private User resolveCommentAuthor(Commentaire commentaire) {
+        if (commentaire == null || commentaire.getJoueurId() == null) {
+            return null;
+        }
+        return resolveUserById(commentaire.getJoueurId());
+    }
+
+    private String resolveCommentAuthorName(Commentaire commentaire) {
+        User author = resolveCommentAuthor(commentaire);
+        if (author != null) {
+            return buildDisplayName(author);
+        }
+        return fallbackText(commentaire == null ? null : commentaire.getAuteurAnonyme(), "Anonymous");
+    }
+
+    private User resolveUserById(Integer userId) {
+        if (userId == null) {
+            return null;
+        }
+        if (userCache.containsKey(userId)) {
+            return userCache.get(userId);
+        }
+        if (userService == null) {
+            userCache.put(userId, null);
+            return null;
+        }
+        try {
+            User user = userService.getById(userId);
+            userCache.put(userId, user);
+            return user;
+        } catch (SQLException ignored) {
+            userCache.put(userId, null);
+            return null;
+        }
+    }
+
+    private Image loadProfileImage(String rawPath) {
+        String candidate = emptyToNull(rawPath);
+        if (candidate == null) {
+            return null;
+        }
+
+        try {
+            if (candidate.startsWith("http://") || candidate.startsWith("https://") || candidate.startsWith("file:")) {
+                Image image = new Image(candidate, false);
+                return image.isError() ? null : image;
+            }
+
+            Path path = Path.of(candidate);
+            if (Files.exists(path)) {
+                Image image = new Image(path.toUri().toString(), false);
+                return image.isError() ? null : image;
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+        return null;
+    }
+
+    private String buildDisplayName(User user) {
+        if (user == null) {
+            return "Sport Insight user";
+        }
+        String displayName = emptyToNull(user.getDisplayName());
+        if (displayName != null) {
+            return displayName;
+        }
+
+        String fullName = ((emptyIfNull(user.getPrenom()) + " " + emptyIfNull(user.getNom())).trim());
+        if (!fullName.isBlank()) {
+            return fullName;
+        }
+        return fallbackText(user.getEmail(), "Sport Insight user");
+    }
+
+    private String buildInitials(String displayName) {
+        String safeName = fallbackText(displayName, "Sport Insight");
+        String[] parts = safeName.trim().split("\\s+");
+        if (parts.length == 1) {
+            return safeName.substring(0, Math.min(2, safeName.length())).toUpperCase(Locale.ROOT);
+        }
+        return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase(Locale.ROOT);
     }
 
     private String normalize(String value) {

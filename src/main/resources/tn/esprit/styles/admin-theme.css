@@ -2,6 +2,8 @@
 @import "joueur-theme.css";
 @import "match-theme.css";
 @import "annonce-theme.css";
+@import "sponsor-theme.css";
+@import "product-theme.css";
 
 .admin-page-root {
     -fx-background-color:

@@ -56,6 +56,12 @@
                     maxWidth="Infinity"
                     styleClass="admin-nav-button"/>
 
+            <Button fx:id="productsNavButton"
+                    onAction="#handleProducts"
+                    text="Products"
+                    maxWidth="Infinity"
+                    styleClass="admin-nav-button"/>
+
             <Button fx:id="entrainementsNavButton"
                     onAction="#handleEntrainements"
                     text="Entrainements"

@@ -118,6 +118,10 @@
     -fx-spacing: 12;
 }
 
+.annonce-composer-card {
+    -fx-spacing: 14;
+}
+
 .section-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 20px;
@@ -251,6 +255,17 @@
     -fx-spacing: 10;
 }
 
+.annonce-post-author-row,
+.annonce-inline-author-row {
+    -fx-spacing: 12;
+}
+
+.annonce-post-author {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
 .annonce-post-date {
     -fx-font-size: 11px;
     -fx-font-weight: 800;
@@ -313,6 +328,64 @@
     -fx-spacing: 10;
 }
 
+.annonce-avatar-shell {
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dbeafe 0%, #bfdbfe 100%);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-border-radius: 999;
+}
+
+.annonce-avatar-shell-image {
+    -fx-background-color: rgba(15, 23, 42, 0.08);
+}
+
+.annonce-avatar-shell-sm {
+    -fx-min-width: 42;
+    -fx-pref-width: 42;
+    -fx-max-width: 42;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-max-height: 42;
+}
+
+.annonce-avatar-shell-md {
+    -fx-min-width: 54;
+    -fx-pref-width: 54;
+    -fx-max-width: 54;
+    -fx-min-height: 54;
+    -fx-pref-height: 54;
+    -fx-max-height: 54;
+}
+
+.annonce-avatar-shell-lg {
+    -fx-min-width: 52;
+    -fx-pref-width: 52;
+    -fx-max-width: 52;
+    -fx-min-height: 52;
+    -fx-pref-height: 52;
+    -fx-max-height: 52;
+}
+
+.annonce-avatar-image {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+}
+
+.annonce-avatar-fallback {
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.annonce-avatar-fallback-sm {
+    -fx-font-size: 14px;
+}
+
+.annonce-avatar-fallback-md,
+.annonce-avatar-fallback-lg {
+    -fx-font-size: 18px;
+}
+
 .annonce-comment-author {
     -fx-font-size: 13px;
     -fx-font-weight: 800;
@@ -361,6 +434,7 @@
 }
 
 .annonce-user-dark .section-title,
+.annonce-user-dark .annonce-post-author,
 .annonce-user-dark .annonce-post-title,
 .annonce-user-dark .annonce-comments-title,
 .annonce-user-dark .annonce-comment-author {
@@ -413,6 +487,15 @@
     -fx-text-fill: #cbd5e1;
 }
 
+.annonce-user-dark .annonce-avatar-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 41, 59, 0.98) 0%, rgba(51, 65, 85, 0.98) 100%);
+    -fx-border-color: rgba(100, 116, 139, 0.48);
+}
+
+.annonce-user-dark .annonce-avatar-fallback {
+    -fx-text-fill: #e2e8f0;
+}
+
 /* Admin shell neutral overrides */
 .admin-light .panel-card,
 .admin-light .annonce-post-card,
@@ -431,6 +514,7 @@
 }
 
 .admin-dark .section-title,
+.admin-dark .annonce-post-author,
 .admin-dark .annonce-post-title,
 .admin-dark .annonce-comments-title,
 .admin-dark .annonce-comment-author {
