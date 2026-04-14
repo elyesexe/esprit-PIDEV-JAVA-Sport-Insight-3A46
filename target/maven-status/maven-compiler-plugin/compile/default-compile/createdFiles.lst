@@ -5,10 +5,13 @@ tn\esprit\Controller\MatchListController.class
 tn\esprit\Controller\JoueurController.class
 tn\esprit\Controller\MatchListController$3.class
 tn\esprit\gui\HomeMain.class
+tn\esprit\services\SponsoringWorkspaceService.class
 tn\esprit\Controller\EquipeCompetitionController.class
+tn\esprit\services\SponsoringWorkspaceService$SponsorBudgetPoint.class
 tn\esprit\Controller\JoueurController$2.class
 tn\esprit\services\FootballDataSyncService$MatchRow.class
 tn\esprit\Controller\MatchController$5.class
+tn\esprit\Controller\SponsorAdminController$ContractRow.class
 tn\esprit\entities\Order.class
 tn\esprit\entities\MatchLineup.class
 tn\esprit\Controller\LeagueTableController.class
@@ -25,6 +28,7 @@ tn\esprit\services\FootballDataSyncService$PlayerRow.class
 tn\esprit\Controller\EquipeDetailController.class
 tn\esprit\Controller\EquipeController$1.class
 tn\esprit\tools\FootballDataConfig.class
+tn\esprit\services\SponsoringWorkspaceService$SponsoringSnapshot.class
 tn\esprit\Controller\AnnonceController.class
 tn\esprit\Controller\MatchListController$2.class
 tn\esprit\Controller\EquipeListController.class
@@ -32,10 +36,12 @@ tn\esprit\Controller\AdminDashboardController$DashboardPayload.class
 tn\esprit\mains\EntrainementMain.class
 tn\esprit\Controller\HomeController.class
 tn\esprit\entities\Entrainement.class
+tn\esprit\Controller\SponsorAdminController$SponsorOption.class
 tn\esprit\Controller\AdminDashboardController$OperationRow.class
 tn\esprit\Controller\MatchController.class
 tn\esprit\Controller\HomeController$DashboardCounts.class
 tn\esprit\Controller\EquipeFormController.class
+tn\esprit\Controller\SponsorAdminController$TeamOption.class
 tn\esprit\Controller\AdminDashboardController$AnnonceRow.class
 tn\esprit\Controller\JoueurListController$2.class
 tn\esprit\services\CommentaireService.class
@@ -71,10 +77,13 @@ tn\esprit\Controller\LoginController.class
 tn\esprit\gui\AdminNavigation.class
 tn\esprit\mains\ProductMain.class
 tn\esprit\services\UserService.class
+tn\esprit\Controller\SponsorAdminController$SponsorRow.class
 tn\esprit\gui\SidebarModuleGroup.class
 tn\esprit\Controller\MatchController$2.class
 tn\esprit\services\EvaluationService.class
 tn\esprit\services\football\LeagueStandingsSnapshot.class
+tn\esprit\Controller\SponsorUserController.class
+tn\esprit\tools\SponsorAssets.class
 tn\esprit\Controller\JoueurListController.class
 tn\esprit\Controller\MatchFormController.class
 tn\esprit\mains\AnnonceMain.class
@@ -94,7 +103,9 @@ tn\esprit\entities\Message.class
 tn\esprit\gui\EquipeCrudMain.class
 tn\esprit\Controller\MatchCompetitionController.class
 tn\esprit\Controller\LeagueTableController$2.class
+tn\esprit\Controller\SponsorAdminController.class
 tn\esprit\entities\EntrainementUser.class
+tn\esprit\services\SponsoringWorkspaceService$SponsoringStats.class
 tn\esprit\services\ProductService.class
 tn\esprit\entities\Matchs.class
 tn\esprit\entities\Participation.class
@@ -117,6 +128,7 @@ tn\esprit\Controller\EntrainementAdminController.class
 tn\esprit\gui\JoueurCrudMain.class
 tn\esprit\Controller\MatchListController$RefreshPayload.class
 tn\esprit\Controller\AdminDashboardController$1.class
+tn\esprit\services\SponsoringPdfService.class
 tn\esprit\services\football\LeagueStandingEntry.class
 tn\esprit\Controller\HomeController$1.class
 tn\esprit\services\SponsorService.class
@@ -124,6 +136,7 @@ tn\esprit\mains\MatchMain.class
 tn\esprit\services\FootballDataSyncService$TeamRow.class
 tn\esprit\Controller\EquipeListController$3.class
 tn\esprit\gui\EquipeUiSupport.class
+tn\esprit\Controller\SponsorUserController$ContractViewModel.class
 tn\esprit\Controller\AdminDashboardController.class
 tn\esprit\mains\SponsorMain.class
 tn\esprit\Controller\AnnonceUserController.class

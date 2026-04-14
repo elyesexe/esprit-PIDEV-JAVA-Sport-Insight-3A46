@@ -24,6 +24,8 @@ C:\PI Java\src\main\java\tn\esprit\Controller\MatchFormController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchListController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\ProfileController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\SignupController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\SponsorAdminController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\SponsorUserController.java
 C:\PI Java\src\main\java\tn\esprit\entities\Annonce.java
 C:\PI Java\src\main\java\tn\esprit\entities\ChatMessage.java
 C:\PI Java\src\main\java\tn\esprit\entities\Commentaire.java
@@ -86,8 +88,11 @@ C:\PI Java\src\main\java\tn\esprit\services\MatchsService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderService.java
 C:\PI Java\src\main\java\tn\esprit\services\ParticipationService.java
 C:\PI Java\src\main\java\tn\esprit\services\ProductService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsoringPdfService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsoringWorkspaceService.java
 C:\PI Java\src\main\java\tn\esprit\services\SponsorService.java
 C:\PI Java\src\main\java\tn\esprit\services\UserService.java
 C:\PI Java\src\main\java\tn\esprit\tools\FootballDataConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\MyConnection.java
 C:\PI Java\src\main\java\tn\esprit\tools\SchemaMigration.java
+C:\PI Java\src\main\java\tn\esprit\tools\SponsorAssets.java

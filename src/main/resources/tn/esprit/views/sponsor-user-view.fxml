@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.SponsorUserController"
+            fx:id="pageRoot"
+            styleClass="page-root sponsor-page-root sponsor-user-root">
+
+    <top>
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs +"
+                            styleClass="navbar-nav-button"/>
+
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Annonce"
+                            styleClass="navbar-nav-button"/>
+                    <Button fx:id="sponsorNavButton"
+                            onAction="#handleOpenSponsors"
+                            text="Sponsors"
+                            styleClass="navbar-nav-button navbar-nav-button-active"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    fx:id="pageScroll"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane fx:id="pageShellWrap" styleClass="page-shell-wrap">
+                    <VBox fx:id="pageShell" spacing="20" styleClass="page-shell sponsor-user-shell" maxWidth="1280">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <StackPane styleClass="hero-shell sponsor-hero-shell">
+                            <Region styleClass="sponsor-hero-photo"/>
+                            <Region styleClass="hero-overlay"/>
+                            <VBox spacing="14" styleClass="hero-content">
+                                <Label text="Club partnerships" styleClass="hero-eyebrow"/>
+                                <Label text="Sponsors and contracts" styleClass="hero-title"/>
+                                <Label text="Browse the brands that support Sport Insight and review the active contract portfolio in one read-only space."
+                                       wrapText="true"
+                                       styleClass="hero-text"/>
+
+                                <HBox spacing="12" styleClass="sponsor-metric-row">
+                                    <VBox styleClass="sponsor-metric-card">
+                                        <Label text="Sponsors" styleClass="sponsor-metric-label"/>
+                                        <Label fx:id="totalSponsorsMetricLabel" text="0" styleClass="sponsor-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="sponsor-metric-card">
+                                        <Label text="Contracts" styleClass="sponsor-metric-label"/>
+                                        <Label fx:id="totalContractsMetricLabel" text="0" styleClass="sponsor-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="sponsor-metric-card">
+                                        <Label text="Budget total" styleClass="sponsor-metric-label"/>
+                                        <Label fx:id="totalBudgetMetricLabel" text="0" styleClass="sponsor-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="sponsor-metric-card">
+                                        <Label text="Avg contract" styleClass="sponsor-metric-label"/>
+                                        <Label fx:id="averageContractMetricLabel" text="0" styleClass="sponsor-metric-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                        </StackPane>
+
+                        <VBox spacing="12" styleClass="toolbar-panel panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4">
+                                    <Label text="Find sponsors" styleClass="section-title"/>
+                                    <Label text="Search the sponsor directory and the linked contracts without editing anything."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="toolbarSummaryLabel" text="0 sponsors / 0 contracts" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="statusLabel" text="Sponsor feed ready" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+
+                            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="toolbar-row">
+                                <TextField fx:id="searchField"
+                                           promptText="Search sponsor, address, payment, team, or description"
+                                           styleClass="form-field"
+                                           HBox.hgrow="ALWAYS"/>
+                                <ComboBox fx:id="teamFilterComboBox"
+                                          prefWidth="180"
+                                          promptText="All teams"
+                                          styleClass="form-combo"/>
+                                <ComboBox fx:id="paymentFilterComboBox"
+                                          prefWidth="180"
+                                          promptText="All payments"
+                                          styleClass="form-combo"/>
+                                <ComboBox fx:id="sortComboBox"
+                                          prefWidth="170"
+                                          styleClass="form-combo"/>
+                                <Button text="Refresh"
+                                        onAction="#handleRefresh"
+                                        styleClass="primary-button"/>
+                                <Button text="Reset"
+                                        onAction="#handleResetFilters"
+                                        styleClass="ghost-button"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="14">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Sponsor directory" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="sponsorCountLabel" text="0 visible" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+                            <FlowPane fx:id="sponsorCardsPane"
+                                      hgap="18"
+                                      vgap="18"
+                                      prefWrapLength="1180"
+                                      styleClass="sponsor-cards"/>
+                        </VBox>
+
+                        <VBox spacing="14">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Contract portfolio" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="contractCountLabel" text="0 visible" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+                            <VBox fx:id="contractCardsPane" spacing="18"/>
+                        </VBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

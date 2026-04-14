@@ -48,7 +48,8 @@ public class SignupController {
     @FXML
     private Button createAccountButton;
 
-    private UserService userService;
+    private volatile UserService userService;
+    private volatile boolean userServiceLoading;
 
     @FXML
     public void initialize() {
@@ -61,16 +62,13 @@ public class SignupController {
         }
         hideFeedback();
         Platform.runLater(this::applyAuthThemeChrome);
+        userServiceLoading = true;
+        showFeedback("Preparing the registration service...", "auth-feedback-muted");
         if (dateNaissancePicker != null) {
             dateNaissancePicker.setEditable(false);
         }
-
-        try {
-            userService = new UserService();
-        } catch (IllegalStateException ex) {
-            createAccountButton.setDisable(true);
-            showFeedback("The database connection is unavailable. Please check your local setup and try again.", "auth-feedback-error");
-        }
+        createAccountButton.setDisable(true);
+        loadUserServiceAsync();
     }
 
     @FXML
@@ -110,7 +108,10 @@ public class SignupController {
             return;
         }
         if (userService == null) {
-            showFeedback("The registration service is not ready yet.", "auth-feedback-error");
+            showFeedback(userServiceLoading
+                    ? "Registration is still starting. Please wait a moment and try again."
+                    : "The registration service is unavailable. Please check your database setup and try again.",
+                    "auth-feedback-error");
             return;
         }
 
@@ -193,5 +194,34 @@ public class SignupController {
             String fill = themeToggleButton != null && themeToggleButton.isSelected() ? "#030712" : "#eff6ff";
             authRoot.getScene().setFill(Paint.valueOf(fill));
         }
+    }
+
+    private void loadUserServiceAsync() {
+        Thread loaderThread = new Thread(() -> {
+            try {
+                UserService service = new UserService();
+                Platform.runLater(() -> {
+                    userServiceLoading = false;
+                    userService = service;
+                    if (createAccountButton != null) {
+                        createAccountButton.setDisable(false);
+                    }
+                    hideFeedback();
+                });
+            } catch (IllegalStateException ex) {
+                Platform.runLater(() -> {
+                    userServiceLoading = false;
+                    if (createAccountButton != null) {
+                        createAccountButton.setDisable(true);
+                    }
+                    String reason = ex.getCause() != null && ex.getCause().getMessage() != null
+                            ? ex.getCause().getMessage()
+                            : ex.getMessage();
+                    showFeedback("Database connection failed: " + reason, "auth-feedback-error");
+                });
+            }
+        }, "signup-user-service-loader");
+        loaderThread.setDaemon(true);
+        loaderThread.start();
     }
 }
