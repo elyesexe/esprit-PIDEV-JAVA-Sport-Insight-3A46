@@ -217,6 +217,14 @@
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #34d399 100%);
 }
 
+.home-link-icon-sponsors {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0ea5e9 0%, #22c55e 100%);
+}
+
+.home-link-icon-store {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #f59e0b 100%);
+}
+
 .home-link-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 18px;

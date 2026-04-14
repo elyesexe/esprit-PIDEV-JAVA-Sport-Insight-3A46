@@ -1,10 +1,12 @@
 package tn.esprit.Controller;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -41,6 +43,7 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+import tn.esprit.services.wikidata.WikidataPlayerImageService;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -54,17 +57,24 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.regex.Pattern;
 
 public class JoueurController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final Path SYMFONY_JOUEURS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "joueurs");
     private static final double CARD_IMAGE_SIZE = 82;
+    private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("joueur-image-import"));
     private static final Pattern PERSON_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L} .'-]{0,100}");
     private static final Pattern PERSON_NAME_PATTERN = Pattern.compile("[\\p{L} .'-]{2,100}");
     private static final Pattern IMAGE_REFERENCE_PATTERN = Pattern.compile("(?i).+\\.(png|jpe?g|gif|bmp|webp)$");
@@ -179,6 +189,7 @@ public class JoueurController {
     private File lastImageDirectory;
     private boolean serviceReady;
     private SidebarModuleGroup sidebarModuleGroup;
+    private final Set<Integer> loadingImageIds = new HashSet<>();
 
     @FXML
     public void initialize() {
@@ -488,6 +499,7 @@ public class JoueurController {
         clearValidation();
         updateActionAvailability();
         updateDetailPanel();
+        triggerLazyImageImport(newValue);
     }
 
     private void bindUiState() {
@@ -863,6 +875,83 @@ public class JoueurController {
         detailImageFallbackLabel.setManaged(!hasImage);
         detailImageFallbackLabel.setVisible(!hasImage);
         detailImageFallbackLabel.setText(buildDraftInitials());
+    }
+
+    private void triggerLazyImageImport(Joueur joueur) {
+        if (!serviceReady || joueur == null || joueur.getId() == null || !needsLazyImageImport(joueur)) {
+            return;
+        }
+        if (!loadingImageIds.add(joueur.getId())) {
+            return;
+        }
+
+        showMutedStatus("Importing player photo for " + buildFullName(joueur) + "...");
+
+        Task<String> imageImportTask = new Task<>() {
+            @Override
+            protected String call() throws Exception {
+                JoueurService backgroundService = new JoueurService();
+                Joueur fresh = backgroundService.getById(joueur.getId());
+                if (fresh == null || !needsLazyImageImport(fresh)) {
+                    return null;
+                }
+
+                WikidataPlayerImageService imageService = new WikidataPlayerImageService();
+                String imagePath = imageService.resolvePlayerImagePath(fresh);
+                if (imagePath == null || imagePath.isBlank()) {
+                    return null;
+                }
+
+                backgroundService.updateImage(fresh.getId(), imagePath);
+                return imagePath;
+            }
+        };
+
+        imageImportTask.setOnSucceeded(event -> {
+            loadingImageIds.remove(joueur.getId());
+            String imagePath = imageImportTask.getValue();
+            if (imagePath == null || imagePath.isBlank()) {
+                showMutedStatus("No online photo found for " + buildFullName(joueur) + ".");
+                return;
+            }
+
+            joueur.setImage(imagePath);
+            if (selectedJoueur != null && Objects.equals(selectedJoueur.getId(), joueur.getId())) {
+                selectedJoueur.setImage(imagePath);
+                imageField.setText(imagePath);
+                updateDetailPanel();
+            }
+            if (joueurListView != null) {
+                joueurListView.refresh();
+            }
+            if (joueurTableView != null) {
+                joueurTableView.refresh();
+            }
+            showSuccessStatus("Player photo imported for " + buildFullName(joueur) + ".");
+        });
+
+        imageImportTask.setOnFailed(event -> {
+            loadingImageIds.remove(joueur.getId());
+            Throwable throwable = imageImportTask.getException();
+            showErrorStatus("Could not import photo for " + buildFullName(joueur) + ".");
+            if (throwable != null) {
+                System.err.println("Lazy player image import failed: " + throwable.getMessage());
+            }
+        });
+
+        IMAGE_IMPORT_EXECUTOR.execute(imageImportTask);
+    }
+
+    private boolean needsLazyImageImport(Joueur joueur) {
+        if (joueur == null) {
+            return false;
+        }
+        String image = emptyToNull(joueur.getImage());
+        if (image == null) {
+            return true;
+        }
+        String normalized = image.replace('\\', '/').toLowerCase();
+        return normalized.contains("fd-player-");
     }
 
     private String buildDetailSubtitle(
@@ -1241,6 +1330,14 @@ public class JoueurController {
         }
 
         return null;
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 
     private URL resolveResource(String imagePath) {

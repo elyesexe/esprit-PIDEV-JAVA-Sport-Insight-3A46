@@ -329,6 +329,82 @@
                                     </graphic>
                                 </Button>
 
+                                <!-- SPONSORS -->
+                                <Button fx:id="sponsorsModuleBox"
+                                        onAction="#handleOpenSponsors"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/sponsor.jpg"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-sponsors"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Sponsors" styleClass="home-link-title"/>
+                                                <Label text="Browse partnerships and contracts"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
+
+                                <!-- STORE -->
+                                <Button fx:id="storeModuleBox"
+                                        onAction="#handleOpenStore"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/store.png"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-store"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="Store" styleClass="home-link-title"/>
+                                                <Label text="Shop products and confirm orders"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
+
                             </FlowPane>
                         </VBox>
 

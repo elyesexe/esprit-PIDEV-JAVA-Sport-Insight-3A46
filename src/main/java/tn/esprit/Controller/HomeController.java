@@ -1,7 +1,11 @@
 package tn.esprit.Controller;
 
 import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,10 +18,12 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.Node;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
@@ -89,7 +95,9 @@ public class HomeController {
     @FXML
     private Button trainModuleBox;
     @FXML
-    private VBox storeModuleBox;
+    private Button sponsorsModuleBox;
+    @FXML
+    private Button storeModuleBox;
 
     private Timeline dateRefreshTimeline;
     private SidebarModuleGroup sidebarModuleGroup;
@@ -119,6 +127,8 @@ public class HomeController {
         if (homeSearchField != null) {
             homeSearchField.textProperty().addListener((obs, oldVal, newVal) -> applyHomeSearchFilter(newVal));
         }
+
+        Platform.runLater(this::installTileHoverAnimations);
     }
 
     /**
@@ -132,6 +142,7 @@ public class HomeController {
             setModuleVisible(matchsButton, true);
             setModuleVisible(annoncesModuleBox, true);
             setModuleVisible(trainModuleBox, true);
+            setModuleVisible(sponsorsModuleBox, true);
             setModuleVisible(storeModuleBox, true);
             return;
         }
@@ -140,14 +151,16 @@ public class HomeController {
         boolean matches = matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games");
         boolean news = matchesTokens(n, "news", "annonce", "annonces", "update", "updates");
         boolean training = matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions");
+        boolean sponsors = matchesTokens(n, "sponsor", "sponsors", "contract", "contracts", "partnership", "partnerships");
         boolean store = matchesTokens(n, "store", "shop", "product", "products", "order", "orders");
-        boolean any = teams || players || matches || news || training || store;
+        boolean any = teams || players || matches || news || training || sponsors || store;
         if (!any) {
             setModuleVisible(equipesButton, true);
             setModuleVisible(joueursButton, true);
             setModuleVisible(matchsButton, true);
             setModuleVisible(annoncesModuleBox, true);
             setModuleVisible(trainModuleBox, true);
+            setModuleVisible(sponsorsModuleBox, true);
             setModuleVisible(storeModuleBox, true);
             return;
         }
@@ -156,6 +169,7 @@ public class HomeController {
         setModuleVisible(matchsButton, matches);
         setModuleVisible(annoncesModuleBox, news);
         setModuleVisible(trainModuleBox, training);
+        setModuleVisible(sponsorsModuleBox, sponsors);
         setModuleVisible(storeModuleBox, store);
     }
 
@@ -220,6 +234,10 @@ public class HomeController {
             handleOpenAnnonces();
         } else if (matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions")) {
             handleOpenEntrainements();
+        } else if (matchesTokens(n, "sponsor", "sponsors", "contract", "contracts", "partnership", "partnerships")) {
+            handleOpenSponsors();
+        } else if (matchesTokens(n, "store", "shop", "product", "products", "order", "orders")) {
+            handleOpenStore();
         } else {
             Alert hint = new Alert(Alert.AlertType.INFORMATION);
             hint.setTitle("Search");
@@ -405,6 +423,18 @@ public class HomeController {
     }
 
     @FXML
+    private void handleOpenSponsors() {
+        Node source = sponsorsModuleBox != null ? sponsorsModuleBox : sidebarBrandBox;
+        SceneNavigator.switchScene(source, "/tn/esprit/views/sponsor-user-view.fxml", "/tn/esprit/styles/sponsor-theme.css", "Sponsors | Sport Insight");
+    }
+
+    @FXML
+    private void handleOpenStore() {
+        Node source = storeModuleBox != null ? storeModuleBox : sidebarBrandBox;
+        SceneNavigator.switchScene(source, "/tn/esprit/views/store-view.fxml", "/tn/esprit/styles/store-theme.css", "Store | Sport Insight");
+    }
+
+    @FXML
     private void handleOpenLeagues() {
         SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
     }
@@ -422,5 +452,58 @@ public class HomeController {
     }
 
     private record DashboardCounts(int matchesToday, int activePlayers, int pendingTasks) {
+    }
+
+    private void installTileHoverAnimations() {
+        installHoverAnimation(equipesButton);
+        installHoverAnimation(joueursButton);
+        installHoverAnimation(matchsButton);
+        installHoverAnimation(annoncesModuleBox);
+        installHoverAnimation(trainModuleBox);
+        installHoverAnimation(sponsorsModuleBox);
+        installHoverAnimation(storeModuleBox);
+    }
+
+    private static void installHoverAnimation(Button card) {
+        if (card == null) {
+            return;
+        }
+
+        card.setOnMouseEntered(e -> playHover(card, true));
+        card.setOnMouseExited(e -> playHover(card, false));
+    }
+
+    private static void playHover(Button card, boolean hovered) {
+        Node content = card.lookup(".home-link-content");
+        if (content == null) {
+            content = card;
+        }
+        Node bg = card.lookup(".home-link-bg");
+
+        double targetScale = hovered ? 1.035 : 1.0;
+        double targetTranslate = hovered ? -6.0 : 0.0;
+
+        ScaleTransition scale = new ScaleTransition(Duration.millis(160), content);
+        scale.setToX(targetScale);
+        scale.setToY(targetScale);
+
+        TranslateTransition lift = new TranslateTransition(Duration.millis(160), content);
+        lift.setToY(targetTranslate);
+
+        ParallelTransition parallel = new ParallelTransition(scale, lift);
+
+        if (bg != null) {
+            TranslateTransition parallax = new TranslateTransition(Duration.millis(180), bg);
+            parallax.setToY(hovered ? -10.0 : 0.0);
+            parallel.getChildren().add(parallax);
+        }
+
+        if (hovered) {
+            content.setEffect(new DropShadow(28, 0, 10, Color.color(0.06, 0.09, 0.16, 0.35)));
+        } else {
+            content.setEffect(null);
+        }
+
+        parallel.play();
     }
 }

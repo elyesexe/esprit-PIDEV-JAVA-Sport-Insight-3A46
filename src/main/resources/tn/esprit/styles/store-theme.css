@@ -28,10 +28,15 @@
 }
 
 .store-page-root .store-hero-photo {
-    -fx-background-image: url("../images/home-bg.jpg");
+    -fx-background-image: url("../images/store.png");
     -fx-background-size: cover;
     -fx-background-position: center center;
     -fx-background-radius: 30;
+}
+
+/* Backup: if a shared ".hero-photo" selector wins, force store.png anyway. */
+.store-page-root .hero-photo {
+    -fx-background-image: url("../images/store.png");
 }
 
 .store-page-root .hero-overlay {

@@ -128,7 +128,7 @@
                         </padding>
 
                         <StackPane styleClass="store-hero-shell hero-shell">
-                            <Region styleClass="store-hero-photo hero-photo"/>
+                            <Region fx:id="heroPhotoRegion" styleClass="store-hero-photo hero-photo"/>
                             <Region styleClass="hero-overlay"/>
 
                             <VBox spacing="14" styleClass="hero-content">
