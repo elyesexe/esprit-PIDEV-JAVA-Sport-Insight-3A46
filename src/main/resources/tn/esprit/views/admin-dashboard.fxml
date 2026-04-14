@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -66,6 +71,95 @@
                         <Label text="Matchs" styleClass="admin-kpi-label"/>
                         <Label fx:id="matchCountLabel" text="..." styleClass="admin-kpi-value"/>
                         <Label text="rencontres en base" styleClass="admin-kpi-meta"/>
+                    </VBox>
+                </FlowPane>
+
+                <FlowPane hgap="18" vgap="18" prefWrapLength="1180" styleClass="admin-dashboard-grid">
+                    <VBox spacing="12" styleClass="panel-card admin-table-card admin-chart-card">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Statistiques equipe" styleClass="section-title admin-section-title"/>
+                                <Label text="Choisissez une equipe pour afficher son taux de victoire, nul et defaite."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                        </HBox>
+
+                        <ComboBox fx:id="teamStatsComboBox"
+                                  promptText="Choisir une equipe"
+                                  styleClass="glass-combo"/>
+
+                        <Label fx:id="teamStatsSummaryLabel"
+                               text="Selectionnez une equipe pour voir ses statistiques."
+                               wrapText="true"
+                               styleClass="admin-chart-summary"/>
+
+                        <BarChart fx:id="teamRateChart"
+                                  animated="false"
+                                  categoryGap="18"
+                                  legendVisible="false"
+                                  prefHeight="260"
+                                  styleClass="admin-stats-chart">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis autoRanging="false" lowerBound="0.0" upperBound="100.0" tickUnit="20.0" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+
+                    <VBox spacing="12" styleClass="panel-card admin-table-card admin-chart-card">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Statistiques joueurs" styleClass="section-title admin-section-title"/>
+                                <Label text="Repartition des joueurs par equipe pour suivre les effectifs."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="playerChartSummaryLabel"
+                               text="Chargement des statistiques joueurs..."
+                               wrapText="true"
+                               styleClass="admin-chart-summary"/>
+
+                        <BarChart fx:id="playerDistributionChart"
+                                  animated="false"
+                                  categoryGap="14"
+                                  legendVisible="false"
+                                  prefHeight="260"
+                                  styleClass="admin-stats-chart">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis forceZeroInRange="true" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+
+                    <VBox spacing="12" styleClass="panel-card admin-table-card admin-chart-card">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Statistiques matchs" styleClass="section-title admin-section-title"/>
+                                <Label text="Vue de la repartition des matchs selon leur statut actuel."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="matchChartSummaryLabel"
+                               text="Chargement des statistiques matchs..."
+                               wrapText="true"
+                               styleClass="admin-chart-summary"/>
+
+                        <PieChart fx:id="matchStatusChart"
+                                  clockwise="true"
+                                  labelsVisible="true"
+                                  legendVisible="true"
+                                  prefHeight="260"
+                                  styleClass="admin-stats-chart"/>
                     </VBox>
                 </FlowPane>
 
