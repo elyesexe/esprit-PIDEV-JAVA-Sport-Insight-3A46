@@ -123,7 +123,7 @@
                                     <Label fx:id="headerDateLabel" styleClass="home-date-chip"/>
                                 </HBox>
 
-                                <Label text="Welcome to Sport Insight" styleClass="home-title"/>
+                                <Label fx:id="welcomeTitleLabel" text="Welcome to Sport Insight" styleClass="home-title"/>
 
                                 <Label text="Sport Insight is a simple workspace for managing teams, players, matches and announcements in one place."
                                        wrapText="true"

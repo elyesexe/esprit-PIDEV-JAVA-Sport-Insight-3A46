@@ -21,9 +21,9 @@
 .standings-header-grid {
     -fx-padding: 4 12 4 12;
     -fx-hgap: 12;
-    -fx-background-color: rgba(15, 23, 42, 0.92);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(31, 41, 55, 0.96) 0%, rgba(22, 101, 52, 0.9) 100%);
     -fx-background-radius: 20;
-    -fx-border-color: rgba(30, 41, 59, 0.24);
+    -fx-border-color: rgba(21, 128, 61, 0.18);
     -fx-border-radius: 20;
     -fx-min-height: 48;
     -fx-alignment: center-left;
@@ -69,12 +69,12 @@
 }
 
 .standings-row-shell {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 15, 26, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%);
     -fx-background-radius: 20;
-    -fx-border-color: rgba(51, 65, 85, 0.85);
+    -fx-border-color: rgba(203, 213, 225, 0.95);
     -fx-border-radius: 20;
     -fx-padding: 12 14 12 14;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.2), 18, 0.18, 0, 8);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.10), 16, 0.16, 0, 7);
 }
 
 .standings-list-view .list-cell:filled:hover .standings-row-shell {
@@ -111,8 +111,8 @@
 }
 
 .position-zone-champions {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #0ea5e9 100%);
-    -fx-border-color: rgba(147, 197, 253, 0.72);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #16a34a 0%, #22c55e 100%);
+    -fx-border-color: rgba(134, 239, 172, 0.78);
 }
 
 .position-zone-europe {
@@ -131,9 +131,9 @@
 }
 
 .standings-team-crest-shell {
-    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-color: rgba(248, 250, 252, 0.96);
     -fx-background-radius: 18;
-    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-color: rgba(203, 213, 225, 0.88);
     -fx-border-radius: 18;
     -fx-padding: 6;
 }
@@ -142,20 +142,20 @@
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 14px;
     -fx-font-weight: 800;
-    -fx-text-fill: #f8fafc;
+    -fx-text-fill: #0f172a;
 }
 
 .standings-team-name {
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 20px;
     -fx-font-weight: 700;
-    -fx-text-fill: #f8fafc;
+    -fx-text-fill: #0f172a;
 }
 
 .standings-team-meta {
     -fx-font-size: 11px;
     -fx-font-weight: 700;
-    -fx-text-fill: #94a3b8;
+    -fx-text-fill: #64748b;
 }
 
 .standings-stat-value,
@@ -163,7 +163,7 @@
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 17px;
     -fx-font-weight: 700;
-    -fx-text-fill: #e2e8f0;
+    -fx-text-fill: #0f172a;
     -fx-alignment: center;
     -fx-max-width: infinity;
 }

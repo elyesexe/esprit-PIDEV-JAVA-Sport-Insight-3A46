@@ -1,9 +1,11 @@
 package tn.esprit.services;
 
 import tn.esprit.entities.Annonce;
+import tn.esprit.security.UserRoles;
 import tn.esprit.tools.MyConnection;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,6 +28,7 @@ public class AnnonceService implements IService<Annonce> {
 
     @Override
     public void add(Annonce annonce) throws SQLException {
+        validateCoachAuthor(annonce);
         String query = """
                 INSERT INTO annonce (
                     titre, description, poste_recherche, niveau_requis,
@@ -51,6 +54,7 @@ public class AnnonceService implements IService<Annonce> {
 
     @Override
     public void update(Annonce annonce) throws SQLException {
+        validateCoachAuthor(annonce);
         String query = """
                 UPDATE annonce
                 SET titre = ?, description = ?, poste_recherche = ?, niveau_requis = ?,
@@ -215,6 +219,22 @@ public class AnnonceService implements IService<Annonce> {
         return executeCountQuery("SELECT COUNT(*) FROM annonce WHERE urgent = TRUE");
     }
 
+    private void validateCoachAuthor(Annonce annonce) throws SQLException {
+        if (annonce == null || annonce.getEntraineurId() == null) {
+            throw new SQLException("Only coach accounts can create or update announcements.");
+        }
+        if (!tableExists("user")) {
+            return;
+        }
+        String role = getUserRoles(annonce.getEntraineurId());
+        if (role == null) {
+            throw new SQLException("The selected coach account does not exist.");
+        }
+        if (!UserRoles.hasRole(role, UserRoles.ROLE_ENTRAINEUR)) {
+            throw new SQLException("Only coach accounts can create or update announcements.");
+        }
+    }
+
     private void fillStatement(PreparedStatement statement, Annonce annonce, boolean fallbackMode) throws SQLException {
         statement.setString(1, annonce.getTitre());
         statement.setString(2, annonce.getDescription());
@@ -232,6 +252,31 @@ public class AnnonceService implements IService<Annonce> {
             statement.setBoolean(8, annonce.getCommentsEnabled() == null || annonce.getCommentsEnabled());
             statement.setBoolean(9, annonce.getUrgent() != null && annonce.getUrgent());
         }
+    }
+
+    private boolean tableExists(String tableName) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        try (ResultSet resultSet = metaData.getTables(null, null, tableName, null)) {
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+        try (ResultSet resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null)) {
+            return resultSet.next();
+        }
+    }
+
+    private String getUserRoles(int userId) throws SQLException {
+        String query = "SELECT roles FROM user WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("roles");
+                }
+            }
+        }
+        return null;
     }
 
     private List<Annonce> executeListQuery(String query) throws SQLException {

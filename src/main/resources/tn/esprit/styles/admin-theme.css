@@ -1130,6 +1130,25 @@
     -fx-prompt-text-fill: #a1a1aa;
 }
 
+.admin-dark .glass-combo,
+.admin-dark .glass-combo .list-cell,
+.admin-dark .glass-combo .text-field,
+.admin-dark .glass-combo > .list-cell,
+.admin-dark .glass-combo .arrow-button,
+.admin-dark .admin-chart-card .glass-combo,
+.admin-dark .admin-chart-card .glass-combo .list-cell,
+.admin-dark .admin-chart-card .glass-combo .text-field,
+.admin-dark .admin-chart-card .glass-combo > .list-cell {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-control-inner-background: rgba(24, 24, 27, 0.98);
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #a1a1aa;
+}
+
+.admin-dark .admin-chart-card .glass-combo .arrow-button {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+}
+
 .admin-dark .glass-combo .arrow,
 .admin-dark .form-date-picker .arrow,
 .admin-dark .match-date-picker .arrow {

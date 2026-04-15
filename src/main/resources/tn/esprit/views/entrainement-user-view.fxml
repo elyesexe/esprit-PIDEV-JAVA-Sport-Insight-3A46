@@ -162,7 +162,7 @@
                             </VBox>
                         </VBox>
 
-                        <VBox spacing="14" prefWidth="360" styleClass="panel-card">
+                        <VBox fx:id="managementPanel" spacing="14" prefWidth="360" styleClass="panel-card">
                             <Label text="Creer / Modifier" styleClass="section-title"/>
                             <Label fx:id="formHintLabel" text="Renseignez les details de la session."
                                    styleClass="section-subtitle"/>
@@ -205,6 +205,7 @@
                                    styleClass="section-subtitle"/>
                             <VBox fx:id="evaluationCardsPane" spacing="8"/>
                         </VBox>
+
                     </HBox>
                 </VBox>
                 </StackPane>

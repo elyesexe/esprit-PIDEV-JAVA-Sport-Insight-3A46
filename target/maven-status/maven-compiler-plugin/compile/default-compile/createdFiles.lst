@@ -97,6 +97,7 @@ tn\esprit\Controller\SponsorUserController.class
 tn\esprit\tools\SponsorAssets.class
 tn\esprit\Controller\JoueurListController.class
 tn\esprit\Controller\MatchFormController.class
+tn\esprit\services\AnnoncePdfExportService.class
 tn\esprit\mains\AnnonceMain.class
 tn\esprit\services\football\FootballDataStandingsService.class
 tn\esprit\Controller\AdminDashboardController$UserRow.class
@@ -120,6 +121,7 @@ tn\esprit\Controller\SponsorAdminController.class
 tn\esprit\services\wikidata\WikidataApiClient.class
 tn\esprit\entities\EntrainementUser.class
 tn\esprit\services\SponsoringWorkspaceService$SponsoringStats.class
+tn\esprit\services\AnnoncePdfExportService$DocumentWriter.class
 tn\esprit\Controller\JoueurController$4.class
 tn\esprit\services\ProductService.class
 tn\esprit\services\wikidata\WikidataPlayerImageService.class

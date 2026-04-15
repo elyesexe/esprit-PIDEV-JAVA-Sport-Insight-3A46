@@ -1,6 +1,8 @@
 package tn.esprit.Controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -11,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import tn.esprit.entities.User;
@@ -104,9 +107,11 @@ public class ProfileController {
         ThemeManager.bindToggle(themeToggleButton);
         configureSidebar();
         hideStatus();
+        applyCircularImageClip(profileImageView);
 
         if (dateNaissancePicker != null) {
             dateNaissancePicker.setEditable(false);
+            Platform.runLater(this::refreshBirthDatePickerSkin);
         }
         if (photoPathField != null) {
             photoPathField.textProperty().addListener((obs, oldValue, newValue) ->
@@ -144,6 +149,52 @@ public class ProfileController {
             saveButton.setDisable(true);
             populateProfile(currentUser);
             showStatus("The profile service is unavailable right now.", "status-error");
+        }
+    }
+
+    private void refreshBirthDatePickerSkin() {
+        if (dateNaissancePicker == null) {
+            return;
+        }
+
+        String wrapperStyle = "-fx-background-color: #12233f;"
+                + "-fx-control-inner-background: #12233f;"
+                + "-fx-background-insets: 0;"
+                + "-fx-background-radius: 16;"
+                + "-fx-border-color: rgba(96, 165, 250, 0.22);"
+                + "-fx-border-radius: 16;"
+                + "-fx-border-width: 1;";
+        String displayStyle = "-fx-background-color: #12233f;"
+                + "-fx-control-inner-background: #12233f;"
+                + "-fx-background-insets: 0;"
+                + "-fx-background-radius: 16 0 0 16;"
+                + "-fx-text-fill: #f8fafc;"
+                + "-fx-prompt-text-fill: #94a3b8;";
+        String arrowButtonStyle = "-fx-background-color: #0b1730;"
+                + "-fx-background-insets: 0;"
+                + "-fx-background-radius: 0 16 16 0;";
+        String arrowStyle = "-fx-background-color: #60a5fa;";
+
+        dateNaissancePicker.setStyle(wrapperStyle);
+
+        Node displayNode = dateNaissancePicker.lookup(".date-picker-display-node");
+        if (displayNode != null) {
+            displayNode.setStyle(displayStyle);
+        }
+
+        Node textFieldNode = dateNaissancePicker.lookup(".text-field");
+        if (textFieldNode != null) {
+            textFieldNode.setStyle(displayStyle);
+        }
+
+        Node arrowButtonNode = dateNaissancePicker.lookup(".arrow-button");
+        if (arrowButtonNode != null) {
+            arrowButtonNode.setStyle(arrowButtonStyle);
+        }
+
+        Node arrowNode = dateNaissancePicker.lookup(".arrow");
+        if (arrowNode != null) {
+            arrowNode.setStyle(arrowStyle);
         }
     }
 
@@ -390,6 +441,17 @@ public class ProfileController {
         if (!showImage && profileInitialsLabel != null) {
             profileInitialsLabel.setText(buildInitials(displayName));
         }
+    }
+
+    private void applyCircularImageClip(ImageView imageView) {
+        if (imageView == null) {
+            return;
+        }
+        Circle clip = new Circle();
+        clip.centerXProperty().bind(imageView.fitWidthProperty().divide(2));
+        clip.centerYProperty().bind(imageView.fitHeightProperty().divide(2));
+        clip.radiusProperty().bind(imageView.fitWidthProperty().divide(2));
+        imageView.setClip(clip);
     }
 
     private Image loadProfileImage(String rawPath) {

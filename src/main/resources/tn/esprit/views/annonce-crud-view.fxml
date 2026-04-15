@@ -157,13 +157,14 @@
                                 <Label text="Flags" styleClass="field-label"/>
                                 <CheckBox fx:id="urgentOnlyCheck" text="Urgent only"/>
                             </VBox>
-                            <VBox spacing="6">
-                                <Label text="Actions" styleClass="field-label"/>
-                                <HBox spacing="10">
-                                    <Button onAction="#handleRefresh" text="Refresh" styleClass="primary-button"/>
-                                    <Button onAction="#handleResetFilters" text="Reset" styleClass="ghost-button"/>
-                                </HBox>
-                            </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Actions" styleClass="field-label"/>
+                                    <HBox spacing="10">
+                                        <Button onAction="#handleRefresh" text="Refresh" styleClass="primary-button"/>
+                                        <Button fx:id="exportPdfButton" onAction="#handleExportPdf" text="Export PDF" styleClass="ghost-button"/>
+                                        <Button onAction="#handleResetFilters" text="Reset" styleClass="ghost-button"/>
+                                    </HBox>
+                                </VBox>
                         </HBox>
                     </VBox>
 

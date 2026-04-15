@@ -6,6 +6,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -27,9 +29,11 @@ import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.AnnoncePdfExportService;
 import tn.esprit.services.AnnonceService;
 import tn.esprit.services.CommentaireService;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -117,6 +121,7 @@ public class AnnonceController {
     @FXML private Button updateAnnonceButton;
     @FXML private Button deleteAnnonceButton;
     @FXML private Button clearAnnonceButton;
+    @FXML private Button exportPdfButton;
     @FXML private Button addCommentButton;
     @FXML private Button updateCommentButton;
     @FXML private Button deleteCommentButton;
@@ -131,6 +136,7 @@ public class AnnonceController {
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+    private AnnoncePdfExportService annoncePdfExportService;
     private Annonce selectedAnnonce;
     private Commentaire selectedCommentaire;
     private boolean serviceReady;
@@ -147,6 +153,7 @@ public class AnnonceController {
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+            annoncePdfExportService = new AnnoncePdfExportService();
             serviceReady = true;
             refreshData(null, null);
             showSuccessStatus("Announcement workspace ready.");
@@ -254,6 +261,43 @@ public class AnnonceController {
         updateDetailPanel();
         updateActionAvailability();
         showMutedStatus("Announcement form cleared.");
+    }
+
+    @FXML
+    private void handleExportPdf() {
+        clearAnnonceValidation();
+        if (!serviceReady || annoncePdfExportService == null) {
+            showAnnonceValidation("The PDF export service is not ready.");
+            return;
+        }
+
+        List<Annonce> annoncesToExport = new ArrayList<>(filteredAnnonces);
+        if (annoncesToExport.isEmpty()) {
+            showAnnonceValidation("There are no announcements to export with the current filters.");
+            return;
+        }
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Export announcements to PDF");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files", "*.pdf"));
+        chooser.setInitialFileName("annonces-export-" + LocalDate.now() + ".pdf");
+
+        Window owner = exportPdfButton == null || exportPdfButton.getScene() == null
+                ? null
+                : exportPdfButton.getScene().getWindow();
+        File targetFile = chooser.showSaveDialog(owner);
+        if (targetFile == null) {
+            showMutedStatus("PDF export cancelled.");
+            return;
+        }
+
+        try {
+            annoncePdfExportService.export(targetFile.toPath(), annoncesToExport, commentaires);
+            showSuccessStatus("PDF exported to " + targetFile.getName() + ".");
+        } catch (Exception e) {
+            showErrorStatus("Could not export the PDF.");
+            showAlert(Alert.AlertType.ERROR, "Announcements", "PDF export failed.\n" + e.getMessage());
+        }
     }
 
     @FXML
@@ -577,6 +621,8 @@ public class AnnonceController {
             updateDetailPanel();
             applyCommentFilter();
         }
+
+        updateActionAvailability();
     }
 
     private void handleSelectedAnnonceChange(Annonce annonce) {
@@ -909,6 +955,7 @@ public class AnnonceController {
         updateAnnonceButton.setDisable(!serviceReady || !hasAnnonceSelection);
         deleteAnnonceButton.setDisable(!serviceReady || !hasAnnonceSelection);
         clearAnnonceButton.setDisable(!serviceReady);
+        exportPdfButton.setDisable(!serviceReady || filteredAnnonces.isEmpty());
         annonceTableView.setDisable(!serviceReady);
 
         addCommentButton.setDisable(!serviceReady || selectedAnnonce == null || !commentsEnabled);
