@@ -1,6 +1,7 @@
 package tn.esprit.services;
 
 import tn.esprit.entities.Commentaire;
+import tn.esprit.security.UserRoles;
 import tn.esprit.tools.MyConnection;
 
 import java.sql.Connection;
@@ -207,9 +208,13 @@ public class CommentaireService implements IService<Commentaire> {
 
         if (commentaire.getJoueurId() != null) {
             boolean joueurExists = tableExists("joueur") && recordExists("joueur", commentaire.getJoueurId());
-            boolean userExists = tableExists("user") && recordExists("user", commentaire.getJoueurId());
+            String userRoles = tableExists("user") ? getUserRoles(commentaire.getJoueurId()) : null;
+            boolean userExists = userRoles != null;
             if (!joueurExists && !userExists) {
-                throw new SQLException("The selected user does not exist.");
+                throw new SQLException("The selected player does not exist.");
+            }
+            if (userExists && !UserRoles.hasRole(userRoles, UserRoles.ROLE_JOUEUR)) {
+                throw new SQLException("Only player accounts can add comments.");
             }
         }
     }
@@ -250,6 +255,19 @@ public class CommentaireService implements IService<Commentaire> {
                 return resultSet.next();
             }
         }
+    }
+
+    private String getUserRoles(int userId) throws SQLException {
+        String query = "SELECT roles FROM user WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("roles");
+                }
+            }
+        }
+        return null;
     }
 
     private List<Commentaire> executeListQuery(String query) throws SQLException {

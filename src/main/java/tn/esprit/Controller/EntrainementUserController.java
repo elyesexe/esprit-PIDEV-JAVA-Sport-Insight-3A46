@@ -33,6 +33,7 @@ import tn.esprit.services.EvaluationService;
 import tn.esprit.services.ParticipationService;
 import tn.esprit.services.UserService;
 import tn.esprit.security.AuthSession;
+import tn.esprit.security.UserRoles;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -114,6 +115,10 @@ public class EntrainementUserController {
     private Label evaluationContextLabel;
     @FXML
     private VBox evaluationCardsPane;
+    @FXML
+    private VBox managementPanel;
+    @FXML
+    private VBox coachOnlyNoticePanel;
 
     private final ObservableList<Entrainement> master = FXCollections.observableArrayList();
     private final ObservableList<Entrainement> filtered = FXCollections.observableArrayList();
@@ -125,6 +130,7 @@ public class EntrainementUserController {
     private UserService userService;
     private Entrainement selected;
     private Integer currentUserId;
+    private boolean currentUserIsCoach;
     private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
@@ -145,6 +151,7 @@ public class EntrainementUserController {
             userService = new UserService();
             loadCoaches();
             resolveCurrentUser();
+            applyManagementAccess();
             refreshData();
         } catch (SQLException e) {
             showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
@@ -201,6 +208,9 @@ public class EntrainementUserController {
 
     @FXML
     private void handleAdd() {
+        if (!ensureCoachAccess()) {
+            return;
+        }
         clearValidation();
         Entrainement entrainement = buildFromForm(false);
         if (entrainement == null) {
@@ -217,6 +227,9 @@ public class EntrainementUserController {
 
     @FXML
     private void handleUpdate() {
+        if (!ensureCoachAccess()) {
+            return;
+        }
         clearValidation();
         if (selected == null) {
             showValidation("Selectionnez un entrainement.");
@@ -238,6 +251,9 @@ public class EntrainementUserController {
 
     @FXML
     private void handleDelete() {
+        if (!ensureCoachAccess()) {
+            return;
+        }
         clearValidation();
         if (selected == null) {
             showValidation("Selectionnez un entrainement.");
@@ -269,13 +285,16 @@ public class EntrainementUserController {
 
     @FXML
     private void handleSaveParticipation() {
+        if (!ensureCoachAccess()) {
+            return;
+        }
         clearValidation();
         if (selected == null) {
             showValidation("Selectionnez une session avant d'enregistrer la participation.");
             return;
         }
         if (currentUserId == null) {
-            showValidation("Aucun joueur connecte.");
+            showValidation("Aucun coach connecte.");
             return;
         }
         String presence = participationPresenceField.getValue();
@@ -306,13 +325,16 @@ public class EntrainementUserController {
 
     @FXML
     private void handleDeleteParticipation() {
+        if (!ensureCoachAccess()) {
+            return;
+        }
         clearValidation();
         if (selected == null) {
             showValidation("Selectionnez une session avant de supprimer la participation.");
             return;
         }
         if (currentUserId == null) {
-            showValidation("Aucun joueur connecte.");
+            showValidation("Aucun coach connecte.");
             return;
         }
         try {
@@ -327,6 +349,7 @@ public class EntrainementUserController {
             showError("Participation", "Erreur lors de la suppression.\n" + e.getMessage());
         }
     }
+
 
     private void refreshData() {
         try {
@@ -541,7 +564,7 @@ public class EntrainementUserController {
         }
         List<User> users = userService.getAll();
         List<CoachOption> options = users.stream()
-                .filter(this::isCoach)
+                .filter(this::isCoachAccount)
                 .map(CoachOption::fromUser)
                 .sorted(Comparator.comparing(CoachOption::fullName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
@@ -558,6 +581,18 @@ public class EntrainementUserController {
     private void resolveCurrentUser() {
         User current = AuthSession.getCurrentUser();
         currentUserId = current == null ? null : current.getId();
+        currentUserIsCoach = current != null && current.hasRole(UserRoles.ROLE_ENTRAINEUR);
+    }
+
+    private void applyManagementAccess() {
+        if (managementPanel != null) {
+            managementPanel.setManaged(currentUserIsCoach);
+            managementPanel.setVisible(currentUserIsCoach);
+        }
+        if (coachOnlyNoticePanel != null) {
+            coachOnlyNoticePanel.setManaged(false);
+            coachOnlyNoticePanel.setVisible(false);
+        }
     }
 
     private void configureNavbar() {
@@ -572,6 +607,10 @@ public class EntrainementUserController {
         if (entrainementNavButton != null && !entrainementNavButton.getStyleClass().contains("navbar-nav-button-active")) {
             entrainementNavButton.getStyleClass().add("navbar-nav-button-active");
         }
+    }
+
+    private boolean isCoachAccount(User user) {
+        return user != null && user.hasRole(UserRoles.ROLE_ENTRAINEUR);
     }
 
     private boolean isCoach(User user) {
@@ -687,6 +726,9 @@ public class EntrainementUserController {
     }
 
     private void refreshParticipationAndEvaluations() {
+        if (!currentUserIsCoach) {
+            return;
+        }
         if (selected == null) {
             participationContextLabel.setText("Selectionnez une session pour marquer votre presence.");
             evaluationContextLabel.setText("Aucune evaluation chargee.");
@@ -695,7 +737,7 @@ public class EntrainementUserController {
         }
         participationContextLabel.setText("Session #" + selected.getId());
         if (currentUserId == null) {
-            evaluationContextLabel.setText("Aucun joueur connecte.");
+            evaluationContextLabel.setText("Aucun coach connecte.");
             evaluationCardsPane.getChildren().clear();
             return;
         }
@@ -758,6 +800,14 @@ public class EntrainementUserController {
                 .filter(participation -> Objects.equals(participation.getJoueurId(), currentUserId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private boolean ensureCoachAccess() {
+        if (currentUserIsCoach) {
+            return true;
+        }
+        showValidation("Seuls les comptes coach peuvent gerer les entrainements depuis cette interface.");
+        return false;
     }
 
     private String optionalText(TextArea field) {

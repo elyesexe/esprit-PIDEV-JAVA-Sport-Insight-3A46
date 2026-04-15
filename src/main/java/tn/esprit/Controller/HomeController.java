@@ -25,12 +25,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import tn.esprit.entities.User;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.MatchsService;
+import tn.esprit.security.AuthSession;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -81,6 +83,8 @@ public class HomeController {
     @FXML
     private Label headerDateLabel;
     @FXML
+    private Label welcomeTitleLabel;
+    @FXML
     private Button newNoteButton;
     @FXML
     private Label matchesTodayMetricLabel;
@@ -114,6 +118,7 @@ public class HomeController {
         );
         sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.NONE);
 
+        refreshWelcomeTitle();
         refreshHeaderDate();
         startDateRefreshTimeline();
 
@@ -129,6 +134,19 @@ public class HomeController {
         }
 
         Platform.runLater(this::installTileHoverAnimations);
+    }
+
+    private void refreshWelcomeTitle() {
+        if (welcomeTitleLabel == null) {
+            return;
+        }
+        User currentUser = AuthSession.getCurrentUser();
+        String displayName = currentUser == null ? "" : currentUser.getDisplayName();
+        if (displayName == null || displayName.isBlank()) {
+            welcomeTitleLabel.setText("Welcome back");
+            return;
+        }
+        welcomeTitleLabel.setText("Welcome back, " + displayName);
     }
 
     /**

@@ -8,13 +8,15 @@
 
 .home-shell {
     -fx-background-color: transparent;
-    -fx-spacing: 20;
-    -fx-max-width: 920;
+    -fx-spacing: 24;
+    -fx-max-width: 1040;
     -fx-padding: 10 0 30 0;
 }
 
 /* Welcome block */
 .home-welcome-card {
+    -fx-min-height: 276;
+    -fx-pref-height: 276;
     -fx-background-color: rgba(15, 23, 42, 0.78);
     -fx-background-radius: 24;
     -fx-border-color: rgba(148, 163, 184, 0.16);
@@ -38,7 +40,7 @@
 }
 
 .home-welcome-content {
-    -fx-padding: 24 26 24 26;
+    -fx-padding: 34 36 34 36;
 }
 
 .home-kicker {
@@ -61,16 +63,16 @@
 
 .home-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 32px;
+    -fx-font-size: 42px;
     -fx-font-weight: 700;
     -fx-text-fill: #f8fafc;
 }
 
 .home-description {
-    -fx-font-size: 14px;
-    -fx-line-spacing: 2px;
+    -fx-font-size: 16px;
+    -fx-line-spacing: 3px;
     -fx-text-fill: #cbd5e1;
-    -fx-max-width: 700;
+    -fx-max-width: 760;
 }
 
 .home-links-section {

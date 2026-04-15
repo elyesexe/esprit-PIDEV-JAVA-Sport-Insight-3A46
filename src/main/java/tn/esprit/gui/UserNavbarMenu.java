@@ -10,15 +10,21 @@ import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import tn.esprit.entities.User;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Locale;
 
 public final class UserNavbarMenu {
     private static final String SETTINGS_MENU_KEY = "sportInsight.settingsMenuInjected";
@@ -63,6 +69,7 @@ public final class UserNavbarMenu {
         ensureTrainingNavButton(navbarRoot);
 
         Button settingsButton = createSettingsButton();
+        Button profileAvatarButton = createProfileAvatarButton();
         ContextMenu settingsMenu = createSettingsMenu(settingsButton);
 
         settingsButton.setOnAction(event -> {
@@ -72,6 +79,10 @@ public final class UserNavbarMenu {
             }
             settingsMenu.show(settingsButton, Side.BOTTOM, 0, 8);
         });
+        profileAvatarButton.setOnAction(event -> {
+            String title = AuthSession.isAdmin() ? "Sport Insight | Admin profile" : "Sport Insight | Profile";
+            SceneNavigator.switchScene(profileAvatarButton, PROFILE_VIEW, PROFILE_CSS, title);
+        });
 
         Pane targetPane = themeToggleButton != null && themeToggleButton.getParent() instanceof Pane pane
                 ? pane
@@ -80,11 +91,16 @@ public final class UserNavbarMenu {
             return;
         }
 
-        if (targetPane.getChildren().stream().anyMatch(node -> node.getStyleClass().contains("navbar-settings-button"))) {
+        if (targetPane.getChildren().stream().anyMatch(node ->
+                node.getStyleClass().contains("navbar-settings-button")
+                        || node.getStyleClass().contains("navbar-user-actions"))) {
             return;
         }
 
-        targetPane.getChildren().add(settingsButton);
+        HBox actionsBox = new HBox(10, settingsButton, profileAvatarButton);
+        actionsBox.setAlignment(Pos.CENTER_RIGHT);
+        actionsBox.getStyleClass().add("navbar-user-actions");
+        targetPane.getChildren().add(actionsBox);
         if (navbarRoot != null) {
             navbarRoot.getProperties().put(SETTINGS_MENU_KEY, Boolean.TRUE);
         }
@@ -101,6 +117,44 @@ public final class UserNavbarMenu {
         icon.getStyleClass().add("navbar-settings-icon");
         settingsButton.setGraphic(icon);
         return settingsButton;
+    }
+
+    private static Button createProfileAvatarButton() {
+        Button avatarButton = new Button();
+        avatarButton.setMnemonicParsing(false);
+        avatarButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        avatarButton.setFocusTraversable(false);
+        avatarButton.getStyleClass().add("navbar-profile-avatar-button");
+
+        User currentUser = AuthSession.getCurrentUser();
+        String displayName = currentUser == null ? "Sport Insight user" : currentUser.getDisplayName();
+
+        StackPane avatarShell = new StackPane();
+        avatarShell.getStyleClass().add("navbar-profile-avatar-shell");
+
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(42);
+        imageView.setFitHeight(42);
+        imageView.setPreserveRatio(false);
+        imageView.setSmooth(true);
+        imageView.getStyleClass().add("navbar-profile-avatar-image");
+        applyCircularClip(imageView);
+
+        Label initialsLabel = new Label(buildInitials(displayName));
+        initialsLabel.getStyleClass().add("navbar-profile-avatar-fallback");
+
+        Image image = loadProfileImage(currentUser == null ? null : currentUser.getPhoto());
+        boolean hasImage = image != null;
+        imageView.setImage(image);
+        imageView.setManaged(hasImage);
+        imageView.setVisible(hasImage);
+        initialsLabel.setManaged(!hasImage);
+        initialsLabel.setVisible(!hasImage);
+
+        avatarShell.getChildren().addAll(imageView, initialsLabel);
+        avatarButton.setGraphic(avatarShell);
+        avatarButton.setAccessibleText("Open profile");
+        return avatarButton;
     }
 
     private static ContextMenu createSettingsMenu(Button ownerButton) {
@@ -144,14 +198,8 @@ public final class UserNavbarMenu {
         themeRow.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
         contextMenu.getItems().add(wrapNode(themeRow, false));
 
-        contextMenu.getItems().add(new SeparatorMenuItem());
-        contextMenu.getItems().add(wrapActionButton(createActionButton("Profile", false, () -> {
-            contextMenu.hide();
-            String title = AuthSession.isAdmin() ? "Sport Insight | Admin profile" : "Sport Insight | Profile";
-            SceneNavigator.switchScene(ownerButton, PROFILE_VIEW, PROFILE_CSS, title);
-        }), true));
-
         if (AuthSession.isAdmin()) {
+            contextMenu.getItems().add(new SeparatorMenuItem());
             contextMenu.getItems().add(wrapActionButton(createActionButton("Admin", false, () -> {
                 contextMenu.hide();
                 AdminNavigation.openAdmin(ownerButton);
@@ -403,5 +451,46 @@ public final class UserNavbarMenu {
             }
         }
         return null;
+    }
+
+    private static void applyCircularClip(ImageView imageView) {
+        if (imageView == null) {
+            return;
+        }
+        Circle clip = new Circle();
+        clip.centerXProperty().bind(imageView.fitWidthProperty().divide(2));
+        clip.centerYProperty().bind(imageView.fitHeightProperty().divide(2));
+        clip.radiusProperty().bind(imageView.fitWidthProperty().divide(2));
+        imageView.setClip(clip);
+    }
+
+    private static Image loadProfileImage(String rawPath) {
+        if (rawPath == null || rawPath.isBlank()) {
+            return null;
+        }
+        try {
+            String candidate = rawPath.trim();
+            if (candidate.startsWith("http://") || candidate.startsWith("https://") || candidate.startsWith("file:")) {
+                Image image = new Image(candidate, false);
+                return image.isError() ? null : image;
+            }
+            Path path = Path.of(candidate);
+            if (Files.exists(path)) {
+                Image image = new Image(path.toUri().toString(), false);
+                return image.isError() ? null : image;
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+        return null;
+    }
+
+    private static String buildInitials(String displayName) {
+        String safeName = displayName == null || displayName.isBlank() ? "Sport Insight" : displayName.trim();
+        String[] parts = safeName.split("\\s+");
+        if (parts.length == 1) {
+            return safeName.substring(0, Math.min(2, safeName.length())).toUpperCase(Locale.ROOT);
+        }
+        return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase(Locale.ROOT);
     }
 }

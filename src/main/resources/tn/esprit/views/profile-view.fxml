@@ -131,7 +131,7 @@
 
                         <HBox spacing="20" styleClass="profile-grid">
                             <VBox spacing="18" styleClass="profile-side-column">
-                                <VBox spacing="16" styleClass="panel-card profile-photo-card">
+                                <VBox spacing="16" alignment="TOP_CENTER" styleClass="panel-card profile-photo-card">
                                     <StackPane styleClass="profile-photo-shell">
                                         <ImageView fx:id="profileImageView"
                                                    fitWidth="180"
@@ -146,7 +146,7 @@
                                         </StackPane>
                                     </StackPane>
 
-                                    <VBox spacing="6" alignment="CENTER">
+                                    <VBox spacing="6" alignment="CENTER" styleClass="profile-identity-box">
                                         <Label fx:id="profileNameLabel" text="Sport Insight user" styleClass="profile-title"/>
                                         <Label fx:id="profileEmailLabel" text="name@example.com" styleClass="profile-subtitle"/>
                                     </VBox>

@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -24,6 +25,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Commentaire;
 import tn.esprit.entities.User;
@@ -93,6 +95,7 @@ public class AnnonceUserController {
     @FXML private TextField postLevelField;
     @FXML private TextArea postDescriptionArea;
     @FXML private Label composerValidationLabel;
+    @FXML private CheckBox urgentPostCheck;
     @FXML private Button publishPostButton;
     @FXML private Button clearPostButton;
 
@@ -112,6 +115,7 @@ public class AnnonceUserController {
     public void initialize() {
         configureSidebar();
         configureHeroImage();
+        applyCircularImageClip(composerAvatarImage);
         ThemeManager.bindToggle(themeToggleButton);
         applyThemeState(themeToggleButton != null && themeToggleButton.isSelected());
         if (themeToggleButton != null) {
@@ -213,8 +217,8 @@ public class AnnonceUserController {
         clearFieldError(postDescriptionArea);
 
         User currentUser = getCurrentUser();
-        if (!isCurrentUserJoueur()) {
-            setComposerValidation("Only users with the joueur role can publish a post.");
+        if (!isCurrentUserCoach()) {
+            setComposerValidation("Only coach accounts can publish announcements.");
             return;
         }
         if (!serviceReady || annonceService == null || currentUser == null || currentUser.getId() == null) {
@@ -250,16 +254,16 @@ public class AnnonceUserController {
                 "ACTIVE",
                 currentUser.getId(),
                 true,
-                false
+                urgentPostCheck != null && urgentPostCheck.isSelected()
         );
 
         try {
             annonceService.add(annonce);
             handleClearPostComposer();
             refreshData();
-            showSuccessStatus("Post published.");
+            showSuccessStatus("Announcement published.");
         } catch (SQLException e) {
-            showErrorStatus("Could not publish the post.");
+            showErrorStatus("Could not publish the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Publish failed.\n" + e.getMessage());
         }
     }
@@ -277,6 +281,9 @@ public class AnnonceUserController {
         }
         if (postDescriptionArea != null) {
             postDescriptionArea.clear();
+        }
+        if (urgentPostCheck != null) {
+            urgentPostCheck.setSelected(false);
         }
         clearComposerValidation();
         clearFieldError(postTitleField);
@@ -367,16 +374,21 @@ public class AnnonceUserController {
 
     private void updateComposerState() {
         User currentUser = getCurrentUser();
-        boolean isJoueur = isCurrentUserJoueur();
-        boolean enabled = serviceReady && isJoueur && currentUser != null;
+        boolean isCoach = isCurrentUserCoach();
+        boolean enabled = serviceReady && isCoach && currentUser != null;
+
+        if (composerCard != null) {
+            composerCard.setManaged(enabled);
+            composerCard.setVisible(enabled);
+        }
 
         if (composerIdentityLabel != null) {
-            composerIdentityLabel.setText("Post as " + buildDisplayName(currentUser));
+            composerIdentityLabel.setText("Publish as " + buildDisplayName(currentUser));
         }
         if (composerHintLabel != null) {
             composerHintLabel.setText(enabled
-                    ? "Your player profile is used automatically for posts and comments."
-                    : "Only users with the joueur role can create a post or add comments.");
+                    ? "Your coach profile is used automatically for announcements."
+                    : "Only coach accounts can publish announcements. Comments remain player-only.");
         }
 
         updateAvatarGraphic(
@@ -405,6 +417,9 @@ public class AnnonceUserController {
         if (clearPostButton != null) {
             clearPostButton.setDisable(!enabled);
         }
+        if (urgentPostCheck != null) {
+            urgentPostCheck.setDisable(!enabled);
+        }
     }
 
     private void applyFilters() {
@@ -413,8 +428,10 @@ public class AnnonceUserController {
         String selectedSort = sortComboBox.getValue();
 
         Comparator<Annonce> comparator = SORT_ALPHA.equals(selectedSort)
-                ? Comparator.comparing(annonce -> emptyIfNull(annonce.getTitre()).toLowerCase(Locale.ROOT))
-                : Comparator.comparing(Annonce::getDatePublication, Comparator.nullsLast(Comparator.reverseOrder()))
+                ? Comparator.comparing((Annonce annonce) -> !Boolean.TRUE.equals(annonce.getUrgent()))
+                .thenComparing(annonce -> emptyIfNull(annonce.getTitre()).toLowerCase(Locale.ROOT))
+                : Comparator.comparing((Annonce annonce) -> !Boolean.TRUE.equals(annonce.getUrgent()))
+                .thenComparing(Annonce::getDatePublication, Comparator.nullsLast(Comparator.reverseOrder()))
                 .thenComparing(Annonce::getId, Comparator.nullsLast(Comparator.reverseOrder()));
 
         visibleAnnonces.clear();
@@ -427,7 +444,7 @@ public class AnnonceUserController {
 
         resultsMetaLabel.setText(visibleAnnonces.size() + " announcement(s) visible");
         resultCountLabel.setText(annonces.size() + " total announcement(s)");
-        selectionStateLabel.setText(isCurrentUserJoueur() ? "Player feed" : "Read-only feed");
+        selectionStateLabel.setText(isCurrentUserCoach() ? "Coach publisher view" : "Read-only feed");
     }
 
     private void rebuildCommentCounts() {
@@ -502,6 +519,9 @@ public class AnnonceUserController {
     private VBox buildPostCard(Annonce annonce) {
         VBox card = new VBox(14);
         card.getStyleClass().add("annonce-post-card");
+        if (Boolean.TRUE.equals(annonce.getUrgent())) {
+            card.getStyleClass().add("annonce-post-card-urgent");
+        }
 
         User author = resolveAnnonceAuthor(annonce);
         String authorName = resolveAnnonceAuthorName(annonce);
@@ -583,8 +603,10 @@ public class AnnonceUserController {
         }
 
         VBox addCommentSection = buildInlineCommentForm(annonce);
-
-        commentsSection.getChildren().addAll(commentsTitle, commentsStack, addCommentSection);
+        commentsSection.getChildren().addAll(commentsTitle, commentsStack);
+        if (addCommentSection != null) {
+            commentsSection.getChildren().add(addCommentSection);
+        }
         card.getChildren().addAll(identityRow, titleLabel, metaFlow, descriptionBox, commentsSection);
         return card;
     }
@@ -596,6 +618,9 @@ public class AnnonceUserController {
         User currentUser = getCurrentUser();
         boolean canComment = serviceReady && isCurrentUserJoueur() && isCommentsEnabled(annonce)
                 && currentUser != null && currentUser.getId() != null;
+        if (!canComment) {
+            return null;
+        }
 
         HBox authorRow = new HBox(10);
         authorRow.setAlignment(Pos.CENTER_LEFT);
@@ -606,13 +631,10 @@ public class AnnonceUserController {
         );
 
         TextArea commentaireArea = new TextArea();
-        commentaireArea.setPromptText(canComment
-                ? "Write a comment as " + buildDisplayName(currentUser) + "..."
-                : "Only joueur accounts can comment");
+        commentaireArea.setPromptText("Write a comment as " + buildDisplayName(currentUser) + "...");
         commentaireArea.setWrapText(true);
         commentaireArea.setPrefRowCount(3);
         commentaireArea.getStyleClass().add("annonce-text-area");
-        commentaireArea.setDisable(!canComment);
 
         Label validationLabel = new Label();
         validationLabel.getStyleClass().add("annonce-section-note");
@@ -622,11 +644,9 @@ public class AnnonceUserController {
         HBox actions = new HBox(10);
         Button postButton = new Button("Post comment");
         postButton.getStyleClass().add("primary-button");
-        postButton.setDisable(!canComment);
 
         Button clearButton = new Button("Clear");
         clearButton.getStyleClass().add("ghost-button");
-        clearButton.setDisable(!canComment);
 
         actions.getChildren().addAll(postButton, clearButton);
 
@@ -687,7 +707,7 @@ public class AnnonceUserController {
         Label hint = new Label(canComment
                 ? "Commenting on " + fallbackText(annonce.getTitre(), "this post")
                 : isCommentsEnabled(annonce)
-                ? "Only joueur accounts can comment on posts."
+                ? "Only player accounts can comment on announcements."
                 : "Comments are disabled for this post.");
         hint.setWrapText(true);
         hint.getStyleClass().add("annonce-section-note");
@@ -753,6 +773,7 @@ public class AnnonceUserController {
         imageView.setPreserveRatio(false);
         imageView.setSmooth(true);
         imageView.getStyleClass().add("annonce-avatar-image");
+        applyCircularImageClip(imageView);
 
         Label initialsLabel = new Label();
         initialsLabel.getStyleClass().add("annonce-avatar-fallback");
@@ -761,6 +782,17 @@ public class AnnonceUserController {
         shell.getChildren().addAll(imageView, initialsLabel);
         updateAvatarGraphic(shell, imageView, initialsLabel, user, displayName);
         return shell;
+    }
+
+    private void applyCircularImageClip(ImageView imageView) {
+        if (imageView == null) {
+            return;
+        }
+        Circle clip = new Circle();
+        clip.centerXProperty().bind(imageView.fitWidthProperty().divide(2));
+        clip.centerYProperty().bind(imageView.fitHeightProperty().divide(2));
+        clip.radiusProperty().bind(imageView.fitWidthProperty().divide(2));
+        imageView.setClip(clip);
     }
 
     private void updateAvatarGraphic(StackPane shell, ImageView imageView, Label fallbackLabel, User user, String displayName) {
@@ -932,6 +964,11 @@ public class AnnonceUserController {
     private boolean isCurrentUserJoueur() {
         User currentUser = getCurrentUser();
         return currentUser != null && currentUser.hasRole(UserRoles.ROLE_JOUEUR);
+    }
+
+    private boolean isCurrentUserCoach() {
+        User currentUser = getCurrentUser();
+        return currentUser != null && currentUser.hasRole(UserRoles.ROLE_ENTRAINEUR);
     }
 
     private User resolveAnnonceAuthor(Annonce annonce) {

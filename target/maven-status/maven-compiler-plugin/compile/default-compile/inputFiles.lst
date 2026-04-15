@@ -73,6 +73,7 @@ C:\PI Java\src\main\java\tn\esprit\repositories\ProductRepository.java
 C:\PI Java\src\main\java\tn\esprit\security\AuthSession.java
 C:\PI Java\src\main\java\tn\esprit\security\PasswordSupport.java
 C:\PI Java\src\main\java\tn\esprit\security\UserRoles.java
+C:\PI Java\src\main\java\tn\esprit\services\AnnoncePdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
 C:\PI Java\src\main\java\tn\esprit\services\ContratSponsorService.java
