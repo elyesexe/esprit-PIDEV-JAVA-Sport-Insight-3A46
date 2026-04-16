@@ -245,9 +245,16 @@
 .sponsor-admin-root .axis,
 .sponsor-admin-root .axis-label,
 .sponsor-admin-root .chart-legend,
+.sponsor-admin-root .chart-legend-item,
+.sponsor-admin-root .chart-legend-item .label,
 .sponsor-admin-root .chart-pie-label {
     -fx-tick-label-fill: #475569;
     -fx-fill: #475569;
+    -fx-text-fill: #475569;
+}
+
+.sponsor-admin-root .chart-pie-label-line {
+    -fx-stroke: rgba(71, 85, 105, 0.5);
 }
 
 .theme-dark .sponsor-card,
@@ -354,10 +361,46 @@
 .admin-dark .sponsor-admin-root .axis,
 .admin-dark .sponsor-admin-root .axis-label,
 .admin-dark .sponsor-admin-root .chart-legend,
+.admin-dark .sponsor-admin-root .chart-legend-item,
+.admin-dark .sponsor-admin-root .chart-legend-item .label,
 .admin-dark .sponsor-admin-root .chart-pie-label {
     -fx-tick-label-fill: #a1a1aa;
     -fx-fill: #a1a1aa;
     -fx-text-fill: #a1a1aa;
+}
+
+.admin-dark .sponsor-admin-root .chart-pie-label {
+    -fx-fill: #e4e4e7;
+    -fx-text-fill: #e4e4e7;
+}
+
+.theme-dark .sponsor-admin-root .axis,
+.theme-dark .sponsor-admin-root .axis-label,
+.theme-dark .sponsor-admin-root .chart-legend,
+.theme-dark .sponsor-admin-root .chart-legend-item,
+.theme-dark .sponsor-admin-root .chart-legend-item .label,
+.theme-dark .sponsor-admin-root .chart-pie-label {
+    -fx-tick-label-fill: #e4e4e7;
+    -fx-fill: #e4e4e7;
+    -fx-text-fill: #e4e4e7;
+}
+
+.theme-dark .sponsor-admin-root .chart-pie-label-line {
+    -fx-stroke: rgba(228, 228, 231, 0.58);
+}
+
+.theme-dark .sponsor-admin-root .chart-legend {
+    -fx-background-color: rgba(11, 18, 32, 0.72);
+    -fx-background-radius: 12;
+}
+
+.admin-dark .sponsor-admin-root .chart-pie-label-line {
+    -fx-stroke: rgba(228, 228, 231, 0.58);
+}
+
+.admin-dark .sponsor-admin-root .chart-legend {
+    -fx-background-color: rgba(11, 18, 32, 0.72);
+    -fx-background-radius: 12;
 }
 
 .admin-dark .sponsor-admin-root .sponsor-admin-metric-card .sponsor-metric-value {

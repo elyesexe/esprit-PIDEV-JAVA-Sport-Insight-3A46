@@ -1,5 +1,26 @@
 @import "equipe-theme.css";
 
+.module-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+}
+
+.module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(248, 250, 252, 0.78);
+    -fx-background-radius: 14;
+}
+
+.theme-dark .module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(0, 0, 0, 0.88);
+}
+
+.module-stats-chart .chart-vertical-grid-lines,
+.module-stats-chart .chart-horizontal-grid-lines,
+.module-stats-chart .chart-alternative-row-fill,
+.module-stats-chart .chart-alternative-column-fill {
+    -fx-stroke: rgba(148, 163, 184, 0.24);
+}
+
 .hero-photo {
     -fx-background-image: url("../images/players-hero.jpg");
     -fx-background-position: 50% 38%;

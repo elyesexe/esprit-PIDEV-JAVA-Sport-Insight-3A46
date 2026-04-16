@@ -1,11 +1,15 @@
 package tn.esprit.Controller;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -21,16 +25,24 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Joueur;
+import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.AdminExcelExportService;
 import tn.esprit.services.EquipeService;
+import tn.esprit.services.JoueurService;
+import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -49,6 +61,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 public class EquipeController {
+    private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
+    private static final String ALL_COMPETITIONS_LABEL = "Toutes competitions";
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("equipe-db-worker"));
     private static final Pattern TEAM_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L}0-9 .&'()/_-]{0,100}");
@@ -83,6 +97,14 @@ public class EquipeController {
     private ComboBox<String> sortChoiceBox;
     @FXML
     private Button sortOrderButton;
+    @FXML
+    private HBox competitionFilterBar;
+    @FXML
+    private TextField statsTeamField;
+    @FXML
+    private Label teamStatsSummaryLabel;
+    @FXML
+    private BarChart<String, Number> teamRateChart;
     @FXML
     private Label resultCountLabel;
     @FXML
@@ -150,12 +172,19 @@ public class EquipeController {
     private final Map<String, Optional<Image>> imageCache = new ConcurrentHashMap<>();
 
     private EquipeService equipeService;
+    private MatchsService matchsService;
+    private JoueurService joueurService;
+    private AdminExcelExportService excelExportService;
     private File lastImageDirectory;
     private boolean sortDescending;
     private boolean serviceReady;
     private boolean loadingData;
     private boolean mutatingData;
     private SidebarModuleGroup sidebarModuleGroup;
+    private String selectedCompetitionCode;
+    private final Map<String, Button> competitionFilterButtons = new java.util.LinkedHashMap<>();
+    private List<Matchs> teamStatsMatchs = List.of();
+    private List<Joueur> teamStatsJoueurs = List.of();
 
     @FXML
     public void initialize() {
@@ -165,6 +194,7 @@ public class EquipeController {
         configureFieldRestrictions();
         configureTableView();
         bindFormPreview();
+        configureStatsSection();
         updateSortOrderButtonText();
         updateFormMode();
         updateDetailCard();
@@ -172,6 +202,9 @@ public class EquipeController {
 
         try {
             equipeService = new EquipeService();
+            matchsService = new MatchsService();
+            joueurService = new JoueurService();
+            excelExportService = new AdminExcelExportService();
             serviceReady = true;
             refreshTableAsync(null, "Chargement des equipes...", "status-muted", "Connexion etablie. Module Equipe pret.");
         } catch (SQLException e) {
@@ -272,6 +305,30 @@ public class EquipeController {
     }
 
     @FXML
+    private void handleExportExcel() {
+        if (excelExportService == null) {
+            showAlert(Alert.AlertType.ERROR, "Export", "Le service Excel n'est pas disponible.");
+            return;
+        }
+        Path target = chooseExcelTarget("equipes-export.xlsx");
+        if (target == null) {
+            return;
+        }
+        try {
+            excelExportService.exportEquipes(target, new ArrayList<>(displayedEquipes), this::resolveCompetitionLabel);
+            openFile(target);
+            showStatus("status-success", "Export Excel des equipes termine.");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Export", "Erreur lors de l'export Excel des equipes.\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleShowTeamStats() {
+        updateTeamRateChart(resolveTeamStatsSelection());
+    }
+
+    @FXML
     private void handleClear() {
         clearForm();
         showStatus("status-muted", "Mode creation active.");
@@ -288,7 +345,9 @@ public class EquipeController {
     private void handleResetFilters() {
         searchField.clear();
         sortChoiceBox.setValue("Nom");
+        selectedCompetitionCode = null;
         sortDescending = false;
+        updateCompetitionFilterButtonState();
         updateSortOrderButtonText();
         applyFiltersAndSort(getSelectedEquipeId());
     }
@@ -373,9 +432,49 @@ public class EquipeController {
     private void configureToolbar() {
         sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
         sortChoiceBox.setValue("Nom");
+        configureCompetitionFilterBar();
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort(getSelectedEquipeId()));
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort(getSelectedEquipeId()));
+    }
+
+    private void configureCompetitionFilterBar() {
+        if (competitionFilterBar == null) {
+            return;
+        }
+        competitionFilterBar.getChildren().clear();
+        competitionFilterButtons.clear();
+
+        addCompetitionFilterButton(ALL_COMPETITIONS_LABEL, null);
+        COMPETITION_LABELS.forEach((code, label) -> addCompetitionFilterButton(label, code));
+        updateCompetitionFilterButtonState();
+    }
+
+    private void configureStatsSection() {
+        if (teamRateChart != null) {
+            teamRateChart.setAnimated(false);
+            teamRateChart.setLegendVisible(false);
+        }
+        if (statsTeamField != null) {
+            statsTeamField.textProperty().addListener((observable, oldValue, newValue) -> updateTeamRateChart(resolveTeamStatsSelection()));
+        }
+        if (teamStatsSummaryLabel != null) {
+            teamStatsSummaryLabel.setText("Ecrivez le nom d'une equipe pour voir ses statistiques.");
+        }
+    }
+
+    private void addCompetitionFilterButton(String label, String competitionCode) {
+        Button button = new Button(label);
+        button.getStyleClass().addAll("soft-button", "competition-filter-button");
+        button.setOnAction(event -> selectCompetitionFilter(competitionCode));
+        competitionFilterButtons.put(label, button);
+        competitionFilterBar.getChildren().add(button);
+    }
+
+    private void selectCompetitionFilter(String competitionCode) {
+        selectedCompetitionCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        updateCompetitionFilterButtonState();
+        applyFiltersAndSort(getSelectedEquipeId());
     }
 
     private void configureFieldRestrictions() {
@@ -426,6 +525,15 @@ public class EquipeController {
         });
     }
 
+    private void refreshTeamStatistics() throws SQLException {
+        if (matchsService == null || joueurService == null) {
+            return;
+        }
+        teamStatsMatchs = new ArrayList<>(matchsService.getAll());
+        teamStatsJoueurs = new ArrayList<>(joueurService.getAll());
+        updateTeamRateChart(resolveTeamStatsSelection());
+    }
+
     private void refreshTableAsync(
             Integer preferredSelectionId,
             String loadingMessage,
@@ -456,6 +564,15 @@ public class EquipeController {
             }
 
             masterEquipes.setAll(loadTask.getValue());
+            try {
+                refreshTeamStatistics();
+            } catch (SQLException sqlException) {
+                teamStatsMatchs = List.of();
+                teamStatsJoueurs = List.of();
+                if (teamStatsSummaryLabel != null) {
+                    teamStatsSummaryLabel.setText("Statistiques equipe indisponibles.");
+                }
+            }
             applyFiltersAndSort(preferredSelectionId);
             loadingData = false;
             updateActionAvailability();
@@ -488,6 +605,12 @@ public class EquipeController {
         if (!keyword.isEmpty()) {
             filteredEquipes.removeIf(equipe -> !matchesSearch(equipe, keyword));
         }
+        if (selectedCompetitionCode != null) {
+            filteredEquipes.removeIf(equipe -> !Objects.equals(
+                    FootballDataCompetitions.normalizeCode(equipe.getCompetitionCode()),
+                    selectedCompetitionCode
+            ));
+        }
 
         filteredEquipes.sort(buildComparator());
         displayedEquipes.setAll(filteredEquipes);
@@ -497,10 +620,81 @@ public class EquipeController {
         emptyStateBox.setVisible(isEmpty);
 
         resultCountLabel.setText(filteredEquipes.size() + " equipe(s)");
-        resultsMetaLabel.setText(filteredEquipes.size() + " ligne(s)");
+        resultsMetaLabel.setText(buildResultsMeta(filteredEquipes.size()));
 
         restoreSelection(preferredSelectionId);
         updateDetailCard();
+    }
+
+    private String buildResultsMeta(int count) {
+        StringBuilder builder = new StringBuilder(count + " ligne(s)");
+        if (selectedCompetitionCode != null) {
+            builder.append(" | ").append(FootballDataCompetitions.labelOf(selectedCompetitionCode));
+        }
+        return builder.toString();
+    }
+
+    private Equipe resolveTeamStatsSelection() {
+        String query = normalize(statsTeamField == null ? null : statsTeamField.getText());
+        if (query == null || query.isBlank()) {
+            return equipeTableView == null ? null : equipeTableView.getSelectionModel().getSelectedItem();
+        }
+        return masterEquipes.stream()
+                .filter(equipe -> containsNormalized(equipe.getNom(), query))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void updateTeamRateChart(Equipe equipe) {
+        if (teamRateChart == null) {
+            return;
+        }
+
+        teamRateChart.getData().clear();
+        if (equipe == null || equipe.getId() == null) {
+            if (teamStatsSummaryLabel != null) {
+                teamStatsSummaryLabel.setText("Ecrivez le nom d'une equipe pour voir ses statistiques.");
+            }
+            return;
+        }
+
+        List<Matchs> teamMatches = teamStatsMatchs.stream()
+                .filter(match -> Objects.equals(equipe.getId(), match.getEquipeDomicileId())
+                        || Objects.equals(equipe.getId(), match.getEquipeExterieurId()))
+                .toList();
+        List<Matchs> completedMatches = teamMatches.stream()
+                .filter(this::hasFinalScore)
+                .toList();
+
+        long wins = completedMatches.stream().filter(match -> resolveResult(match, equipe.getId()) == MatchResult.WIN).count();
+        long draws = completedMatches.stream().filter(match -> resolveResult(match, equipe.getId()) == MatchResult.DRAW).count();
+        long losses = completedMatches.stream().filter(match -> resolveResult(match, equipe.getId()) == MatchResult.LOSS).count();
+        int playerCount = (int) teamStatsJoueurs.stream().filter(joueur -> Objects.equals(equipe.getId(), joueur.getEquipeId())).count();
+        int goalsFor = completedMatches.stream().mapToInt(match -> goalsFor(match, equipe.getId())).sum();
+        int goalsAgainst = completedMatches.stream().mapToInt(match -> goalsAgainst(match, equipe.getId())).sum();
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        if (completedMatches.isEmpty()) {
+            series.getData().add(new XYChart.Data<>("Victoires", 0));
+            series.getData().add(new XYChart.Data<>("Nuls", 0));
+            series.getData().add(new XYChart.Data<>("Defaites", 0));
+        } else {
+            double total = completedMatches.size();
+            series.getData().add(new XYChart.Data<>("Victoires", roundRate(wins, total)));
+            series.getData().add(new XYChart.Data<>("Nuls", roundRate(draws, total)));
+            series.getData().add(new XYChart.Data<>("Defaites", roundRate(losses, total)));
+        }
+        teamRateChart.getData().add(series);
+        applyBarColors(series, List.of("#16a34a", "#f59e0b", "#dc2626"));
+
+        if (teamStatsSummaryLabel != null) {
+            long pendingMatches = teamMatches.size() - completedMatches.size();
+            teamStatsSummaryLabel.setText(emptyIfNull(equipe.getNom()) + " | "
+                    + playerCount + " joueurs | "
+                    + completedMatches.size() + " matchs joues | "
+                    + goalsFor + " buts marques / " + goalsAgainst + " encaisses"
+                    + (pendingMatches > 0 ? " | " + pendingMatches + " en attente" : ""));
+        }
     }
 
     private boolean matchesSearch(Equipe equipe, String keyword) {
@@ -676,7 +870,22 @@ public class EquipeController {
         searchField.setDisable(!serviceReady || busy);
         sortChoiceBox.setDisable(!serviceReady || busy);
         sortOrderButton.setDisable(!serviceReady || busy);
+        competitionFilterButtons.values().forEach(button -> button.setDisable(!serviceReady || busy));
         equipeTableView.setDisable(!serviceReady || busy);
+    }
+
+    private void updateCompetitionFilterButtonState() {
+        competitionFilterButtons.forEach((label, button) -> {
+            boolean active = selectedCompetitionCode == null
+                    ? ALL_COMPETITIONS_LABEL.equals(label)
+                    : Objects.equals(label, FootballDataCompetitions.labelOf(selectedCompetitionCode));
+            button.getStyleClass().removeAll("primary-button", "soft-button", "competition-filter-button-active");
+            button.getStyleClass().add(active ? "primary-button" : "soft-button");
+            button.getStyleClass().add("competition-filter-button");
+            if (active) {
+                button.getStyleClass().add("competition-filter-button-active");
+            }
+        });
     }
 
     private boolean hasDraftContent() {
@@ -761,6 +970,49 @@ public class EquipeController {
         return FootballDataCompetitions.labelOf(competitionCode);
     }
 
+    private boolean hasFinalScore(Matchs match) {
+        return match != null && match.getScoreEquipeDomicile() != null && match.getScoreEquipeExterieur() != null;
+    }
+
+    private MatchResult resolveResult(Matchs match, Integer teamId) {
+        int goalsFor = goalsFor(match, teamId);
+        int goalsAgainst = goalsAgainst(match, teamId);
+        if (goalsFor > goalsAgainst) {
+            return MatchResult.WIN;
+        }
+        if (goalsFor < goalsAgainst) {
+            return MatchResult.LOSS;
+        }
+        return MatchResult.DRAW;
+    }
+
+    private int goalsFor(Matchs match, Integer teamId) {
+        if (match == null || teamId == null) {
+            return 0;
+        }
+        if (Objects.equals(teamId, match.getEquipeDomicileId())) {
+            return match.getScoreEquipeDomicile() == null ? 0 : match.getScoreEquipeDomicile();
+        }
+        return match.getScoreEquipeExterieur() == null ? 0 : match.getScoreEquipeExterieur();
+    }
+
+    private int goalsAgainst(Matchs match, Integer teamId) {
+        if (match == null || teamId == null) {
+            return 0;
+        }
+        if (Objects.equals(teamId, match.getEquipeDomicileId())) {
+            return match.getScoreEquipeExterieur() == null ? 0 : match.getScoreEquipeExterieur();
+        }
+        return match.getScoreEquipeDomicile() == null ? 0 : match.getScoreEquipeDomicile();
+    }
+
+    private double roundRate(long count, double total) {
+        if (total <= 0) {
+            return 0;
+        }
+        return Math.round((count * 1000.0) / total) / 10.0;
+    }
+
     private String resolveSourceLabel(Equipe equipe) {
         String source = equipe == null ? null : emptyToNull(equipe.getExternalSource());
         return source == null ? "Base locale" : source;
@@ -797,6 +1049,55 @@ public class EquipeController {
 
     private String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase();
+    }
+
+    private boolean containsNormalized(String source, String query) {
+        String normalizedSource = normalize(source);
+        return query != null && !query.isBlank() && normalizedSource.contains(query);
+    }
+
+    private void applyBarColors(XYChart.Series<String, Number> series, List<String> colors) {
+        Platform.runLater(() -> {
+            for (int index = 0; index < series.getData().size(); index++) {
+                XYChart.Data<String, Number> data = series.getData().get(index);
+                String color = colors.get(index % colors.size());
+                applyBarColor(data, color);
+                data.nodeProperty().addListener((observable, oldNode, newNode) -> applyBarColor(data, color));
+            }
+        });
+    }
+
+    private void applyBarColor(XYChart.Data<String, Number> data, String color) {
+        if (data == null) {
+            return;
+        }
+        Node node = data.getNode();
+        if (node != null) {
+            node.setStyle("-fx-bar-fill: " + color + ";");
+        }
+    }
+
+    private Path chooseExcelTarget(String suggestedName) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Exporter vers Excel");
+        chooser.getExtensionFilters().add(new ExtensionFilter("Excel files", "*.xlsx"));
+        chooser.setInitialFileName(suggestedName);
+        Window owner = refreshButton == null || refreshButton.getScene() == null ? null : refreshButton.getScene().getWindow();
+        File selected = chooser.showSaveDialog(owner);
+        return selected == null ? null : selected.toPath();
+    }
+
+    private void openFile(Path path) {
+        if (path == null) {
+            return;
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(path.toFile());
+            } catch (IOException ignored) {
+                // Ignore when desktop integration is unavailable.
+            }
+        }
     }
 
     private String emptyIfNull(String value) {
@@ -1002,6 +1303,12 @@ public class EquipeController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private enum MatchResult {
+        WIN,
+        DRAW,
+        LOSS
     }
 }
 

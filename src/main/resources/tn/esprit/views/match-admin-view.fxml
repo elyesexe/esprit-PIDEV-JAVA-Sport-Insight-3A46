@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -127,6 +128,20 @@
                     </StackPane>
 
                     <VBox spacing="14" styleClass="panel-card match-toolbar">
+                        <VBox spacing="12" styleClass="panel-card">
+                            <Label text="Statistiques matchs" styleClass="section-title"/>
+                            <Label fx:id="matchChartSummaryLabel"
+                                   text="Chargement des statistiques matchs..."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+                            <PieChart fx:id="matchStatusChart"
+                                      animated="false"
+                                      labelsVisible="true"
+                                      legendVisible="true"
+                                      prefHeight="240"
+                                      styleClass="module-stats-chart"/>
+                        </VBox>
+
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <VBox spacing="4">
                                 <Label text="Calendrier des rencontres" styleClass="section-title"/>
@@ -138,6 +153,9 @@
                             <Button onAction="#handleOpenMatchs"
                                     text="Competitions"
                                     styleClass="ghost-button"/>
+                            <Button onAction="#handleExportExcel"
+                                    text="Excel"
+                                    styleClass="soft-button"/>
                             <Button fx:id="refreshButton"
                                     onAction="#handleRefresh"
                                     text="Actualiser"
@@ -158,6 +176,11 @@
                                     text="Vider"
                                     styleClass="soft-button"/>
                         </HBox>
+
+                        <VBox spacing="6">
+                            <Label text="Competition" styleClass="field-label"/>
+                            <HBox fx:id="competitionFilterBar" spacing="8" alignment="CENTER_LEFT" styleClass="competition-filter-bar"/>
+                        </VBox>
 
                         <HBox spacing="12" alignment="CENTER_LEFT" styleClass="sync-toolbar-row">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -254,8 +277,8 @@
                                         <Label text="Domicile" styleClass="match-detail-team-role"/>
                                     </VBox>
 
-                                    <VBox alignment="CENTER" spacing="6" styleClass="match-detail-score-shell">
-                                        <Label fx:id="detailScoreValueLabel" text="-  :  -" styleClass="match-detail-score"/>
+                                    <VBox alignment="CENTER" spacing="6" minWidth="132.0" prefWidth="132.0" styleClass="match-detail-score-shell">
+                                        <Label fx:id="detailScoreValueLabel" text="-  :  -" textOverrun="CLIP" styleClass="match-detail-score"/>
                                         <Label text="Score" styleClass="match-detail-score-caption"/>
                                     </VBox>
 

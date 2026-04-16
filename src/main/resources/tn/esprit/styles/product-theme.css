@@ -46,6 +46,47 @@
     -fx-background-color: rgba(248, 250, 252, 0.98);
 }
 
+.product-page-root .product-chart-grid {
+    -fx-alignment: top-left;
+}
+
+.product-page-root .product-chart-card {
+    -fx-min-width: 320;
+}
+
+.product-page-root .product-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+}
+
+.product-page-root .product-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(248, 250, 252, 0.78);
+    -fx-background-radius: 14;
+}
+
+.product-page-root .product-stats-chart .chart-vertical-grid-lines,
+.product-page-root .product-stats-chart .chart-horizontal-grid-lines,
+.product-page-root .product-stats-chart .chart-alternative-row-fill,
+.product-page-root .product-stats-chart .chart-alternative-column-fill {
+    -fx-stroke: rgba(148, 163, 184, 0.24);
+}
+
+.product-page-root .product-stats-chart .axis,
+.product-page-root .product-stats-chart .axis-label,
+.product-page-root .product-stats-chart .chart-legend-item,
+.product-page-root .product-stats-chart .chart-legend-item .label,
+.product-page-root .product-stats-chart .chart-pie-label {
+    -fx-text-fill: #475569;
+}
+
+.product-page-root .product-stats-chart .chart-pie-label {
+    -fx-fill: #475569;
+}
+
+.product-page-root .product-stats-chart .chart-pie-label-line {
+    -fx-stroke: rgba(71, 85, 105, 0.5);
+}
+
 .product-page-root .product-content-shell {
     -fx-alignment: top-left;
 }
@@ -182,6 +223,70 @@
 .admin-dark .product-page-root .product-metric-card {
     -fx-background-color: rgba(11, 18, 32, 0.92);
     -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark.product-page-root .product-stats-chart .chart-plot-background,
+.theme-dark .product-page-root .product-stats-chart .chart-plot-background,
+.admin-dark.product-page-root .product-stats-chart .chart-plot-background,
+.admin-dark .product-page-root .product-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(11, 18, 32, 0.88);
+}
+
+.theme-dark.product-page-root .product-stats-chart .chart-vertical-grid-lines,
+.theme-dark.product-page-root .product-stats-chart .chart-horizontal-grid-lines,
+.theme-dark .product-page-root .product-stats-chart .chart-vertical-grid-lines,
+.theme-dark .product-page-root .product-stats-chart .chart-horizontal-grid-lines,
+.admin-dark.product-page-root .product-stats-chart .chart-vertical-grid-lines,
+.admin-dark.product-page-root .product-stats-chart .chart-horizontal-grid-lines,
+.admin-dark .product-page-root .product-stats-chart .chart-vertical-grid-lines,
+.admin-dark .product-page-root .product-stats-chart .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark.product-page-root .product-stats-chart .axis,
+.theme-dark.product-page-root .product-stats-chart .axis-label,
+.theme-dark.product-page-root .product-stats-chart .chart-legend-item,
+.theme-dark.product-page-root .product-stats-chart .chart-legend-item .label,
+.theme-dark.product-page-root .product-stats-chart .chart-pie-label,
+.theme-dark .product-page-root .product-stats-chart .axis,
+.theme-dark .product-page-root .product-stats-chart .axis-label,
+.theme-dark .product-page-root .product-stats-chart .chart-legend-item,
+.theme-dark .product-page-root .product-stats-chart .chart-legend-item .label,
+.theme-dark .product-page-root .product-stats-chart .chart-pie-label,
+.admin-dark.product-page-root .product-stats-chart .axis,
+.admin-dark.product-page-root .product-stats-chart .axis-label,
+.admin-dark.product-page-root .product-stats-chart .chart-legend-item,
+.admin-dark.product-page-root .product-stats-chart .chart-legend-item .label,
+.admin-dark.product-page-root .product-stats-chart .chart-pie-label,
+.admin-dark .product-page-root .product-stats-chart .axis,
+.admin-dark .product-page-root .product-stats-chart .axis-label,
+.admin-dark .product-page-root .product-stats-chart .chart-legend-item,
+.admin-dark .product-page-root .product-stats-chart .chart-legend-item .label,
+.admin-dark .product-page-root .product-stats-chart .chart-pie-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark.product-page-root .product-stats-chart .chart-pie-label,
+.theme-dark .product-page-root .product-stats-chart .chart-pie-label,
+.admin-dark.product-page-root .product-stats-chart .chart-pie-label,
+.admin-dark .product-page-root .product-stats-chart .chart-pie-label {
+    -fx-fill: #e2e8f0;
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark.product-page-root .product-stats-chart .chart-pie-label-line,
+.theme-dark .product-page-root .product-stats-chart .chart-pie-label-line,
+.admin-dark.product-page-root .product-stats-chart .chart-pie-label-line,
+.admin-dark .product-page-root .product-stats-chart .chart-pie-label-line {
+    -fx-stroke: rgba(226, 232, 240, 0.58);
+}
+
+.theme-dark.product-page-root .product-stats-chart .chart-legend,
+.theme-dark .product-page-root .product-stats-chart .chart-legend,
+.admin-dark.product-page-root .product-stats-chart .chart-legend,
+.admin-dark .product-page-root .product-stats-chart .chart-legend {
+    -fx-background-color: rgba(11, 18, 32, 0.72);
+    -fx-background-radius: 12;
 }
 
 .theme-dark.product-page-root .product-thumbnail-shell,

@@ -11,6 +11,9 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -34,6 +37,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
@@ -41,13 +45,16 @@ import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.AdminExcelExportService;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.wikidata.WikidataPlayerImageService;
 
 import javax.imageio.ImageIO;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -107,6 +114,10 @@ public class JoueurController {
     private Label resultsMetaLabel;
     @FXML
     private Label teamCountLabel;
+    @FXML
+    private Label playerChartSummaryLabel;
+    @FXML
+    private BarChart<String, Number> playerDistributionChart;
     @FXML
     private Label statusLabel;
     @FXML
@@ -185,6 +196,7 @@ public class JoueurController {
 
     private JoueurService joueurService;
     private EquipeService equipeService;
+    private AdminExcelExportService excelExportService;
     private Joueur selectedJoueur;
     private File lastImageDirectory;
     private boolean serviceReady;
@@ -200,6 +212,7 @@ public class JoueurController {
         configureNumeroField();
         configureFieldRestrictions();
         configurePlayerList();
+        configureStatsSection();
         bindUiState();
         updateActionAvailability();
         updateDetailPanel();
@@ -207,6 +220,7 @@ public class JoueurController {
         try {
             joueurService = new JoueurService();
             equipeService = new EquipeService();
+            excelExportService = new AdminExcelExportService();
             serviceReady = true;
             refreshData(null);
             showSuccessStatus("Module Joueur pret.");
@@ -298,6 +312,25 @@ public class JoueurController {
     private void handleRefresh() {
         refreshData(getSelectedJoueurId());
         showMutedStatus("Liste des joueurs actualisee.");
+    }
+
+    @FXML
+    private void handleExportExcel() {
+        if (excelExportService == null) {
+            showAlert(Alert.AlertType.ERROR, "Export", "Le service Excel n'est pas disponible.");
+            return;
+        }
+        Path target = chooseExcelTarget("joueurs-export.xlsx");
+        if (target == null) {
+            return;
+        }
+        try {
+            excelExportService.exportJoueurs(target, new ArrayList<>(filteredJoueurs), this::getEquipeName);
+            openFile(target);
+            showSuccessStatus("Export Excel des joueurs termine.");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Export", "Erreur lors de l'export Excel des joueurs.\n" + e.getMessage());
+        }
     }
 
     @FXML
@@ -416,6 +449,16 @@ public class JoueurController {
                 setText(empty || item == null ? "" : item.getNom());
             }
         };
+    }
+
+    private void configureStatsSection() {
+        if (playerDistributionChart != null) {
+            playerDistributionChart.setAnimated(false);
+            playerDistributionChart.setLegendVisible(false);
+        }
+        if (playerChartSummaryLabel != null) {
+            playerChartSummaryLabel.setText("Chargement des statistiques joueurs...");
+        }
     }
 
     private void configureNumeroField() {
@@ -617,6 +660,7 @@ public class JoueurController {
             applyFilters();
             restoreSelection(preferredSelectionId);
             updateDetailPanel();
+            updatePlayerDistributionChart();
         } catch (SQLException e) {
             showErrorStatus("Erreur pendant le chargement.");
             showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n" + e.getMessage());
@@ -661,9 +705,55 @@ public class JoueurController {
 
         updateCounters();
         updateEmptyState();
+        updatePlayerDistributionChart();
 
         if (selectedJoueur != null && !filteredJoueurs.contains(selectedJoueur)) {
             clearPlayerSelection();
+        }
+    }
+
+    private void updatePlayerDistributionChart() {
+        if (playerDistributionChart == null) {
+            return;
+        }
+        playerDistributionChart.getData().clear();
+
+        if (filteredJoueurs.isEmpty()) {
+            if (playerChartSummaryLabel != null) {
+                playerChartSummaryLabel.setText("Aucune statistique joueur disponible.");
+            }
+            return;
+        }
+
+        Map<String, Long> counts = filteredJoueurs.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        joueur -> {
+                            String equipeName = sanitizeDash(getEquipeName(joueur.getEquipeId()));
+                            return equipeName == null ? "Sans equipe" : equipeName;
+                        },
+                        java.util.LinkedHashMap::new,
+                        java.util.stream.Collectors.counting()
+                ));
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        counts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
+                .limit(6)
+                .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
+        playerDistributionChart.getData().add(series);
+        applyBarColors(series, List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
+
+        long withoutTeam = filteredJoueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count();
+        double averageAge = filteredJoueurs.stream()
+                .map(Joueur::getDateNaissance)
+                .filter(Objects::nonNull)
+                .mapToInt(date -> Period.between(date, LocalDate.now()).getYears())
+                .average()
+                .orElse(0);
+        if (playerChartSummaryLabel != null) {
+            playerChartSummaryLabel.setText(filteredJoueurs.size() + " joueurs | age moyen "
+                    + (averageAge <= 0 ? "-" : String.format("%.1f ans", averageAge))
+                    + " | " + withoutTeam + " sans equipe");
         }
     }
 
@@ -1276,6 +1366,50 @@ public class JoueurController {
         }
         String normalized = value.trim().toLowerCase();
         return normalized.isBlank() ? null : normalized;
+    }
+
+    private void applyBarColors(XYChart.Series<String, Number> series, List<String> colors) {
+        Platform.runLater(() -> {
+            for (int index = 0; index < series.getData().size(); index++) {
+                XYChart.Data<String, Number> data = series.getData().get(index);
+                String color = colors.get(index % colors.size());
+                applyBarColor(data, color);
+                data.nodeProperty().addListener((observable, oldNode, newNode) -> applyBarColor(data, color));
+            }
+        });
+    }
+
+    private void applyBarColor(XYChart.Data<String, Number> data, String color) {
+        if (data == null) {
+            return;
+        }
+        Node node = data.getNode();
+        if (node != null) {
+            node.setStyle("-fx-bar-fill: " + color + ";");
+        }
+    }
+
+    private Path chooseExcelTarget(String suggestedName) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Exporter vers Excel");
+        chooser.getExtensionFilters().add(new ExtensionFilter("Excel files", "*.xlsx"));
+        chooser.setInitialFileName(suggestedName);
+        Window owner = refreshButton == null || refreshButton.getScene() == null ? null : refreshButton.getScene().getWindow();
+        File selected = chooser.showSaveDialog(owner);
+        return selected == null ? null : selected.toPath();
+    }
+
+    private void openFile(Path path) {
+        if (path == null) {
+            return;
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(path.toFile());
+            } catch (IOException ignored) {
+                // Ignore when desktop integration is unavailable.
+            }
+        }
     }
 
     private boolean containsNormalized(String value, String query) {

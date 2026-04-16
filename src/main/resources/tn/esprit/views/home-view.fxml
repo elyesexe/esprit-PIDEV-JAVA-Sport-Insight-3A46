@@ -114,7 +114,7 @@
                 <StackPane styleClass="page-shell-wrap">
                     <VBox spacing="22" styleClass="page-shell home-shell">
 
-                        <StackPane styleClass="home-welcome-card">
+                        <StackPane fx:id="homeWelcomeCard" styleClass="home-welcome-card">
                             <Region styleClass="home-welcome-glow"/>
                             <VBox spacing="10" styleClass="home-welcome-content">
                                 <HBox alignment="CENTER_LEFT" spacing="12">
@@ -137,6 +137,7 @@
                             <FlowPane hgap="18"
                                       vgap="18"
                                       prefWrapLength="980"
+                                      fx:id="homeLinksGrid"
                                       styleClass="home-links-grid">
 
                                 <!-- EQUIPES -->

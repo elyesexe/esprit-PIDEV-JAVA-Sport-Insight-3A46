@@ -24,6 +24,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.chart.PieChart;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.Node;
@@ -32,12 +33,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.AdminExcelExportService;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
@@ -45,8 +48,10 @@ import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import javax.imageio.ImageIO;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -118,6 +123,8 @@ public class MatchController {
     @FXML
     private Label resultsMetaLabel;
     @FXML
+    private HBox competitionFilterBar;
+    @FXML
     private Label selectionStateLabel;
     @FXML
     private Label statusLabel;
@@ -129,6 +136,10 @@ public class MatchController {
     private ComboBox<String> syncCompetitionComboBox;
     @FXML
     private Label syncMetaLabel;
+    @FXML
+    private Label matchChartSummaryLabel;
+    @FXML
+    private PieChart matchStatusChart;
     @FXML
     private ListView<Matchs> matchListView;
     @FXML
@@ -227,9 +238,11 @@ public class MatchController {
     private final ObservableList<Equipe> equipes = FXCollections.observableArrayList();
     private final AtomicLong refreshSequence = new AtomicLong();
     private final Map<String, Optional<Image>> imageCache = new ConcurrentHashMap<>();
+    private final Map<String, Button> competitionFilterButtons = new java.util.LinkedHashMap<>();
 
     private MatchsService matchsService;
     private EquipeService equipeService;
+    private AdminExcelExportService excelExportService;
     private FootballDataSyncService footballDataSyncService;
     private Map<Integer, Equipe> equipeById = Map.of();
     private Matchs selectedMatch;
@@ -248,6 +261,7 @@ public class MatchController {
         configureStatusLabel();
         configureSyncSection();
         configureStatusFilter();
+        configureStatsSection();
         configureSearch();
         configureTeamComboBoxes();
         configureStatusChoices();
@@ -261,6 +275,7 @@ public class MatchController {
         try {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
+            excelExportService = new AdminExcelExportService();
             serviceReady = true;
             refreshDataAsync(null, true, "Chargement des matchs...", "status-success", "Module Match pret.");
         } catch (SQLException e) {
@@ -273,6 +288,7 @@ public class MatchController {
 
     public void setCompetitionFilter(String competitionCode) {
         selectedCompetitionCode = emptyToNull(competitionCode);
+        updateCompetitionFilterButtonState();
 
         if (statusFilterComboBox != null) {
             statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
@@ -384,6 +400,25 @@ public class MatchController {
     }
 
     @FXML
+    private void handleExportExcel() {
+        if (excelExportService == null) {
+            showAlert(Alert.AlertType.ERROR, "Export", "Le service Excel n'est pas disponible.");
+            return;
+        }
+        Path target = chooseExcelTarget("matchs-export.xlsx");
+        if (target == null) {
+            return;
+        }
+        try {
+            excelExportService.exportMatchs(target, new ArrayList<>(filteredMatchs), this::getEquipeName, this::resolveCompetitionLabel);
+            openFile(target);
+            showSuccessStatus("Export Excel des matchs termine.");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Export", "Erreur lors de l'export Excel des matchs.\n" + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleSyncTeamsAndPlayers() {
         runSync(false);
     }
@@ -397,6 +432,7 @@ public class MatchController {
     private void handleClear() {
         searchField.clear();
         statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
+        setCompetitionFilter(null);
         clearForm();
         applyFilters();
         showMutedStatus("Recherche et formulaire reinitialises.");
@@ -472,9 +508,42 @@ public class MatchController {
         syncMetaLabel.setText("Plan gratuit : un lot complet sur les 6 competitions prend environ 40 secondes.");
     }
 
+    private void configureStatsSection() {
+        if (matchStatusChart != null) {
+            matchStatusChart.setAnimated(false);
+            matchStatusChart.setLegendVisible(true);
+            matchStatusChart.setLabelsVisible(true);
+            matchStatusChart.setClockwise(true);
+        }
+        if (matchChartSummaryLabel != null) {
+            matchChartSummaryLabel.setText("Chargement des statistiques matchs...");
+        }
+    }
+
     private void configureSearch() {
+        configureCompetitionFilterBar();
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
         statusFilterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+    }
+
+    private void configureCompetitionFilterBar() {
+        if (competitionFilterBar == null) {
+            return;
+        }
+        competitionFilterBar.getChildren().clear();
+        competitionFilterButtons.clear();
+
+        addCompetitionFilterButton(ALL_COMPETITIONS_LABEL, null);
+        COMPETITION_LABELS.forEach((code, label) -> addCompetitionFilterButton(label, code));
+        updateCompetitionFilterButtonState();
+    }
+
+    private void addCompetitionFilterButton(String label, String competitionCode) {
+        Button button = new Button(label);
+        button.getStyleClass().addAll("soft-button", "competition-filter-button");
+        button.setOnAction(event -> setCompetitionFilter(competitionCode));
+        competitionFilterButtons.put(label, button);
+        competitionFilterBar.getChildren().add(button);
     }
 
     private void configureStatusFilter() {
@@ -833,6 +902,7 @@ public class MatchController {
                         && matchesCompetitionFilter(match, competitionCode)
         );
         updateCounters(query);
+        updateMatchStatusChart();
         updateEmptyState();
 
         if (selectedMatch != null && !filteredMatchs.contains(selectedMatch)) {
@@ -877,10 +947,55 @@ public class MatchController {
         updateSelectionState();
     }
 
+    private void updateMatchStatusChart() {
+        if (matchStatusChart == null) {
+            return;
+        }
+
+        if (filteredMatchs.isEmpty()) {
+            matchStatusChart.setData(FXCollections.observableArrayList());
+            if (matchChartSummaryLabel != null) {
+                matchChartSummaryLabel.setText("Aucune statistique match disponible.");
+            }
+            return;
+        }
+
+        Map<String, Long> statusCounts = filteredMatchs.stream()
+                .collect(Collectors.groupingBy(
+                        match -> {
+                            String normalizedStatus = normalizeMatchStatus(match == null ? null : match.getStatut());
+                            return normalizedStatus == null || normalizedStatus.isBlank()
+                                    ? "Non renseigne"
+                                    : normalizedStatus;
+                        },
+                        java.util.LinkedHashMap::new,
+                        Collectors.counting()
+                ));
+
+        ObservableList<PieChart.Data> chartData = FXCollections.observableArrayList();
+        statusCounts.forEach((label, value) -> chartData.add(new PieChart.Data(label + " (" + value + ")", value)));
+        matchStatusChart.setData(chartData);
+
+        long finishedCount = filteredMatchs.stream().filter(this::hasFinalScore).count();
+        long scheduledCount = filteredMatchs.size() - finishedCount;
+        if (matchChartSummaryLabel != null) {
+            matchChartSummaryLabel.setText(filteredMatchs.size() + " matchs | "
+                    + finishedCount + " avec score final | "
+                    + scheduledCount + " a suivre");
+        }
+    }
+
     private void updateEmptyState() {
         boolean empty = filteredMatchs.isEmpty();
         emptyStateBox.setManaged(empty);
         emptyStateBox.setVisible(empty);
+    }
+
+    private boolean hasFinalScore(Matchs match) {
+        if (match == null) {
+            return false;
+        }
+        return match.getScoreEquipeDomicile() != null && match.getScoreEquipeExterieur() != null;
     }
 
     private void updateSelectionState() {
@@ -1392,6 +1507,20 @@ public class MatchController {
         return selectedCompetitionCode == null ? ALL_COMPETITIONS_LABEL : resolveCompetitionLabel(selectedCompetitionCode);
     }
 
+    private void updateCompetitionFilterButtonState() {
+        competitionFilterButtons.forEach((label, button) -> {
+            boolean active = selectedCompetitionCode == null
+                    ? ALL_COMPETITIONS_LABEL.equals(label)
+                    : Objects.equals(label, resolveCompetitionLabel(selectedCompetitionCode));
+            button.getStyleClass().removeAll("primary-button", "soft-button", "competition-filter-button-active");
+            button.getStyleClass().add(active ? "primary-button" : "soft-button");
+            button.getStyleClass().add("competition-filter-button");
+            if (active) {
+                button.getStyleClass().add("competition-filter-button-active");
+            }
+        });
+    }
+
     private void updateActionAvailability() {
         boolean hasSelection = selectedMatch != null;
         boolean busy = loadingData || mutatingData || syncingData;
@@ -1402,6 +1531,7 @@ public class MatchController {
         refreshButton.setDisable(!serviceReady || busy);
         searchField.setDisable(!serviceReady || busy);
         statusFilterComboBox.setDisable(!serviceReady || busy);
+        competitionFilterButtons.values().forEach(button -> button.setDisable(!serviceReady || busy));
         syncCompetitionComboBox.setDisable(!serviceReady || busy);
         syncTeamsButton.setDisable(!serviceReady || busy);
         syncMatchesButton.setDisable(!serviceReady || busy);
@@ -1570,6 +1700,29 @@ public class MatchController {
 
     private String formatDate(LocalDate date) {
         return date == null ? "-" : DATE_FORMATTER.format(date);
+    }
+
+    private Path chooseExcelTarget(String suggestedName) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Exporter vers Excel");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel files", "*.xlsx"));
+        chooser.setInitialFileName(suggestedName);
+        Node owner = resolveMatchNavigationSource();
+        File selected = chooser.showSaveDialog(owner == null || owner.getScene() == null ? null : owner.getScene().getWindow());
+        return selected == null ? null : selected.toPath();
+    }
+
+    private void openFile(Path path) {
+        if (path == null) {
+            return;
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(path.toFile());
+            } catch (IOException ignored) {
+                // Ignore when desktop integration is unavailable.
+            }
+        }
     }
 
     private String formatTime(LocalTime time) {

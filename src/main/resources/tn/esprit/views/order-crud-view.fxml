@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.OrderController"
+            fx:id="pageRoot"
+            styleClass="page-root product-page-root">
+    <center>
+        <ScrollPane fx:id="pageScroll" fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="20" styleClass="page-shell">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <VBox spacing="14" styleClass="panel-card product-header-card">
+                            <HBox alignment="CENTER_LEFT" spacing="16">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Gestion des commandes" styleClass="section-title"/>
+                                    <Label text="Administrez les commandes avec la meme logique visuelle que le module produits, incluant CRUD, recherche, tri et graphiques."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <HBox spacing="10">
+                                    <Button fx:id="exportPdfButton" onAction="#handleExportPdf" text="Export PDF" styleClass="ghost-button"/>
+                                    <Button onAction="#handleNewOrder" text="Ajouter une commande" styleClass="primary-button"/>
+                                </HBox>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Label fx:id="resultCountLabel" text="0 commande(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="selectionStateLabel" text="Selectionnez une commande" styleClass="toolbar-chip"/>
+                                <Label fx:id="statusLabel" text="Pret" styleClass="status-pill status-muted"/>
+                            </HBox>
+                        </VBox>
+
+                        <FlowPane hgap="12" vgap="12" prefWrapLength="900">
+                            <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
+                                <Label text="Commandes visibles" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="visibleOrdersMetricLabel" text="0" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                            <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
+                                <Label text="Confirmees / Livrees" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="confirmedOrdersMetricLabel" text="0" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                            <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
+                                <Label text="Paiements en attente" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="pendingPaymentsMetricLabel" text="0" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                        </FlowPane>
+
+                        <HBox spacing="18" styleClass="product-chart-grid">
+                            <VBox spacing="12" styleClass="panel-card product-chart-card" HBox.hgrow="ALWAYS">
+                                <Label text="Orders overview" styleClass="section-title"/>
+                                <Label fx:id="statusChartSummaryLabel" text="0 visible order(s)" wrapText="true" styleClass="section-subtitle"/>
+                                <BarChart fx:id="statusChart" animated="false" legendVisible="false" prefHeight="300" styleClass="product-stats-chart">
+                                    <xAxis>
+                                        <CategoryAxis label="Status"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Orders"/>
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+
+                            <VBox spacing="12" prefWidth="360" styleClass="panel-card product-chart-card">
+                                <Label text="Payment split" styleClass="section-title"/>
+                                <Label fx:id="paymentChartSummaryLabel" text="Aucune donnee de paiement." wrapText="true" styleClass="section-subtitle"/>
+                                <PieChart fx:id="paymentChart" animated="false" labelsVisible="true" legendVisible="true" prefHeight="300" styleClass="product-stats-chart"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="14" styleClass="panel-card toolbar-panel product-toolbar-panel">
+                            <VBox spacing="4">
+                                <Label text="Recherche et tri" styleClass="section-title"/>
+                                <Label text="Filtrez par statut, paiement, produit ou coach puis ordonnez la liste selon vos priorites."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="Recherche" styleClass="field-label"/>
+                                    <TextField fx:id="searchField" promptText="Commande, produit, coach, email..." styleClass="form-text-field"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Trier par" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortByComboBox" prefWidth="150" styleClass="glass-combo"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Ordre" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortDirectionComboBox" prefWidth="110" styleClass="glass-combo"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Actions" styleClass="field-label"/>
+                                    <HBox spacing="10">
+                                        <Button onAction="#handleApplyFilters" text="Filtrer" styleClass="primary-button"/>
+                                        <Button onAction="#handleResetFilters" text="Reinit." styleClass="ghost-button"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <HBox spacing="18" styleClass="product-content-shell">
+                            <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                                <VBox spacing="4">
+                                    <Label text="Liste des commandes" styleClass="section-title"/>
+                                    <Label text="Suivez rapidement le produit, le coach, le statut et le paiement depuis une table d'administration dediee."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+
+                                <TableView fx:id="orderTableView" prefHeight="560" styleClass="data-table" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="orderIdColumn" text="ID" prefWidth="70"/>
+                                        <TableColumn fx:id="orderProductColumn" text="Produit" prefWidth="180"/>
+                                        <TableColumn fx:id="orderCoachColumn" text="Coach" prefWidth="170"/>
+                                        <TableColumn fx:id="orderQuantityColumn" text="Qt" prefWidth="60"/>
+                                        <TableColumn fx:id="orderTotalColumn" text="Montant" prefWidth="110"/>
+                                        <TableColumn fx:id="orderStatusColumn" text="Statut" prefWidth="120"/>
+                                        <TableColumn fx:id="orderPaymentColumn" text="Paiement" prefWidth="120"/>
+                                        <TableColumn fx:id="orderDateColumn" text="Date" prefWidth="110"/>
+                                        <TableColumn fx:id="orderActionsColumn" text="Actions" prefWidth="220"/>
+                                    </columns>
+                                    <placeholder>
+                                        <Label text="Aucune commande trouvee." styleClass="empty-text"/>
+                                    </placeholder>
+                                </TableView>
+                            </VBox>
+
+                            <VBox spacing="18" minWidth="390" prefWidth="420">
+                                <VBox spacing="14" styleClass="panel-card detail-card product-detail-card">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
+                                        <Label fx:id="detailPaymentChipLabel" text="-" styleClass="status-pill product-stock-chip product-stock-good"/>
+                                    </HBox>
+
+                                    <VBox spacing="6">
+                                        <Label fx:id="detailTitleLabel" text="Aucune commande selectionnee" styleClass="detail-title"/>
+                                        <Label fx:id="detailSubtitleLabel" text="Selectionnez une commande" wrapText="true" styleClass="detail-subtitle"/>
+                                    </VBox>
+
+                                    <Label fx:id="detailTotalLabel" text="0.00 DT" styleClass="product-price-value"/>
+
+                                    <GridPane hgap="10" vgap="10">
+                                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="product-info-pill">
+                                            <Label text="ID" styleClass="field-label"/>
+                                            <Label fx:id="detailIdValueLabel" text="Auto" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="product-info-pill">
+                                            <Label text="Produit" styleClass="field-label"/>
+                                            <Label fx:id="detailProductValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="product-info-pill">
+                                            <Label text="Coach" styleClass="field-label"/>
+                                            <Label fx:id="detailCoachValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="product-info-pill">
+                                            <Label text="Date" styleClass="field-label"/>
+                                            <Label fx:id="detailDateValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                    </GridPane>
+
+                                    <GridPane hgap="10" vgap="10">
+                                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="product-info-pill">
+                                            <Label text="Quantite" styleClass="field-label"/>
+                                            <Label fx:id="detailQuantityValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="product-info-pill">
+                                            <Label text="Email" styleClass="field-label"/>
+                                            <Label fx:id="detailEmailValueLabel" text="-" wrapText="true" styleClass="detail-subtitle"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="product-info-pill">
+                                            <Label text="Telephone" styleClass="field-label"/>
+                                            <Label fx:id="detailPhoneValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="product-info-pill">
+                                            <Label text="Livraison" styleClass="field-label"/>
+                                            <Label fx:id="detailShippingValueLabel" text="-" wrapText="true" styleClass="detail-subtitle"/>
+                                        </VBox>
+                                    </GridPane>
+
+                                    <VBox spacing="6">
+                                        <Label text="Facturation" styleClass="field-label"/>
+                                        <Label fx:id="detailBillingValueLabel" text="-" wrapText="true" styleClass="detail-subtitle"/>
+                                    </VBox>
+
+                                    <HBox spacing="10" styleClass="product-form-actions">
+                                        <Button fx:id="detailEditButton" onAction="#handleEditSelectedOrder" text="Modifier" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="detailDeleteButton" onAction="#handleDeleteSelectedOrder" text="Supprimer" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="14" styleClass="panel-card form-card product-form-card">
+                                    <VBox spacing="4">
+                                        <Label fx:id="formModeLabel" text="Ajouter une commande" styleClass="section-title"/>
+                                        <Label fx:id="formHintLabel" text="Renseignez les informations ci-dessous pour enregistrer une nouvelle commande." wrapText="true" styleClass="section-subtitle"/>
+                                    </VBox>
+
+                                    <Label fx:id="validationLabel" managed="false" visible="false" wrapText="true" styleClass="validation-label"/>
+
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Produit" styleClass="field-label"/>
+                                            <ComboBox fx:id="productComboBox" styleClass="glass-combo"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Coach" styleClass="field-label"/>
+                                            <ComboBox fx:id="coachComboBox" styleClass="glass-combo"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Date" styleClass="field-label"/>
+                                            <DatePicker fx:id="orderDatePicker" styleClass="form-text-field"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Quantite" styleClass="field-label"/>
+                                            <TextField fx:id="quantityField" promptText="0" styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Statut" styleClass="field-label"/>
+                                            <ComboBox fx:id="statusComboBox" styleClass="glass-combo"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Paiement" styleClass="field-label"/>
+                                            <ComboBox fx:id="paymentStatusComboBox" styleClass="glass-combo"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Methode" styleClass="field-label"/>
+                                            <ComboBox fx:id="paymentMethodComboBox" styleClass="glass-combo"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Taille" styleClass="field-label"/>
+                                            <TextField fx:id="sizeField" promptText="Ex: L" styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Email" styleClass="field-label"/>
+                                            <TextField fx:id="contactEmailField" promptText="email@example.com" styleClass="form-text-field"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Telephone" styleClass="field-label"/>
+                                            <TextField fx:id="contactPhoneField" promptText="+216..." styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <VBox spacing="8">
+                                        <Label text="Montant total" styleClass="field-label"/>
+                                        <TextField fx:id="totalAmountField" promptText="0.00" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="8">
+                                        <Label text="Adresse de livraison" styleClass="field-label"/>
+                                        <TextField fx:id="shippingAddressField" promptText="Adresse complete" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="8">
+                                        <Label text="Adresse de facturation" styleClass="field-label"/>
+                                        <TextField fx:id="billingAddressField" promptText="Adresse complete" styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <HBox spacing="10" styleClass="product-form-actions">
+                                        <Button onAction="#handleAddOrder" text="Enregistrer" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="updateButton" onAction="#handleUpdateOrder" text="Mettre a jour" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <HBox spacing="10" styleClass="product-form-actions">
+                                        <Button fx:id="deleteButton" onAction="#handleDeleteSelectedOrder" text="Supprimer" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+                                        <Button onAction="#handleClearForm" text="Annuler / Effacer" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -303,20 +303,7 @@ public class AnnonceController {
     @FXML
     private void handleAddCommentaire() {
         clearCommentValidation();
-        Commentaire commentaire = buildCommentaireFromForm(false);
-        if (commentaire == null || commentaireService == null) {
-            return;
-        }
-
-        try {
-            commentaireService.add(commentaire);
-            refreshData(getSelectedAnnonceId(), null);
-            clearCommentFormFields();
-            showCommentSuccessStatus("Comment added successfully.");
-        } catch (SQLException e) {
-            showCommentErrorStatus("Could not add the comment.");
-            showAlert(Alert.AlertType.ERROR, "Comments", "Add failed.\n" + e.getMessage());
-        }
+        showCommentValidation("Admin moderation can update or delete existing player comments. Creating new comments stays on the user interface.");
     }
 
     @FXML
@@ -380,8 +367,8 @@ public class AnnonceController {
         updateActionAvailability();
         updateCommentSection();
         showCommentMutedStatus(selectedAnnonce == null
-                ? "Select an announcement to manage comments."
-                : "Comment form cleared.");
+                ? "All comments are visible. Select one to moderate it."
+                : "Comment moderation selection cleared.");
     }
 
     @FXML
@@ -480,7 +467,7 @@ public class AnnonceController {
         commentaireModerationColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getModerationStatus())));
         commentaireTableView.setItems(visibleCommentaires);
         commentaireTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        commentaireTableView.setPlaceholder(new Label("Select an announcement to see its comments."));
+        commentaireTableView.setPlaceholder(new Label("No comments found."));
         commentaireTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> handleSelectedCommentaireChange(newValue));
     }
 
@@ -682,8 +669,13 @@ public class AnnonceController {
         visibleCommentaires.clear();
 
         if (selectedAnnonce == null) {
-            selectedAnnonceCommentsLabel.setText("Comments");
-            commentResultsMetaLabel.setText("0 comment(s)");
+            List<Commentaire> allComments = new ArrayList<>(commentaires);
+            allComments.sort(Comparator
+                    .comparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(Commentaire::getId, Comparator.nullsLast(Comparator.reverseOrder())));
+            visibleCommentaires.setAll(allComments);
+            selectedAnnonceCommentsLabel.setText("All comments");
+            commentResultsMetaLabel.setText(allComments.size() + " comment(s)");
             updateCommentSection();
             return;
         }
@@ -765,8 +757,9 @@ public class AnnonceController {
     }
 
     private Commentaire buildCommentaireFromForm(boolean updateMode) {
-        if (selectedAnnonce == null) {
-            showCommentValidation("Select an announcement first.");
+        Integer annonceId = resolveCommentAnnonceId();
+        if (annonceId == null) {
+            showCommentValidation("Select a comment or announcement first.");
             return null;
         }
 
@@ -820,7 +813,7 @@ public class AnnonceController {
                 contenu,
                 commentDate,
                 joueurId,
-                selectedAnnonce.getId(),
+                annonceId,
                 auteur,
                 likes == null ? 0 : likes,
                 moderationStatus,
@@ -932,24 +925,23 @@ public class AnnonceController {
 
     private void updateCommentSection() {
         if (selectedAnnonce == null) {
-            commentFormHintLabel.setText("Select an announcement first.");
-            setStatus(commentStatusLabel, "Select an announcement to manage comments.", "status-muted");
+            commentFormHintLabel.setText("All posted comments are shown here. Select an announcement if you want to filter the moderation table to a single post.");
+            setStatus(commentStatusLabel, "Showing all comments", "status-success");
         } else if (!isCommentsEnabled(selectedAnnonce)) {
-            commentFormHintLabel.setText("Comments are locked for the selected announcement.");
+            commentFormHintLabel.setText("Comments are locked for the selected announcement. Admin can still delete existing comments if needed.");
             setStatus(commentStatusLabel, "Comments locked", "status-warning");
         } else if (selectedCommentaire != null) {
-            commentFormHintLabel.setText("Update or delete the selected comment.");
+            commentFormHintLabel.setText("Admin can review, update, or delete the selected player comment for moderation purposes.");
             setStatus(commentStatusLabel, "Comment selected", resolveCommentStatusStyle(selectedCommentaire.getModerationStatus()));
         } else {
-            commentFormHintLabel.setText("Add a new comment linked to the selected announcement.");
-            setStatus(commentStatusLabel, "Comments open", "status-success");
+            commentFormHintLabel.setText("Read comments here and select one to update or delete it as part of moderation.");
+            setStatus(commentStatusLabel, "Moderation ready", "status-success");
         }
     }
 
     private void updateActionAvailability() {
         boolean hasAnnonceSelection = selectedAnnonce != null;
         boolean hasCommentSelection = selectedCommentaire != null;
-        boolean commentsEnabled = selectedAnnonce != null && isCommentsEnabled(selectedAnnonce);
 
         addAnnonceButton.setDisable(!serviceReady);
         updateAnnonceButton.setDisable(!serviceReady || !hasAnnonceSelection);
@@ -958,11 +950,26 @@ public class AnnonceController {
         exportPdfButton.setDisable(!serviceReady || filteredAnnonces.isEmpty());
         annonceTableView.setDisable(!serviceReady);
 
-        addCommentButton.setDisable(!serviceReady || selectedAnnonce == null || !commentsEnabled);
+        addCommentButton.setDisable(true);
         updateCommentButton.setDisable(!serviceReady || !hasCommentSelection);
         deleteCommentButton.setDisable(!serviceReady || !hasCommentSelection);
         clearCommentButton.setDisable(!serviceReady);
-        commentaireTableView.setDisable(!serviceReady || selectedAnnonce == null);
+        commentaireTableView.setDisable(!serviceReady);
+
+        boolean commentFieldsEnabled = serviceReady && hasCommentSelection;
+        for (Control control : List.of(
+                auteurField,
+                joueurIdField,
+                commentDatePicker,
+                likesField,
+                moderationComboBox,
+                moderationReasonArea,
+                commentaireArea
+        )) {
+            if (control != null) {
+                control.setDisable(!commentFieldsEnabled);
+            }
+        }
     }
 
     private void clearAnnonceFormFields() {
@@ -1044,6 +1051,16 @@ public class AnnonceController {
                 || emptyToNull(joueurIdField.getText()) != null
                 || emptyToNull(commentaireArea.getText()) != null
                 || emptyToNull(moderationReasonArea.getText()) != null;
+    }
+
+    private Integer resolveCommentAnnonceId() {
+        if (selectedAnnonce != null) {
+            return selectedAnnonce.getId();
+        }
+        if (selectedCommentaire != null) {
+            return selectedCommentaire.getAnnonceId();
+        }
+        return null;
     }
 
     private boolean isCommentsEnabled(Annonce annonce) {

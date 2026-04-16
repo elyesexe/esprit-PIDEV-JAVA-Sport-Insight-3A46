@@ -22,6 +22,7 @@ C:\PI Java\src\main\java\tn\esprit\Controller\MatchController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchDetailController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchFormController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\OrderController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\ProductController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\ProfileController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\SignupController.java
@@ -73,6 +74,7 @@ C:\PI Java\src\main\java\tn\esprit\repositories\ProductRepository.java
 C:\PI Java\src\main\java\tn\esprit\security\AuthSession.java
 C:\PI Java\src\main\java\tn\esprit\security\PasswordSupport.java
 C:\PI Java\src\main\java\tn\esprit\security\UserRoles.java
+C:\PI Java\src\main\java\tn\esprit\services\AdminExcelExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnoncePdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
@@ -90,12 +92,15 @@ C:\PI Java\src\main\java\tn\esprit\services\football\LeagueStandingsSnapshot.jav
 C:\PI Java\src\main\java\tn\esprit\services\IService.java
 C:\PI Java\src\main\java\tn\esprit\services\JoueurService.java
 C:\PI Java\src\main\java\tn\esprit\services\MatchsService.java
+C:\PI Java\src\main\java\tn\esprit\services\OrderPdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderService.java
 C:\PI Java\src\main\java\tn\esprit\services\ParticipationService.java
+C:\PI Java\src\main\java\tn\esprit\services\ProductPdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\ProductService.java
 C:\PI Java\src\main\java\tn\esprit\services\SponsoringPdfService.java
 C:\PI Java\src\main\java\tn\esprit\services\SponsoringWorkspaceService.java
 C:\PI Java\src\main\java\tn\esprit\services\SponsorService.java
+C:\PI Java\src\main\java\tn\esprit\services\UserPdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\UserService.java
 C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataApiClient.java
 C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataPlayerImageService.java
