@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -127,6 +130,36 @@
                         </VBox>
                     </StackPane>
 
+                    <VBox spacing="14" styleClass="panel-card toolbar-panel">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Statistiques joueurs" styleClass="section-title"/>
+                                <Label text="Repartition des joueurs par equipe pour suivre les effectifs."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="playerChartSummaryLabel"
+                               text="Chargement des statistiques joueurs..."
+                               wrapText="true"
+                               styleClass="section-subtitle"/>
+
+                        <BarChart fx:id="playerDistributionChart"
+                                  animated="false"
+                                  categoryGap="14"
+                                  legendVisible="false"
+                                  prefHeight="260"
+                                  styleClass="module-stats-chart">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis forceZeroInRange="true" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+
                     <VBox spacing="16" styleClass="panel-card toolbar-panel">
                         <HBox spacing="16" alignment="CENTER_LEFT">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -158,6 +191,9 @@
                             <VBox spacing="6">
                                 <Label text="Actions" styleClass="field-label"/>
                                 <HBox spacing="10">
+                                    <Button onAction="#handleExportExcel"
+                                            text="Excel"
+                                            styleClass="soft-button"/>
                                     <Button fx:id="refreshButton"
                                             onAction="#handleRefresh"
                                             text="Actualiser"

@@ -1,5 +1,20 @@
 @import "equipe-theme.css";
 
+.page-root,
+.theme-light.page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f2f5f3 0%, #e8f0ed 52%, #eef4f1 100%);
+}
+
+.page-scroll,
+.page-scroll > .viewport,
+.theme-light.page-root .page-scroll,
+.theme-light.page-root .page-scroll > .viewport,
+.theme-light .page-shell-wrap,
+.theme-light .page-shell,
+.theme-light .home-shell {
+    -fx-background-color: transparent;
+}
+
 /* Page spacing */
 .page-shell-wrap {
     -fx-alignment: top-center;

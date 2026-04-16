@@ -30,19 +30,27 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.entities.Order;
 import tn.esprit.entities.Product;
+import tn.esprit.entities.User;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.ProductImageResolver;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.repositories.ProductRepository;
+import tn.esprit.security.AuthSession;
+import tn.esprit.services.OrderPdfExportService;
 import tn.esprit.services.OrderService;
 import tn.esprit.services.ProductService;
 
+import java.awt.Desktop;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +58,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class StoreController {
+    private static final DateTimeFormatter INVOICE_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     private static final String LIGHT_PAGE_BACKGROUND = "-fx-background-color:"
             + " radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.14) 0%, rgba(16, 185, 129, 0) 100%),"
             + " radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 100%),"
@@ -114,6 +123,7 @@ public class StoreController {
 
     private ProductService productService;
     private OrderService orderService;
+    private OrderPdfExportService orderPdfExportService;
     private SidebarModuleGroup sidebarModuleGroup;
     private boolean serviceReady;
     private StoreSection activeSection = StoreSection.CATALOG;
@@ -139,6 +149,7 @@ public class StoreController {
         try {
             productService = new ProductService();
             orderService = new OrderService();
+            orderPdfExportService = new OrderPdfExportService();
             serviceReady = true;
             refreshCatalog();
             setStatus("Boutique prete.", "status-success");
@@ -290,9 +301,18 @@ public class StoreController {
         String shipping = trimToNull(shippingAddressArea.getText());
         String billing = trimToNull(billingAddressArea.getText());
         String paymentMethod = paymentMethodComboBox.getValue();
+        User currentUser = AuthSession.getCurrentUser();
+        Integer orderOwnerId = currentUser == null ? null : currentUser.getId();
+
+        if (orderOwnerId == null || orderOwnerId <= 0) {
+            showValidation("Votre session utilisateur est introuvable. Reconnectez-vous puis reessayez.");
+            updateSectionVisibility(StoreSection.PAYMENT);
+            return;
+        }
 
         try {
             Map<Integer, Product> latestProducts = new HashMap<>();
+            List<OrderPdfExportService.InvoiceLine> invoiceLines = new ArrayList<>();
             for (CartLine line : cartItems) {
                 Product freshProduct = productService.getById(line.getProduct().getId());
                 if (freshProduct == null) {
@@ -302,6 +322,13 @@ public class StoreController {
                     throw new IllegalArgumentException("Stock insuffisant pour " + freshProduct.getName() + ".");
                 }
                 latestProducts.put(freshProduct.getId(), freshProduct);
+                invoiceLines.add(new OrderPdfExportService.InvoiceLine(
+                        freshProduct.getName(),
+                        freshProduct.getSize(),
+                        line.getQuantity(),
+                        freshProduct.getPrice(),
+                        freshProduct.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())).setScale(2, RoundingMode.HALF_UP)
+                ));
             }
 
             for (CartLine line : cartItems) {
@@ -319,12 +346,22 @@ public class StoreController {
                         billing,
                         null,
                         freshProduct.getId(),
-                        null
+                        orderOwnerId
                 );
                 orderService.add(order);
             }
 
             BigDecimal total = calculateCartTotal();
+            Path invoicePath = exportInvoiceAutomatically(
+                    currentUser,
+                    email,
+                    phone,
+                    paymentMethod,
+                    shipping,
+                    billing,
+                    total,
+                    invoiceLines
+            );
             cartItems.clear();
             clearCheckoutForm();
             refreshCatalog();
@@ -332,10 +369,16 @@ public class StoreController {
             renderPaymentSummary();
             updateSectionVisibility(StoreSection.CATALOG);
             setStatus("Commande enregistree avec succes.", "status-success");
-            showAlert(Alert.AlertType.INFORMATION, "Paiement", "Commande validee pour " + formatPrice(total) + ".");
+            String invoiceMessage = invoicePath == null
+                    ? ""
+                    : "\nFacture PDF telechargee ici:\n" + invoicePath.toAbsolutePath();
+            showAlert(Alert.AlertType.INFORMATION, "Paiement", "Commande validee pour " + formatPrice(total) + "." + invoiceMessage);
         } catch (IllegalArgumentException | SQLException exception) {
             setStatus("Paiement impossible.", "status-error");
             showValidation(exception.getMessage());
+        } catch (IOException exception) {
+            setStatus("Commande enregistree, facture PDF indisponible.", "status-warning");
+            showAlert(Alert.AlertType.WARNING, "Facture", "La commande a ete enregistree, mais la facture PDF n'a pas pu etre generee.\n" + exception.getMessage());
         }
     }
 
@@ -883,6 +926,64 @@ public class StoreController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private Path exportInvoiceAutomatically(
+            User currentUser,
+            String email,
+            String phone,
+            String paymentMethod,
+            String shipping,
+            String billing,
+            BigDecimal total,
+            List<OrderPdfExportService.InvoiceLine> invoiceLines
+    ) throws IOException {
+        if (orderPdfExportService == null) {
+            return null;
+        }
+
+        String customerName = currentUser == null ? email : currentUser.getDisplayName();
+        Path target = resolveAutomaticInvoicePath(customerName);
+        orderPdfExportService.exportInvoice(
+                target,
+                new OrderPdfExportService.Invoice(
+                        customerName,
+                        email,
+                        phone,
+                        paymentMethod,
+                        shipping,
+                        billing,
+                        LocalDate.now(),
+                        total,
+                        invoiceLines
+                )
+        );
+        openFileIfPossible(target);
+        return target;
+    }
+
+    private Path resolveAutomaticInvoicePath(String customerName) throws IOException {
+        String safeName = (customerName == null || customerName.isBlank() ? "client" : customerName)
+                .replaceAll("[^A-Za-z0-9_-]+", "-")
+                .replaceAll("-{2,}", "-")
+                .replaceAll("^-|-$", "")
+                .toLowerCase();
+        if (safeName.isBlank()) {
+            safeName = "client";
+        }
+
+        Path downloadsDir = Path.of(System.getProperty("user.home"), "Downloads");
+        java.nio.file.Files.createDirectories(downloadsDir);
+        return downloadsDir.resolve("facture-" + safeName + "-" + INVOICE_FILE_FORMATTER.format(LocalDateTime.now()) + ".pdf");
+    }
+
+    private void openFileIfPossible(Path path) {
+        try {
+            if (path != null && Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(path.toFile());
+            }
+        } catch (IOException ignored) {
+        }
     }
 
     private enum StoreSection {

@@ -388,7 +388,7 @@ public class AnnonceUserController {
         if (composerHintLabel != null) {
             composerHintLabel.setText(enabled
                     ? "Your coach profile is used automatically for announcements."
-                    : "Only coach accounts can publish announcements. Comments remain player-only.");
+                    : "Only coach accounts can publish announcements. All roles can read comments; only player accounts can post and manage their own comments.");
         }
 
         updateAvatarGraphic(
@@ -444,7 +444,7 @@ public class AnnonceUserController {
 
         resultsMetaLabel.setText(visibleAnnonces.size() + " announcement(s) visible");
         resultCountLabel.setText(annonces.size() + " total announcement(s)");
-        selectionStateLabel.setText(isCurrentUserCoach() ? "Coach publisher view" : "Read-only feed");
+        selectionStateLabel.setText(isCurrentUserCoach() ? "Coach publisher view" : "Community feed");
     }
 
     private void rebuildCommentCounts() {
@@ -758,8 +758,120 @@ public class AnnonceUserController {
             footer.getChildren().add(createMetaChip(commentaire.getModerationReason()));
         }
 
+        VBox editSection = buildInlineCommentEditor(commentaire, bodyLabel, footer);
         card.getChildren().addAll(header, bodyLabel, footer);
+        if (editSection != null) {
+            card.getChildren().add(editSection);
+        }
         return card;
+    }
+
+    private VBox buildInlineCommentEditor(Commentaire commentaire, Label bodyLabel, FlowPane footer) {
+        if (!canCurrentUserManageComment(commentaire)) {
+            return null;
+        }
+
+        VBox editorBox = new VBox(8);
+        editorBox.setManaged(false);
+        editorBox.setVisible(false);
+
+        TextArea editorArea = new TextArea(emptyIfNull(commentaire.getContenu()));
+        editorArea.setWrapText(true);
+        editorArea.setPrefRowCount(3);
+        editorArea.getStyleClass().add("annonce-text-area");
+
+        Label validationLabel = new Label();
+        validationLabel.getStyleClass().add("annonce-section-note");
+        validationLabel.setManaged(false);
+        validationLabel.setVisible(false);
+
+        HBox actions = new HBox(10);
+        Button saveButton = new Button("Save");
+        saveButton.getStyleClass().add("primary-button");
+        Button cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().add("ghost-button");
+        Button editButton = new Button("Edit");
+        editButton.getStyleClass().add("ghost-button");
+        Button deleteButton = new Button("Delete");
+        deleteButton.getStyleClass().add("danger-button");
+        actions.getChildren().addAll(editButton, deleteButton);
+        footer.getChildren().add(actions);
+
+        HBox editorActions = new HBox(10, saveButton, cancelButton);
+
+        editButton.setOnAction(event -> {
+            editorArea.setText(emptyIfNull(commentaire.getContenu()));
+            validationLabel.setText("");
+            validationLabel.setManaged(false);
+            validationLabel.setVisible(false);
+            bodyLabel.setManaged(false);
+            bodyLabel.setVisible(false);
+            editorBox.setManaged(true);
+            editorBox.setVisible(true);
+        });
+
+        cancelButton.setOnAction(event -> {
+            editorBox.setManaged(false);
+            editorBox.setVisible(false);
+            bodyLabel.setManaged(true);
+            bodyLabel.setVisible(true);
+        });
+
+        saveButton.setOnAction(event -> {
+            String contenu = emptyToNull(editorArea.getText());
+            if (contenu == null) {
+                validationLabel.setText("Comment content is required.");
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                markFieldInvalid(editorArea);
+                return;
+            }
+
+            clearFieldError(editorArea);
+            Commentaire updated = new Commentaire(
+                    commentaire.getId(),
+                    contenu,
+                    commentaire.getDateCommentaire(),
+                    commentaire.getJoueurId(),
+                    commentaire.getAnnonceId(),
+                    commentaire.getAuteurAnonyme(),
+                    commentaire.getNbLikes(),
+                    commentaire.getModerationStatus(),
+                    commentaire.getModerationReason()
+            );
+
+            try {
+                commentaireService.update(updated);
+                refreshData();
+                showSuccessStatus("Comment updated.");
+            } catch (SQLException e) {
+                showErrorStatus("Could not update the comment.");
+                showAlert(Alert.AlertType.ERROR, "Comments", "Update failed.\n" + e.getMessage());
+            }
+        });
+
+        deleteButton.setOnAction(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete comment");
+            alert.setHeaderText("Delete your comment?");
+            alert.setContentText(fallbackText(commentaire.getContenu(), "This comment"));
+
+            if (alert.showAndWait().orElse(javafx.scene.control.ButtonType.CANCEL) != javafx.scene.control.ButtonType.OK) {
+                return;
+            }
+
+            try {
+                commentaireService.delete(commentaire.getId());
+                refreshData();
+                showSuccessStatus("Comment deleted.");
+            } catch (SQLException e) {
+                showErrorStatus("Could not delete the comment.");
+                showAlert(Alert.AlertType.ERROR, "Comments", "Delete failed.\n" + e.getMessage());
+            }
+        });
+
+        editorBox.getChildren().addAll(editorArea, validationLabel, editorActions);
+        return editorBox;
     }
 
     private StackPane createAvatarNode(User user, String displayName, boolean compact) {
@@ -964,6 +1076,15 @@ public class AnnonceUserController {
     private boolean isCurrentUserJoueur() {
         User currentUser = getCurrentUser();
         return currentUser != null && currentUser.hasRole(UserRoles.ROLE_JOUEUR);
+    }
+
+    private boolean canCurrentUserManageComment(Commentaire commentaire) {
+        User currentUser = getCurrentUser();
+        return commentaire != null
+                && currentUser != null
+                && currentUser.hasRole(UserRoles.ROLE_JOUEUR)
+                && currentUser.getId() != null
+                && Objects.equals(currentUser.getId(), commentaire.getJoueurId());
     }
 
     private boolean isCurrentUserCoach() {

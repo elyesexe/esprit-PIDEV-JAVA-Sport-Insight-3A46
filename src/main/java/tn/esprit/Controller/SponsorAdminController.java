@@ -1,5 +1,6 @@
 package tn.esprit.Controller;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -197,6 +198,7 @@ public class SponsorAdminController {
         if (paymentChart != null) {
             paymentChart.applyCss();
         }
+        Platform.runLater(() -> applyPieChartTheme(paymentChart, darkMode));
     }
 
     private void configureOverview() {
@@ -208,6 +210,7 @@ public class SponsorAdminController {
             paymentChart.setLabelsVisible(true);
             paymentChart.setLegendVisible(true);
             paymentChart.setClockwise(true);
+            Platform.runLater(() -> applyPieChartTheme(paymentChart, isDarkModeEnabled()));
         }
     }
 
@@ -557,6 +560,7 @@ public class SponsorAdminController {
         ObservableList<PieChart.Data> paymentData = FXCollections.observableArrayList();
         stats.paymentBreakdown().forEach((label, value) -> paymentData.add(new PieChart.Data(label + " (" + value + ")", value)));
         paymentChart.setData(paymentData);
+        Platform.runLater(() -> applyPieChartTheme(paymentChart, isDarkModeEnabled()));
     }
 
     private void applySponsorFilters() {
@@ -997,6 +1001,32 @@ public class SponsorAdminController {
         if (!label.getStyleClass().contains(styleClass)) {
             label.getStyleClass().add(styleClass);
         }
+    }
+
+    private void applyPieChartTheme(PieChart chart, boolean darkMode) {
+        if (chart == null) {
+            return;
+        }
+        String labelColor = darkMode ? "#f8fafc" : "#475569";
+        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#f8fafc" : "#475569";
+        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+
+        chart.applyCss();
+        chart.lookupAll(".chart-pie-label").forEach(node ->
+                node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
+        chart.lookupAll(".chart-pie-label-line").forEach(node ->
+                node.setStyle("-fx-stroke: " + lineColor + ";"));
+        chart.lookupAll(".chart-legend").forEach(node ->
+                node.setStyle("-fx-background-color: " + legendBackground + "; -fx-background-radius: 12;"));
+        chart.lookupAll(".chart-legend-item").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+        chart.lookupAll(".chart-legend-item .label").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+    }
+
+    private boolean isDarkModeEnabled() {
+        return themeToggleButton != null && themeToggleButton.isSelected();
     }
 
     private boolean confirm(String message) {

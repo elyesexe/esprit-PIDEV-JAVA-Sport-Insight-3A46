@@ -8,6 +8,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -26,6 +29,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import tn.esprit.entities.Product;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.ProductImageResolver;
@@ -33,11 +38,16 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.repositories.ProductRepository;
+import tn.esprit.services.ProductPdfExportService;
 import tn.esprit.services.ProductService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +77,10 @@ public class ProductController {
     @FXML private Label visibleProductsMetricLabel;
     @FXML private Label lowStockMetricLabel;
     @FXML private Label outOfStockMetricLabel;
+    @FXML private Label stockChartSummaryLabel;
+    @FXML private Label categoryChartSummaryLabel;
+    @FXML private BarChart<String, Number> stockStatusChart;
+    @FXML private PieChart categoryDistributionChart;
 
     @FXML private TextField searchField;
     @FXML private ComboBox<ProductRepository.ProductSortField> sortByComboBox;
@@ -109,11 +123,13 @@ public class ProductController {
     @FXML private Button deleteButton;
     @FXML private Button detailEditButton;
     @FXML private Button detailDeleteButton;
+    @FXML private Button exportPdfButton;
 
     private final ObservableList<Product> products = FXCollections.observableArrayList();
     private final Map<String, Image> imageCache = new HashMap<>();
 
     private ProductService productService;
+    private ProductPdfExportService productPdfExportService;
     private Product selectedProduct;
     private boolean serviceReady;
     private SidebarModuleGroup sidebarModuleGroup;
@@ -125,6 +141,7 @@ public class ProductController {
         configureSortControls();
         configureFormatters();
         configureTable();
+        configureCharts();
         updateDetailPanel();
         updateActionAvailability();
         if (pageScroll != null) {
@@ -135,6 +152,7 @@ public class ProductController {
 
         try {
             productService = new ProductService();
+            productPdfExportService = new ProductPdfExportService();
             serviceReady = true;
             setStatus("Module produits pret.", "status-success");
             refreshProducts(null, null, null);
@@ -150,6 +168,13 @@ public class ProductController {
         if (productTableView != null) {
             productTableView.refresh();
         }
+        if (stockStatusChart != null) {
+            stockStatusChart.applyCss();
+        }
+        if (categoryDistributionChart != null) {
+            categoryDistributionChart.applyCss();
+        }
+        Platform.runLater(() -> applyPieChartTheme(categoryDistributionChart, darkMode));
     }
 
     @FXML
@@ -246,6 +271,34 @@ public class ProductController {
             sortDirectionComboBox.setValue(ProductRepository.SortDirection.ASC);
         }
         refreshProducts(getSelectedProductId(), "Filtres reinitialises.", "status-muted");
+    }
+
+    @FXML
+    private void handleExportPdf() {
+        if (!serviceReady || productPdfExportService == null) {
+            showValidation("Le service d'export PDF n'est pas disponible.");
+            return;
+        }
+
+        List<Product> productsToExport = new ArrayList<>(products);
+        if (productsToExport.isEmpty()) {
+            showValidation("Il n'y a aucun produit a exporter.");
+            return;
+        }
+
+        Path target = choosePdfTarget();
+        if (target == null) {
+            setStatus("Export PDF annule.", "status-muted");
+            return;
+        }
+
+        try {
+            productPdfExportService.export(target, productsToExport);
+            setStatus("Liste des produits exportee en PDF.", "status-success");
+        } catch (IOException exception) {
+            setStatus("Export PDF impossible.", "status-error");
+            showAlert(Alert.AlertType.ERROR, "Produit", exception.getMessage());
+        }
     }
 
     @FXML
@@ -394,6 +447,20 @@ public class ProductController {
         productTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> selectProduct(newValue));
     }
 
+    private void configureCharts() {
+        if (stockStatusChart != null) {
+            stockStatusChart.setLegendVisible(false);
+            stockStatusChart.setAnimated(false);
+        }
+        if (categoryDistributionChart != null) {
+            categoryDistributionChart.setLegendVisible(true);
+            categoryDistributionChart.setLabelsVisible(true);
+            categoryDistributionChart.setAnimated(false);
+            categoryDistributionChart.setClockwise(true);
+            Platform.runLater(() -> applyPieChartTheme(categoryDistributionChart, isDarkModeEnabled()));
+        }
+    }
+
     private void refreshProducts(Integer selectedId, String successMessage, String statusStyle) {
         if (!serviceReady || productService == null) {
             return;
@@ -407,6 +474,7 @@ public class ProductController {
             );
             products.setAll(foundProducts);
             updateMetrics();
+            updateCharts();
 
             if (selectedId != null) {
                 selectProductById(selectedId);
@@ -552,6 +620,57 @@ public class ProductController {
         visibleProductsMetricLabel.setText(String.valueOf(products.size()));
         lowStockMetricLabel.setText(String.valueOf(lowStock));
         outOfStockMetricLabel.setText(String.valueOf(outOfStock));
+    }
+
+    private void updateCharts() {
+        long healthyStock = products.stream().filter(product -> product.getStock() > LOW_STOCK_THRESHOLD).count();
+        long lowStock = products.stream().filter(product -> product.getStock() > 0 && product.getStock() <= LOW_STOCK_THRESHOLD).count();
+        long outOfStock = products.stream().filter(product -> product.getStock() <= 0).count();
+
+        if (stockStatusChart != null) {
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            XYChart.Data<String, Number> healthyData = new XYChart.Data<>("Healthy", healthyStock);
+            XYChart.Data<String, Number> lowData = new XYChart.Data<>("Low", lowStock);
+            XYChart.Data<String, Number> outData = new XYChart.Data<>("Out", outOfStock);
+            series.getData().addAll(healthyData, lowData, outData);
+            stockStatusChart.getData().setAll(series);
+            applyBarColor(healthyData, "#22c55e");
+            applyBarColor(lowData, "#f59e0b");
+            applyBarColor(outData, "#ef4444");
+        }
+
+        Map<String, Long> categories = products.stream()
+                .collect(Collectors.groupingBy(
+                        product -> emptyIfNull(product.getCategory(), "Uncategorized"),
+                        Collectors.counting()
+                ));
+
+        if (categoryDistributionChart != null) {
+            ObservableList<PieChart.Data> chartData = FXCollections.observableArrayList();
+            categories.entrySet().stream()
+                    .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                            .thenComparing(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)))
+                    .limit(5)
+                    .forEach(entry -> chartData.add(new PieChart.Data(entry.getKey() + " (" + entry.getValue() + ")", entry.getValue())));
+            if (chartData.isEmpty()) {
+                chartData.add(new PieChart.Data("No products", 1));
+            }
+            categoryDistributionChart.setData(chartData);
+            Platform.runLater(() -> applyPieChartTheme(categoryDistributionChart, isDarkModeEnabled()));
+        }
+
+        if (stockChartSummaryLabel != null) {
+            stockChartSummaryLabel.setText(products.size() + " visible product(s) | " + healthyStock + " healthy | " + lowStock + " low | " + outOfStock + " out");
+        }
+        if (categoryChartSummaryLabel != null) {
+            String topCategory = categories.entrySet().stream()
+                    .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                            .thenComparing(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)))
+                    .map(entry -> entry.getKey() + " leads with " + entry.getValue())
+                    .findFirst()
+                    .orElse("No category data available.");
+            categoryChartSummaryLabel.setText(topCategory);
+        }
     }
 
     private void updateDetailPanel() {
@@ -802,6 +921,18 @@ public class ProductController {
         return selectedProduct == null ? null : selectedProduct.getId();
     }
 
+    private Path choosePdfTarget() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Exporter les produits en PDF");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files", "*.pdf"));
+        chooser.setInitialFileName("products-export-" + java.time.LocalDate.now() + ".pdf");
+        Window owner = exportPdfButton == null || exportPdfButton.getScene() == null
+                ? (pageRoot == null || pageRoot.getScene() == null ? null : pageRoot.getScene().getWindow())
+                : exportPdfButton.getScene().getWindow();
+        java.io.File targetFile = chooser.showSaveDialog(owner);
+        return targetFile == null ? null : targetFile.toPath();
+    }
+
     private String resolveDeleteMessage(Exception exception) {
         String message = resolvePersistenceMessage(exception);
         if (message != null && message.toLowerCase().contains("commande")) {
@@ -880,6 +1011,49 @@ public class ProductController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void applyBarColor(XYChart.Data<String, Number> data, String color) {
+        if (data == null) {
+            return;
+        }
+        Runnable styler = () -> {
+            Node node = data.getNode();
+            if (node != null) {
+                node.setStyle("-fx-bar-fill: " + color + ";");
+            }
+        };
+        if (data.getNode() != null) {
+            styler.run();
+        } else {
+            data.nodeProperty().addListener((obs, oldNode, newNode) -> styler.run());
+        }
+    }
+
+    private void applyPieChartTheme(PieChart chart, boolean darkMode) {
+        if (chart == null) {
+            return;
+        }
+        String labelColor = darkMode ? "#f8fafc" : "#475569";
+        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#f8fafc" : "#475569";
+        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+
+        chart.applyCss();
+        chart.lookupAll(".chart-pie-label").forEach(node ->
+                node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
+        chart.lookupAll(".chart-pie-label-line").forEach(node ->
+                node.setStyle("-fx-stroke: " + lineColor + ";"));
+        chart.lookupAll(".chart-legend").forEach(node ->
+                node.setStyle("-fx-background-color: " + legendBackground + "; -fx-background-radius: 12;"));
+        chart.lookupAll(".chart-legend-item").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+        chart.lookupAll(".chart-legend-item .label").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+    }
+
+    private boolean isDarkModeEnabled() {
+        return themeToggleButton != null && themeToggleButton.isSelected();
     }
 
     private Node resolveNavigationSource(Node preferred, Node fallback) {

@@ -356,28 +356,33 @@ public class AdminDashboardController {
     }
 
     private void applyStatistics(DashboardPayload payload) {
+        if (teamStatsComboBox == null && playerDistributionChart == null && matchStatusChart == null) {
+            return;
+        }
         dashboardJoueurs = List.copyOf(payload.joueurs());
         dashboardMatchs = List.copyOf(payload.matchs());
 
-        List<TeamOption> options = payload.equipes().stream()
-                .map(equipe -> new TeamOption(
-                        equipe.getId(),
-                        emptyIfNull(equipe.getNom(), "Equipe"),
-                        resolveCompetition(equipe)
-                ))
-                .toList();
-        teamStatsComboBox.setItems(FXCollections.observableArrayList(options));
-        if (!options.isEmpty()) {
-            TeamOption currentSelection = teamStatsComboBox.getValue();
-            TeamOption nextSelection = options.stream()
-                    .filter(option -> currentSelection != null && java.util.Objects.equals(option.id(), currentSelection.id()))
-                    .findFirst()
-                    .orElse(options.get(0));
-            teamStatsComboBox.getSelectionModel().select(nextSelection);
-            updateTeamRateChart(nextSelection);
-        } else {
-            teamStatsComboBox.getSelectionModel().clearSelection();
-            updateTeamRateChart(null);
+        if (teamStatsComboBox != null) {
+            List<TeamOption> options = payload.equipes().stream()
+                    .map(equipe -> new TeamOption(
+                            equipe.getId(),
+                            emptyIfNull(equipe.getNom(), "Equipe"),
+                            resolveCompetition(equipe)
+                    ))
+                    .toList();
+            teamStatsComboBox.setItems(FXCollections.observableArrayList(options));
+            if (!options.isEmpty()) {
+                TeamOption currentSelection = teamStatsComboBox.getValue();
+                TeamOption nextSelection = options.stream()
+                        .filter(option -> currentSelection != null && java.util.Objects.equals(option.id(), currentSelection.id()))
+                        .findFirst()
+                        .orElse(options.get(0));
+                teamStatsComboBox.getSelectionModel().select(nextSelection);
+                updateTeamRateChart(nextSelection);
+            } else {
+                teamStatsComboBox.getSelectionModel().clearSelection();
+                updateTeamRateChart(null);
+            }
         }
 
         updatePlayerDistributionChart(payload.joueurs(), payload.equipeNames());

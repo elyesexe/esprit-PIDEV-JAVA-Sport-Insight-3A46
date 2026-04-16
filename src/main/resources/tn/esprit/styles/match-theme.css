@@ -30,6 +30,25 @@
     -fx-padding: 14 16 14 16;
 }
 
+.competition-filter-bar {
+    -fx-alignment: center-left;
+}
+
+.competition-filter-button {
+    -fx-font-size: 12px;
+    -fx-padding: 8 12 8 12;
+}
+
+.module-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+}
+
+.module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(248, 250, 252, 0.78);
+    -fx-background-radius: 14;
+}
+
 .sync-section-title {
     -fx-font-size: 22px;
 }
@@ -261,6 +280,12 @@
     -fx-padding: 14 16 14 16;
 }
 
+.match-detail-score-shell {
+    -fx-min-width: 132;
+    -fx-pref-width: 132;
+    -fx-alignment: center;
+}
+
 .fixture-score-value {
     -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 24px;
@@ -324,6 +349,9 @@
     -fx-font-size: 32px;
     -fx-font-weight: 700;
     -fx-text-fill: #0f172a;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-wrap-text: false;
 }
 
 .form-text-area,

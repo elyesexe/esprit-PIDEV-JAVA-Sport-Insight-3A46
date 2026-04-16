@@ -515,6 +515,54 @@
     -fx-background-color: rgba(226, 232, 240, 0.95);
 }
 
+.competition-filter-bar {
+    -fx-alignment: center-left;
+}
+
+.competition-filter-button {
+    -fx-font-size: 12px;
+    -fx-padding: 8 12 8 12;
+}
+
+.module-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+}
+
+.module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(248, 250, 252, 0.78);
+    -fx-background-radius: 14;
+}
+
+.module-stats-chart .chart-vertical-grid-lines,
+.module-stats-chart .chart-horizontal-grid-lines,
+.module-stats-chart .chart-alternative-row-fill,
+.module-stats-chart .chart-alternative-column-fill {
+    -fx-stroke: rgba(148, 163, 184, 0.24);
+}
+
+.module-stats-chart .chart-title,
+.module-stats-chart .axis-label,
+.module-stats-chart .axis .tick-label,
+.module-stats-chart .chart-legend,
+.module-stats-chart .chart-legend-item,
+.module-stats-chart .chart-legend-item .label,
+.module-stats-chart .chart-pie-label {
+    -fx-text-fill: #0f172a;
+}
+
+.module-stats-chart .chart-pie-label {
+    -fx-fill: #0f172a;
+}
+
+.module-stats-chart .chart-pie-label-line {
+    -fx-stroke: rgba(15, 23, 42, 0.45);
+}
+
+.module-stats-chart .chart-legend-item-symbol {
+    -fx-background-radius: 999;
+}
+
 .danger-button {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #dc2626 100%);
     -fx-text-fill: #ffffff;
@@ -1095,6 +1143,40 @@
 
 .theme-dark .sidebar-footer {
     -fx-text-fill: rgba(148, 163, 184, 0.84);
+}
+
+.theme-dark .module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(0, 0, 0, 0.88);
+}
+
+.theme-dark .module-stats-chart .chart-vertical-grid-lines,
+.theme-dark .module-stats-chart .chart-horizontal-grid-lines,
+.theme-dark .module-stats-chart .chart-alternative-row-fill,
+.theme-dark .module-stats-chart .chart-alternative-column-fill {
+    -fx-stroke: rgba(148, 163, 184, 0.18);
+}
+
+.theme-dark .module-stats-chart .chart-title,
+.theme-dark .module-stats-chart .axis-label,
+.theme-dark .module-stats-chart .axis .tick-label,
+.theme-dark .module-stats-chart .chart-legend,
+.theme-dark .module-stats-chart .chart-legend-item,
+.theme-dark .module-stats-chart .chart-legend-item .label,
+.theme-dark .module-stats-chart .chart-pie-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .module-stats-chart .chart-pie-label {
+    -fx-fill: #e2e8f0;
+}
+
+.theme-dark .module-stats-chart .chart-pie-label-line {
+    -fx-stroke: rgba(226, 232, 240, 0.58);
+}
+
+.theme-dark .module-stats-chart .chart-legend {
+    -fx-background-color: rgba(11, 18, 32, 0.72);
+    -fx-background-radius: 12;
 }
 
 .theme-dark .navbar-root {

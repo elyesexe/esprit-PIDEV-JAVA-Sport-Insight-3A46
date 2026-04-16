@@ -5,7 +5,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -16,21 +21,32 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import tn.esprit.entities.User;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
+import tn.esprit.services.UserPdfExportService;
 import tn.esprit.services.UserService;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
 public class AdminUserModerationController {
     private static final String DARK_TABLE_CLASS = "admin-dashboard-force-dark";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final String SORT_A_TO_Z = "A-Z";
+    private static final String SORT_Z_TO_A = "Z-A";
 
     @FXML
     private Label statusLabel;
@@ -43,7 +59,15 @@ public class AdminUserModerationController {
     @FXML
     private TextField searchField;
     @FXML
+    private ComboBox<String> sortComboBox;
+    @FXML
     private Label resultsMetaLabel;
+    @FXML
+    private Label chartSummaryLabel;
+    @FXML
+    private BarChart<String, Number> accountStatusBarChart;
+    @FXML
+    private PieChart accountStatusPieChart;
     @FXML
     private TableView<User> userTableView;
     @FXML
@@ -91,18 +115,22 @@ public class AdminUserModerationController {
 
     private final ObservableList<User> users = FXCollections.observableArrayList();
     private final FilteredList<User> filteredUsers = new FilteredList<>(users, user -> true);
+    private final SortedList<User> sortedUsers = new SortedList<>(filteredUsers);
 
     private UserService userService;
+    private UserPdfExportService userPdfExportService;
     private User selectedUser;
 
     @FXML
     public void initialize() {
         configureInputs();
         configureTable();
+        configureCharts();
         bindUi();
 
         try {
             userService = new UserService();
+            userPdfExportService = new UserPdfExportService();
             refreshUsers(null);
         } catch (IllegalStateException ex) {
             saveButton.setDisable(true);
@@ -132,8 +160,39 @@ public class AdminUserModerationController {
     @FXML
     private void handleResetFilters() {
         searchField.clear();
+        if (sortComboBox != null) {
+            sortComboBox.setValue(SORT_A_TO_Z);
+        }
         applyFilter();
         showStatus("Filters reset.", "status-muted");
+    }
+
+    @FXML
+    private void handleExportPdf() {
+        hideValidation();
+
+        if (userPdfExportService == null) {
+            showValidation("The PDF export service is not available.");
+            return;
+        }
+        List<User> usersToExport = new ArrayList<>(sortedUsers);
+        if (usersToExport.isEmpty()) {
+            showValidation("There are no users to export.");
+            return;
+        }
+
+        Path target = choosePdfTarget();
+        if (target == null) {
+            return;
+        }
+
+        try {
+            userPdfExportService.export(target, usersToExport);
+            openFile(target);
+            showStatus("Users PDF exported successfully.", "status-success");
+        } catch (IOException ex) {
+            showValidation("The PDF could not be exported. " + ex.getMessage());
+        }
     }
 
     @FXML
@@ -275,6 +334,10 @@ public class AdminUserModerationController {
                 "ACTIF",
                 "INACTIF"
         ));
+        if (sortComboBox != null) {
+            sortComboBox.setItems(FXCollections.observableArrayList(SORT_A_TO_Z, SORT_Z_TO_A));
+            sortComboBox.setValue(SORT_A_TO_Z);
+        }
         statusComboBox.setEditable(true);
         if (dateNaissancePicker != null) {
             dateNaissancePicker.setEditable(false);
@@ -291,14 +354,31 @@ public class AdminUserModerationController {
         statusColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getStatut())));
         createdColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDateTime(cell.getValue().getDateInscription())));
 
-        userTableView.setItems(filteredUsers);
+        sortedUsers.setComparator(resolveUserComparator(sortComboBox == null ? null : sortComboBox.getValue()));
+        userTableView.setItems(sortedUsers);
         userTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         userTableView.setPlaceholder(new Label("No users found."));
+    }
+
+    private void configureCharts() {
+        if (accountStatusBarChart != null) {
+            accountStatusBarChart.setLegendVisible(false);
+            accountStatusBarChart.setAnimated(false);
+        }
+        if (accountStatusPieChart != null) {
+            accountStatusPieChart.setLabelsVisible(true);
+            accountStatusPieChart.setLegendVisible(true);
+            accountStatusPieChart.setAnimated(false);
+            accountStatusPieChart.setClockwise(true);
+        }
     }
 
     private void bindUi() {
         searchField.textProperty().addListener((obs, oldValue, newValue) -> applyFilter());
         userTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> populateForm(newValue));
+        if (sortComboBox != null) {
+            sortComboBox.valueProperty().addListener((obs, oldValue, newValue) -> applyFilter());
+        }
     }
 
     private void refreshUsers(Integer preferredUserId) {
@@ -334,7 +414,9 @@ public class AdminUserModerationController {
                     || normalize(user.getPrimaryRole()).contains(query)
                     || normalize(user.getStatut()).contains(query);
         });
+        sortedUsers.setComparator(resolveUserComparator(sortComboBox == null ? null : sortComboBox.getValue()));
         resultsMetaLabel.setText(filteredUsers.size() + " user(s)");
+        updateCharts();
     }
 
     private void updateMetrics() {
@@ -344,6 +426,49 @@ public class AdminUserModerationController {
         totalUsersLabel.setText(String.valueOf(users.size()));
         adminUsersLabel.setText(String.valueOf(adminCount));
         inactiveUsersLabel.setText(String.valueOf(inactiveCount));
+    }
+
+    private void updateCharts() {
+        List<User> visibleUsers = new ArrayList<>(sortedUsers);
+        long activeCount = visibleUsers.stream()
+                .filter(user -> "ACTIVE".equals(normalizeStatus(user.getStatut())) || "ACTIF".equals(normalizeStatus(user.getStatut())))
+                .count();
+        long blockedCount = visibleUsers.stream()
+                .filter(user -> "BLOCKED".equals(normalizeStatus(user.getStatut())))
+                .count();
+        long otherCount = Math.max(0, visibleUsers.size() - activeCount - blockedCount);
+
+        if (accountStatusBarChart != null) {
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.getData().add(new XYChart.Data<>("Active", activeCount));
+            series.getData().add(new XYChart.Data<>("Blocked", blockedCount));
+            series.getData().add(new XYChart.Data<>("Other", otherCount));
+            accountStatusBarChart.getData().setAll(series);
+            applyBarColor(series.getData().get(0), "#22c55e");
+            applyBarColor(series.getData().get(1), "#ef4444");
+            applyBarColor(series.getData().get(2), "#f59e0b");
+        }
+
+        if (accountStatusPieChart != null) {
+            ObservableList<PieChart.Data> chartData = FXCollections.observableArrayList();
+            if (activeCount > 0) {
+                chartData.add(new PieChart.Data("Active (" + activeCount + ")", activeCount));
+            }
+            if (blockedCount > 0) {
+                chartData.add(new PieChart.Data("Blocked (" + blockedCount + ")", blockedCount));
+            }
+            if (otherCount > 0) {
+                chartData.add(new PieChart.Data("Other (" + otherCount + ")", otherCount));
+            }
+            if (chartData.isEmpty()) {
+                chartData.add(new PieChart.Data("No users", 1));
+            }
+            accountStatusPieChart.setData(chartData);
+        }
+
+        if (chartSummaryLabel != null) {
+            chartSummaryLabel.setText(visibleUsers.size() + " visible user(s) | " + activeCount + " active | " + blockedCount + " blocked");
+        }
     }
 
     private void populateForm(User user) {
@@ -396,7 +521,7 @@ public class AdminUserModerationController {
         if (userId == null) {
             return;
         }
-        for (User user : filteredUsers) {
+        for (User user : sortedUsers) {
             if (Objects.equals(userId, user.getId())) {
                 userTableView.getSelectionModel().select(user);
                 userTableView.scrollTo(user);
@@ -438,6 +563,63 @@ public class AdminUserModerationController {
 
     private String clean(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private Comparator<User> resolveUserComparator(String sortMode) {
+        Comparator<User> comparator = Comparator
+                .comparing(User::getDisplayName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(User::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+        if (SORT_Z_TO_A.equals(sortMode)) {
+            return comparator.reversed();
+        }
+        return comparator;
+    }
+
+    private String normalizeStatus(String value) {
+        return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private Path choosePdfTarget() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Export users to PDF");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files", "*.pdf"));
+        chooser.setInitialFileName("users-export-" + LocalDate.now() + ".pdf");
+        File selectedFile = chooser.showSaveDialog(
+                userTableView == null || userTableView.getScene() == null ? null : userTableView.getScene().getWindow()
+        );
+        return selectedFile == null ? null : selectedFile.toPath();
+    }
+
+    private void openFile(Path path) {
+        if (path == null) {
+            return;
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(path.toFile());
+                return;
+            } catch (IOException ignored) {
+                // Fall through to status message.
+            }
+        }
+        showStatus("PDF exported to " + path.toAbsolutePath(), "status-success");
+    }
+
+    private void applyBarColor(XYChart.Data<String, Number> data, String color) {
+        if (data == null) {
+            return;
+        }
+        Runnable styler = () -> {
+            Node node = data.getNode();
+            if (node != null) {
+                node.setStyle("-fx-bar-fill: " + color + ";");
+            }
+        };
+        if (data.getNode() != null) {
+            styler.run();
+        } else {
+            data.nodeProperty().addListener((obs, oldNode, newNode) -> styler.run());
+        }
     }
 
     private String emptyIfNull(String value) {

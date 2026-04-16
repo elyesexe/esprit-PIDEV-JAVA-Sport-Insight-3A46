@@ -1,7 +1,10 @@
 package tn.esprit.Controller;
 
 import javafx.animation.KeyFrame;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
+import javafx.animation.SequentialTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
@@ -21,7 +24,9 @@ import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -42,6 +47,8 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -85,6 +92,10 @@ public class HomeController {
     @FXML
     private Label welcomeTitleLabel;
     @FXML
+    private StackPane homeWelcomeCard;
+    @FXML
+    private FlowPane homeLinksGrid;
+    @FXML
     private Button newNoteButton;
     @FXML
     private Label matchesTodayMetricLabel;
@@ -105,6 +116,7 @@ public class HomeController {
 
     private Timeline dateRefreshTimeline;
     private SidebarModuleGroup sidebarModuleGroup;
+    private final Map<Node, ParallelTransition> activeHoverAnimations = new WeakHashMap<>();
 
     @FXML
     public void initialize() {
@@ -133,7 +145,11 @@ public class HomeController {
             homeSearchField.textProperty().addListener((obs, oldVal, newVal) -> applyHomeSearchFilter(newVal));
         }
 
-        Platform.runLater(this::installTileHoverAnimations);
+        Platform.runLater(() -> {
+            installTileHoverAnimations();
+            installNavbarHoverAnimations();
+            playHomeIntroAnimations();
+        });
     }
 
     private void refreshWelcomeTitle() {
@@ -482,46 +498,143 @@ public class HomeController {
         installHoverAnimation(storeModuleBox);
     }
 
-    private static void installHoverAnimation(Button card) {
+    private void installNavbarHoverAnimations() {
+        installHoverAnimation(matchsNavButton, 1.02, -3.0, 150, false);
+        installHoverAnimation(annonceNavButton, 1.02, -3.0, 150, false);
+        installHoverAnimation(equipesNavButton, 1.015, -2.0, 140, false);
+        installHoverAnimation(leaguesNavButton, 1.015, -2.0, 140, false);
+        installHoverAnimation(joueursNavButton, 1.015, -2.0, 140, false);
+        installHoverAnimation(adminNavButton, 1.02, -3.0, 150, false);
+    }
+
+    private void playHomeIntroAnimations() {
+        if (homeWelcomeCard != null) {
+            homeWelcomeCard.setOpacity(0.0);
+            homeWelcomeCard.setTranslateY(18);
+
+            FadeTransition fade = new FadeTransition(Duration.millis(420), homeWelcomeCard);
+            fade.setFromValue(0.0);
+            fade.setToValue(1.0);
+            fade.setInterpolator(Interpolator.EASE_BOTH);
+
+            TranslateTransition rise = new TranslateTransition(Duration.millis(420), homeWelcomeCard);
+            rise.setFromY(18);
+            rise.setToY(0.0);
+            rise.setInterpolator(Interpolator.EASE_OUT);
+
+            new ParallelTransition(fade, rise).play();
+        }
+
+        playTileEntrance(equipesButton, 0);
+        playTileEntrance(joueursButton, 45);
+        playTileEntrance(matchsButton, 90);
+        playTileEntrance(annoncesModuleBox, 135);
+        playTileEntrance(trainModuleBox, 180);
+        playTileEntrance(sponsorsModuleBox, 225);
+        playTileEntrance(storeModuleBox, 270);
+    }
+
+    private void playTileEntrance(Button card, int delayMillis) {
         if (card == null) {
             return;
         }
 
-        card.setOnMouseEntered(e -> playHover(card, true));
-        card.setOnMouseExited(e -> playHover(card, false));
+        Node content = card.lookup(".home-link-content");
+        if (content == null) {
+            content = card;
+        }
+
+        content.setOpacity(0.0);
+        content.setTranslateY(22);
+
+        FadeTransition fade = new FadeTransition(Duration.millis(300), content);
+        fade.setFromValue(0.0);
+        fade.setToValue(1.0);
+        fade.setInterpolator(Interpolator.EASE_BOTH);
+
+        TranslateTransition rise = new TranslateTransition(Duration.millis(360), content);
+        rise.setFromY(22);
+        rise.setToY(0.0);
+        rise.setInterpolator(Interpolator.EASE_OUT);
+
+        ParallelTransition reveal = new ParallelTransition(fade, rise);
+        SequentialTransition delayedReveal = new SequentialTransition(
+                new javafx.animation.PauseTransition(Duration.millis(delayMillis)),
+                reveal
+        );
+        delayedReveal.play();
     }
 
-    private static void playHover(Button card, boolean hovered) {
+    private void installHoverAnimation(Button card) {
+        installHoverAnimation(card, 1.04, -8.0, 200, true);
+    }
+
+    private void installHoverAnimation(Button card, double targetScale, double targetTranslate, int durationMillis, boolean cardStyle) {
+        if (card == null) {
+            return;
+        }
+
+        card.setOnMouseEntered(e -> playHover(card, true, targetScale, targetTranslate, durationMillis, cardStyle));
+        card.setOnMouseExited(e -> playHover(card, false, targetScale, targetTranslate, durationMillis, cardStyle));
+    }
+
+    private void playHover(Button card, boolean hovered, double targetScale, double targetTranslate, int durationMillis, boolean cardStyle) {
         Node content = card.lookup(".home-link-content");
         if (content == null) {
             content = card;
         }
         Node bg = card.lookup(".home-link-bg");
+        Node inner = card.lookup(".home-link-inner");
+        Node iconWrap = card.lookup(".home-link-icon-wrap");
 
-        double targetScale = hovered ? 1.035 : 1.0;
-        double targetTranslate = hovered ? -6.0 : 0.0;
+        ParallelTransition existing = activeHoverAnimations.remove(content);
+        if (existing != null) {
+            existing.stop();
+        }
 
-        ScaleTransition scale = new ScaleTransition(Duration.millis(160), content);
-        scale.setToX(targetScale);
-        scale.setToY(targetScale);
+        double scaleValue = hovered ? targetScale : 1.0;
+        double translateValue = hovered ? targetTranslate : 0.0;
 
-        TranslateTransition lift = new TranslateTransition(Duration.millis(160), content);
-        lift.setToY(targetTranslate);
+        ScaleTransition scale = new ScaleTransition(Duration.millis(durationMillis), content);
+        scale.setToX(scaleValue);
+        scale.setToY(scaleValue);
+        scale.setInterpolator(Interpolator.EASE_BOTH);
+
+        TranslateTransition lift = new TranslateTransition(Duration.millis(durationMillis), content);
+        lift.setToY(translateValue);
+        lift.setInterpolator(Interpolator.EASE_OUT);
 
         ParallelTransition parallel = new ParallelTransition(scale, lift);
 
         if (bg != null) {
-            TranslateTransition parallax = new TranslateTransition(Duration.millis(180), bg);
-            parallax.setToY(hovered ? -10.0 : 0.0);
+            TranslateTransition parallax = new TranslateTransition(Duration.millis(durationMillis + 30), bg);
+            parallax.setToY(hovered && cardStyle ? -12.0 : 0.0);
+            parallax.setInterpolator(Interpolator.EASE_OUT);
             parallel.getChildren().add(parallax);
         }
 
+        if (inner != null && cardStyle) {
+            TranslateTransition overlayShift = new TranslateTransition(Duration.millis(durationMillis), inner);
+            overlayShift.setToY(hovered ? -4.0 : 0.0);
+            overlayShift.setInterpolator(Interpolator.EASE_BOTH);
+            parallel.getChildren().add(overlayShift);
+        }
+
+        if (iconWrap != null && cardStyle) {
+            ScaleTransition iconPop = new ScaleTransition(Duration.millis(durationMillis), iconWrap);
+            iconPop.setToX(hovered ? 1.08 : 1.0);
+            iconPop.setToY(hovered ? 1.08 : 1.0);
+            iconPop.setInterpolator(Interpolator.EASE_BOTH);
+            parallel.getChildren().add(iconPop);
+        }
+
         if (hovered) {
-            content.setEffect(new DropShadow(28, 0, 10, Color.color(0.06, 0.09, 0.16, 0.35)));
+            content.setEffect(new DropShadow(cardStyle ? 34 : 20, 0, cardStyle ? 14 : 8, Color.color(0.06, 0.09, 0.16, cardStyle ? 0.38 : 0.22)));
         } else {
             content.setEffect(null);
         }
 
+        activeHoverAnimations.put(content, parallel);
         parallel.play();
     }
 }
