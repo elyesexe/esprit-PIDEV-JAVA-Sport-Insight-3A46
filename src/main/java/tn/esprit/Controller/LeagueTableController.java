@@ -26,6 +26,8 @@ import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.football.ApiFootballInsightsService;
+import tn.esprit.services.football.ApiFootballScorerEntry;
 import tn.esprit.services.football.FootballDataCompetitions;
 import tn.esprit.services.football.FootballDataStandingsService;
 import tn.esprit.services.football.LeagueStandingEntry;
@@ -89,14 +91,23 @@ public class LeagueTableController {
     private VBox emptyStateBox;
     @FXML
     private Button refreshButton;
+    @FXML
+    private Label scorersStatusLabel;
+    @FXML
+    private VBox scorersContainer;
+    @FXML
+    private Label scorersEmptyLabel;
 
     private final ObservableList<LeagueStandingEntry> standings = FXCollections.observableArrayList();
     private final AtomicLong requestSequence = new AtomicLong();
+    private final AtomicLong scorersRequestSequence = new AtomicLong();
 
     private FootballDataStandingsService standingsService;
+    private ApiFootballInsightsService apiFootballInsightsService;
     private String competitionFilterCode;
     private boolean serviceReady;
     private boolean loadingData;
+    private boolean loadingScorers;
     private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
@@ -110,9 +121,11 @@ public class LeagueTableController {
 
         try {
             standingsService = new FootballDataStandingsService();
+            apiFootballInsightsService = new ApiFootballInsightsService();
             serviceReady = true;
             if (competitionFilterCode != null) {
                 loadStandingsAsync("Chargement du classement...");
+                loadTopScorersAsync("Chargement des meilleurs buteurs...");
             }
         } catch (Exception e) {
             serviceReady = false;
@@ -127,6 +140,7 @@ public class LeagueTableController {
         updateCompetitionTexts();
         if (serviceReady) {
             loadStandingsAsync("Chargement du classement...");
+            loadTopScorersAsync("Chargement des meilleurs buteurs...");
         }
     }
 
@@ -171,6 +185,7 @@ public class LeagueTableController {
     @FXML
     private void handleRefresh() {
         loadStandingsAsync("Actualisation du classement...");
+        loadTopScorersAsync("Actualisation des meilleurs buteurs...");
     }
 
 
@@ -393,6 +408,114 @@ public class LeagueTableController {
         API_EXECUTOR.execute(loadTask);
     }
 
+    private void loadTopScorersAsync(String loadingMessage) {
+        if (!serviceReady || competitionFilterCode == null || apiFootballInsightsService == null) {
+            return;
+        }
+
+        long requestId = scorersRequestSequence.incrementAndGet();
+        loadingScorers = true;
+        updateToolbarState();
+        showScorersStatus("status-muted", loadingMessage);
+
+        Task<List<ApiFootballScorerEntry>> loadTask = new Task<>() {
+            @Override
+            protected List<ApiFootballScorerEntry> call() throws Exception {
+                return apiFootballInsightsService.loadCompetitionTopScorers(competitionFilterCode);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != scorersRequestSequence.get()) {
+                return;
+            }
+
+            loadingScorers = false;
+            updateToolbarState();
+            renderTopScorers(loadTask.getValue());
+            showScorersStatus("status-success", "Meilleurs buteurs actualises.");
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != scorersRequestSequence.get()) {
+                return;
+            }
+
+            loadingScorers = false;
+            updateToolbarState();
+            renderTopScorers(List.of());
+            Throwable throwable = loadTask.getException();
+            showScorersStatus("status-warning", shortError(throwable));
+        });
+
+        API_EXECUTOR.execute(loadTask);
+    }
+
+    private void renderTopScorers(List<ApiFootballScorerEntry> scorers) {
+        scorersContainer.getChildren().clear();
+        boolean hasScorers = scorers != null && !scorers.isEmpty();
+        scorersEmptyLabel.setManaged(!hasScorers);
+        scorersEmptyLabel.setVisible(!hasScorers);
+        if (!hasScorers) {
+            scorersEmptyLabel.setText("Aucun classement des buteurs disponible pour cette competition.");
+            return;
+        }
+
+        for (ApiFootballScorerEntry scorer : scorers) {
+            Label rankLabel = new Label(scorer.rank() + ".");
+            rankLabel.getStyleClass().add("top-scorer-rank");
+
+            Label playerLabel = new Label(defaultIfBlank(scorer.playerName(), "Joueur"));
+            playerLabel.getStyleClass().add("top-scorer-name");
+            playerLabel.setWrapText(true);
+
+            Label teamLabel = new Label(defaultIfBlank(scorer.teamName(), "Equipe"));
+            teamLabel.getStyleClass().add("top-scorer-team");
+
+            VBox textBox = new VBox(2, playerLabel, teamLabel);
+            textBox.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+
+            Label goalsLabel = new Label(buildScorerMeta("Buts", scorer.goals()));
+            goalsLabel.getStyleClass().add("top-scorer-pill");
+
+            Label assistsLabel = new Label(buildScorerMeta("Assists", scorer.assists()));
+            assistsLabel.getStyleClass().add("top-scorer-pill");
+
+            Label appearancesLabel = new Label(buildScorerMeta("Matchs", scorer.appearances()));
+            appearancesLabel.getStyleClass().add("top-scorer-pill");
+
+            HBox metaBox = new HBox(8, goalsLabel, assistsLabel, appearancesLabel);
+            metaBox.setAlignment(Pos.CENTER_RIGHT);
+
+            HBox row = new HBox(14, rankLabel, textBox, metaBox);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("top-scorer-row");
+            scorersContainer.getChildren().add(row);
+        }
+    }
+
+    private String buildScorerMeta(String label, Integer value) {
+        return label + " " + (value == null ? "-" : value);
+    }
+
+    private void showScorersStatus(String styleClass, String message) {
+        scorersStatusLabel.getStyleClass().removeAll("status-success", "status-error", "status-warning", "status-muted");
+        if (!scorersStatusLabel.getStyleClass().contains(styleClass)) {
+            scorersStatusLabel.getStyleClass().add(styleClass);
+        }
+        scorersStatusLabel.setText(message);
+    }
+
+    private String shortError(Throwable throwable) {
+        if (throwable == null || throwable.getMessage() == null || throwable.getMessage().isBlank()) {
+            return "Classement des buteurs indisponible.";
+        }
+
+        String message = throwable.getMessage().replace('\n', ' ').replace('\r', ' ').trim();
+        return message.length() <= 140 ? message : message.substring(0, 140) + "...";
+    }
+
     private void updateCompetitionTexts() {
         updateCompetitionTexts(null);
     }
@@ -455,7 +578,7 @@ public class LeagueTableController {
     }
 
     private void updateToolbarState() {
-        refreshButton.setDisable(!serviceReady || loadingData || competitionFilterCode == null);
+        refreshButton.setDisable(!serviceReady || loadingData || loadingScorers || competitionFilterCode == null);
     }
 
     private void openCompetitionSelector() {

@@ -1,5 +1,6 @@
 package tn.esprit.Controller;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -21,15 +22,23 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+import tn.esprit.services.football.ApiFootballInsightsService;
+import tn.esprit.services.football.ApiFootballScorerEntry;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class EquipeDetailController {
+    private static final ExecutorService API_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("equipe-detail-api-worker"));
     @FXML
     private HBox navbarRoot;
     @FXML
@@ -80,11 +89,19 @@ public class EquipeDetailController {
     private VBox squadContainer;
     @FXML
     private Label squadEmptyLabel;
+    @FXML
+    private Label topScorersStatusLabel;
+    @FXML
+    private VBox topScorersContainer;
+    @FXML
+    private Label topScorersEmptyLabel;
 
     private EquipeService equipeService;
     private JoueurService joueurService;
+    private ApiFootballInsightsService apiFootballInsightsService;
     private Equipe equipe;
     private SidebarModuleGroup sidebarModuleGroup;
+    private final AtomicLong scorersRequestSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -94,6 +111,7 @@ public class EquipeDetailController {
         try {
             equipeService = new EquipeService();
             joueurService = new JoueurService();
+            apiFootballInsightsService = new ApiFootballInsightsService();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de preparer la fiche equipe.\n" + e.getMessage());
         }
@@ -228,6 +246,7 @@ public class EquipeDetailController {
 
             updateLogo();
             renderSquad(squad);
+            loadTopScorersAsync();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations de l'equipe.\n" + e.getMessage());
         }
@@ -271,6 +290,102 @@ public class EquipeDetailController {
         card.setAlignment(Pos.CENTER_LEFT);
         card.getStyleClass().add("squad-card");
         return card;
+    }
+
+    private void loadTopScorersAsync() {
+        if (equipe == null || apiFootballInsightsService == null) {
+            showTopScorersStatus("status-warning", "Les sources de buteurs sont indisponibles.");
+            renderTopScorers(List.of());
+            return;
+        }
+
+        long requestId = scorersRequestSequence.incrementAndGet();
+        showTopScorersStatus("status-muted", "Chargement des meilleurs buteurs...");
+
+        Task<List<ApiFootballScorerEntry>> task = new Task<>() {
+            @Override
+            protected List<ApiFootballScorerEntry> call() throws Exception {
+                return apiFootballInsightsService.loadTeamTopScorers(equipe);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestId != scorersRequestSequence.get()) {
+                return;
+            }
+
+            renderTopScorers(task.getValue());
+            showTopScorersStatus("status-success", "Meilleurs buteurs actualises.");
+        });
+
+        task.setOnFailed(event -> {
+            if (requestId != scorersRequestSequence.get()) {
+                return;
+            }
+
+            renderTopScorers(List.of());
+            showTopScorersStatus("status-warning", shortError(task.getException()));
+        });
+
+        API_EXECUTOR.execute(task);
+    }
+
+    private void renderTopScorers(List<ApiFootballScorerEntry> scorers) {
+        topScorersContainer.getChildren().clear();
+        boolean hasScorers = scorers != null && !scorers.isEmpty();
+        topScorersEmptyLabel.setManaged(!hasScorers);
+        topScorersEmptyLabel.setVisible(!hasScorers);
+        if (!hasScorers) {
+            topScorersEmptyLabel.setText("Aucun meilleur buteur disponible pour cette equipe.");
+            return;
+        }
+
+        for (ApiFootballScorerEntry scorer : scorers) {
+            Label rankLabel = new Label(scorer.rank() + ".");
+            rankLabel.getStyleClass().add("team-top-scorer-rank");
+
+            Label nameLabel = new Label(emptyToFallback(scorer.playerName(), "Joueur"));
+            nameLabel.getStyleClass().add("team-top-scorer-name");
+            nameLabel.setWrapText(true);
+
+            Label metaLabel = new Label(buildScorerMeta(scorer));
+            metaLabel.getStyleClass().add("team-top-scorer-meta");
+
+            VBox textBox = new VBox(3, nameLabel, metaLabel);
+            textBox.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(textBox, javafx.scene.layout.Priority.ALWAYS);
+
+            Label goalsLabel = new Label((scorer.goals() == null ? "-" : scorer.goals()) + " buts");
+            goalsLabel.getStyleClass().add("team-top-scorer-pill");
+
+            HBox row = new HBox(14, rankLabel, textBox, goalsLabel);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("team-top-scorer-row");
+            topScorersContainer.getChildren().add(row);
+        }
+    }
+
+    private String buildScorerMeta(ApiFootballScorerEntry scorer) {
+        return "Assists " + (scorer.assists() == null ? "-" : scorer.assists())
+                + " | Matchs " + (scorer.appearances() == null ? "-" : scorer.appearances())
+                + " | Minutes " + (scorer.minutes() == null ? "-" : scorer.minutes());
+    }
+
+    private void showTopScorersStatus(String styleClass, String message) {
+        topScorersStatusLabel.getStyleClass().removeAll("status-success", "status-error", "status-warning", "status-muted");
+        if (!topScorersStatusLabel.getStyleClass().contains(styleClass)) {
+            topScorersStatusLabel.getStyleClass().add(styleClass);
+        }
+        topScorersStatusLabel.setText(message);
+    }
+
+    private String shortError(Throwable throwable) {
+        if (throwable == null || throwable.getMessage() == null || throwable.getMessage().isBlank()) {
+            return "Meilleurs buteurs indisponibles.";
+        }
+
+        String message = throwable.getMessage().replace('\n', ' ').replace('\r', ' ').trim();
+        return message.length() <= 140 ? message : message.substring(0, 140) + "...";
     }
 
     private void updateLogo() {
@@ -345,6 +460,14 @@ public class EquipeDetailController {
 
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private static ThreadFactory daemonFactory(String threadName) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, threadName);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

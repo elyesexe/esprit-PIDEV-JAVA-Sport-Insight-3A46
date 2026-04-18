@@ -285,6 +285,23 @@ Main related classes:
 - `LeagueStandingEntry`
 - `FootballDataConfig`
 
+### Football data providers
+
+The project now combines multiple sources so the free tier remains usable:
+
+- `football-data.org` is the main source for fixtures, teams, players, standings, and official competition top scorers
+- `TheSportsDB` is the free fallback for match statistics and starting lineups when deeper per-match detail is needed
+- `API-Football` remains optional as an extra provider when it returns richer statistics such as expected goals for supported fixtures
+
+Main related classes:
+
+- `ApiFootballInsightsService`
+- `ApiFootballClient`
+- `ApiFootballCompetitionMappings`
+- `ApiFootballMatchDetails`
+- `ApiFootballScorerEntry`
+- `ApiFootballConfig`
+
 ### Wikidata integration
 
 Wikidata is used to enrich player information, especially media assets.
@@ -368,6 +385,26 @@ Contains technical helpers for:
 - schema migration
 - external API configuration
 - utility support
+
+## API Keys
+
+Sport Insight can use two football APIs in parallel:
+
+- `football-data.org` for fixtures, teams, players, standings, and scorer leaderboards
+- `TheSportsDB` for free match stats and starting lineups
+- `API-Football` as an optional richer-match-data provider when available
+
+You can configure them with environment variables or local properties files:
+
+- `FOOTBALL_DATA_API_KEY`
+- `API_FOOTBALL_KEY`
+- `football-data.local.properties`
+- `api-football.local.properties`
+
+Example files:
+
+- `football-data.local.properties.example`
+- `api-football.local.properties.example`
 
 ### `src/main/resources/tn/esprit/views`
 

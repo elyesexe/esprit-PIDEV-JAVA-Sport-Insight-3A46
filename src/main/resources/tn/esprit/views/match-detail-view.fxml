@@ -4,12 +4,13 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -81,8 +82,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-                                    <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                    <Label text="â˜€" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="â˜¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -100,135 +101,176 @@
                     BorderPane.alignment="CENTER">
             <content>
                 <StackPane styleClass="page-shell-wrap">
-                <VBox spacing="18" styleClass="page-shell">
-                    <padding>
-                        <Insets top="24" right="28" bottom="28" left="28"/>
-                    </padding>
+                    <VBox spacing="16" maxWidth="1020.0" styleClass="page-shell flashscore-match-shell">
+                        <padding>
+                            <Insets top="20" right="20" bottom="24" left="20"/>
+                        </padding>
 
-                    <StackPane styleClass="hero-shell">
-                        <StackPane styleClass="hero-photo"/>
-                        <StackPane styleClass="hero-overlay"/>
-                        <VBox spacing="14" styleClass="hero-content">
-                            <Label text="Fiche Match" styleClass="hero-eyebrow"/>
-                            <Label fx:id="detailTitleLabel" text="Chargement du match..." styleClass="hero-title"/>
-                            <Label fx:id="detailSubtitleLabel"
-                                   text="Consultez toutes les informations du match sur une page detail en lecture seule."
+                        <VBox spacing="14" styleClass="panel-card flashscore-score-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label fx:id="competitionBadgeLabel" text="Competition" styleClass="toolbar-chip"/>
+                                <Label fx:id="detailStatusChipLabel" text="Programme" styleClass="status-pill status-warning"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="apiFootballStatusLabel" text="Chargement..." styleClass="status-pill status-muted"/>
+                                <Button onAction="#handleBack" text="Retour" styleClass="ghost-button"/>
+                            </HBox>
+
+                            <VBox spacing="4" styleClass="flashscore-title-block">
+                                <Label fx:id="detailTitleLabel" text="Chargement du match..." styleClass="flashscore-match-title"/>
+                                <Label fx:id="detailSubtitleLabel"
+                                       text="Presentation compacte inspiree des pages de match Flashscore."
+                                       wrapText="true"
+                                       styleClass="flashscore-match-subtitle"/>
+                            </VBox>
+
+                            <HBox alignment="CENTER" spacing="22" styleClass="flashscore-scoreboard">
+                                <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="flashscore-team-column">
+                                    <StackPane styleClass="flashscore-logo-shell">
+                                        <ImageView fx:id="detailHomeLogoView"
+                                                   fitWidth="84"
+                                                   fitHeight="84"
+                                                   preserveRatio="true"
+                                                   managed="false"
+                                                   visible="false"/>
+                                        <Label fx:id="detailHomeLogoFallbackLabel"
+                                               text="D"
+                                               styleClass="match-detail-logo-fallback"/>
+                                    </StackPane>
+                                    <Label fx:id="detailHomeNameLabel" text="Equipe domicile" wrapText="true" styleClass="flashscore-team-name"/>
+                                    <Label text="Domicile" styleClass="flashscore-team-role"/>
+                                </VBox>
+
+                                <VBox alignment="CENTER" spacing="8" styleClass="flashscore-center-column">
+                                    <Label fx:id="detailDateValueLabel" text="-" styleClass="flashscore-kickoff-date"/>
+                                    <Label fx:id="detailHeureValueLabel" text="-" styleClass="flashscore-kickoff-time"/>
+                                    <Label fx:id="detailScoreValueLabel" text="- : -" styleClass="flashscore-main-score"/>
+                                    <Label fx:id="detailLieuValueLabel" text="Non renseigne" wrapText="true" styleClass="flashscore-venue-label"/>
+                                </VBox>
+
+                                <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="flashscore-team-column">
+                                    <StackPane styleClass="flashscore-logo-shell">
+                                        <ImageView fx:id="detailAwayLogoView"
+                                                   fitWidth="84"
+                                                   fitHeight="84"
+                                                   preserveRatio="true"
+                                                   managed="false"
+                                                   visible="false"/>
+                                        <Label fx:id="detailAwayLogoFallbackLabel"
+                                               text="E"
+                                               styleClass="match-detail-logo-fallback"/>
+                                    </StackPane>
+                                    <Label fx:id="detailAwayNameLabel" text="Equipe exterieur" wrapText="true" styleClass="flashscore-team-name"/>
+                                    <Label text="Exterieur" styleClass="flashscore-team-role"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="10" styleClass="flashscore-facts-row">
+                                <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
+                                    <Label text="Competition" styleClass="flashscore-fact-caption"/>
+                                    <Label fx:id="detailCompetitionValueLabel" text="Non renseignee" styleClass="flashscore-fact-value"/>
+                                </VBox>
+                                <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
+                                    <Label text="Type match" styleClass="flashscore-fact-caption"/>
+                                    <Label fx:id="detailTypeValueLabel" text="Non renseigne" styleClass="flashscore-fact-value"/>
+                                </VBox>
+                                <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
+                                    <Label text="Reference" styleClass="flashscore-fact-caption"/>
+                                    <Label fx:id="detailIdValueLabel" text="-" styleClass="flashscore-fact-value"/>
+                                </VBox>
+                                <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
+                                    <Label text="Statut" styleClass="flashscore-fact-caption"/>
+                                    <Label fx:id="detailStatutValueLabel" text="Programme" styleClass="flashscore-fact-value"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <HBox spacing="12" styleClass="flashscore-section-tabs">
+                            <Label text="COMPOSITIONS" styleClass="flashscore-tab flashscore-tab-active"/>
+                            <Label text="STATISTIQUES" styleClass="flashscore-tab"/>
+                        </HBox>
+
+                        <VBox spacing="14" styleClass="panel-card flashscore-lineup-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Compositions" styleClass="section-title flashscore-section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Vue terrain" styleClass="flashscore-inline-badge"/>
+                            </HBox>
+
+                            <HBox spacing="16" styleClass="lineup-summary-row">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS" styleClass="lineup-summary-team">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label fx:id="lineupHomeTeamLabel" text="Equipe domicile" styleClass="pitch-team-title"/>
+                                        <Label text="Domicile" styleClass="pitch-side-badge"/>
+                                    </HBox>
+                                    <Label fx:id="lineupDomicileMetaLabel"
+                                           text="Formation indisponible"
+                                           wrapText="true"
+                                           styleClass="section-subtitle lineup-meta"/>
+                                </VBox>
+                                <VBox spacing="6" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" styleClass="lineup-summary-team lineup-summary-team-away">
+                                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                                        <Label text="Exterieur" styleClass="pitch-side-badge"/>
+                                        <Label fx:id="lineupAwayTeamLabel" text="Equipe exterieur" styleClass="pitch-team-title"/>
+                                    </HBox>
+                                    <Label fx:id="lineupExterieurMetaLabel"
+                                           text="Formation indisponible"
+                                           wrapText="true"
+                                           styleClass="section-subtitle lineup-meta lineup-meta-away"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="0" styleClass="pitch-board">
+                                <Pane fx:id="homeLineupPitchContainer"
+                                      HBox.hgrow="ALWAYS"
+                                      minHeight="500.0"
+                                      prefHeight="500.0"
+                                      maxWidth="1.7976931348623157E308"
+                                      styleClass="pitch-half-pane pitch-half-home"/>
+                                <Pane fx:id="awayLineupPitchContainer"
+                                      HBox.hgrow="ALWAYS"
+                                      minHeight="500.0"
+                                      prefHeight="500.0"
+                                      maxWidth="1.7976931348623157E308"
+                                      styleClass="pitch-half-pane pitch-half-away"/>
+                            </HBox>
+
+                            <HBox spacing="18">
+                                <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="bench-column">
+                                    <Label text="Remplacants domicile" styleClass="bench-title"/>
+                                    <FlowPane fx:id="homeBenchContainer" hgap="8" vgap="8" prefWrapLength="420"/>
+                                </VBox>
+                                <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="bench-column">
+                                    <Label text="Remplacants exterieur" styleClass="bench-title"/>
+                                    <FlowPane fx:id="awayBenchContainer" hgap="8" vgap="8" prefWrapLength="420"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="panel-card flashscore-stats-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Statistiques du match" styleClass="section-title flashscore-section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Comparaison" styleClass="flashscore-inline-badge"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER" spacing="14" styleClass="stats-teams-header">
+                                <Label fx:id="statsHomeTeamLabel" text="Domicile" styleClass="stats-team-header"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Match" styleClass="stats-center-header"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="statsAwayTeamLabel" text="Exterieur" styleClass="stats-team-header"/>
+                            </HBox>
+
+                            <Label fx:id="matchStatsEmptyLabel"
+                                   text="Aucune statistique detaillee disponible pour ce match."
                                    wrapText="true"
-                                   styleClass="hero-text"/>
+                                   styleClass="section-subtitle"/>
+
+                            <VBox fx:id="matchStatsContainer" spacing="12"/>
                         </VBox>
-                    </StackPane>
-
-                    <VBox spacing="18" styleClass="panel-card detail-card">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label fx:id="competitionBadgeLabel" text="Competition" styleClass="toolbar-chip"/>
-                            <Label fx:id="detailStatusChipLabel" text="Programme" styleClass="status-pill status-warning"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button onAction="#handleBack" text="Retour" styleClass="ghost-button"/>
-                            <Label text="Lecture seule" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <HBox spacing="14" alignment="CENTER" styleClass="match-detail-board">
-                            <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="match-detail-team-shell">
-                                <StackPane styleClass="match-detail-logo-shell">
-                                    <ImageView fx:id="detailHomeLogoView"
-                                               fitWidth="88"
-                                               fitHeight="88"
-                                               preserveRatio="true"
-                                               managed="false"
-                                               visible="false"/>
-                                    <Label fx:id="detailHomeLogoFallbackLabel"
-                                           text="D"
-                                           styleClass="match-detail-logo-fallback"/>
-                                </StackPane>
-                                <Label fx:id="detailHomeNameLabel" text="Equipe domicile" wrapText="true" styleClass="match-detail-team-name"/>
-                                <Label text="Domicile" styleClass="match-detail-team-role"/>
-                            </VBox>
-
-                            <VBox alignment="CENTER" spacing="6" styleClass="match-detail-score-shell">
-                                <Label fx:id="detailScoreValueLabel" text="- : -" styleClass="match-detail-score"/>
-                                <Label text="Score" styleClass="match-detail-score-caption"/>
-                            </VBox>
-
-                            <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="match-detail-team-shell">
-                                <StackPane styleClass="match-detail-logo-shell">
-                                    <ImageView fx:id="detailAwayLogoView"
-                                               fitWidth="88"
-                                               fitHeight="88"
-                                               preserveRatio="true"
-                                               managed="false"
-                                               visible="false"/>
-                                    <Label fx:id="detailAwayLogoFallbackLabel"
-                                           text="E"
-                                           styleClass="match-detail-logo-fallback"/>
-                                </StackPane>
-                                <Label fx:id="detailAwayNameLabel" text="Equipe exterieur" wrapText="true" styleClass="match-detail-team-name"/>
-                                <Label text="Exterieur" styleClass="match-detail-team-role"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Date" styleClass="stat-caption"/>
-                                <Label fx:id="detailDateValueLabel" text="-" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Heure" styleClass="stat-caption"/>
-                                <Label fx:id="detailHeureValueLabel" text="-" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Lieu" styleClass="stat-caption"/>
-                                <Label fx:id="detailLieuValueLabel" text="Non renseigne" styleClass="stat-value"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Type match" styleClass="stat-caption"/>
-                                <Label fx:id="detailTypeValueLabel" text="Non renseigne" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Competition" styleClass="stat-caption"/>
-                                <Label fx:id="detailCompetitionValueLabel" text="Non renseignee" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Reference" styleClass="stat-caption"/>
-                                <Label fx:id="detailIdValueLabel" text="-" styleClass="stat-value"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Statut" styleClass="stat-caption"/>
-                                <Label fx:id="detailStatutValueLabel" text="Programme" styleClass="stat-value"/>
-                            </VBox>
-                        </HBox>
                     </VBox>
-
-                    <HBox spacing="18">
-                        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="panel-card lineup-panel">
-                            <Label text="Onze de depart domicile" styleClass="section-title lineup-title"/>
-                            <TextArea fx:id="lineupDomicileArea"
-                                      editable="false"
-                                      focusTraversable="false"
-                                      wrapText="true"
-                                      prefRowCount="8"
-                                      styleClass="lineup-readonly-area"/>
-                        </VBox>
-                        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="panel-card lineup-panel">
-                            <Label text="Onze de depart exterieur" styleClass="section-title lineup-title"/>
-                            <TextArea fx:id="lineupExterieurArea"
-                                      editable="false"
-                                      focusTraversable="false"
-                                      wrapText="true"
-                                      prefRowCount="8"
-                                      styleClass="lineup-readonly-area"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
                 </StackPane>
             </content>
         </ScrollPane>
     </center>
 </BorderPane>
-
-

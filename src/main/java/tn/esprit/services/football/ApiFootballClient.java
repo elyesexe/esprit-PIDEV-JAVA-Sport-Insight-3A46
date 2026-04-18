@@ -2,7 +2,7 @@ package tn.esprit.services.football;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import tn.esprit.tools.FootballDataConfig;
+import tn.esprit.tools.ApiFootballConfig;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,45 +13,63 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class FootballDataApiClient {
-    private static final long MIN_REQUEST_INTERVAL_MS = 6500L;
+public class ApiFootballClient {
+    private static final long MIN_REQUEST_INTERVAL_MS = 1200L;
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final String apiKey;
     private Instant lastRequestAt = Instant.EPOCH;
 
-    public FootballDataApiClient() {
+    public ApiFootballClient() {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(20))
                 .build();
         this.objectMapper = new ObjectMapper();
-        this.apiKey = FootballDataConfig.resolveApiKey();
+        this.apiKey = ApiFootballConfig.resolveApiKey();
     }
 
-    public JsonNode fetchCompetitionTeams(String competitionCode) throws IOException, InterruptedException {
-        return getJson("/competitions/" + competitionCode + "/teams");
-    }
-
-    public JsonNode fetchCompetitionMatches(String competitionCode) throws IOException, InterruptedException {
-        return getJson("/competitions/" + competitionCode + "/matches");
-    }
-
-    public JsonNode fetchCompetitionStandings(String competitionCode) throws IOException, InterruptedException {
-        return getJson("/competitions/" + competitionCode + "/standings");
-    }
-
-    public JsonNode fetchCompetitionScorers(String competitionCode, int limit) throws IOException, InterruptedException {
+    public JsonNode fetchCompetitionTeams(int leagueId, int season) throws IOException, InterruptedException {
         Map<String, String> query = new LinkedHashMap<>();
-        query.put("limit", String.valueOf(limit));
-        return getJson("/competitions/" + competitionCode + "/scorers", query);
+        query.put("league", String.valueOf(leagueId));
+        query.put("season", String.valueOf(season));
+        return getJson("/teams", query);
     }
 
-    private JsonNode getJson(String path) throws IOException, InterruptedException {
-        return getJson(path, null);
+    public JsonNode fetchFixturesByDate(int leagueId, int season, LocalDate date) throws IOException, InterruptedException {
+        Map<String, String> query = new LinkedHashMap<>();
+        query.put("league", String.valueOf(leagueId));
+        query.put("season", String.valueOf(season));
+        query.put("date", date.toString());
+        return getJson("/fixtures", query);
+    }
+
+    public JsonNode fetchFixtureLineups(long fixtureId) throws IOException, InterruptedException {
+        return getJson("/fixtures/lineups", Map.of("fixture", String.valueOf(fixtureId)));
+    }
+
+    public JsonNode fetchFixtureStatistics(long fixtureId) throws IOException, InterruptedException {
+        return getJson("/fixtures/statistics", Map.of("fixture", String.valueOf(fixtureId)));
+    }
+
+    public JsonNode fetchTopScorers(int leagueId, int season) throws IOException, InterruptedException {
+        Map<String, String> query = new LinkedHashMap<>();
+        query.put("league", String.valueOf(leagueId));
+        query.put("season", String.valueOf(season));
+        return getJson("/players/topscorers", query);
+    }
+
+    public JsonNode fetchTeamPlayers(int teamId, int leagueId, int season, int page) throws IOException, InterruptedException {
+        Map<String, String> query = new LinkedHashMap<>();
+        query.put("team", String.valueOf(teamId));
+        query.put("league", String.valueOf(leagueId));
+        query.put("season", String.valueOf(season));
+        query.put("page", String.valueOf(page));
+        return getJson("/players", query);
     }
 
     private JsonNode getJson(String path, Map<String, String> query) throws IOException, InterruptedException {
@@ -59,7 +77,7 @@ public class FootballDataApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(buildUri(path, query))
-                .header("X-Auth-Token", apiKey)
+                .header("x-apisports-key", apiKey)
                 .header("Accept", "application/json")
                 .GET()
                 .timeout(Duration.ofSeconds(30))
@@ -68,14 +86,14 @@ public class FootballDataApiClient {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         int statusCode = response.statusCode();
         if (statusCode < 200 || statusCode >= 300) {
-            throw new IOException("football-data.org a retourne " + statusCode + " pour " + path + ". " + shrink(response.body()));
+            throw new IOException("API-Football a retourne " + statusCode + " pour " + path + ". " + shrink(response.body()));
         }
 
         return objectMapper.readTree(response.body());
     }
 
     private URI buildUri(String path, Map<String, String> query) {
-        StringBuilder builder = new StringBuilder(FootballDataConfig.BASE_URL).append(path);
+        StringBuilder builder = new StringBuilder(ApiFootballConfig.BASE_URL).append(path);
         if (query != null && !query.isEmpty()) {
             builder.append('?');
             boolean first = true;

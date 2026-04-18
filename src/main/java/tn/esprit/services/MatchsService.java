@@ -8,6 +8,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class MatchsService implements IService<Matchs> {
 
     @Override
     public List<Matchs> getAll() throws SQLException {
-        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, external_api_id, external_source, competition_code FROM matchs";
+        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, external_api_id, external_source, competition_code, api_football_id, api_football_stats_json, api_football_lineup_json, api_football_synced_at FROM matchs";
         List<Matchs> matchsList = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -93,7 +94,7 @@ public class MatchsService implements IService<Matchs> {
 
     @Override
     public Matchs getById(int id) throws SQLException {
-        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, external_api_id, external_source, competition_code FROM matchs WHERE id = ?";
+        String sql = "SELECT id, id_match, date_match, heure_debut, lieu, type, statut, lineup_domicile, lineup_exterieur, score_equipe_domicile, score_equipe_exterieur, equipe_domicile_id, equipe_exterieur_id, external_api_id, external_source, competition_code, api_football_id, api_football_stats_json, api_football_lineup_json, api_football_synced_at FROM matchs WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -135,6 +136,12 @@ public class MatchsService implements IService<Matchs> {
         matchs.setExternalApiId(rs.wasNull() ? null : externalApiId);
         matchs.setExternalSource(rs.getString("external_source"));
         matchs.setCompetitionCode(rs.getString("competition_code"));
+        long apiFootballId = rs.getLong("api_football_id");
+        matchs.setApiFootballId(rs.wasNull() ? null : apiFootballId);
+        matchs.setApiFootballStatsJson(rs.getString("api_football_stats_json"));
+        matchs.setApiFootballLineupJson(rs.getString("api_football_lineup_json"));
+        Timestamp syncedAt = rs.getTimestamp("api_football_synced_at");
+        matchs.setApiFootballSyncedAt(syncedAt == null ? null : syncedAt.toLocalDateTime());
         return matchs;
     }
 

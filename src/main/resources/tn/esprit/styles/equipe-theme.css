@@ -1540,6 +1540,44 @@
     -fx-text-fill: #64748b;
 }
 
+.team-top-scorer-row {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 20;
+    -fx-padding: 12 14 12 14;
+}
+
+.team-top-scorer-rank {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #16a34a;
+    -fx-min-width: 34;
+}
+
+.team-top-scorer-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.team-top-scorer-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.team-top-scorer-pill {
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(16, 185, 129, 0.18);
+    -fx-border-radius: 999;
+    -fx-padding: 7 10 7 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
 .theme-dark .toolbar-summary-card {
     -fx-background-color: rgba(11, 18, 32, 0.92);
     -fx-border-color: rgba(148, 163, 184, 0.3);
@@ -1636,4 +1674,27 @@
 
 .theme-dark .squad-meta {
     -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .team-top-scorer-row {
+    -fx-background-color: rgba(11, 18, 32, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .team-top-scorer-rank {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .team-top-scorer-name {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .team-top-scorer-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .team-top-scorer-pill {
+    -fx-background-color: rgba(6, 95, 70, 0.5);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+    -fx-text-fill: #86efac;
 }

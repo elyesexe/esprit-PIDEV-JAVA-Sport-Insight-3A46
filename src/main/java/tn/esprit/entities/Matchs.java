@@ -1,6 +1,7 @@
 package tn.esprit.entities;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class Matchs {
@@ -20,6 +21,10 @@ public class Matchs {
     private Long externalApiId;
     private String externalSource;
     private String competitionCode;
+    private Long apiFootballId;
+    private String apiFootballStatsJson;
+    private String apiFootballLineupJson;
+    private LocalDateTime apiFootballSyncedAt;
 
     public Matchs() {
     }
@@ -183,6 +188,38 @@ public class Matchs {
         this.competitionCode = competitionCode;
     }
 
+    public Long getApiFootballId() {
+        return apiFootballId;
+    }
+
+    public void setApiFootballId(Long apiFootballId) {
+        this.apiFootballId = apiFootballId;
+    }
+
+    public String getApiFootballStatsJson() {
+        return apiFootballStatsJson;
+    }
+
+    public void setApiFootballStatsJson(String apiFootballStatsJson) {
+        this.apiFootballStatsJson = apiFootballStatsJson;
+    }
+
+    public String getApiFootballLineupJson() {
+        return apiFootballLineupJson;
+    }
+
+    public void setApiFootballLineupJson(String apiFootballLineupJson) {
+        this.apiFootballLineupJson = apiFootballLineupJson;
+    }
+
+    public LocalDateTime getApiFootballSyncedAt() {
+        return apiFootballSyncedAt;
+    }
+
+    public void setApiFootballSyncedAt(LocalDateTime apiFootballSyncedAt) {
+        this.apiFootballSyncedAt = apiFootballSyncedAt;
+    }
+
     @Override
     public String toString() {
         return "Matchs{" +
@@ -202,6 +239,8 @@ public class Matchs {
                 ", externalApiId=" + externalApiId +
                 ", externalSource='" + externalSource + '\'' +
                 ", competitionCode='" + competitionCode + '\'' +
+                ", apiFootballId=" + apiFootballId +
+                ", apiFootballSyncedAt=" + apiFootballSyncedAt +
                 '}';
     }
 }

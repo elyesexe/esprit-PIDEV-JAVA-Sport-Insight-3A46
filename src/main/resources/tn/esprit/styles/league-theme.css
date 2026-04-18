@@ -172,6 +172,47 @@
     -fx-text-fill: #86efac;
 }
 
+.top-scorer-row {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(203, 213, 225, 0.95);
+    -fx-border-radius: 20;
+    -fx-padding: 12 14 12 14;
+}
+
+.top-scorer-rank {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #16a34a;
+    -fx-min-width: 34;
+    -fx-alignment: center-left;
+}
+
+.top-scorer-name {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.top-scorer-team {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.top-scorer-pill {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 999;
+    -fx-padding: 7 10 7 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
 .theme-dark .standings-header-grid {
     -fx-background-color: rgba(2, 6, 23, 0.94);
     -fx-border-color: rgba(71, 85, 105, 0.88);
@@ -180,4 +221,27 @@
 .theme-dark .standings-row-shell {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
     -fx-border-color: rgba(71, 85, 105, 0.92);
+}
+
+.theme-dark .top-scorer-row {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.92);
+}
+
+.theme-dark .top-scorer-rank {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .top-scorer-name {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .top-scorer-team {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .top-scorer-pill {
+    -fx-background-color: rgba(30, 41, 59, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #cbd5e1;
 }

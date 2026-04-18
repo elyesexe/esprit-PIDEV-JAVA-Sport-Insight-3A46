@@ -63,7 +63,7 @@ public class EquipeService implements IService<Equipe> {
 
     @Override
     public List<Equipe> getAll() throws SQLException {
-        String sql = "SELECT id, nom, coach, adresse, telephone, email, image, external_api_id, external_source, competition_code FROM equipe";
+        String sql = "SELECT id, nom, coach, adresse, telephone, email, image, external_api_id, external_source, competition_code, api_football_id FROM equipe";
         List<Equipe> equipes = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -78,7 +78,7 @@ public class EquipeService implements IService<Equipe> {
 
     @Override
     public Equipe getById(int id) throws SQLException {
-        String sql = "SELECT id, nom, coach, adresse, telephone, email, image, external_api_id, external_source, competition_code FROM equipe WHERE id = ?";
+        String sql = "SELECT id, nom, coach, adresse, telephone, email, image, external_api_id, external_source, competition_code, api_football_id FROM equipe WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -107,6 +107,8 @@ public class EquipeService implements IService<Equipe> {
         equipe.setExternalApiId(rs.wasNull() ? null : externalApiId);
         equipe.setExternalSource(rs.getString("external_source"));
         equipe.setCompetitionCode(rs.getString("competition_code"));
+        long apiFootballId = rs.getLong("api_football_id");
+        equipe.setApiFootballId(rs.wasNull() ? null : apiFootballId);
         return equipe;
     }
 

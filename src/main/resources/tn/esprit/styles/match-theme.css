@@ -385,6 +385,39 @@
     -fx-font-size: 22px;
 }
 
+.lineup-meta {
+    -fx-font-size: 12px;
+}
+
+.match-stats-panel {
+    -fx-spacing: 12;
+}
+
+.match-stat-row {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 18;
+    -fx-padding: 12 14 12 14;
+}
+
+.match-stat-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #475569;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.match-stat-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-min-width: 110;
+    -fx-alignment: center;
+}
+
 .theme-dark.page-root {
     -fx-background-color:
         radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
@@ -535,6 +568,19 @@
     -fx-text-fill: #94a3b8;
 }
 
+.theme-dark .match-stat-row {
+    -fx-background-color: rgba(11, 18, 32, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .match-stat-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .match-stat-value {
+    -fx-text-fill: #e2e8f0;
+}
+
 .theme-dark .fixture-meta-chip {
     -fx-background-color: rgba(30, 41, 59, 0.84);
     -fx-border-color: rgba(148, 163, 184, 0.3);
@@ -545,4 +591,825 @@
     -fx-background-color: rgba(6, 95, 70, 0.5);
     -fx-border-color: rgba(52, 211, 153, 0.42);
     -fx-text-fill: #86efac;
+}
+
+.flashscore-match-shell {
+    -fx-max-width: 1120;
+}
+
+.flashscore-score-card,
+.flashscore-lineup-card,
+.flashscore-stats-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #d7dde5;
+    -fx-border-radius: 18;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 20, 0.16, 0, 8);
+}
+
+.flashscore-title-block {
+    -fx-padding: 2 2 6 2;
+}
+
+.flashscore-match-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 28px;
+    -fx-text-fill: #111827;
+}
+
+.flashscore-match-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+
+.flashscore-scoreboard {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f9fafb 0%, #eef2f7 100%);
+    -fx-background-radius: 18;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 18;
+    -fx-padding: 18 20 18 20;
+}
+
+.flashscore-team-column {
+    -fx-padding: 4 8 4 8;
+}
+
+.flashscore-logo-shell {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #d7dde5;
+    -fx-border-radius: 18;
+    -fx-padding: 12;
+    -fx-alignment: center;
+}
+
+.flashscore-team-name {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 22px;
+    -fx-text-fill: #111827;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.flashscore-team-role {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #6b7280;
+}
+
+.flashscore-center-column {
+    -fx-min-width: 240;
+    -fx-padding: 4 12 4 12;
+}
+
+.flashscore-kickoff-date {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #6b7280;
+}
+
+.flashscore-kickoff-time {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.flashscore-main-score {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 42px;
+    -fx-text-fill: #111827;
+}
+
+.flashscore-venue-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.flashscore-facts-row {
+    -fx-padding: 2 0 0 0;
+}
+
+.flashscore-fact-chip {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 14;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 14;
+    -fx-padding: 12 14 12 14;
+}
+
+.flashscore-fact-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #6b7280;
+}
+
+.flashscore-fact-value {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 15px;
+    -fx-text-fill: #111827;
+}
+
+.flashscore-section-tabs {
+    -fx-padding: 0 2 0 2;
+}
+
+.flashscore-tab {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 10 0;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #9ca3af;
+}
+
+.flashscore-tab-active {
+    -fx-text-fill: #0f172a;
+    -fx-border-color: transparent transparent #ef4444 transparent;
+    -fx-border-width: 0 0 2 0;
+}
+
+.flashscore-section-title {
+    -fx-font-size: 22px;
+}
+
+.flashscore-inline-badge {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 999;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #4b5563;
+}
+
+.pitch-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0d6b43 0%, #0a5a38 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(255, 255, 255, 0.22);
+    -fx-border-radius: 22;
+    -fx-padding: 14;
+}
+
+.pitch-surface {
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 0% 100%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%),
+        linear-gradient(from 0% 0% to 100% 100%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+    -fx-border-radius: 18;
+    -fx-padding: 18;
+}
+
+.pitch-team-section {
+    -fx-padding: 4 0 4 0;
+}
+
+.pitch-team-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 18px;
+    -fx-text-fill: #ffffff;
+}
+
+.pitch-side-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 999;
+    -fx-padding: 5 9 5 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #e5f7ed;
+}
+
+.lineup-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(255, 255, 255, 0.82);
+}
+
+.pitch-middle-marker {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.26);
+    -fx-border-radius: 999;
+    -fx-padding: 8 12 8 12;
+    -fx-alignment: center;
+}
+
+.pitch-middle-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f3f4f6;
+}
+
+.pitch-player-row {
+    -fx-padding: 0 0 2 0;
+}
+
+.pitch-player-card {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.36);
+    -fx-border-radius: 14;
+    -fx-padding: 10 12 10 12;
+    -fx-pref-width: 132;
+    -fx-max-width: 152;
+    -fx-min-height: 72;
+    -fx-alignment: center;
+}
+
+.pitch-player-number {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ef4444;
+}
+
+.pitch-player-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+    -fx-text-alignment: center;
+}
+
+.pitch-player-meta {
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #6b7280;
+    -fx-text-alignment: center;
+}
+
+.pitch-placeholder-card {
+    -fx-background-color: rgba(255, 255, 255, 0.16);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.24);
+    -fx-border-radius: 16;
+    -fx-padding: 20;
+    -fx-min-height: 86;
+}
+
+.pitch-placeholder-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(255, 255, 255, 0.88);
+}
+
+.bench-column {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 16;
+    -fx-padding: 14;
+}
+
+.bench-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 15px;
+    -fx-text-fill: #111827;
+}
+
+.bench-player-chip {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 999;
+    -fx-border-color: #dbe2ea;
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 8;
+}
+
+.bench-player-number {
+    -fx-background-color: #eef2ff;
+    -fx-background-radius: 999;
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #4338ca;
+}
+
+.bench-player-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937;
+}
+
+.bench-placeholder-chip {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #dbe2ea;
+    -fx-border-radius: 14;
+    -fx-padding: 12;
+}
+
+.bench-placeholder-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #6b7280;
+}
+
+.stats-teams-header {
+    -fx-padding: 0 4 4 4;
+}
+
+.stats-team-header {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.stats-center-header {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #6b7280;
+}
+
+.flashscore-stat-card {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 14;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 14;
+    -fx-padding: 12 14 12 14;
+}
+
+.flashscore-stat-value {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 18px;
+    -fx-text-fill: #111827;
+    -fx-min-width: 90;
+    -fx-alignment: center;
+}
+
+.flashscore-stat-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #4b5563;
+    -fx-text-alignment: center;
+}
+
+.flashscore-stat-track {
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 999;
+    -fx-min-height: 8;
+    -fx-pref-height: 8;
+}
+
+.flashscore-stat-fill {
+    -fx-background-radius: 999;
+    -fx-min-height: 8;
+    -fx-pref-height: 8;
+}
+
+.flashscore-stat-fill-home {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #ef4444 0%, #f97316 100%);
+}
+
+.flashscore-stat-fill-away {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #2563eb 0%, #06b6d4 100%);
+}
+
+.flashscore-stat-center-marker {
+    -fx-background-color: #cbd5e1;
+    -fx-background-radius: 999;
+    -fx-min-width: 4;
+    -fx-pref-width: 4;
+    -fx-max-width: 4;
+    -fx-min-height: 16;
+    -fx-pref-height: 16;
+}
+
+.theme-dark .flashscore-score-card,
+.theme-dark .flashscore-lineup-card,
+.theme-dark .flashscore-stats-card {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+}
+
+.theme-dark .flashscore-match-title,
+.theme-dark .flashscore-team-name,
+.theme-dark .flashscore-kickoff-time,
+.theme-dark .flashscore-main-score,
+.theme-dark .flashscore-fact-value,
+.theme-dark .bench-title,
+.theme-dark .stats-team-header,
+.theme-dark .flashscore-stat-value {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .flashscore-match-subtitle,
+.theme-dark .flashscore-team-role,
+.theme-dark .flashscore-kickoff-date,
+.theme-dark .flashscore-venue-label,
+.theme-dark .flashscore-fact-caption,
+.theme-dark .flashscore-inline-badge,
+.theme-dark .stats-center-header,
+.theme-dark .flashscore-stat-label,
+.theme-dark .bench-placeholder-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .flashscore-scoreboard,
+.theme-dark .flashscore-fact-chip,
+.theme-dark .bench-column,
+.theme-dark .flashscore-stat-card,
+.theme-dark .flashscore-logo-shell,
+.theme-dark .bench-player-chip,
+.theme-dark .bench-placeholder-chip {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark .flashscore-tab {
+    -fx-text-fill: #64748b;
+}
+
+.theme-dark .flashscore-tab-active {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .pitch-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(5, 88, 58, 0.96) 0%, rgba(4, 57, 39, 0.98) 100%);
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+}
+
+.theme-dark .pitch-player-card {
+    -fx-background-color: rgba(241, 245, 249, 0.92);
+    -fx-border-color: rgba(255, 255, 255, 0.22);
+}
+
+.theme-dark .flashscore-stat-track {
+    -fx-background-color: rgba(51, 65, 85, 0.9);
+}
+
+.theme-dark .flashscore-stat-center-marker {
+    -fx-background-color: rgba(148, 163, 184, 0.6);
+}
+
+.flashscore-match-shell {
+    -fx-max-width: 1020;
+}
+
+.flashscore-score-card,
+.flashscore-lineup-card,
+.flashscore-stats-card {
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-padding: 16 18 18 18;
+}
+
+.flashscore-scoreboard {
+    -fx-padding: 14 16 14 16;
+}
+
+.flashscore-center-column {
+    -fx-min-width: 210;
+}
+
+.flashscore-main-score {
+    -fx-font-size: 38px;
+}
+
+.flashscore-fact-chip {
+    -fx-padding: 10 12 10 12;
+}
+
+.flashscore-fact-value {
+    -fx-font-size: 14px;
+}
+
+.flashscore-section-title {
+    -fx-font-size: 20px;
+}
+
+.lineup-summary-row {
+    -fx-padding: 2 2 0 2;
+}
+
+.lineup-summary-team {
+    -fx-padding: 0 2 0 2;
+}
+
+.lineup-summary-team-away {
+    -fx-alignment: center-right;
+}
+
+.pitch-team-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 19px;
+    -fx-text-fill: #111827;
+}
+
+.pitch-side-badge {
+    -fx-background-color: #eef2f7;
+    -fx-background-radius: 999;
+    -fx-border-color: #d8e0ea;
+    -fx-border-radius: 999;
+    -fx-padding: 4 10 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #526072;
+}
+
+.lineup-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.lineup-meta-away {
+    -fx-text-alignment: right;
+}
+
+.pitch-board {
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 0%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 38%, rgba(0,0,0,0.10) 100%),
+        radial-gradient(center 50% 50%, radius 78%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.00) 58%, rgba(0,0,0,0.12) 100%),
+        linear-gradient(from 0% 0% to 0% 100%,
+            #22814b 0%,
+            #22814b 8.33%,
+            #1d7543 8.33%,
+            #1d7543 16.66%,
+            #22814b 16.66%,
+            #22814b 25%,
+            #1c6f40 25%,
+            #1c6f40 33.33%,
+            #22814b 33.33%,
+            #22814b 41.66%,
+            #1b6b3d 41.66%,
+            #1b6b3d 50%,
+            #22814b 50%,
+            #22814b 58.33%,
+            #1c6f40 58.33%,
+            #1c6f40 66.66%,
+            #22814b 66.66%,
+            #22814b 75%,
+            #1d7543 75%,
+            #1d7543 83.33%,
+            #22814b 83.33%,
+            #22814b 91.66%,
+            #1b6b3d 91.66%,
+            #1b6b3d 100%);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-radius: 20;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(4, 12, 18, 0.35), 24, 0.12, 0, 10);
+}
+
+.pitch-half-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.pitch-half-home {
+    -fx-background-radius: 14 0 0 14;
+    -fx-border-radius: 14 0 0 14;
+    -fx-border-width: 1 1 1 1;
+}
+
+.pitch-half-away {
+    -fx-background-radius: 0 14 14 0;
+    -fx-border-radius: 0 14 14 0;
+    -fx-border-width: 1 1 1 0;
+}
+
+.pitch-player-marker {
+    -fx-alignment: center;
+}
+
+.pitch-player-photo-shell {
+    -fx-alignment: bottom-center;
+    -fx-background-color: transparent;
+    -fx-min-width: 54;
+    -fx-pref-width: 54;
+    -fx-max-width: 54;
+    -fx-min-height: 54;
+    -fx-pref-height: 54;
+    -fx-max-height: 54;
+}
+
+.pitch-player-photo-fallback {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e2e8f0 0%, #cbd5e1 100%);
+    -fx-background-radius: 999;
+    -fx-alignment: center;
+    -fx-min-width: 44;
+    -fx-pref-width: 44;
+    -fx-max-width: 44;
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+    -fx-max-height: 44;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1f2937;
+}
+
+.pitch-player-pill-row {
+    -fx-alignment: center;
+}
+
+.pitch-player-number-badge {
+    -fx-background-color: #ff8a1a;
+    -fx-background-radius: 999;
+    -fx-padding: 3 7 3 7;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ffffff;
+}
+
+.pitch-player-name-pill {
+    -fx-background-color: rgba(8, 23, 38, 0.94);
+    -fx-background-radius: 999;
+    -fx-padding: 3 9 3 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+    -fx-text-overrun: ellipsis;
+}
+
+.pitch-marking-penalty,
+.pitch-marking-six-yard,
+.pitch-marking-goal {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.86);
+}
+
+.pitch-marking-touchline {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.88);
+}
+
+.pitch-marking-touchline-home {
+    -fx-border-width: 1.7 0 1.7 1.7;
+}
+
+.pitch-marking-touchline-away {
+    -fx-border-width: 1.7 1.7 1.7 0;
+}
+
+.pitch-marking-halfway {
+    -fx-background-color: rgba(255, 255, 255, 0.78);
+}
+
+.pitch-marking-penalty {
+    -fx-border-width: 1.5;
+}
+
+.pitch-marking-six-yard {
+    -fx-border-width: 1.5;
+}
+
+.pitch-marking-goal {
+    -fx-border-width: 1.2;
+}
+
+.pitch-marking-circle {
+    -fx-fill: transparent;
+    -fx-stroke: rgba(255, 255, 255, 0.82);
+    -fx-stroke-width: 1.65;
+}
+
+.pitch-marking-penalty-arc,
+.pitch-marking-corner {
+    -fx-fill: transparent;
+    -fx-stroke: rgba(255, 255, 255, 0.82);
+    -fx-stroke-width: 1.5;
+}
+
+.pitch-marking-spot {
+    -fx-fill: rgba(255, 255, 255, 0.86);
+}
+
+.pitch-placeholder-card {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.22);
+    -fx-border-radius: 16;
+}
+
+.pitch-placeholder-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+}
+
+.bench-column {
+    -fx-padding: 12 14 12 14;
+}
+
+.bench-player-chip {
+    -fx-padding: 6 10 6 8;
+}
+
+.theme-dark .flashscore-score-card,
+.theme-dark .flashscore-lineup-card,
+.theme-dark .flashscore-stats-card {
+    -fx-background-color: rgba(9, 17, 30, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.theme-dark .pitch-team-title,
+.theme-dark .flashscore-match-title,
+.theme-dark .flashscore-team-name,
+.theme-dark .flashscore-kickoff-time,
+.theme-dark .flashscore-main-score,
+.theme-dark .flashscore-fact-value,
+.theme-dark .bench-title,
+.theme-dark .stats-team-header,
+.theme-dark .flashscore-stat-value {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .lineup-meta,
+.theme-dark .flashscore-match-subtitle,
+.theme-dark .flashscore-team-role,
+.theme-dark .flashscore-kickoff-date,
+.theme-dark .flashscore-venue-label,
+.theme-dark .flashscore-fact-caption,
+.theme-dark .flashscore-inline-badge,
+.theme-dark .stats-center-header,
+.theme-dark .flashscore-stat-label,
+.theme-dark .bench-placeholder-label {
+    -fx-text-fill: #93a4b8;
+}
+
+.theme-dark .pitch-side-badge {
+    -fx-background-color: rgba(30, 41, 59, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-text-fill: #dbe7f5;
+}
+
+.theme-dark .pitch-board {
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 0%, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 34%, rgba(0,0,0,0.16) 100%),
+        radial-gradient(center 50% 50%, radius 76%, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.00) 54%, rgba(0,0,0,0.18) 100%),
+        linear-gradient(from 0% 0% to 0% 100%,
+            #16663b 0%,
+            #16663b 8.33%,
+            #125934 8.33%,
+            #125934 16.66%,
+            #176a3e 16.66%,
+            #176a3e 25%,
+            #115330 25%,
+            #115330 33.33%,
+            #176a3e 33.33%,
+            #176a3e 41.66%,
+            #104f2e 41.66%,
+            #104f2e 50%,
+            #176a3e 50%,
+            #176a3e 58.33%,
+            #115330 58.33%,
+            #115330 66.66%,
+            #176a3e 66.66%,
+            #176a3e 75%,
+            #125934 75%,
+            #125934 83.33%,
+            #16663b 83.33%,
+            #16663b 91.66%,
+            #104f2e 91.66%,
+            #104f2e 100%);
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+}
+
+.theme-dark .pitch-half-pane {
+    -fx-border-color: transparent;
+}
+
+.theme-dark .pitch-marking-penalty,
+.theme-dark .pitch-marking-six-yard,
+.theme-dark .pitch-marking-goal {
+    -fx-border-color: rgba(255, 255, 255, 0.74);
+}
+
+.theme-dark .pitch-marking-touchline {
+    -fx-border-color: rgba(255, 255, 255, 0.78);
+}
+
+.theme-dark .pitch-marking-halfway {
+    -fx-background-color: rgba(255, 255, 255, 0.66);
+}
+
+.theme-dark .pitch-marking-circle {
+    -fx-stroke: rgba(255, 255, 255, 0.70);
+}
+
+.theme-dark .pitch-marking-penalty-arc,
+.theme-dark .pitch-marking-corner {
+    -fx-stroke: rgba(255, 255, 255, 0.70);
+}
+
+.theme-dark .pitch-marking-spot {
+    -fx-fill: rgba(255, 255, 255, 0.72);
+}
+
+.theme-dark .pitch-player-photo-fallback {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1e293b 0%, #334155 100%);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .pitch-player-name-pill {
+    -fx-background-color: rgba(2, 6, 23, 0.96);
+}
+
+.theme-dark .bench-player-name {
+    -fx-text-fill: #e5edf8;
+}
+
+.theme-dark .bench-player-number {
+    -fx-background-color: rgba(224, 231, 255, 0.96);
+    -fx-text-fill: #312e81;
 }

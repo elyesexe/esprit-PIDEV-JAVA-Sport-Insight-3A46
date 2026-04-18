@@ -17,6 +17,7 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "equipe", "external_api_id", "BIGINT NULL");
             addColumnIfMissing(metaData, catalog, statement, "equipe", "external_source", "VARCHAR(32) NULL");
             addColumnIfMissing(metaData, catalog, statement, "equipe", "competition_code", "VARCHAR(16) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "equipe", "api_football_id", "BIGINT NULL");
 
             addColumnIfMissing(metaData, catalog, statement, "joueur", "external_api_id", "BIGINT NULL");
             addColumnIfMissing(metaData, catalog, statement, "joueur", "external_source", "VARCHAR(32) NULL");
@@ -26,17 +27,25 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "matchs", "external_api_id", "BIGINT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "external_source", "VARCHAR(32) NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "competition_code", "VARCHAR(16) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_id", "BIGINT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_stats_json", "LONGTEXT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_lineup_json", "LONGTEXT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_synced_at", "DATETIME NULL");
 
             addIndexIfMissing(metaData, catalog, statement, "equipe", "idx_equipe_external_sync",
                     "CREATE INDEX idx_equipe_external_sync ON equipe (external_source, external_api_id)");
             addIndexIfMissing(metaData, catalog, statement, "equipe", "idx_equipe_competition_code",
                     "CREATE INDEX idx_equipe_competition_code ON equipe (competition_code)");
+            addIndexIfMissing(metaData, catalog, statement, "equipe", "idx_equipe_api_football_id",
+                    "CREATE INDEX idx_equipe_api_football_id ON equipe (api_football_id)");
             addIndexIfMissing(metaData, catalog, statement, "joueur", "idx_joueur_external_sync",
                     "CREATE INDEX idx_joueur_external_sync ON joueur (external_source, external_api_id)");
             addIndexIfMissing(metaData, catalog, statement, "matchs", "idx_matchs_external_sync",
                     "CREATE INDEX idx_matchs_external_sync ON matchs (external_source, external_api_id)");
             addIndexIfMissing(metaData, catalog, statement, "matchs", "idx_matchs_competition_code",
                     "CREATE INDEX idx_matchs_competition_code ON matchs (competition_code)");
+            addIndexIfMissing(metaData, catalog, statement, "matchs", "idx_matchs_api_football_id",
+                    "CREATE INDEX idx_matchs_api_football_id ON matchs (api_football_id)");
 
             try {
                 backfillEquipeCompetitionCodes(statement);

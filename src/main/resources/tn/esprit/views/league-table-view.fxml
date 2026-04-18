@@ -164,6 +164,25 @@
                                    styleClass="empty-text"/>
                         </VBox>
                     </VBox>
+
+                    <VBox spacing="14" styleClass="panel-card standings-panel-card">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <VBox spacing="4">
+                                <Label text="Meilleurs buteurs" styleClass="section-title"/>
+                                <Label text="Classement offensif charge depuis API-Football."
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="scorersStatusLabel" text="En attente" styleClass="status-pill status-muted"/>
+                        </HBox>
+
+                        <Label fx:id="scorersEmptyLabel"
+                               text="Aucun classement des buteurs disponible pour cette competition."
+                               wrapText="true"
+                               styleClass="section-subtitle"/>
+
+                        <VBox fx:id="scorersContainer" spacing="10"/>
+                    </VBox>
                 </VBox>
                 </StackPane>
             </content>
