@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -17,6 +18,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -34,6 +36,7 @@ import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.ApiFootballLineupPlayer;
 import tn.esprit.services.football.ApiFootballLineupSide;
+import tn.esprit.services.football.ApiFootballMatchIncident;
 import tn.esprit.services.football.ApiFootballMatchDetails;
 import tn.esprit.services.football.ApiFootballStatisticRow;
 import tn.esprit.services.football.FootballDataCompetitions;
@@ -57,9 +60,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -75,8 +80,9 @@ public class MatchDetailController {
     private static final String PITCH_LAYOUT_KEY = "matchDetailPitchLayout";
     private static final String PITCH_DECORATIONS_KEY = "matchDetailPitchDecorations";
     private static final String PITCH_DECORATION_NODE_KEY = "matchDetailPitchDecorationNode";
-    private static final double PITCH_MARKER_WIDTH = 84.0;
-    private static final double PITCH_MARKER_HEIGHT = 78.0;
+    private static final double PITCH_MARKER_WIDTH = 114.0;
+    private static final double PITCH_MARKER_MIN_WIDTH = 64.0;
+    private static final double PITCH_MARKER_HEIGHT = 74.0;
     private static final double PITCH_HORIZONTAL_INSET = 44.0;
     private static final double PITCH_VERTICAL_INSET = 30.0;
     private static final double PITCH_FIELD_LINE_INSET = 18.0;
@@ -147,6 +153,26 @@ public class MatchDetailController {
     @FXML
     private Label detailCompetitionValueLabel;
     @FXML
+    private Button summaryTabButton;
+    @FXML
+    private Button statsTabButton;
+    @FXML
+    private Button lineupTabButton;
+    @FXML
+    private VBox summarySection;
+    @FXML
+    private VBox statsSection;
+    @FXML
+    private VBox lineupSection;
+    @FXML
+    private Label summaryHomeTeamLabel;
+    @FXML
+    private Label summaryAwayTeamLabel;
+    @FXML
+    private VBox summaryTimelineContainer;
+    @FXML
+    private Label summaryEmptyLabel;
+    @FXML
     private Label lineupHomeTeamLabel;
     @FXML
     private Label lineupAwayTeamLabel;
@@ -181,11 +207,16 @@ public class MatchDetailController {
     private Equipe awayTeam;
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong apiRequestSequence = new AtomicLong();
+    private List<ApiFootballMatchIncident> currentIncidents = List.of();
+    private Long currentMvpPlayerId;
+    private String currentMvpPlayerNameKey;
+    private MatchDetailTab activeTab = MatchDetailTab.SUMMARY;
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
+        applyActiveTab();
 
         try {
             matchsService = new MatchsService();
@@ -205,6 +236,48 @@ public class MatchDetailController {
         if (detailTitleLabel != null) {
             renderMatch();
         }
+    }
+
+    public Matchs getCurrentMatch() {
+        return match;
+    }
+
+    public String getCurrentCompetitionCode() {
+        return match == null ? null : match.getCompetitionCode();
+    }
+
+    public String getCurrentHomeTeamName() {
+        return detailHomeNameLabel != null ? detailHomeNameLabel.getText() : getEquipeName(match == null ? null : match.getEquipeDomicileId());
+    }
+
+    public String getCurrentAwayTeamName() {
+        return detailAwayNameLabel != null ? detailAwayNameLabel.getText() : getEquipeName(match == null ? null : match.getEquipeExterieurId());
+    }
+
+    public String getCurrentMatchLabel() {
+        if (detailTitleLabel != null && detailTitleLabel.getText() != null && !detailTitleLabel.getText().isBlank()) {
+            return detailTitleLabel.getText();
+        }
+        return match == null ? "Current match" : buildMatchLabel(match);
+    }
+
+    public void openSummaryTabFromAssistant() {
+        activeTab = MatchDetailTab.SUMMARY;
+        applyActiveTab();
+    }
+
+    public void openStatsTabFromAssistant() {
+        activeTab = MatchDetailTab.STATS;
+        applyActiveTab();
+    }
+
+    public void openLineupTabFromAssistant() {
+        activeTab = MatchDetailTab.LINEUP;
+        applyActiveTab();
+    }
+
+    public void openMatchListFromAssistant() {
+        openMatchList();
     }
 
     @FXML
@@ -288,6 +361,24 @@ public class MatchDetailController {
         }
     }
 
+    @FXML
+    private void handleShowSummaryTab() {
+        activeTab = MatchDetailTab.SUMMARY;
+        applyActiveTab();
+    }
+
+    @FXML
+    private void handleShowStatsTab() {
+        activeTab = MatchDetailTab.STATS;
+        applyActiveTab();
+    }
+
+    @FXML
+    private void handleShowLineupTab() {
+        activeTab = MatchDetailTab.LINEUP;
+        applyActiveTab();
+    }
+
     private void renderMatch() {
         if (match == null || equipeService == null) {
             return;
@@ -317,10 +408,16 @@ public class MatchDetailController {
             detailAwayNameLabel.setText(awayTeam == null ? "Equipe exterieur" : emptyToFallback(awayTeam.getNom(), "Equipe exterieur"));
             lineupHomeTeamLabel.setText(detailHomeNameLabel.getText());
             lineupAwayTeamLabel.setText(detailAwayNameLabel.getText());
+            summaryHomeTeamLabel.setText(detailHomeNameLabel.getText());
+            summaryAwayTeamLabel.setText(detailAwayNameLabel.getText());
             statsHomeTeamLabel.setText(detailHomeNameLabel.getText());
             statsAwayTeamLabel.setText(detailAwayNameLabel.getText());
             lineupDomicileMetaLabel.setText("Formation indisponible");
             lineupExterieurMetaLabel.setText("Formation indisponible");
+            currentIncidents = List.of();
+            currentMvpPlayerId = null;
+            currentMvpPlayerNameKey = null;
+            renderSummary(List.of());
             renderStoredLineups();
             renderStatistics(List.of());
 
@@ -344,7 +441,7 @@ public class MatchDetailController {
         }
 
         ApiFootballMatchDetails cached = apiFootballInsightsService.readCachedMatchDetails(match);
-        if (cached != null && (cached.hasLineups() || cached.hasStatistics())) {
+        if (cached != null && (cached.hasLineups() || cached.hasStatistics() || cached.hasIncidents())) {
             renderApiFootballInsights(cached);
             showApiFootballStatus("Donnees detaillees en cache affichees.", "status-success");
             return;
@@ -393,10 +490,14 @@ public class MatchDetailController {
             return;
         }
 
+        currentIncidents = normalizeIncidentsForDisplay(details.incidents());
+        renderSummary(currentIncidents);
+
         ApiFootballLineupSide storedHomeLineup = buildStoredLineup(match == null ? null : match.getLineupDomicile(), homeTeam);
         ApiFootballLineupSide storedAwayLineup = buildStoredLineup(match == null ? null : match.getLineupExterieur(), awayTeam);
         ApiFootballLineupSide homeLineup = chooseRenderableLineup(details.homeLineup(), storedHomeLineup);
         ApiFootballLineupSide awayLineup = chooseRenderableLineup(details.awayLineup(), storedAwayLineup);
+        selectMatchMvp(homeLineup, awayLineup);
 
         lineupDomicileMetaLabel.setText(buildLineupMeta(homeLineup));
         renderLineupSection(homeLineupPitchContainer, homeBenchContainer, homeLineup, false);
@@ -408,12 +509,43 @@ public class MatchDetailController {
     }
 
     private void renderStoredLineups() {
+        currentIncidents = List.of();
+        currentMvpPlayerId = null;
+        currentMvpPlayerNameKey = null;
+        renderSummary(List.of());
         ApiFootballLineupSide homeStored = chooseRenderableLineup(buildStoredLineup(match == null ? null : match.getLineupDomicile(), homeTeam), null);
         ApiFootballLineupSide awayStored = chooseRenderableLineup(buildStoredLineup(match == null ? null : match.getLineupExterieur(), awayTeam), null);
         lineupDomicileMetaLabel.setText(buildLineupMeta(homeStored));
         lineupExterieurMetaLabel.setText(buildLineupMeta(awayStored));
         renderLineupSection(homeLineupPitchContainer, homeBenchContainer, homeStored, false);
         renderLineupSection(awayLineupPitchContainer, awayBenchContainer, awayStored, true);
+    }
+
+    private void applyActiveTab() {
+        updateSectionVisibility(summarySection, activeTab == MatchDetailTab.SUMMARY);
+        updateSectionVisibility(statsSection, activeTab == MatchDetailTab.STATS);
+        updateSectionVisibility(lineupSection, activeTab == MatchDetailTab.LINEUP);
+        updateTabButton(summaryTabButton, activeTab == MatchDetailTab.SUMMARY);
+        updateTabButton(statsTabButton, activeTab == MatchDetailTab.STATS);
+        updateTabButton(lineupTabButton, activeTab == MatchDetailTab.LINEUP);
+    }
+
+    private void updateSectionVisibility(VBox section, boolean visible) {
+        if (section == null) {
+            return;
+        }
+        section.setManaged(visible);
+        section.setVisible(visible);
+    }
+
+    private void updateTabButton(Button button, boolean active) {
+        if (button == null) {
+            return;
+        }
+        button.getStyleClass().remove("detail-tab-button-active");
+        if (active && !button.getStyleClass().contains("detail-tab-button-active")) {
+            button.getStyleClass().add("detail-tab-button-active");
+        }
     }
 
     private ApiFootballLineupSide chooseRenderableLineup(ApiFootballLineupSide primary, ApiFootballLineupSide fallback) {
@@ -509,7 +641,7 @@ public class MatchDetailController {
             sanitized = "Joueur";
         }
 
-        return new ApiFootballLineupPlayer(sanitized, shirtNumber, position, null, null);
+        return new ApiFootballLineupPlayer(sanitized, shirtNumber, position, null, null, null, null);
     }
 
     private String buildLineupMeta(ApiFootballLineupSide lineup) {
@@ -532,6 +664,254 @@ public class MatchDetailController {
             parts.add(lineup.substitutePlayers().size() + " remplacants");
         }
         return parts.isEmpty() ? "Formation indisponible" : String.join(" | ", parts);
+    }
+
+    private List<ApiFootballMatchIncident> normalizeIncidentsForDisplay(List<ApiFootballMatchIncident> incidents) {
+        if (incidents == null || incidents.isEmpty()) {
+            return List.of();
+        }
+        return incidents.stream()
+                .filter(java.util.Objects::nonNull)
+                .map(this::normalizeIncidentForDisplay)
+                .sorted(Comparator
+                        .comparingInt((ApiFootballMatchIncident incident) -> incident.minute() == null ? Integer.MAX_VALUE : incident.minute())
+                        .thenComparingInt(incident -> incident.addedTime() == null ? 0 : incident.addedTime()))
+                .toList();
+    }
+
+    private ApiFootballMatchIncident normalizeIncidentForDisplay(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return null;
+        }
+
+        Integer minute = incident.minute();
+        Integer addedTime = incident.addedTime();
+        if (minute != null && minute < 0) {
+            addedTime = Math.abs(minute);
+            minute = 90;
+        }
+
+        return new ApiFootballMatchIncident(
+                incident.incidentType(),
+                incident.incidentClass(),
+                buildIncidentMinuteLabel(minute, addedTime),
+                minute,
+                addedTime,
+                incident.homeSide(),
+                incident.playerName(),
+                incident.playerId(),
+                incident.assistPlayerName(),
+                incident.assistPlayerId(),
+                incident.playerInName(),
+                incident.playerInId(),
+                incident.playerOutName(),
+                incident.playerOutId(),
+                incident.reason(),
+                incident.homeScore(),
+                incident.awayScore()
+        );
+    }
+
+    private String buildIncidentMinuteLabel(Integer minute, Integer addedTime) {
+        if (minute == null) {
+            return "--";
+        }
+        if (addedTime != null && addedTime > 0) {
+            return minute + "+" + addedTime + "'";
+        }
+        return minute + "'";
+    }
+
+    private void renderSummary(List<ApiFootballMatchIncident> incidents) {
+        summaryTimelineContainer.getChildren().clear();
+        List<ApiFootballMatchIncident> safeIncidents = incidents == null ? List.of() : incidents.stream()
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        boolean hasIncidents = !safeIncidents.isEmpty();
+        summaryEmptyLabel.setManaged(!hasIncidents);
+        summaryEmptyLabel.setVisible(!hasIncidents);
+        if (!hasIncidents) {
+            summaryEmptyLabel.setText("Aucun resume detaille disponible pour ce match.");
+            return;
+        }
+
+        for (ApiFootballMatchIncident incident : safeIncidents) {
+            summaryTimelineContainer.getChildren().add(buildTimelineRow(incident));
+        }
+    }
+
+    private HBox buildTimelineRow(ApiFootballMatchIncident incident) {
+        VBox homeBox = buildTimelineEventBox(incident, true);
+        VBox awayBox = buildTimelineEventBox(incident, false);
+
+        Label minuteLabel = new Label(emptyToFallback(incident.minuteLabel(), "--"));
+        minuteLabel.getStyleClass().add("timeline-minute-chip");
+        minuteLabel.setMinWidth(58);
+        minuteLabel.setAlignment(Pos.CENTER);
+
+        Region leftSpacer = new Region();
+        Region rightSpacer = new Region();
+        HBox.setHgrow(homeBox, javafx.scene.layout.Priority.ALWAYS);
+        HBox.setHgrow(awayBox, javafx.scene.layout.Priority.ALWAYS);
+        HBox.setHgrow(leftSpacer, javafx.scene.layout.Priority.ALWAYS);
+        HBox.setHgrow(rightSpacer, javafx.scene.layout.Priority.ALWAYS);
+
+        HBox row = new HBox(14);
+        row.setAlignment(Pos.CENTER);
+        row.getStyleClass().add("timeline-row");
+
+        if (incident.homeSide()) {
+            row.getChildren().addAll(homeBox, minuteLabel, rightSpacer);
+        } else {
+            row.getChildren().addAll(leftSpacer, minuteLabel, awayBox);
+        }
+        return row;
+    }
+
+    private VBox buildTimelineEventBox(ApiFootballMatchIncident incident, boolean homeSide) {
+        VBox box = new VBox(4);
+        box.setAlignment(homeSide ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+        box.getStyleClass().addAll(
+                "timeline-event-box",
+                homeSide ? "timeline-event-home" : "timeline-event-away"
+        );
+        box.setMaxWidth(Double.MAX_VALUE);
+
+        HBox badgeRow = new HBox(8);
+        badgeRow.setAlignment(homeSide ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+        Label badge = new Label(buildTimelineBadgeText(incident));
+        badge.getStyleClass().addAll("timeline-event-badge", timelineBadgeTone(incident));
+
+        Label scoreLabel = null;
+        if (incident.isGoal() && incident.homeScore() != null && incident.awayScore() != null) {
+            scoreLabel = new Label(incident.homeScore() + " - " + incident.awayScore());
+            scoreLabel.getStyleClass().add("timeline-score-chip");
+        }
+
+        if (homeSide) {
+            badgeRow.getChildren().add(badge);
+            if (scoreLabel != null) {
+                badgeRow.getChildren().add(scoreLabel);
+            }
+        } else {
+            if (scoreLabel != null) {
+                badgeRow.getChildren().add(scoreLabel);
+            }
+            badgeRow.getChildren().add(badge);
+        }
+
+        Label title = new Label(buildTimelineTitle(incident));
+        title.getStyleClass().add("timeline-event-title");
+        title.setWrapText(true);
+        title.setTextOverrun(OverrunStyle.ELLIPSIS);
+        title.setMaxWidth(Double.MAX_VALUE);
+
+        Label meta = new Label(buildTimelineMeta(incident));
+        meta.getStyleClass().add("timeline-event-meta");
+        meta.setWrapText(true);
+        meta.setManaged(!meta.getText().isBlank());
+        meta.setVisible(!meta.getText().isBlank());
+
+        box.getChildren().addAll(badgeRow, title, meta);
+        return box;
+    }
+
+    private String buildTimelineTitle(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return "Evenement";
+        }
+        if (incident.isSubstitution()) {
+            String inName = emptyToFallback(incident.playerInName(), "Entrant");
+            String outName = emptyToFallback(incident.playerOutName(), "Sortant");
+            return inName + " pour " + outName;
+        }
+        return emptyToFallback(incident.playerName(), "Evenement");
+    }
+
+    private String buildTimelineMeta(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return "";
+        }
+
+        List<String> parts = new ArrayList<>();
+        if (incident.isGoal()) {
+            if (incident.assistPlayerName() != null && !incident.assistPlayerName().isBlank()) {
+                parts.add("Passe decisive: " + incident.assistPlayerName().trim());
+            }
+            String goalClass = prettifyIncidentClass(incident.incidentClass());
+            if (goalClass != null && !"Regular".equalsIgnoreCase(goalClass)) {
+                parts.add(goalClass);
+            }
+        } else if (incident.isCard()) {
+            parts.add(incident.isRedCard() ? "Carton rouge" : "Carton jaune");
+            if (incident.reason() != null && !incident.reason().isBlank()) {
+                parts.add(incident.reason().trim());
+            }
+        } else if (incident.isSubstitution()) {
+            if (incident.reason() != null && !incident.reason().isBlank()) {
+                parts.add(incident.reason().trim());
+            } else {
+                parts.add("Remplacement");
+            }
+        } else if (incident.reason() != null && !incident.reason().isBlank()) {
+            parts.add(incident.reason().trim());
+        }
+
+        return String.join(" • ", parts);
+    }
+
+    private String buildTimelineBadgeText(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return "EVT";
+        }
+        if (incident.isGoal()) {
+            return "BUT";
+        }
+        if (incident.isYellowCard()) {
+            return "CJ";
+        }
+        if (incident.isRedCard()) {
+            return "CR";
+        }
+        if (incident.isSubstitution()) {
+            return "REM";
+        }
+        return "EVT";
+    }
+
+    private String timelineBadgeTone(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return "timeline-badge-neutral";
+        }
+        if (incident.isGoal()) {
+            return "timeline-badge-goal";
+        }
+        if (incident.isYellowCard()) {
+            return "timeline-badge-yellow";
+        }
+        if (incident.isRedCard()) {
+            return "timeline-badge-red";
+        }
+        if (incident.isSubstitution()) {
+            return "timeline-badge-sub";
+        }
+        return "timeline-badge-neutral";
+    }
+
+    private String prettifyIncidentClass(String rawClass) {
+        String normalized = emptyToNull(rawClass);
+        if (normalized == null) {
+            return null;
+        }
+        String readable = normalized.replace('-', ' ').replace('_', ' ').trim();
+        if (readable.equalsIgnoreCase("yellowRed")) {
+            return "Deuxieme carton jaune";
+        }
+        if (readable.isBlank()) {
+            return null;
+        }
+        return Character.toUpperCase(readable.charAt(0)) + readable.substring(1);
     }
 
     private String resolveFormationLabel(ApiFootballLineupSide lineup) {
@@ -881,10 +1261,15 @@ public class MatchDetailController {
     }
 
     private VBox buildPitchPlayerMarker(ApiFootballLineupPlayer player) {
+        String displayName = buildPitchPlayerDisplayName(player == null ? null : player.playerName());
+        double namePillWidth = estimatePitchNameWidth(displayName);
+        boolean mvpPlayer = isMvpPlayer(player);
+
         ImageView photoView = new ImageView();
-        photoView.setFitWidth(48);
-        photoView.setFitHeight(54);
+        photoView.setFitWidth(42);
+        photoView.setFitHeight(48);
         photoView.setPreserveRatio(true);
+        photoView.setSmooth(true);
 
         Label fallbackLabel = new Label(buildPlayerInitials(player == null ? null : player.playerName()));
         fallbackLabel.getStyleClass().add("pitch-player-photo-fallback");
@@ -893,25 +1278,274 @@ public class MatchDetailController {
         photoShell.getStyleClass().add("pitch-player-photo-shell");
         bindPlayerPhoto(photoView, fallbackLabel, player);
 
+        Label ratingLabel = buildRatingBadge(player == null ? null : player.rating());
+        if (ratingLabel != null) {
+            StackPane.setAlignment(ratingLabel, Pos.TOP_LEFT);
+            photoShell.getChildren().add(ratingLabel);
+        }
+
+        VBox eventChips = buildPlayerEventPills(player);
+        int eventChipCount = eventChips.getChildren().size();
+        boolean hasEventChips = eventChipCount > 0;
+
         Label shirtLabel = new Label(emptyToFallback(player == null ? null : player.shirtNumber(), "?"));
         shirtLabel.getStyleClass().add("pitch-player-number-badge");
+        shirtLabel.setAlignment(Pos.CENTER);
+        shirtLabel.setMinWidth(16);
+        shirtLabel.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        shirtLabel.setMaxWidth(Region.USE_PREF_SIZE);
 
-        Label nameLabel = new Label(emptyToFallback(player == null ? null : player.playerName(), "Joueur"));
-        nameLabel.getStyleClass().add("pitch-player-name-pill");
-        nameLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
-        nameLabel.setMaxWidth(78);
+        Label nameLabel = new Label(displayName);
+        nameLabel.getStyleClass().add("pitch-player-name-text");
+        nameLabel.setWrapText(false);
+        nameLabel.setTextOverrun(OverrunStyle.CLIP);
+        nameLabel.setAlignment(Pos.CENTER_LEFT);
+        nameLabel.setMinWidth(Region.USE_PREF_SIZE);
+        nameLabel.setPrefWidth(namePillWidth);
+        nameLabel.setMaxWidth(namePillWidth);
 
-        HBox tagRow = new HBox(4, shirtLabel, nameLabel);
-        tagRow.setAlignment(Pos.CENTER);
+        HBox identityPill = new HBox(4, shirtLabel, nameLabel);
+        identityPill.setAlignment(Pos.CENTER_LEFT);
+        identityPill.getStyleClass().add("pitch-player-identity-pill");
+        double identityWidth = computeIdentityPillWidth(namePillWidth);
+        identityPill.setMinWidth(identityWidth);
+        identityPill.setPrefWidth(identityWidth);
+        identityPill.setMaxWidth(identityWidth);
+
+        HBox tagRow = new HBox(3);
+        tagRow.setAlignment(Pos.CENTER_LEFT);
         tagRow.getStyleClass().add("pitch-player-pill-row");
+        if (hasEventChips) {
+            tagRow.getChildren().add(eventChips);
+        }
+        tagRow.getChildren().add(identityPill);
+        if (mvpPlayer) {
+            tagRow.getChildren().add(buildMvpBadge(player));
+        }
 
-        VBox marker = new VBox(3, photoShell, tagRow);
-        marker.setAlignment(Pos.CENTER);
+        VBox marker = new VBox(1, photoShell, tagRow);
+        marker.setAlignment(Pos.TOP_CENTER);
         marker.getStyleClass().add("pitch-player-marker");
-        marker.setPrefSize(PITCH_MARKER_WIDTH, PITCH_MARKER_HEIGHT);
-        marker.setMinSize(PITCH_MARKER_WIDTH, PITCH_MARKER_HEIGHT);
-        marker.setMaxSize(PITCH_MARKER_WIDTH, PITCH_MARKER_HEIGHT);
+        double markerWidth = computePitchMarkerWidth(identityWidth, eventChipCount, mvpPlayer);
+        tagRow.setMinWidth(markerWidth);
+        tagRow.setPrefWidth(markerWidth);
+        tagRow.setMaxWidth(markerWidth);
+        marker.setPrefSize(markerWidth, PITCH_MARKER_HEIGHT);
+        marker.setMinSize(markerWidth, PITCH_MARKER_HEIGHT);
+        marker.setMaxSize(markerWidth, PITCH_MARKER_HEIGHT);
         return marker;
+    }
+
+    private Label buildRatingBadge(Double rating) {
+        if (rating == null) {
+            return null;
+        }
+
+        Label ratingLabel = new Label(formatRating(rating));
+        ratingLabel.getStyleClass().addAll("player-rating-badge", ratingToneStyle(rating));
+        return ratingLabel;
+    }
+
+    private Label buildMvpBadge(ApiFootballLineupPlayer player) {
+        if (!isMvpPlayer(player)) {
+            return null;
+        }
+        Label label = new Label("★");
+        label.getStyleClass().add("player-mvp-badge");
+        label.setText("\u2605");
+        return label;
+    }
+
+    private VBox buildPlayerEventPills(ApiFootballLineupPlayer player) {
+        VBox box = new VBox(2);
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.getStyleClass().add("player-event-pill-row");
+        PlayerIncidentSummary summary = summarizePlayerIncidents(player);
+        appendEventPills(box, summary.goals(), "G", "player-event-pill-goal");
+        appendEventPills(box, summary.assists(), "A", "player-event-pill-assist");
+        appendEventPills(box, summary.yellowCards(), "Y", "player-event-pill-yellow");
+        appendEventPills(box, summary.redCards(), "R", "player-event-pill-red");
+        return box;
+    }
+
+    private void appendEventPills(VBox box, int count, String label, String styleClass) {
+        if (box == null || count <= 0) {
+            return;
+        }
+        Label pill = new Label(count > 1 ? label + "x" + count : label);
+        pill.getStyleClass().addAll("player-event-pill", styleClass);
+        box.getChildren().add(pill);
+    }
+
+    private PlayerIncidentSummary summarizePlayerIncidents(ApiFootballLineupPlayer player) {
+        if (player == null || currentIncidents == null || currentIncidents.isEmpty()) {
+            return PlayerIncidentSummary.EMPTY;
+        }
+
+        int goals = 0;
+        int assists = 0;
+        int yellowCards = 0;
+        int redCards = 0;
+        for (ApiFootballMatchIncident incident : currentIncidents) {
+            if (incident == null) {
+                continue;
+            }
+            if (matchesPlayer(player, incident.playerId(), incident.playerName())) {
+                if (incident.isGoal()) {
+                    goals++;
+                }
+                if (incident.isYellowCard()) {
+                    yellowCards++;
+                }
+                if (incident.isRedCard()) {
+                    redCards++;
+                }
+            }
+            if (matchesPlayer(player, incident.assistPlayerId(), incident.assistPlayerName())) {
+                assists++;
+            }
+        }
+        return new PlayerIncidentSummary(goals, assists, yellowCards, redCards);
+    }
+
+    private void selectMatchMvp(ApiFootballLineupSide homeLineup, ApiFootballLineupSide awayLineup) {
+        currentMvpPlayerId = null;
+        currentMvpPlayerNameKey = null;
+
+        ApiFootballLineupPlayer bestPlayer = null;
+        double bestScore = Double.NEGATIVE_INFINITY;
+        for (ApiFootballLineupPlayer player : allRatedPlayers(homeLineup, awayLineup)) {
+            if (player == null || player.rating() == null) {
+                continue;
+            }
+            PlayerIncidentSummary summary = summarizePlayerIncidents(player);
+            double score = player.rating()
+                    + (summary.goals() * 0.10)
+                    + (summary.assists() * 0.05)
+                    - (summary.redCards() * 0.08)
+                    - (summary.yellowCards() * 0.03);
+            if (score > bestScore) {
+                bestScore = score;
+                bestPlayer = player;
+            }
+        }
+
+        if (bestPlayer != null) {
+            currentMvpPlayerId = bestPlayer.playerId();
+            currentMvpPlayerNameKey = normalizeComparableName(bestPlayer.playerName());
+        }
+    }
+
+    private List<ApiFootballLineupPlayer> allRatedPlayers(ApiFootballLineupSide homeLineup, ApiFootballLineupSide awayLineup) {
+        List<ApiFootballLineupPlayer> players = new ArrayList<>();
+        addLineupPlayers(players, homeLineup);
+        addLineupPlayers(players, awayLineup);
+        return players;
+    }
+
+    private void addLineupPlayers(List<ApiFootballLineupPlayer> target, ApiFootballLineupSide lineup) {
+        if (lineup == null) {
+            return;
+        }
+        if (lineup.startingPlayers() != null) {
+            target.addAll(lineup.startingPlayers());
+        }
+        if (lineup.substitutePlayers() != null) {
+            target.addAll(lineup.substitutePlayers());
+        }
+    }
+
+    private boolean isMvpPlayer(ApiFootballLineupPlayer player) {
+        if (player == null) {
+            return false;
+        }
+        if (currentMvpPlayerId != null && player.playerId() != null) {
+            return currentMvpPlayerId.equals(player.playerId());
+        }
+        return currentMvpPlayerNameKey != null
+                && currentMvpPlayerNameKey.equals(normalizeComparableName(player.playerName()));
+    }
+
+    private boolean matchesPlayer(ApiFootballLineupPlayer player, Long playerId, String playerName) {
+        if (player == null) {
+            return false;
+        }
+        if (player.playerId() != null && playerId != null) {
+            return player.playerId().equals(playerId);
+        }
+        String left = normalizeComparableName(player.playerName());
+        String right = normalizeComparableName(playerName);
+        return left != null && left.equals(right);
+    }
+
+    private String normalizeComparableName(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = java.text.Normalizer.normalize(value, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", " ")
+                .trim();
+        return normalized.isBlank() ? null : normalized;
+    }
+
+    private String formatRating(Double rating) {
+        return String.format(java.util.Locale.US, "%.1f", rating);
+    }
+
+    private double estimatePitchNameWidth(String displayName) {
+        String value = emptyToNull(displayName);
+        if (value == null) {
+            return 36.0;
+        }
+        double width = 10.0;
+        for (int index = 0; index < value.length(); index++) {
+            char ch = value.charAt(index);
+            if (Character.isWhitespace(ch)) {
+                width += 2.0;
+            } else if (Character.isUpperCase(ch)) {
+                width += 6.4;
+            } else if ("mwMW".indexOf(ch) >= 0) {
+                width += 6.7;
+            } else if ("ijlItfr".indexOf(ch) >= 0) {
+                width += 4.1;
+            } else {
+                width += 5.3;
+            }
+        }
+        return Math.max(28.0, Math.min(70.0, width));
+    }
+
+    private double computeIdentityPillWidth(double namePillWidth) {
+        return Math.max(50.0, Math.min(92.0, 14.0 + 4.0 + namePillWidth + 12.0));
+    }
+
+    private double computePitchMarkerWidth(double identityWidth, int eventChipCount, boolean mvpPlayer) {
+        double width = identityWidth;
+        if (eventChipCount > 0) {
+            width += 14.0;
+        }
+        if (mvpPlayer) {
+            width += 14.0;
+        }
+        return Math.max(PITCH_MARKER_MIN_WIDTH, Math.min(PITCH_MARKER_WIDTH, width));
+    }
+
+    private String ratingToneStyle(Double rating) {
+        if (rating == null) {
+            return "player-rating-neutral";
+        }
+        if (rating >= 7.5) {
+            return "player-rating-elite";
+        }
+        if (rating >= 6.8) {
+            return "player-rating-good";
+        }
+        if (rating >= 6.2) {
+            return "player-rating-mid";
+        }
+        return "player-rating-low";
     }
 
     private void bindPlayerPhoto(ImageView photoView, Label fallbackLabel, ApiFootballLineupPlayer player) {
@@ -999,8 +1633,12 @@ public class MatchDetailController {
         graphics.dispose();
 
         BackgroundProfile profile = analyzeBackgroundProfile(converted);
-        if (profile == null || !profile.isLightNeutral()) {
+        boolean edgeWhiteBackdrop = hasStrongWhiteEdges(converted);
+        if ((profile == null || !profile.isLightNeutral()) && !edgeWhiteBackdrop) {
             return converted;
+        }
+        if (profile == null) {
+            profile = BackgroundProfile.defaultLight();
         }
 
         int width = converted.getWidth();
@@ -1014,6 +1652,7 @@ public class MatchDetailController {
         }
 
         floodFillBackground(converted, profile, backgroundMask, queue);
+        trimConnectedLightBackgroundFromEdges(converted, profile, backgroundMask);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -1023,12 +1662,34 @@ public class MatchDetailController {
                     continue;
                 }
 
+                double nx = (x + 0.5) / width;
+                double ny = (y + 0.5) / height;
+                double subjectSupport = portraitSubjectSupport(nx, ny);
+                double whiteKitSupport = whiteKitPreserveSupport(nx, ny);
                 double backgroundStrength = backgroundStrength(argb, profile);
                 if (backgroundMask[y][x]) {
                     double fade = clamp01((backgroundStrength - 0.58) / 0.24);
                     int nextAlpha = (int) Math.round(alpha * (1.0 - fade));
                     converted.setRGB(x, y, (nextAlpha << 24) | (argb & 0x00FFFFFF));
                     continue;
+                }
+
+                if (backgroundStrength >= 0.76) {
+                    double preserve = clamp01((subjectSupport - 0.12) / 0.28);
+                    if (preserve < 0.995) {
+                        int nextAlpha = (int) Math.round(alpha * preserve);
+                        converted.setRGB(x, y, (nextAlpha << 24) | (argb & 0x00FFFFFF));
+                        continue;
+                    }
+                }
+
+                if (backgroundStrength >= 0.74 && whiteKitSupport < 0.92) {
+                    double preserve = clamp01((whiteKitSupport - 0.18) / 0.74);
+                    if (preserve < 0.995) {
+                        int nextAlpha = (int) Math.round(alpha * preserve);
+                        converted.setRGB(x, y, (nextAlpha << 24) | (argb & 0x00FFFFFF));
+                        continue;
+                    }
                 }
 
                 if (touchesBackground(backgroundMask, x, y)) {
@@ -1041,7 +1702,44 @@ public class MatchDetailController {
             }
         }
 
+        softenBrightFringe(converted, profile);
         return converted;
+    }
+
+    private void softenBrightFringe(BufferedImage image, BackgroundProfile profile) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int argb = image.getRGB(x, y);
+                int alpha = (argb >>> 24) & 0xFF;
+                if (alpha == 0 || !touchesTransparentPixel(image, x, y)) {
+                    continue;
+                }
+
+                double nx = (x + 0.5) / width;
+                double ny = (y + 0.5) / height;
+                double subjectSupport = portraitSubjectSupport(nx, ny);
+                double whiteKitSupport = whiteKitPreserveSupport(nx, ny);
+                double backgroundStrength = backgroundStrength(argb, profile);
+                double preserve = Math.max(subjectSupport, whiteKitSupport);
+                if (backgroundStrength < 0.58 || preserve >= 0.94) {
+                    continue;
+                }
+
+                double fade = clamp01((backgroundStrength - 0.58) / 0.20)
+                        * clamp01((0.94 - preserve) / 0.34);
+                if (fade <= 0.0) {
+                    continue;
+                }
+
+                int nextAlpha = (int) Math.round(alpha * (1.0 - Math.min(0.92, fade)));
+                if (nextAlpha < 26) {
+                    nextAlpha = 0;
+                }
+                image.setRGB(x, y, (nextAlpha << 24) | (argb & 0x00FFFFFF));
+            }
+        }
     }
 
     private void seedBackgroundFloodFill(
@@ -1055,10 +1753,9 @@ public class MatchDetailController {
 
         for (int x = 0; x < width; x++) {
             trySeedBackgroundPixel(image, profile, backgroundMask, queue, x, 0, true);
-            trySeedBackgroundPixel(image, profile, backgroundMask, queue, x, height - 1, true);
         }
 
-        for (int y = 1; y < height - 1; y++) {
+        for (int y = 1; y < height; y++) {
             trySeedBackgroundPixel(image, profile, backgroundMask, queue, 0, y, true);
             trySeedBackgroundPixel(image, profile, backgroundMask, queue, width - 1, y, true);
         }
@@ -1089,6 +1786,56 @@ public class MatchDetailController {
 
                 trySeedBackgroundPixel(image, profile, backgroundMask, queue, nextX, nextY, false);
             }
+        }
+    }
+
+    private void trimConnectedLightBackgroundFromEdges(
+            BufferedImage image,
+            BackgroundProfile profile,
+            boolean[][] backgroundMask
+    ) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        for (int y = 0; y < height; y++) {
+            trimRowFromEdge(image, profile, backgroundMask, y, 0, width, 1);
+            trimRowFromEdge(image, profile, backgroundMask, y, width - 1, -1, -1);
+        }
+
+        for (int x = 0; x < width; x++) {
+            trimColumnFromTop(image, profile, backgroundMask, x, height);
+        }
+    }
+
+    private void trimRowFromEdge(
+            BufferedImage image,
+            BackgroundProfile profile,
+            boolean[][] backgroundMask,
+            int y,
+            int startX,
+            int stopExclusive,
+            int step
+    ) {
+        for (int x = startX; x != stopExclusive; x += step) {
+            if (!isStrongEdgeBackground(image.getRGB(x, y), profile)) {
+                break;
+            }
+            backgroundMask[y][x] = true;
+        }
+    }
+
+    private void trimColumnFromTop(
+            BufferedImage image,
+            BackgroundProfile profile,
+            boolean[][] backgroundMask,
+            int x,
+            int height
+    ) {
+        for (int y = 0; y < height; y++) {
+            if (!isStrongEdgeBackground(image.getRGB(x, y), profile)) {
+                break;
+            }
+            backgroundMask[y][x] = true;
         }
     }
 
@@ -1126,6 +1873,7 @@ public class MatchDetailController {
         double nx = (x + 0.5) / width;
         double ny = (y + 0.5) / height;
         double subjectSupport = portraitSubjectSupport(nx, ny);
+        double whiteKitSupport = whiteKitPreserveSupport(nx, ny);
         double backgroundStrength = backgroundStrength(argb, profile);
 
         if (borderSeed) {
@@ -1135,11 +1883,18 @@ public class MatchDetailController {
             return backgroundStrength >= 0.68;
         }
 
+        if (backgroundStrength >= 0.92 && whiteKitSupport < 0.82) {
+            return true;
+        }
+
         if (subjectSupport >= 0.36) {
             return false;
         }
 
         if (subjectSupport >= 0.18) {
+            if (backgroundStrength >= 0.86 && whiteKitSupport < 0.78) {
+                return true;
+            }
             return backgroundStrength >= 0.82;
         }
 
@@ -1167,6 +1922,36 @@ public class MatchDetailController {
             }
         }
         return false;
+    }
+
+    private boolean touchesTransparentPixel(BufferedImage image, int x, int y) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        for (int deltaY = -1; deltaY <= 1; deltaY++) {
+            for (int deltaX = -1; deltaX <= 1; deltaX++) {
+                if (deltaX == 0 && deltaY == 0) {
+                    continue;
+                }
+                int nextX = x + deltaX;
+                int nextY = y + deltaY;
+                if (nextX < 0 || nextY < 0 || nextX >= width || nextY >= height) {
+                    return true;
+                }
+                int neighborAlpha = (image.getRGB(nextX, nextY) >>> 24) & 0xFF;
+                if (neighborAlpha == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isStrongEdgeBackground(int argb, BackgroundProfile profile) {
+        int alpha = (argb >>> 24) & 0xFF;
+        if (alpha < 148) {
+            return false;
+        }
+        return backgroundStrength(argb, profile) >= 0.82;
     }
 
     private BackgroundProfile analyzeBackgroundProfile(BufferedImage image) {
@@ -1221,12 +2006,61 @@ public class MatchDetailController {
         );
     }
 
+    private boolean hasStrongWhiteEdges(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+
+        int topRows = Math.max(6, Math.min(height / 4, 26));
+        int sideCols = Math.max(4, Math.min(width / 10, 12));
+        int samples = 0;
+        int strong = 0;
+
+        for (int y = 0; y < topRows; y++) {
+            for (int x = 0; x < width; x++) {
+                samples++;
+                if (absoluteLightBackgroundStrength(image.getRGB(x, y)) >= 0.80) {
+                    strong++;
+                }
+            }
+        }
+
+        for (int y = topRows; y < height; y++) {
+            for (int x = 0; x < sideCols; x++) {
+                samples++;
+                if (absoluteLightBackgroundStrength(image.getRGB(x, y)) >= 0.80) {
+                    strong++;
+                }
+            }
+            for (int x = width - sideCols; x < width; x++) {
+                if (x < 0 || x >= width) {
+                    continue;
+                }
+                samples++;
+                if (absoluteLightBackgroundStrength(image.getRGB(x, y)) >= 0.80) {
+                    strong++;
+                }
+            }
+        }
+
+        return samples > 0 && ((double) strong / (double) samples) >= 0.48;
+    }
+
     private double portraitSubjectSupport(double nx, double ny) {
         double head = ellipseSupport(nx, ny, 0.50, 0.20, 0.20, 0.18, 0.10);
         double shoulders = ellipseSupport(nx, ny, 0.50, 0.44, 0.38, 0.24, 0.14);
         double torso = ellipseSupport(nx, ny, 0.50, 0.76, 0.34, 0.28, 0.12);
         double neck = verticalBandSupport(nx, ny, 0.50, 0.54, 0.22, 0.26, 0.14, 0.10);
         return clamp01(Math.max(Math.max(head, shoulders), Math.max(torso, neck)));
+    }
+
+    private double whiteKitPreserveSupport(double nx, double ny) {
+        double torsoCore = ellipseSupport(nx, ny, 0.50, 0.82, 0.20, 0.18, 0.10);
+        double torsoWide = ellipseSupport(nx, ny, 0.50, 0.76, 0.26, 0.20, 0.10);
+        double lowerBand = verticalBandSupport(nx, ny, 0.50, 0.84, 0.18, 0.18, 0.10, 0.10);
+        return clamp01(Math.max(Math.max(torsoCore, torsoWide), lowerBand));
     }
 
     private double ellipseSupport(double nx, double ny, double cx, double cy, double rx, double ry, double feather) {
@@ -1272,7 +2106,26 @@ public class MatchDetailController {
         double brightnessScore = clamp01((brightness - Math.max(218, profile.brightness() - 18)) / 26.0);
         double chromaScore = 1.0 - clamp01((chroma - Math.max(12, profile.chroma() + 4)) / 26.0);
         double distanceScore = 1.0 - clamp01((colorDistance - Math.max(10, profile.chroma() * 3)) / 72.0);
-        return clamp01((brightnessScore * 0.45) + (chromaScore * 0.30) + (distanceScore * 0.25));
+        double profileScore = clamp01((brightnessScore * 0.45) + (chromaScore * 0.30) + (distanceScore * 0.25));
+        return Math.max(profileScore, absoluteLightBackgroundStrength(argb));
+    }
+
+    private double absoluteLightBackgroundStrength(int argb) {
+        int alpha = (argb >>> 24) & 0xFF;
+        if (alpha < 140) {
+            return 1.0;
+        }
+
+        int red = (argb >>> 16) & 0xFF;
+        int green = (argb >>> 8) & 0xFF;
+        int blue = argb & 0xFF;
+        int max = Math.max(red, Math.max(green, blue));
+        int min = Math.min(red, Math.min(green, blue));
+        int brightness = (red + green + blue) / 3;
+        int chroma = max - min;
+        double brightnessScore = clamp01((brightness - 214) / 34.0);
+        double chromaScore = 1.0 - clamp01((chroma - 22) / 40.0);
+        return clamp01((brightnessScore * 0.72) + (chromaScore * 0.28));
     }
 
     private double smoothstep(double value) {
@@ -1288,18 +2141,27 @@ public class MatchDetailController {
         private boolean isLightNeutral() {
             return brightness >= 220 && chroma <= 26;
         }
+
+        private static BackgroundProfile defaultLight() {
+            return new BackgroundProfile(245, 245, 245, 245, 6);
+        }
     }
 
     private HBox buildBenchPlayerCard(ApiFootballLineupPlayer player) {
         Label shirtLabel = new Label(emptyToFallback(player == null ? null : player.shirtNumber(), "?"));
         shirtLabel.getStyleClass().add("bench-player-number");
 
-        Label nameLabel = new Label(emptyToFallback(player == null ? null : player.playerName(), "Joueur"));
+        Label nameLabel = new Label(buildPitchPlayerDisplayName(player == null ? null : player.playerName()));
         nameLabel.getStyleClass().add("bench-player-name");
         nameLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
         nameLabel.setMaxWidth(160);
 
         HBox card = new HBox(8, shirtLabel, nameLabel);
+        Label ratingLabel = buildRatingBadge(player == null ? null : player.rating());
+        if (ratingLabel != null) {
+            ratingLabel.getStyleClass().add("bench-rating-badge");
+            card.getChildren().add(ratingLabel);
+        }
         card.setAlignment(Pos.CENTER_LEFT);
         card.getStyleClass().add("bench-player-chip");
         return card;
@@ -1317,8 +2179,22 @@ public class MatchDetailController {
 
         double width = resolvePitchWidth(pitchContainer);
         double height = resolvePitchHeight(pitchContainer);
-        double usableWidth = Math.max(120.0, width - (PITCH_HORIZONTAL_INSET * 2.0));
-        double usableHeight = Math.max(180.0, height - (PITCH_VERTICAL_INSET * 2.0));
+        double maxMarkerWidth = markers.stream()
+                .mapToDouble(this::resolvePitchMarkerWidth)
+                .max()
+                .orElse(PITCH_MARKER_WIDTH);
+        double maxMarkerHeight = markers.stream()
+                .mapToDouble(this::resolvePitchMarkerHeight)
+                .max()
+                .orElse(PITCH_MARKER_HEIGHT);
+        double halfMarkerWidth = maxMarkerWidth / 2.0;
+        double halfMarkerHeight = maxMarkerHeight / 2.0;
+        double minX = PITCH_FIELD_LINE_INSET + halfMarkerWidth + 4.0;
+        double maxX = width - PITCH_FIELD_LINE_INSET - halfMarkerWidth - 4.0;
+        double minY = PITCH_FIELD_LINE_INSET + halfMarkerHeight + 4.0;
+        double maxY = height - PITCH_FIELD_LINE_INSET - halfMarkerHeight - 4.0;
+        double usableWidth = Math.max(120.0, maxX - minX);
+        double usableHeight = Math.max(180.0, maxY - minY);
 
         int markerIndex = 0;
         int rowCount = rows.size();
@@ -1329,23 +2205,61 @@ public class MatchDetailController {
             }
 
             double depthRatio = rowCount == 1 ? 0.5 : (double) rowIndex / (double) (rowCount - 1);
-            double xCenter = PITCH_HORIZONTAL_INSET + (usableWidth * depthRatio);
+            double xCenter = minX + (usableWidth * depthRatio);
             if (awaySide) {
-                xCenter = width - PITCH_HORIZONTAL_INSET - (usableWidth * depthRatio);
+                xCenter = maxX - (usableWidth * depthRatio);
             }
 
-            double laneGap = usableHeight / (row.size() + 1.0);
             for (int playerIndex = 0; playerIndex < row.size() && markerIndex < markers.size(); playerIndex++) {
                 VBox marker = markers.get(markerIndex++);
-                double yCenter = PITCH_VERTICAL_INSET + (laneGap * (playerIndex + 1));
+                double markerWidth = resolvePitchMarkerWidth(marker);
+                double markerHeight = resolvePitchMarkerHeight(marker);
+                double yCenter = minY + (usableHeight * verticalSlotRatio(playerIndex, row.size()));
+                yCenter = Math.max(minY, Math.min(maxY, yCenter));
                 marker.resizeRelocate(
-                        xCenter - (PITCH_MARKER_WIDTH / 2.0),
-                        yCenter - (PITCH_MARKER_HEIGHT / 2.0),
-                        PITCH_MARKER_WIDTH,
-                        PITCH_MARKER_HEIGHT
+                        xCenter - (markerWidth / 2.0),
+                        yCenter - (markerHeight / 2.0),
+                        markerWidth,
+                        markerHeight
                 );
             }
         }
+    }
+
+    private double verticalSlotRatio(int playerIndex, int rowSize) {
+        if (rowSize <= 1) {
+            return 0.50;
+        }
+
+        double[] template = switch (rowSize) {
+            case 2 -> new double[]{0.39, 0.61};
+            case 3 -> new double[]{0.24, 0.50, 0.76};
+            case 4 -> new double[]{0.16, 0.39, 0.61, 0.84};
+            case 5 -> new double[]{0.10, 0.30, 0.50, 0.70, 0.90};
+            default -> null;
+        };
+
+        if (template != null && playerIndex >= 0 && playerIndex < template.length) {
+            return template[playerIndex];
+        }
+
+        return 0.10 + ((double) playerIndex / (double) (Math.max(1, rowSize - 1)) * 0.80);
+    }
+
+    private double resolvePitchMarkerWidth(VBox marker) {
+        if (marker == null) {
+            return PITCH_MARKER_WIDTH;
+        }
+        double prefWidth = marker.getPrefWidth();
+        return prefWidth > 0 ? prefWidth : PITCH_MARKER_WIDTH;
+    }
+
+    private double resolvePitchMarkerHeight(VBox marker) {
+        if (marker == null) {
+            return PITCH_MARKER_HEIGHT;
+        }
+        double prefHeight = marker.getPrefHeight();
+        return prefHeight > 0 ? prefHeight : PITCH_MARKER_HEIGHT;
     }
 
     private double resolvePitchWidth(Pane pitchContainer) {
@@ -1379,6 +2293,32 @@ public class MatchDetailController {
             return parts[0].substring(0, 1).toUpperCase();
         }
         return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase();
+    }
+
+    private String buildPitchPlayerDisplayName(String playerName) {
+        String normalizedName = emptyToNull(playerName);
+        if (normalizedName == null) {
+            return "Joueur";
+        }
+
+        String[] parts = normalizedName.split("\\s+");
+        if (parts.length == 1) {
+            return parts[0];
+        }
+
+        String candidate = parts[parts.length - 1];
+        String lowerCandidate = candidate.toLowerCase(java.util.Locale.ROOT);
+        if (List.of("jr", "junior", "júnior", "ii", "iii", "iv", "v").contains(lowerCandidate) && parts.length >= 2) {
+            candidate = parts[parts.length - 2];
+        }
+        if (candidate.length() > 12 && candidate.contains("-")) {
+            String[] hyphenParts = candidate.split("-");
+            String tail = hyphenParts[hyphenParts.length - 1];
+            if (tail.length() >= 3) {
+                candidate = tail;
+            }
+        }
+        return candidate;
     }
 
     private List<List<ApiFootballLineupPlayer>> buildPitchRows(ApiFootballLineupSide lineup) {
@@ -2116,6 +3056,16 @@ public class MatchDetailController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private enum MatchDetailTab {
+        SUMMARY,
+        STATS,
+        LINEUP
+    }
+
+    private record PlayerIncidentSummary(int goals, int assists, int yellowCards, int redCards) {
+        private static final PlayerIncidentSummary EMPTY = new PlayerIncidentSummary(0, 0, 0, 0);
     }
 
     private enum TacticalBand {

@@ -184,12 +184,45 @@
                             </HBox>
                         </VBox>
 
-                        <HBox spacing="12" styleClass="flashscore-section-tabs">
-                            <Label text="COMPOSITIONS" styleClass="flashscore-tab flashscore-tab-active"/>
-                            <Label text="STATISTIQUES" styleClass="flashscore-tab"/>
+                        <HBox spacing="12" styleClass="detail-tabs-row">
+                            <Button fx:id="summaryTabButton"
+                                    onAction="#handleShowSummaryTab"
+                                    text="Resume"
+                                    styleClass="detail-tab-button detail-tab-button-active"/>
+                            <Button fx:id="statsTabButton"
+                                    onAction="#handleShowStatsTab"
+                                    text="Statistiques"
+                                    styleClass="detail-tab-button"/>
+                            <Button fx:id="lineupTabButton"
+                                    onAction="#handleShowLineupTab"
+                                    text="Compositions"
+                                    styleClass="detail-tab-button"/>
                         </HBox>
 
-                        <VBox spacing="14" styleClass="panel-card flashscore-lineup-card">
+                        <VBox fx:id="summarySection" spacing="12" styleClass="panel-card flashscore-summary-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Resume du match" styleClass="section-title flashscore-section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Timeline" styleClass="flashscore-inline-badge"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER" spacing="14" styleClass="summary-teams-header">
+                                <Label fx:id="summaryHomeTeamLabel" text="Domicile" styleClass="summary-team-header"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Evenements" styleClass="summary-center-header"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="summaryAwayTeamLabel" text="Exterieur" styleClass="summary-team-header"/>
+                            </HBox>
+
+                            <Label fx:id="summaryEmptyLabel"
+                                   text="Aucun resume detaille disponible pour ce match."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+
+                            <VBox fx:id="summaryTimelineContainer" spacing="10"/>
+                        </VBox>
+
+                        <VBox fx:id="lineupSection" spacing="14" styleClass="panel-card flashscore-lineup-card" visible="false" managed="false">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Compositions" styleClass="section-title flashscore-section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>
@@ -246,7 +279,7 @@
                             </HBox>
                         </VBox>
 
-                        <VBox spacing="12" styleClass="panel-card flashscore-stats-card">
+                        <VBox fx:id="statsSection" spacing="12" styleClass="panel-card flashscore-stats-card" visible="false" managed="false">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Statistiques du match" styleClass="section-title flashscore-section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>

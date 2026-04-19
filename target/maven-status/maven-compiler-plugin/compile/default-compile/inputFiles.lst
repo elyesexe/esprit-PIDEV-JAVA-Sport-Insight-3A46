@@ -1,3 +1,12 @@
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantCommand.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantMessage.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantNavigationTarget.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantOverlay.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantScreenCatalog.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantService.java
+C:\PI Java\src\main\java\tn\esprit\assistant\OllamaClient.java
+C:\PI Java\src\main\java\tn\esprit\assistant\VoiceInputService.java
+C:\PI Java\src\main\java\tn\esprit\assistant\VoiceOutputService.java
 C:\PI Java\src\main\java\tn\esprit\Controller\AdminDashboardController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\AdminShellController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\AdminUserModerationController.java
@@ -90,6 +99,7 @@ C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballInsightsService.
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballLineupPlayer.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballLineupSide.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchDetails.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchIncident.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballScorerEntry.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballStatisticRow.java
 C:\PI Java\src\main\java\tn\esprit\services\football\FootballDataApiClient.java

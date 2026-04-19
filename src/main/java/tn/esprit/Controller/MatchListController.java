@@ -174,6 +174,25 @@ public class MatchListController {
         }
     }
 
+    public String getSelectedCompetitionCode() {
+        return selectedCompetitionCode;
+    }
+
+    public void applyAssistantSearch(String query) {
+        if (searchField == null) {
+            return;
+        }
+        searchField.setText(query == null ? "" : query.trim());
+        applyFilters();
+        showMutedStatus((query == null || query.isBlank())
+                ? "Recherche assistant reinitialisee."
+                : "Recherche assistant appliquee : " + query.trim());
+    }
+
+    public void openMatchDetailFromAssistant(Matchs match) {
+        openMatchDetail(match);
+    }
+
     @FXML
     private void handleOpenHome() {
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");

@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Control;
 import javafx.stage.Stage;
+import tn.esprit.assistant.AssistantOverlay;
 import tn.esprit.security.AuthSession;
 
 import java.net.URL;
@@ -20,6 +21,7 @@ public final class SceneNavigator {
     private static final String HOME_VIEW = "/tn/esprit/views/home-view.fxml";
     private static final String HOME_CSS = "/tn/esprit/styles/home-theme.css";
     private static final String HOME_TITLE = "Sport Insight | Accueil";
+    private static final String ASSISTANT_CSS = "/tn/esprit/styles/assistant-theme.css";
 
     private static final Set<String> PUBLIC_VIEWS = Set.of(LOGIN_VIEW, SIGNUP_VIEW);
     private static final Set<String> ADMIN_VIEWS = Set.of(
@@ -88,11 +90,17 @@ public final class SceneNavigator {
                 controllerConfigurer.accept(loader.getController());
             }
             AuthSession.configureLoadedController(loader.getController());
-            Scene scene = new Scene(root, width, height);
+            Parent sceneRoot = AssistantOverlay.wrap(root, stage, fxmlPath, title, loader.getController());
+            Scene scene = new Scene(sceneRoot, width, height);
 
             URL stylesheet = SceneNavigator.class.getResource(cssPath);
             if (stylesheet != null) {
                 scene.getStylesheets().add(stylesheet.toExternalForm());
+            }
+
+            URL assistantStylesheet = SceneNavigator.class.getResource(ASSISTANT_CSS);
+            if (assistantStylesheet != null) {
+                scene.getStylesheets().add(assistantStylesheet.toExternalForm());
             }
 
             ThemeManager.registerScene(scene);

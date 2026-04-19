@@ -56,6 +56,10 @@ public class ApiFootballClient {
         return getJson("/fixtures/statistics", Map.of("fixture", String.valueOf(fixtureId)));
     }
 
+    public JsonNode fetchFixtureEvents(long fixtureId) throws IOException, InterruptedException {
+        return getJson("/fixtures/events", Map.of("fixture", String.valueOf(fixtureId)));
+    }
+
     public JsonNode fetchTopScorers(int leagueId, int season) throws IOException, InterruptedException {
         Map<String, String> query = new LinkedHashMap<>();
         query.put("league", String.valueOf(leagueId));

@@ -1,0 +1,235 @@
+.assistant-overlay-root {
+    -fx-pick-on-bounds: false;
+}
+
+.assistant-dock {
+    -fx-pick-on-bounds: false;
+}
+
+.assistant-panel {
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.22), 26, 0.22, 0, 8);
+}
+
+.assistant-header {
+    -fx-padding: 2 0 0 0;
+}
+
+.assistant-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+}
+
+.assistant-screen-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.assistant-status {
+    -fx-font-size: 11px;
+    -fx-line-spacing: 2px;
+}
+
+.assistant-chip {
+    -fx-background-radius: 999;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.assistant-quick-actions {
+    -fx-padding: 2 0 2 0;
+}
+
+.assistant-quick-action-button,
+.assistant-close-button,
+.assistant-toggle-button,
+.assistant-mic-button,
+.assistant-send-button,
+.assistant-launcher {
+    -fx-background-radius: 999;
+    -fx-padding: 9 14 9 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.assistant-scroll,
+.assistant-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.assistant-messages {
+    -fx-padding: 4 2 6 2;
+}
+
+.assistant-message-row {
+    -fx-padding: 0;
+}
+
+.assistant-message-bubble {
+    -fx-background-radius: 18;
+    -fx-padding: 10 12 10 12;
+    -fx-font-size: 12px;
+    -fx-line-spacing: 3px;
+}
+
+.assistant-composer {
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 10;
+    -fx-font-size: 12px;
+    -fx-highlight-text-fill: white;
+    -fx-display-caret: true;
+}
+
+.assistant-composer .content,
+.assistant-composer .scroll-pane,
+.assistant-composer .scroll-pane > .viewport {
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+}
+
+.assistant-composer .text {
+    -fx-font-smoothing-type: lcd;
+}
+
+.assistant-composer-box {
+    -fx-padding: 4 0 0 0;
+}
+
+.assistant-launcher {
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.20), 18, 0.18, 0, 6);
+}
+
+.theme-light .assistant-panel,
+.theme-light.assistant-panel {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(249, 250, 251, 0.97) 0%, rgba(236, 253, 245, 0.94) 100%);
+    -fx-border-color: rgba(15, 23, 42, 0.08);
+}
+
+.theme-light .assistant-title,
+.theme-light .assistant-screen-label {
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-status {
+    -fx-text-fill: #475569;
+}
+
+.theme-light .assistant-chip {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-quick-action-button,
+.theme-light .assistant-close-button,
+.theme-light .assistant-toggle-button,
+.theme-light .assistant-mic-button {
+    -fx-background-color: rgba(15, 23, 42, 0.08);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-send-button,
+.theme-light .assistant-launcher {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #065f46 0%, #10b981 100%);
+    -fx-text-fill: white;
+}
+
+.theme-light .assistant-message-assistant {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-message-user {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #065f46 0%, #10b981 100%);
+    -fx-text-fill: white;
+}
+
+.theme-light .assistant-composer {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: rgba(15, 23, 42, 0.08);
+    -fx-control-inner-background: rgba(255, 255, 255, 0.95);
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #64748b;
+    -fx-highlight-fill: #10b981;
+}
+
+.theme-light .assistant-composer .content,
+.theme-light .assistant-composer .scroll-pane,
+.theme-light .assistant-composer .scroll-pane > .viewport {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+}
+
+.theme-light .assistant-composer .text {
+    -fx-fill: #0f172a;
+}
+
+.theme-dark .assistant-panel,
+.theme-dark.assistant-panel {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.96) 0%, rgba(6, 78, 59, 0.92) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+}
+
+.theme-dark .assistant-title,
+.theme-dark .assistant-screen-label {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .assistant-status {
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .assistant-chip {
+    -fx-background-color: rgba(148, 163, 184, 0.14);
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .assistant-quick-action-button,
+.theme-dark .assistant-close-button,
+.theme-dark .assistant-toggle-button,
+.theme-dark .assistant-mic-button {
+    -fx-background-color: rgba(148, 163, 184, 0.12);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .assistant-send-button,
+.theme-dark .assistant-launcher {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #0ea5e9 100%);
+    -fx-text-fill: #052e16;
+}
+
+.theme-dark .assistant-message-assistant {
+    -fx-background-color: rgba(148, 163, 184, 0.12);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .assistant-message-user {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #0ea5e9 100%);
+    -fx-text-fill: #052e16;
+}
+
+.theme-dark .assistant-composer {
+    -fx-background-color: rgba(2, 6, 23, 0.78);
+    -fx-border-color: rgba(148, 163, 184, 0.16);
+    -fx-control-inner-background: rgba(8, 15, 31, 0.96);
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #cbd5e1;
+    -fx-highlight-fill: #0ea5e9;
+}
+
+.theme-dark .assistant-composer .content,
+.theme-dark .assistant-composer .scroll-pane,
+.theme-dark .assistant-composer .scroll-pane > .viewport {
+    -fx-background-color: rgba(8, 15, 31, 0.96);
+}
+
+.theme-dark .assistant-composer .text {
+    -fx-fill: #f8fafc;
+}

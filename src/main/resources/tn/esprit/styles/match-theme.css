@@ -1175,50 +1175,77 @@
 .pitch-player-photo-shell {
     -fx-alignment: bottom-center;
     -fx-background-color: transparent;
-    -fx-min-width: 54;
-    -fx-pref-width: 54;
-    -fx-max-width: 54;
-    -fx-min-height: 54;
-    -fx-pref-height: 54;
-    -fx-max-height: 54;
+    -fx-min-width: 50;
+    -fx-pref-width: 50;
+    -fx-max-width: 50;
+    -fx-min-height: 50;
+    -fx-pref-height: 50;
+    -fx-max-height: 50;
 }
 
 .pitch-player-photo-fallback {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e2e8f0 0%, #cbd5e1 100%);
     -fx-background-radius: 999;
     -fx-alignment: center;
-    -fx-min-width: 44;
-    -fx-pref-width: 44;
-    -fx-max-width: 44;
-    -fx-min-height: 44;
-    -fx-pref-height: 44;
-    -fx-max-height: 44;
-    -fx-font-size: 14px;
+    -fx-min-width: 38;
+    -fx-pref-width: 38;
+    -fx-max-width: 38;
+    -fx-min-height: 38;
+    -fx-pref-height: 38;
+    -fx-max-height: 38;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-text-fill: #1f2937;
 }
 
 .pitch-player-pill-row {
-    -fx-alignment: center;
+    -fx-alignment: center-left;
+    -fx-padding: 0;
 }
 
 .pitch-player-number-badge {
-    -fx-background-color: #ff8a1a;
-    -fx-background-radius: 999;
-    -fx-padding: 3 7 3 7;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
     -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #ffffff;
+    -fx-font-weight: 900;
+    -fx-text-fill: rgba(226, 232, 240, 0.92);
+    -fx-alignment: center;
 }
 
-.pitch-player-name-pill {
-    -fx-background-color: rgba(8, 23, 38, 0.94);
-    -fx-background-radius: 999;
-    -fx-padding: 3 9 3 9;
-    -fx-font-size: 11px;
-    -fx-font-weight: 800;
+.pitch-player-identity-pill {
+    -fx-background-color: rgba(6, 18, 31, 0.96);
+    -fx-background-radius: 8;
+    -fx-padding: 3 8 3 8;
+    -fx-alignment: center-left;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 8, 0.18, 0, 2);
+}
+
+.pitch-player-name-text {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
     -fx-text-fill: #f8fafc;
-    -fx-text-overrun: ellipsis;
+    -fx-alignment: center-left;
+}
+
+.player-mvp-badge {
+    -fx-background-color: rgba(37, 99, 235, 0.96);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(147, 197, 253, 0.92);
+    -fx-border-radius: 999;
+    -fx-padding: 0;
+    -fx-min-width: 14;
+    -fx-pref-width: 14;
+    -fx-max-width: 14;
+    -fx-min-height: 14;
+    -fx-pref-height: 14;
+    -fx-max-height: 14;
+    -fx-alignment: center;
+    -fx-font-size: 8px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #eff6ff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 8, 0.15, 0, 1);
 }
 
 .pitch-marking-penalty,
@@ -1405,6 +1432,11 @@
     -fx-background-color: rgba(2, 6, 23, 0.96);
 }
 
+.theme-dark .player-mvp-badge {
+    -fx-border-color: rgba(255, 255, 255, 0.72);
+    -fx-text-fill: #111827;
+}
+
 .theme-dark .bench-player-name {
     -fx-text-fill: #e5edf8;
 }
@@ -1412,4 +1444,250 @@
 .theme-dark .bench-player-number {
     -fx-background-color: rgba(224, 231, 255, 0.96);
     -fx-text-fill: #312e81;
+}
+
+.detail-tabs-row {
+    -fx-padding: 0 2 2 2;
+}
+
+.detail-tab-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-border-color: transparent;
+    -fx-border-radius: 999;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+    -fx-cursor: hand;
+}
+
+.detail-tab-button:hover {
+    -fx-background-color: rgba(15, 23, 42, 0.05);
+    -fx-text-fill: #0f172a;
+}
+
+.detail-tab-button-active {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-border-color: rgba(239, 68, 68, 0.4);
+    -fx-text-fill: #0f172a;
+}
+
+.flashscore-summary-card {
+    -fx-spacing: 12;
+}
+
+.summary-teams-header,
+.stats-teams-header {
+    -fx-padding: 2 2 6 2;
+}
+
+.summary-team-header,
+.stats-team-header {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.summary-center-header,
+.stats-center-header {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #6b7280;
+}
+
+.timeline-row {
+    -fx-alignment: center;
+}
+
+.timeline-event-box {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 16;
+    -fx-border-color: #dbe3ed;
+    -fx-border-radius: 16;
+    -fx-padding: 10 12 10 12;
+    -fx-min-height: 64;
+    -fx-max-width: 420;
+}
+
+.timeline-event-home {
+    -fx-alignment: center-left;
+}
+
+.timeline-event-away {
+    -fx-alignment: center-right;
+}
+
+.timeline-minute-chip {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.timeline-event-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.timeline-event-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+}
+
+.timeline-event-badge {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+}
+
+.timeline-badge-goal {
+    -fx-background-color: #16a34a;
+}
+
+.timeline-badge-yellow {
+    -fx-background-color: #eab308;
+    -fx-text-fill: #1f2937;
+}
+
+.timeline-badge-red {
+    -fx-background-color: #dc2626;
+}
+
+.timeline-badge-sub {
+    -fx-background-color: #2563eb;
+}
+
+.timeline-badge-neutral {
+    -fx-background-color: #64748b;
+}
+
+.timeline-score-chip {
+    -fx-background-color: rgba(15, 23, 42, 0.08);
+    -fx-background-radius: 999;
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.player-rating-badge {
+    -fx-background-radius: 999;
+    -fx-padding: 2 6 2 6;
+    -fx-font-size: 9px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+}
+
+.player-rating-elite {
+    -fx-background-color: #16a34a;
+}
+
+.player-rating-good {
+    -fx-background-color: #65a30d;
+}
+
+.player-rating-mid {
+    -fx-background-color: #f59e0b;
+}
+
+.player-rating-low {
+    -fx-background-color: #dc2626;
+}
+
+.player-rating-neutral {
+    -fx-background-color: #64748b;
+}
+
+.bench-rating-badge {
+    -fx-padding: 4 8 4 8;
+}
+
+.player-event-pill-row {
+    -fx-padding: 0;
+    -fx-alignment: center-left;
+}
+
+.player-event-pill {
+    -fx-background-radius: 999;
+    -fx-padding: 0;
+    -fx-min-width: 12;
+    -fx-pref-width: 12;
+    -fx-max-width: 12;
+    -fx-min-height: 12;
+    -fx-pref-height: 12;
+    -fx-max-height: 12;
+    -fx-font-size: 7px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+}
+
+.player-event-pill-goal {
+    -fx-background-color: #16a34a;
+}
+
+.player-event-pill-assist {
+    -fx-background-color: #2563eb;
+}
+
+.player-event-pill-yellow {
+    -fx-background-color: #eab308;
+    -fx-text-fill: #1f2937;
+}
+
+.player-event-pill-red {
+    -fx-background-color: #dc2626;
+}
+
+.theme-dark .detail-tab-button {
+    -fx-text-fill: #93a4b8;
+}
+
+.theme-dark .detail-tab-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .detail-tab-button-active {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-border-color: rgba(248, 113, 113, 0.42);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .flashscore-summary-card {
+    -fx-background-color: rgba(9, 17, 30, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.theme-dark .summary-team-header,
+.theme-dark .stats-team-header,
+.theme-dark .timeline-event-title,
+.theme-dark .timeline-score-chip {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .summary-center-header,
+.theme-dark .stats-center-header,
+.theme-dark .timeline-event-meta {
+    -fx-text-fill: #93a4b8;
+}
+
+.theme-dark .timeline-event-box {
+    -fx-background-color: rgba(15, 23, 42, 0.86);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark .timeline-minute-chip,
+.theme-dark .timeline-score-chip {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
 }

@@ -30,6 +30,7 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_id", "BIGINT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_stats_json", "LONGTEXT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_lineup_json", "LONGTEXT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_incidents_json", "LONGTEXT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_synced_at", "DATETIME NULL");
 
             addIndexIfMissing(metaData, catalog, statement, "equipe", "idx_equipe_external_sync",

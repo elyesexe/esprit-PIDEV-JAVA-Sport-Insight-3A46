@@ -46,6 +46,8 @@ public class ApiFootballInsightsService {
 
     private static final TypeReference<List<ApiFootballStatisticRow>> STATISTICS_TYPE = new TypeReference<>() {
     };
+    private static final TypeReference<List<ApiFootballMatchIncident>> INCIDENTS_TYPE = new TypeReference<>() {
+    };
     private static final TypeReference<CachedLineups> LINEUPS_TYPE = new TypeReference<>() {
     };
 
@@ -134,7 +136,7 @@ public class ApiFootballInsightsService {
                     : (apiFootballDetails != null ? apiFootballDetails : cached));
             if (needsTheSportsDbEnrichment(baseline)) {
                 ApiFootballMatchDetails fallback = loadMatchDetailsFromTheSportsDb(match, homeTeam, awayTeam, baseline);
-                if (fallback != null && (fallback.hasLineups() || fallback.hasStatistics())) {
+                if (fallback != null && (fallback.hasLineups() || fallback.hasStatistics() || fallback.hasIncidents())) {
                     return fallback;
                 }
             }
@@ -142,17 +144,17 @@ public class ApiFootballInsightsService {
             theSportsDbError = e;
         }
 
-        if (sofaScoreDetails != null && (sofaScoreDetails.hasLineups() || sofaScoreDetails.hasStatistics())) {
+        if (sofaScoreDetails != null && (sofaScoreDetails.hasLineups() || sofaScoreDetails.hasStatistics() || sofaScoreDetails.hasIncidents())) {
             return sofaScoreDetails;
         }
-        if (sportsCafeDetails != null && (sportsCafeDetails.hasLineups() || sportsCafeDetails.hasStatistics())) {
+        if (sportsCafeDetails != null && (sportsCafeDetails.hasLineups() || sportsCafeDetails.hasStatistics() || sportsCafeDetails.hasIncidents())) {
             return sportsCafeDetails;
         }
-        if (apiFootballDetails != null && (apiFootballDetails.hasLineups() || apiFootballDetails.hasStatistics())) {
+        if (apiFootballDetails != null && (apiFootballDetails.hasLineups() || apiFootballDetails.hasStatistics() || apiFootballDetails.hasIncidents())) {
             return apiFootballDetails;
         }
 
-        if (cached != null && (cached.hasLineups() || cached.hasStatistics())) {
+        if (cached != null && (cached.hasLineups() || cached.hasStatistics() || cached.hasIncidents())) {
             return cached;
         }
 
@@ -249,7 +251,8 @@ public class ApiFootballInsightsService {
         }
         return lineupNeedsEnrichment(details.homeLineup())
                 || lineupNeedsEnrichment(details.awayLineup())
-                || !details.hasStatistics();
+                || !details.hasStatistics()
+                || !details.hasIncidents();
     }
 
     private boolean needsSportsCafeEnrichment(ApiFootballMatchDetails details) {
@@ -300,17 +303,26 @@ public class ApiFootballInsightsService {
 
         JsonNode lineupsPayload = requireApiClient().fetchFixtureLineups(fixtureId);
         JsonNode statisticsPayload = requireApiClient().fetchFixtureStatistics(fixtureId);
+        JsonNode incidentsPayload = requireApiClient().fetchFixtureEvents(fixtureId);
 
         ApiFootballLineupSide homeLineup = parseLineup(lineupsPayload, true, homeTeam);
         ApiFootballLineupSide awayLineup = parseLineup(lineupsPayload, false, awayTeam);
         List<ApiFootballStatisticRow> statistics = parseStatistics(statisticsPayload);
+        List<ApiFootballMatchIncident> incidents = parseApiFootballIncidents(
+                incidentsPayload,
+                homeApiFootballId == null ? null : homeApiFootballId.longValue(),
+                awayApiFootballId == null ? null : awayApiFootballId.longValue(),
+                homeTeam == null ? null : homeTeam.getNom(),
+                awayTeam == null ? null : awayTeam.getNom()
+        );
 
         ApiFootballMatchDetails fresh = new ApiFootballMatchDetails(
                 fixtureId,
                 Instant.now().toString(),
                 mergeLineup(cached == null ? null : cached.homeLineup(), homeLineup),
                 mergeLineup(cached == null ? null : cached.awayLineup(), awayLineup),
-                statistics.isEmpty() && cached != null && cached.statistics() != null ? cached.statistics() : statistics
+                statistics.isEmpty() && cached != null && cached.statistics() != null ? cached.statistics() : statistics,
+                incidents.isEmpty() && cached != null && cached.incidents() != null ? cached.incidents() : incidents
         );
 
         persistMatchDetails(match, fresh);
@@ -331,15 +343,18 @@ public class ApiFootballInsightsService {
         long eventId = resolveSofaScoreEventId(match, homeTeam, awayTeam, competitionCode);
         JsonNode lineupsPayload = sofaScoreClient.fetchEventLineups(eventId);
         JsonNode statisticsPayload = sofaScoreClient.fetchEventStatistics(eventId);
+        JsonNode incidentsPayload = sofaScoreClient.fetchEventIncidents(eventId);
 
         ApiFootballLineupSide homeLineup = parseSofaScoreLineup(lineupsPayload.path("home"), homeTeam);
         ApiFootballLineupSide awayLineup = parseSofaScoreLineup(lineupsPayload.path("away"), awayTeam);
         List<ApiFootballStatisticRow> statistics = parseSofaScoreStatistics(statisticsPayload);
+        List<ApiFootballMatchIncident> incidents = parseSofaScoreIncidents(incidentsPayload);
 
         if ((homeLineup == null || !homeLineup.hasStartingPlayers())
                 && (awayLineup == null || !awayLineup.hasStartingPlayers())
-                && statistics.isEmpty()) {
-            throw new IOException("SofaScore n'a retourne ni compositions ni statistiques detaillees pour ce match.");
+                && statistics.isEmpty()
+                && incidents.isEmpty()) {
+            throw new IOException("SofaScore n'a retourne ni compositions, ni statistiques, ni resume detaille pour ce match.");
         }
 
         ApiFootballMatchDetails details = new ApiFootballMatchDetails(
@@ -347,7 +362,8 @@ public class ApiFootballInsightsService {
                 Instant.now().toString(),
                 mergeLineup(cached == null ? null : cached.homeLineup(), homeLineup),
                 mergeLineup(cached == null ? null : cached.awayLineup(), awayLineup),
-                statistics.isEmpty() && cached != null && cached.statistics() != null ? cached.statistics() : statistics
+                statistics.isEmpty() && cached != null && cached.statistics() != null ? cached.statistics() : statistics,
+                incidents.isEmpty() && cached != null && cached.incidents() != null ? cached.incidents() : incidents
         );
 
         persistMatchDetails(match, details);
@@ -386,7 +402,8 @@ public class ApiFootballInsightsService {
                 Instant.now().toString(),
                 mergeLineup(cached == null ? null : cached.homeLineup(), homeLineup),
                 mergeLineup(cached == null ? null : cached.awayLineup(), awayLineup),
-                cached != null && cached.statistics() != null ? cached.statistics() : List.of()
+                cached != null && cached.statistics() != null ? cached.statistics() : List.of(),
+                cached != null && cached.incidents() != null ? cached.incidents() : List.of()
         );
 
         persistMatchDetails(match, details);
@@ -424,7 +441,8 @@ public class ApiFootballInsightsService {
                 Instant.now().toString(),
                 mergeLineup(cached == null ? null : cached.homeLineup(), homeLineup),
                 mergeLineup(cached == null ? null : cached.awayLineup(), awayLineup),
-                statistics.isEmpty() && cached != null && cached.statistics() != null ? cached.statistics() : statistics
+                statistics.isEmpty() && cached != null && cached.statistics() != null ? cached.statistics() : statistics,
+                cached != null && cached.incidents() != null ? cached.incidents() : List.of()
         );
 
         persistMatchDetails(match, details);
@@ -867,7 +885,7 @@ public class ApiFootballInsightsService {
         }
         String photoUrl = normalizeNullable(playerNode.path("photo").asText(null));
 
-        return new ApiFootballLineupPlayer(playerName, shirtNumber, position, grid, photoUrl);
+        return new ApiFootballLineupPlayer(playerName, shirtNumber, position, grid, photoUrl, null, null);
     }
 
     private String resolveSportsCafeTeamName(JsonNode eventNode, String qualifier, Equipe preferredTeam) {
@@ -941,8 +959,9 @@ public class ApiFootballInsightsService {
         String grid = startingIndex >= 0 ? buildSofaScoreGrid(startingIndex, formationRows) : null;
         Long playerId = nullableLong(playerInfoNode.path("id"));
         String photoUrl = playerId == null ? null : SofaScoreClient.PLAYER_IMAGE_BASE_URL + playerId + "/image";
+        Double rating = nullableDouble(playerNode.path("statistics").path("rating"));
 
-        return new ApiFootballLineupPlayer(playerName, shirtNumber, position, grid, photoUrl);
+        return new ApiFootballLineupPlayer(playerName, shirtNumber, position, grid, photoUrl, playerId, rating);
     }
 
     private List<Integer> parseFormationRows(String formation) {
@@ -1655,7 +1674,9 @@ public class ApiFootballInsightsService {
                     player.squadNumber() == null ? null : String.valueOf(player.squadNumber()),
                     player.position(),
                     null,
-                    player.photoUrl()
+                    player.photoUrl(),
+                    null,
+                    null
             ));
         }
         return formattedPlayers;
@@ -1798,6 +1819,17 @@ public class ApiFootballInsightsService {
         }
     }
 
+    private Double parseNullableDouble(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(value.trim().replace(',', '.'));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     private Long parseNullableLong(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -1896,11 +1928,14 @@ public class ApiFootballInsightsService {
             List<ApiFootballStatisticRow> statistics = match.getApiFootballStatsJson() == null || match.getApiFootballStatsJson().isBlank()
                     ? List.of()
                     : objectMapper.readValue(match.getApiFootballStatsJson(), STATISTICS_TYPE);
+            List<ApiFootballMatchIncident> incidents = match.getApiFootballIncidentsJson() == null || match.getApiFootballIncidentsJson().isBlank()
+                    ? List.of()
+                    : objectMapper.readValue(match.getApiFootballIncidentsJson(), INCIDENTS_TYPE);
             CachedLineups lineups = match.getApiFootballLineupJson() == null || match.getApiFootballLineupJson().isBlank()
                     ? null
                     : objectMapper.readValue(match.getApiFootballLineupJson(), LINEUPS_TYPE);
 
-            if (match.getApiFootballId() == null && statistics.isEmpty() && lineups == null) {
+            if (match.getApiFootballId() == null && statistics.isEmpty() && incidents.isEmpty() && lineups == null) {
                 return null;
             }
 
@@ -1909,7 +1944,8 @@ public class ApiFootballInsightsService {
                     match.getApiFootballSyncedAt() == null ? null : match.getApiFootballSyncedAt().toString(),
                     lineups == null ? null : lineups.homeLineup(),
                     lineups == null ? null : lineups.awayLineup(),
-                    statistics
+                    statistics,
+                    incidents
             );
         } catch (Exception e) {
             return null;
@@ -1920,7 +1956,7 @@ public class ApiFootballInsightsService {
         if (match == null || cached == null || match.getApiFootballSyncedAt() == null) {
             return false;
         }
-        if (!cached.hasLineups() && !cached.hasStatistics()) {
+        if (!cached.hasLineups() && !cached.hasStatistics() && !cached.hasIncidents()) {
             return false;
         }
 
@@ -1934,7 +1970,7 @@ public class ApiFootballInsightsService {
             return age.compareTo(Duration.ofMinutes(2)) < 0;
         }
         if (finished) {
-            if (cached.hasLineups() && cached.hasStatistics()) {
+            if (cached.hasLineups() && cached.hasStatistics() && cached.hasIncidents()) {
                 return age.compareTo(Duration.ofDays(30)) < 0;
             }
             return age.compareTo(Duration.ofHours(6)) < 0;
@@ -2041,6 +2077,8 @@ public class ApiFootballInsightsService {
             score += player.hasPhoto() ? 10 : 0;
             score += player.hasGrid() ? 6 : 0;
             score += player.hasPosition() ? 4 : 0;
+            score += player.playerId() != null ? 4 : 0;
+            score += player.hasRating() ? 3 : 0;
             score += player.shirtNumber() != null && !player.shirtNumber().isBlank() ? 2 : 0;
         }
         return score;
@@ -2059,7 +2097,9 @@ public class ApiFootballInsightsService {
                 firstNonBlank(fresh.shirtNumber(), cached.shirtNumber()),
                 firstNonBlank(fresh.position(), cached.position()),
                 firstNonBlank(fresh.grid(), cached.grid()),
-                firstNonBlank(fresh.photoUrl(), cached.photoUrl())
+                firstNonBlank(fresh.photoUrl(), cached.photoUrl()),
+                firstNonBlankLong(fresh.playerId(), cached.playerId()),
+                firstNonNull(fresh.rating(), cached.rating())
         );
     }
 
@@ -2069,6 +2109,9 @@ public class ApiFootballInsightsService {
         }
 
         List<String> parts = new ArrayList<>();
+        if (player.playerId() != null) {
+            parts.add("id:" + player.playerId());
+        }
         String nameKey = normalizePlayerName(player.playerName());
         if (nameKey != null) {
             parts.add("name:" + nameKey);
@@ -2330,7 +2373,9 @@ public class ApiFootballInsightsService {
                 normalizeNullable(playerNode.path("number").asText(null)),
                 prettifyApiFootballPosition(normalizeNullable(playerNode.path("pos").asText(null))),
                 normalizeNullable(playerNode.path("grid").asText(null)),
-                normalizeNullable(playerNode.path("photo").asText(null))
+                normalizeNullable(playerNode.path("photo").asText(null)),
+                nullableLong(playerNode.path("id")),
+                null
         );
     }
 
@@ -2385,6 +2430,212 @@ public class ApiFootballInsightsService {
         return rows;
     }
 
+    private List<ApiFootballMatchIncident> parseApiFootballIncidents(
+            JsonNode payload,
+            Long expectedHomeTeamId,
+            Long expectedAwayTeamId,
+            String expectedHomeTeamName,
+            String expectedAwayTeamName
+    ) {
+        JsonNode responseNode = payload.path("response");
+        if (!responseNode.isArray() || responseNode.isEmpty()) {
+            return List.of();
+        }
+
+        List<ApiFootballMatchIncident> incidents = new ArrayList<>();
+        for (JsonNode incidentNode : responseNode) {
+            String type = normalizeNullable(incidentNode.path("type").asText(null));
+            String detail = normalizeNullable(incidentNode.path("detail").asText(null));
+            String incidentType = mapApiFootballIncidentType(type, detail);
+            if (incidentType == null) {
+                continue;
+            }
+
+            Integer rawMinute = nullableInt(incidentNode.path("time").path("elapsed"));
+            Integer rawAddedTime = nullableInt(incidentNode.path("time").path("extra"));
+            Integer minute = normalizeIncidentMinute(rawMinute);
+            Integer addedTime = normalizeIncidentAddedTime(rawMinute, rawAddedTime);
+            Long incidentTeamId = nullableLong(incidentNode.path("team").path("id"));
+            String incidentTeamName = normalizeTeamName(incidentNode.path("team").path("name").asText(null));
+            boolean homeSide = determineIncidentHomeSide(
+                    incidentTeamId,
+                    incidentTeamName,
+                    expectedHomeTeamId,
+                    expectedAwayTeamId,
+                    expectedHomeTeamName,
+                    expectedAwayTeamName
+            );
+            incidents.add(new ApiFootballMatchIncident(
+                    incidentType,
+                    mapApiFootballIncidentClass(incidentType, detail),
+                    buildMinuteLabel(minute, addedTime),
+                    minute,
+                    addedTime,
+                    homeSide,
+                    normalizeNullable(incidentNode.path("player").path("name").asText(null)),
+                    nullableLong(incidentNode.path("player").path("id")),
+                    normalizeNullable(incidentNode.path("assist").path("name").asText(null)),
+                    nullableLong(incidentNode.path("assist").path("id")),
+                    incidentType.equals("substitution") ? normalizeNullable(incidentNode.path("assist").path("name").asText(null)) : null,
+                    incidentType.equals("substitution") ? nullableLong(incidentNode.path("assist").path("id")) : null,
+                    incidentType.equals("substitution") ? normalizeNullable(incidentNode.path("player").path("name").asText(null)) : null,
+                    incidentType.equals("substitution") ? nullableLong(incidentNode.path("player").path("id")) : null,
+                    normalizeNullable(firstNonBlank(detail, incidentNode.path("comments").asText(null))),
+                    null,
+                    null
+            ));
+        }
+        incidents.sort(Comparator
+                .comparingInt((ApiFootballMatchIncident incident) -> incident.minute() == null ? Integer.MAX_VALUE : incident.minute())
+                .thenComparingInt(incident -> incident.addedTime() == null ? 0 : incident.addedTime()));
+        return incidents;
+    }
+
+    private String mapApiFootballIncidentType(String type, String detail) {
+        String normalizedType = normalizeNullable(type);
+        String normalizedDetail = normalizeNullable(detail);
+        if (normalizedType == null && normalizedDetail == null) {
+            return null;
+        }
+
+        String lowerType = normalizedType == null ? "" : normalizedType.toLowerCase(Locale.ROOT);
+        String lowerDetail = normalizedDetail == null ? "" : normalizedDetail.toLowerCase(Locale.ROOT);
+        if (lowerType.contains("goal")) {
+            return "goal";
+        }
+        if (lowerType.contains("card") || lowerDetail.contains("card")) {
+            return "card";
+        }
+        if (lowerType.contains("subst") || lowerDetail.contains("substitution")) {
+            return "substitution";
+        }
+        return null;
+    }
+
+    private String mapApiFootballIncidentClass(String incidentType, String detail) {
+        String normalizedDetail = normalizeNullable(detail);
+        if (incidentType == null) {
+            return null;
+        }
+        if ("card".equals(incidentType)) {
+            String lower = normalizedDetail == null ? "" : normalizedDetail.toLowerCase(Locale.ROOT);
+            if (lower.contains("yellow")) {
+                return "yellow";
+            }
+            if (lower.contains("red")) {
+                return "red";
+            }
+        }
+        if ("goal".equals(incidentType)) {
+            return normalizedDetail == null ? "regular" : normalizeNullable(normalizedDetail.replace(" Goal", "").replace(' ', '-')).toLowerCase(Locale.ROOT);
+        }
+        return normalizeNullable(normalizedDetail == null ? incidentType : normalizedDetail);
+    }
+
+    private List<ApiFootballMatchIncident> parseSofaScoreIncidents(JsonNode payload) {
+        JsonNode incidentsNode = payload.path("incidents");
+        if (!incidentsNode.isArray() || incidentsNode.isEmpty()) {
+            return List.of();
+        }
+
+        List<ApiFootballMatchIncident> incidents = new ArrayList<>();
+        for (JsonNode incidentNode : incidentsNode) {
+            String incidentType = normalizeNullable(incidentNode.path("incidentType").asText(null));
+            if (!"goal".equalsIgnoreCase(incidentType)
+                    && !"card".equalsIgnoreCase(incidentType)
+                    && !"substitution".equalsIgnoreCase(incidentType)) {
+                continue;
+            }
+
+            Integer rawMinute = nullableInt(incidentNode.path("time"));
+            Integer rawAddedTime = nullableInt(incidentNode.path("addedTime"));
+            Integer minute = normalizeIncidentMinute(rawMinute);
+            Integer addedTime = normalizeIncidentAddedTime(rawMinute, rawAddedTime);
+            incidents.add(new ApiFootballMatchIncident(
+                    incidentType.toLowerCase(Locale.ROOT),
+                    normalizeNullable(incidentNode.path("incidentClass").asText(null)),
+                    buildMinuteLabel(minute, addedTime),
+                    minute,
+                    addedTime,
+                    incidentNode.path("isHome").asBoolean(false),
+                    normalizeNullable(firstNonBlank(
+                            incidentNode.path("playerName").asText(null),
+                            incidentNode.path("player").path("name").asText(null)
+                    )),
+                    nullableLong(incidentNode.path("player").path("id")),
+                    normalizeNullable(incidentNode.path("assist1").path("name").asText(null)),
+                    nullableLong(incidentNode.path("assist1").path("id")),
+                    normalizeNullable(incidentNode.path("playerIn").path("name").asText(null)),
+                    nullableLong(incidentNode.path("playerIn").path("id")),
+                    normalizeNullable(incidentNode.path("playerOut").path("name").asText(null)),
+                    nullableLong(incidentNode.path("playerOut").path("id")),
+                    normalizeNullable(incidentNode.path("reason").asText(null)),
+                    nullableInt(incidentNode.path("homeScore")),
+                    nullableInt(incidentNode.path("awayScore"))
+            ));
+        }
+        incidents.sort(Comparator
+                .comparingInt((ApiFootballMatchIncident incident) -> incident.minute() == null ? Integer.MAX_VALUE : incident.minute())
+                .thenComparingInt(incident -> incident.addedTime() == null ? 0 : incident.addedTime()));
+        return incidents;
+    }
+
+    private String buildMinuteLabel(Integer minute, Integer addedTime) {
+        if (minute == null) {
+            return null;
+        }
+        if (addedTime != null && addedTime > 0) {
+            return minute + "+" + addedTime + "'";
+        }
+        return minute + "'";
+    }
+
+    private Integer normalizeIncidentMinute(Integer rawMinute) {
+        if (rawMinute == null) {
+            return null;
+        }
+        if (rawMinute < 0) {
+            return 90;
+        }
+        return rawMinute;
+    }
+
+    private Integer normalizeIncidentAddedTime(Integer rawMinute, Integer rawAddedTime) {
+        if (rawMinute != null && rawMinute < 0) {
+            return Math.abs(rawMinute);
+        }
+        return rawAddedTime;
+    }
+
+    private boolean determineIncidentHomeSide(
+            Long incidentTeamId,
+            String incidentTeamName,
+            Long expectedHomeTeamId,
+            Long expectedAwayTeamId,
+            String expectedHomeTeamName,
+            String expectedAwayTeamName
+    ) {
+        if (incidentTeamId != null) {
+            if (expectedHomeTeamId != null && incidentTeamId.equals(expectedHomeTeamId)) {
+                return true;
+            }
+            if (expectedAwayTeamId != null && incidentTeamId.equals(expectedAwayTeamId)) {
+                return false;
+            }
+        }
+
+        String normalizedIncidentName = normalizeTeamName(incidentTeamName);
+        String normalizedHomeName = normalizeTeamName(expectedHomeTeamName);
+        String normalizedAwayName = normalizeTeamName(expectedAwayTeamName);
+        if (normalizedIncidentName == null) {
+            return true;
+        }
+
+        double homeSimilarity = similarity(normalizedIncidentName, normalizedHomeName);
+        double awaySimilarity = similarity(normalizedIncidentName, normalizedAwayName);
+        return homeSimilarity >= awaySimilarity;
+    }
+
     private Map<String, String> extractStatisticsMap(JsonNode statisticsNode) {
         Map<String, String> statistics = new LinkedHashMap<>();
         if (!statisticsNode.isArray()) {
@@ -2413,6 +2664,9 @@ public class ApiFootballInsightsService {
         String statisticsJson = details.statistics() == null || details.statistics().isEmpty()
                 ? match.getApiFootballStatsJson()
                 : objectMapper.writeValueAsString(details.statistics());
+        String incidentsJson = details.incidents() == null || details.incidents().isEmpty()
+                ? match.getApiFootballIncidentsJson()
+                : objectMapper.writeValueAsString(details.incidents());
         CachedLineups cachedLineups = new CachedLineups(details.homeLineup(), details.awayLineup());
         String lineupsJson = (details.homeLineup() == null && details.awayLineup() == null && match.getApiFootballLineupJson() != null)
                 ? match.getApiFootballLineupJson()
@@ -2425,20 +2679,22 @@ public class ApiFootballInsightsService {
                 : match.getLineupExterieur();
 
         try (PreparedStatement statement = connection.prepareStatement(
-                "UPDATE matchs SET api_football_id = ?, api_football_stats_json = ?, api_football_lineup_json = ?, api_football_synced_at = ?, lineup_domicile = ?, lineup_exterieur = ? WHERE id = ?")) {
+                "UPDATE matchs SET api_football_id = ?, api_football_stats_json = ?, api_football_lineup_json = ?, api_football_incidents_json = ?, api_football_synced_at = ?, lineup_domicile = ?, lineup_exterieur = ? WHERE id = ?")) {
             setNullableLong(statement, 1, details.fixtureId());
             statement.setString(2, statisticsJson);
             statement.setString(3, lineupsJson);
-            statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-            statement.setString(5, homeStartingLineup);
-            statement.setString(6, awayStartingLineup);
-            statement.setInt(7, match.getId());
+            statement.setString(4, incidentsJson);
+            statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setString(6, homeStartingLineup);
+            statement.setString(7, awayStartingLineup);
+            statement.setInt(8, match.getId());
             statement.executeUpdate();
         }
 
         match.setApiFootballId(details.fixtureId());
         match.setApiFootballStatsJson(statisticsJson);
         match.setApiFootballLineupJson(lineupsJson);
+        match.setApiFootballIncidentsJson(incidentsJson);
         match.setApiFootballSyncedAt(LocalDateTime.now());
         match.setLineupDomicile(homeStartingLineup);
         match.setLineupExterieur(awayStartingLineup);
@@ -2530,6 +2786,16 @@ public class ApiFootballInsightsService {
                 : node.asLong();
     }
 
+    private Double nullableDouble(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) {
+            return null;
+        }
+        if (node.isNumber()) {
+            return node.asDouble();
+        }
+        return parseNullableDouble(node.asText(null));
+    }
+
     private void setNullableLong(PreparedStatement statement, int index, Long value) throws SQLException {
         if (value == null) {
             statement.setNull(index, java.sql.Types.BIGINT);
@@ -2592,6 +2858,14 @@ public class ApiFootballInsightsService {
 
     private String firstNonBlank(String primary, String fallback) {
         return primary == null || primary.isBlank() ? fallback : primary;
+    }
+
+    private Long firstNonBlankLong(Long primary, Long fallback) {
+        return primary != null ? primary : fallback;
+    }
+
+    private <T> T firstNonNull(T primary, T fallback) {
+        return primary != null ? primary : fallback;
     }
 
     private String normalizeNullable(String value) {
