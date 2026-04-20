@@ -24,11 +24,13 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -75,7 +77,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import javafx.util.StringConverter;
 
 public class JoueurController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -204,6 +208,7 @@ public class JoueurController implements AssistantContextProvider {
     private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
     private final Set<Integer> loadingImageIds = new HashSet<>();
+    private TableColumn<Joueur, Void> actionsColumn;
 
     @FXML
     public void initialize() {
@@ -214,6 +219,7 @@ public class JoueurController implements AssistantContextProvider {
         configureNumeroField();
         configureFieldRestrictions();
         configurePlayerList();
+        configureCreateOnlyForm();
         configureStatsSection();
         bindUiState();
         updateActionAvailability();
@@ -392,6 +398,11 @@ public class JoueurController implements AssistantContextProvider {
 
     @FXML
     private void handleBrowseImage() {
+        if (selectedJoueur != null) {
+            showMutedStatus("Le formulaire sert uniquement a l'ajout. Modifiez le joueur depuis le tableau.");
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir une image");
         fileChooser.getExtensionFilters().add(
@@ -544,10 +555,15 @@ public class JoueurController implements AssistantContextProvider {
             joueurNationaliteColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolvePlayerNationalityLabel(cell.getValue())));
 
             joueurTableView.setItems(filteredJoueurs);
-            joueurTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            joueurTableView.setEditable(true);
+            joueurTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+            joueurTableView.setTableMenuButtonVisible(true);
             joueurTableView.setPlaceholder(new Label(""));
             joueurTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                     handleSelectedJoueurChange(newValue));
+            configureEditableTableColumns();
+            ensureActionsColumn();
+            configureReadableTableLayout();
         }
 
         if (joueurListView != null) {
@@ -573,11 +589,130 @@ public class JoueurController implements AssistantContextProvider {
         }
     }
 
+    private void configureCreateOnlyForm() {
+        if (updateButton != null) {
+            updateButton.setManaged(false);
+            updateButton.setVisible(false);
+        }
+        if (deleteButton != null) {
+            deleteButton.setManaged(false);
+            deleteButton.setVisible(false);
+        }
+    }
+
+    private void configureEditableTableColumns() {
+        joueurNomColumn.setEditable(true);
+        joueurNomColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        joueurNomColumn.setOnEditCommit(event ->
+                handleInlineJoueurEdit(event.getRowValue(), joueur -> joueur.setNom(emptyToNull(event.getNewValue()))));
+
+        joueurPrenomColumn.setEditable(true);
+        joueurPrenomColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        joueurPrenomColumn.setOnEditCommit(event ->
+                handleInlineJoueurEdit(event.getRowValue(), joueur -> joueur.setPrenom(emptyToNull(event.getNewValue()))));
+
+        joueurEquipeColumn.setEditable(true);
+        joueurEquipeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        joueurEquipeColumn.setOnEditCommit(event -> {
+            String equipeName = emptyToNull(event.getNewValue());
+            handleInlineJoueurEdit(event.getRowValue(), joueur -> {
+                Equipe equipe = findEquipeByName(equipeName);
+                joueur.setEquipeId(equipe == null ? null : equipe.getId());
+            });
+        });
+
+        joueurNumeroColumn.setEditable(true);
+        joueurNumeroColumn.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<>() {
+            @Override
+            public String toString(Integer value) {
+                return value == null ? "" : String.valueOf(value);
+            }
+
+            @Override
+            public Integer fromString(String value) {
+                String trimmed = emptyToNull(value);
+                if (trimmed == null) {
+                    return null;
+                }
+                try {
+                    return Integer.parseInt(trimmed);
+                } catch (NumberFormatException exception) {
+                    return Integer.MIN_VALUE;
+                }
+            }
+        }));
+        joueurNumeroColumn.setOnEditCommit(event ->
+                handleInlineJoueurEdit(event.getRowValue(), joueur -> joueur.setNumero(event.getNewValue() == null ? 0 : event.getNewValue())));
+
+        joueurNaissanceColumn.setEditable(true);
+        joueurNaissanceColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        joueurNaissanceColumn.setOnEditCommit(event ->
+                handleInlineJoueurEdit(event.getRowValue(), joueur -> joueur.setDateNaissance(parseInlineBirthDate(event.getNewValue()))));
+    }
+
+    private void ensureActionsColumn() {
+        if (actionsColumn != null || joueurTableView == null) {
+            return;
+        }
+
+        actionsColumn = new TableColumn<>("Actions");
+        actionsColumn.setSortable(false);
+        actionsColumn.setReorderable(false);
+        actionsColumn.setResizable(false);
+        actionsColumn.setMinWidth(190);
+        actionsColumn.setPrefWidth(190);
+        actionsColumn.setMaxWidth(190);
+        actionsColumn.setCellFactory(column -> new TableCell<>() {
+            private final Button editButton = new Button("Modifier");
+            private final Button deleteRowButton = new Button("Supprimer");
+            private final HBox actionsBox = new HBox(8, editButton, deleteRowButton);
+
+            {
+                actionsBox.getStyleClass().add("table-inline-actions");
+                editButton.getStyleClass().add("soft-button");
+                editButton.getStyleClass().add("table-row-action-button");
+                deleteRowButton.getStyleClass().add("danger-button");
+                deleteRowButton.getStyleClass().add("table-row-danger-button");
+                editButton.setPrefWidth(84);
+                deleteRowButton.setPrefWidth(100);
+
+                editButton.setOnAction(event -> {
+                    Joueur joueur = getTableRow() == null ? null : getTableRow().getItem();
+                    startInlineJoueurEdit(joueur);
+                });
+                deleteRowButton.setOnAction(event -> {
+                    Joueur joueur = getTableRow() == null ? null : getTableRow().getItem();
+                    deleteJoueurFromTable(joueur);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                boolean rowEmpty = empty || getTableRow() == null || getTableRow().getItem() == null;
+                setGraphic(rowEmpty ? null : actionsBox);
+                setText(null);
+            }
+        });
+        joueurTableView.getColumns().add(actionsColumn);
+    }
+
+    private void configureReadableTableLayout() {
+        joueurIdColumn.setPrefWidth(72);
+        joueurNomColumn.setPrefWidth(140);
+        joueurPrenomColumn.setPrefWidth(140);
+        joueurEquipeColumn.setPrefWidth(240);
+        joueurNumeroColumn.setPrefWidth(90);
+        joueurNaissanceColumn.setPrefWidth(130);
+        joueurPositionColumn.setPrefWidth(145);
+        joueurNationaliteColumn.setPrefWidth(145);
+    }
+
     private void handleSelectedJoueurChange(Joueur newValue) {
         selectedJoueur = newValue;
 
         if (newValue != null) {
-            populateForm(newValue);
+            clearFormFieldsOnly();
         } else if (!hasDraftContent()) {
             clearFormFieldsOnly();
         }
@@ -586,6 +721,175 @@ public class JoueurController implements AssistantContextProvider {
         updateActionAvailability();
         updateDetailPanel();
         triggerLazyImageImport(newValue);
+    }
+
+    private void startInlineJoueurEdit(Joueur joueur) {
+        if (joueur == null || joueurTableView == null) {
+            return;
+        }
+
+        clearValidation();
+        clearFormFieldsOnly();
+        joueurTableView.getSelectionModel().select(joueur);
+        int rowIndex = filteredJoueurs.indexOf(joueur);
+        if (rowIndex >= 0) {
+            joueurTableView.scrollTo(rowIndex);
+            joueurTableView.edit(rowIndex, joueurNomColumn);
+        }
+        showMutedStatus("Modifiez directement la ligne puis validez avec Entree.");
+    }
+
+    private void handleInlineJoueurEdit(Joueur original, Consumer<Joueur> updater) {
+        clearValidation();
+
+        if (original == null || original.getId() == null || joueurService == null) {
+            if (joueurTableView != null) {
+                joueurTableView.refresh();
+            }
+            return;
+        }
+
+        Joueur candidate = copyJoueur(original);
+        updater.accept(candidate);
+
+        String validationMessage = validateInlineJoueur(candidate);
+        if (validationMessage != null) {
+            if (joueurTableView != null) {
+                joueurTableView.refresh();
+            }
+            showValidation(validationMessage);
+            return;
+        }
+
+        try {
+            joueurService.update(candidate);
+            refreshData(original.getId());
+            showSuccessStatus("Joueur modifie depuis le tableau.");
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant la modification.");
+            showAlert(Alert.AlertType.ERROR, "Modification", "Erreur lors de la modification du joueur.\n" + e.getMessage());
+        }
+    }
+
+    private void deleteJoueurFromTable(Joueur joueur) {
+        clearValidation();
+
+        if (joueur == null || joueur.getId() == null || joueurService == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Suppression");
+        alert.setHeaderText("Supprimer le joueur \"" + buildFullName(joueur) + "\" ?");
+        alert.setContentText("Cette action est definitive.");
+
+        Optional<ButtonType> confirmation = alert.showAndWait();
+        if (confirmation.isEmpty() || confirmation.get() != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            joueurService.delete(joueur.getId());
+            refreshData(null);
+            clearForm();
+            showSuccessStatus("Joueur supprime avec succes.");
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant la suppression.");
+            showAlert(Alert.AlertType.ERROR, "Suppression", "Erreur lors de la suppression du joueur.\n" + e.getMessage());
+        }
+    }
+
+    private Joueur copyJoueur(Joueur source) {
+        Joueur copy = new Joueur(
+                source.getId(),
+                source.getNom(),
+                source.getPrenom(),
+                source.getDateNaissance(),
+                source.getNumero(),
+                source.getImage(),
+                source.getEquipeId()
+        );
+        copy.setExternalApiId(source.getExternalApiId());
+        copy.setExternalSource(source.getExternalSource());
+        copy.setPosition(source.getPosition());
+        copy.setNationalite(source.getNationalite());
+        return copy;
+    }
+
+    private String validateInlineJoueur(Joueur joueur) {
+        String nom = emptyToNull(joueur == null ? null : joueur.getNom());
+        String prenom = emptyToNull(joueur == null ? null : joueur.getPrenom());
+        LocalDate dateNaissance = joueur == null ? null : joueur.getDateNaissance();
+        Integer equipeId = joueur == null ? null : joueur.getEquipeId();
+        int numero = joueur == null ? 0 : joueur.getNumero();
+        String image = emptyToNull(joueur == null ? null : joueur.getImage());
+
+        if (nom == null) {
+            return "Le nom est obligatoire.";
+        }
+        if (!PERSON_NAME_PATTERN.matcher(nom).matches()) {
+            return "Le nom doit contenir entre 2 et 100 lettres maximum.";
+        }
+        if (prenom == null) {
+            return "Le prenom est obligatoire.";
+        }
+        if (!PERSON_NAME_PATTERN.matcher(prenom).matches()) {
+            return "Le prenom doit contenir entre 2 et 100 lettres maximum.";
+        }
+        if (dateNaissance == null) {
+            return "La date de naissance est obligatoire.";
+        }
+        if (dateNaissance.isAfter(LocalDate.now())) {
+            return "La date de naissance ne peut pas etre dans le futur.";
+        }
+        if (dateNaissance.isBefore(LocalDate.now().minusYears(100))) {
+            return "La date de naissance semble invalide.";
+        }
+        if (numero == Integer.MIN_VALUE) {
+            return "Le numero doit etre un nombre.";
+        }
+        if (numero < 1 || numero > 99) {
+            return "Le numero doit etre entre 1 et 99.";
+        }
+        if (equipeId == null || !equipeById.containsKey(equipeId)) {
+            return "Selectionnez une equipe existante dans le tableau.";
+        }
+        if (isDuplicateJerseyNumber(equipeId, numero, joueur.getId())) {
+            return "Ce numero est deja attribue dans l'equipe selectionnee.";
+        }
+        if (image != null && !isValidImageReference(image)) {
+            return "L'image du joueur doit etre une image valide (.png, .jpg, .jpeg, .gif, .bmp, .webp).";
+        }
+        return null;
+    }
+
+    private Equipe findEquipeByName(String equipeName) {
+        String normalizedName = normalize(equipeName);
+        if (normalizedName == null) {
+            return null;
+        }
+
+        return equipes.stream()
+                .filter(equipe -> Objects.equals(normalize(equipe.getNom()), normalizedName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private LocalDate parseInlineBirthDate(String rawValue) {
+        String value = emptyToNull(rawValue);
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(value, DATE_FORMATTER);
+        } catch (Exception ignored) {
+            try {
+                return LocalDate.parse(value);
+            } catch (Exception secondIgnored) {
+                return null;
+            }
+        }
     }
 
     private void bindUiState() {
@@ -981,16 +1285,27 @@ public class JoueurController implements AssistantContextProvider {
         }
 
         LocalDate dateNaissance = dateNaissancePicker.getValue();
+        if (dateNaissance == null && selectedJoueur != null) {
+            dateNaissance = selectedJoueur.getDateNaissance();
+        }
+
         String numeroValue = emptyToNull(numeroField.getText());
+        if (numeroValue == null && selectedJoueur != null && selectedJoueur.getNumero() > 0) {
+            numeroValue = String.valueOf(selectedJoueur.getNumero());
+        }
+
         String imagePath = emptyToNull(imageField.getText());
+        if (imagePath == null && selectedJoueur != null) {
+            imagePath = emptyToNull(selectedJoueur.getImage());
+        }
 
         boolean editing = selectedJoueur != null;
         boolean drafting = editing || hasDraftContent();
 
-        detailBadgeLabel.setText(editing ? "Edition" : drafting ? "Creation" : "Apercu");
-        selectionStateLabel.setText(editing ? "Mode edition" : "Mode creation");
+        detailBadgeLabel.setText(editing ? "Edition en ligne" : drafting ? "Creation" : "Apercu");
+        selectionStateLabel.setText(editing ? "Selection active" : "Mode creation");
         formHintLabel.setText(editing
-                ? "Modifiez la fiche selectionnee puis enregistrez vos changements."
+                ? "Les modifications se font directement dans le tableau via les boutons de la ligne."
                 : "Composez une nouvelle fiche joueur et visualisez-la a droite.");
 
         String positionValue = selectedJoueur == null ? null : emptyToNull(selectedJoueur.getPosition());
@@ -1125,12 +1440,19 @@ public class JoueurController implements AssistantContextProvider {
 
     private void updateActionAvailability() {
         boolean hasSelection = selectedJoueur != null;
+        boolean createMode = serviceReady && !hasSelection;
 
-        addButton.setDisable(!serviceReady);
-        updateButton.setDisable(!serviceReady || !hasSelection);
-        deleteButton.setDisable(!serviceReady || !hasSelection);
+        addButton.setDisable(!createMode);
+        updateButton.setDisable(true);
+        deleteButton.setDisable(true);
         clearButton.setDisable(!serviceReady);
         refreshButton.setDisable(!serviceReady);
+        nomField.setDisable(!createMode);
+        prenomField.setDisable(!createMode);
+        dateNaissancePicker.setDisable(!createMode);
+        numeroField.setDisable(!createMode);
+        equipeComboBox.setDisable(!createMode);
+        imageField.setDisable(!createMode);
         if (joueurTableView != null) {
             joueurTableView.setDisable(!serviceReady);
         }

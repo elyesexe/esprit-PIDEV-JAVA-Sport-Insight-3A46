@@ -367,6 +367,8 @@
                                             HBox.hgrow="ALWAYS"/>
                                     <Button fx:id="updateButton"
                                             onAction="#handleUpdate"
+                                            managed="false"
+                                            visible="false"
                                             text="Modifier"
                                             styleClass="ghost-button"
                                             HBox.hgrow="ALWAYS"/>
@@ -375,6 +377,8 @@
                                 <HBox spacing="10">
                                     <Button fx:id="deleteButton"
                                             onAction="#handleDelete"
+                                            managed="false"
+                                            visible="false"
                                             text="Supprimer"
                                             styleClass="danger-button"
                                             HBox.hgrow="ALWAYS"/>

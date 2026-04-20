@@ -51,11 +51,14 @@ public class AdminDashboardController {
     private static final String TRANSPARENT_SURFACE_STYLE =
             "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;";
     private static final String DARK_DASHBOARD_SURFACE_STYLE =
-            "-fx-background-color:"
-                    + " radial-gradient(center 14% 10%, radius 34%, rgba(205, 114, 255, 0.22) 0%, rgba(205, 114, 255, 0.06) 50%, transparent 51%),"
-                    + " radial-gradient(center 94% 18%, radius 28%, rgba(63, 221, 255, 0.14) 0%, rgba(63, 221, 255, 0.04) 46%, transparent 47%),"
-                    + " linear-gradient(from 0% 0% to 100% 100%, #141932 0%, #171d39 52%, #10162c 100%);"
-                    + " -fx-padding: 0;";
+            "-fx-background-color: "
+                    + "radial-gradient(center 14% 10%, radius 46%, rgba(221, 110, 255, 0.30) 0%, rgba(221, 110, 255, 0.10) 48%, transparent 49%), "
+                    + "radial-gradient(center 88% 14%, radius 34%, rgba(87, 213, 255, 0.18) 0%, rgba(87, 213, 255, 0.05) 46%, transparent 47%), "
+                    + "linear-gradient(from 0% 0% to 100% 100%, #1a1246 0%, #24175b 48%, #2c1d70 100%); "
+                    + "-fx-background-insets: 0; "
+                    + "-fx-background-radius: 0; "
+                    + "-fx-border-color: transparent; "
+                    + "-fx-padding: 0;";
     private static final String LIGHT_DASHBOARD_SURFACE_STYLE =
             "-fx-background-color:"
                     + " linear-gradient(from 0% 0% to 100% 100%, #f8fbff 0%, #eef2ff 52%, #f6f8ff 100%);"

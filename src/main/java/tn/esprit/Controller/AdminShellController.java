@@ -1,16 +1,23 @@
 package tn.esprit.Controller;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.Parent;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
 
@@ -19,6 +26,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import javafx.util.Duration;
 /**
  * Admin layout: left sidebar (dashboard + CRUD + return to user UI), center hosts panels.
  * CRUD panels reuse existing FXML; the user navbar strip is removed so only the workspace shows.
@@ -46,9 +55,22 @@ public class AdminShellController {
     private static final String ENTRAINEMENT_CRUD = "/tn/esprit/views/entrainement-admin-view.fxml";
     private static final String SPONSOR_CRUD = "/tn/esprit/views/sponsor-admin-view.fxml";
     private static final String USER_MODERATION = "/tn/esprit/views/admin-users-view.fxml";
+    private static final double SIDEBAR_EXPANDED_WIDTH = 286;
+    private static final double SIDEBAR_COLLAPSED_WIDTH = 104;
+    private static final Duration SIDEBAR_ANIMATION_DURATION = Duration.millis(220);
 
     @FXML
     private BorderPane adminRoot;
+    @FXML
+    private ScrollPane adminSidebarScroll;
+    @FXML
+    private VBox adminSidebarRoot;
+    @FXML
+    private Label adminSidebarTitleLabel;
+    @FXML
+    private Region sidebarHeaderSpacer;
+    @FXML
+    private Button sidebarToggleButton;
     @FXML
     private StackPane contentStack;
     @FXML
@@ -77,11 +99,14 @@ public class AdminShellController {
     private Button usersNavButton;
 
     private Object activeContentController;
+    private Timeline sidebarTimeline;
+    private boolean sidebarCollapsed;
 
     @FXML
     public void initialize() {
         ThemeManager.bindToggle(themeToggleButton);
         themeToggleButton.selectedProperty().addListener((observable, oldValue, selected) -> applyAdminModeStyles(selected));
+        configureSidebarCollapse();
         applyAdminModeStyles(themeToggleButton.isSelected());
         showDashboard();
     }
@@ -153,6 +178,11 @@ public class AdminShellController {
                 "/tn/esprit/styles/home-theme.css",
                 "Sport Insight | Accueil"
         );
+    }
+
+    @FXML
+    private void handleToggleSidebar() {
+        setSidebarCollapsed(!sidebarCollapsed);
     }
 
     private void showDashboard() {
@@ -302,6 +332,124 @@ public class AdminShellController {
         }
         if (active != null && !active.getStyleClass().contains("admin-nav-button-active")) {
             active.getStyleClass().add("admin-nav-button-active");
+        }
+    }
+
+    private void configureSidebarCollapse() {
+        if (adminSidebarScroll == null) {
+            return;
+        }
+
+        adminSidebarScroll.setMinWidth(SIDEBAR_COLLAPSED_WIDTH);
+        adminSidebarScroll.setMaxWidth(SIDEBAR_EXPANDED_WIDTH);
+        adminSidebarScroll.setPrefWidth(SIDEBAR_EXPANDED_WIDTH);
+        updateSidebarToggleGlyph();
+    }
+
+    private void setSidebarCollapsed(boolean collapsed) {
+        if (adminSidebarScroll == null || adminRoot == null) {
+            return;
+        }
+
+        if (sidebarTimeline != null) {
+            sidebarTimeline.stop();
+        }
+
+        sidebarCollapsed = collapsed;
+        List<Node> textNodes = collectSidebarTextNodes();
+
+        if (collapsed) {
+            sidebarTimeline = new Timeline(
+                    new KeyFrame(Duration.ZERO,
+                            new KeyValue(adminSidebarScroll.prefWidthProperty(), adminSidebarScroll.getWidth() > 0 ? adminSidebarScroll.getWidth() : SIDEBAR_EXPANDED_WIDTH, Interpolator.EASE_BOTH)
+                    ),
+                    new KeyFrame(SIDEBAR_ANIMATION_DURATION,
+                            new KeyValue(adminSidebarScroll.prefWidthProperty(), SIDEBAR_COLLAPSED_WIDTH, Interpolator.EASE_BOTH)
+                    )
+            );
+            textNodes.forEach(node -> node.setOpacity(1));
+            sidebarTimeline.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
+                double progress = Math.min(1.0, newValue.toMillis() / SIDEBAR_ANIMATION_DURATION.toMillis());
+                double opacity = 1.0 - progress;
+                textNodes.forEach(node -> node.setOpacity(opacity));
+            });
+            sidebarTimeline.setOnFinished(event -> {
+                if (sidebarHeaderSpacer != null) {
+                    sidebarHeaderSpacer.setManaged(false);
+                    sidebarHeaderSpacer.setVisible(false);
+                }
+                textNodes.forEach(node -> {
+                    node.setManaged(false);
+                    node.setVisible(false);
+                    node.setOpacity(0);
+                });
+                if (!adminRoot.getStyleClass().contains("admin-shell-collapsed")) {
+                    adminRoot.getStyleClass().add("admin-shell-collapsed");
+                }
+                updateSidebarToggleGlyph();
+            });
+            sidebarTimeline.play();
+            return;
+        }
+
+        adminRoot.getStyleClass().remove("admin-shell-collapsed");
+        if (sidebarHeaderSpacer != null) {
+            sidebarHeaderSpacer.setManaged(true);
+            sidebarHeaderSpacer.setVisible(true);
+        }
+        textNodes.forEach(node -> {
+            node.setManaged(true);
+            node.setVisible(true);
+            node.setOpacity(0);
+        });
+        sidebarTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(adminSidebarScroll.prefWidthProperty(), adminSidebarScroll.getWidth() > 0 ? adminSidebarScroll.getWidth() : SIDEBAR_COLLAPSED_WIDTH, Interpolator.EASE_BOTH)
+                ),
+                new KeyFrame(SIDEBAR_ANIMATION_DURATION,
+                        new KeyValue(adminSidebarScroll.prefWidthProperty(), SIDEBAR_EXPANDED_WIDTH, Interpolator.EASE_BOTH)
+                )
+        );
+        sidebarTimeline.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
+            double progress = Math.min(1.0, newValue.toMillis() / SIDEBAR_ANIMATION_DURATION.toMillis());
+            textNodes.forEach(node -> node.setOpacity(progress));
+        });
+        sidebarTimeline.setOnFinished(event -> {
+            textNodes.forEach(node -> node.setOpacity(1));
+            updateSidebarToggleGlyph();
+        });
+        sidebarTimeline.play();
+    }
+
+    private List<Node> collectSidebarTextNodes() {
+        if (adminSidebarRoot == null) {
+            return List.of();
+        }
+
+        List<Node> nodes = new ArrayList<>();
+        collectNodesByStyleClasses(adminSidebarRoot,
+                Set.of("admin-nav-text", "admin-sidebar-section", "admin-sidebar-theme-label", "admin-sidebar-title"),
+                nodes);
+        return nodes;
+    }
+
+    private void collectNodesByStyleClasses(Parent parent, Set<String> styleClasses, List<Node> targets) {
+        for (Node child : parent.getChildrenUnmodifiable()) {
+            for (String styleClass : styleClasses) {
+                if (child.getStyleClass().contains(styleClass)) {
+                    targets.add(child);
+                    break;
+                }
+            }
+            if (child instanceof Parent childParent) {
+                collectNodesByStyleClasses(childParent, styleClasses, targets);
+            }
+        }
+    }
+
+    private void updateSidebarToggleGlyph() {
+        if (sidebarToggleButton != null) {
+            sidebarToggleButton.setText(sidebarCollapsed ? "›" : "‹");
         }
     }
 

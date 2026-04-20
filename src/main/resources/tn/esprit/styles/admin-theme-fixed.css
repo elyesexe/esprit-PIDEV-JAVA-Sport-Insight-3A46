@@ -207,11 +207,37 @@
     -fx-effect: none;
 }
 
+.admin-sidebar-header {
+    -fx-padding: 0 0 8 0;
+}
+
+.admin-sidebar-toggle-button {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-padding: 6 12 6 12;
+    -fx-min-width: 42;
+    -fx-pref-width: 42;
+    -fx-max-width: 42;
+}
+
 .admin-dark .admin-sidebar-title {
     -fx-font-family: "Bahnschrift SemiBold";
     -fx-font-size: 28px;
     -fx-text-fill: #edf1ff;
     -fx-padding: 0 0 14 2;
+}
+
+.admin-dark .admin-sidebar-toggle-button {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.18);
+    -fx-text-fill: #eef3ff;
+}
+
+.admin-dark .admin-sidebar-toggle-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(221, 128, 255, 0.30) 0%, rgba(90, 199, 255, 0.22) 100%);
+    -fx-border-color: rgba(222, 184, 255, 0.28);
 }
 
 .admin-dark .admin-sidebar-section {
@@ -357,6 +383,10 @@
     -fx-alignment: top-left;
 }
 
+.admin-kpi-grid {
+    -fx-alignment: top-left;
+}
+
 .admin-dark .admin-kpi-stack {
     -fx-alignment: top-left;
 }
@@ -392,6 +422,75 @@
 
 .admin-dark .admin-kpi-card {
     -fx-padding: 20 22 20 22;
+}
+
+.admin-dark .admin-kpi-card-unified {
+    -fx-background-color:
+        radial-gradient(center 100% 0%, radius 36%, rgba(96, 214, 255, 0.14) 0%, transparent 54%),
+        radial-gradient(center 0% 100%, radius 42%, rgba(221, 110, 255, 0.18) 0%, transparent 56%),
+        linear-gradient(from 0% 0% to 100% 100%, rgba(39, 27, 98, 0.98) 0%, rgba(48, 32, 112, 0.98) 100%);
+    -fx-border-color: rgba(195, 165, 255, 0.24);
+    -fx-border-radius: 28;
+    -fx-background-radius: 28;
+    -fx-min-height: 168;
+}
+
+.admin-dark .admin-kpi-card-unified .admin-kpi-value {
+    -fx-font-size: 42px;
+}
+
+.admin-dark .admin-dashboard-kpi-card,
+.theme-dark.admin-dark .admin-workspace-root .admin-dashboard-kpi-card {
+    -fx-background-color:
+        radial-gradient(center 100% 0%, radius 34%, rgba(100, 219, 255, 0.18) 0%, transparent 52%),
+        radial-gradient(center 0% 100%, radius 40%, rgba(224, 128, 255, 0.22) 0%, transparent 56%),
+        linear-gradient(from 0% 0% to 100% 100%, rgba(61, 43, 146, 0.98) 0%, rgba(43, 30, 112, 0.99) 100%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(214, 187, 255, 0.34);
+    -fx-border-width: 1.2;
+    -fx-border-radius: 30;
+    -fx-padding: 22 24 22 24;
+    -fx-min-height: 184;
+    -fx-effect: dropshadow(gaussian, rgba(11, 7, 32, 0.36), 36, 0.20, 0, 14);
+}
+
+.admin-dark .admin-dashboard-kpi-card .admin-kpi-label,
+.theme-dark.admin-dark .admin-workspace-root .admin-dashboard-kpi-card .admin-kpi-label {
+    -fx-text-fill: rgba(246, 248, 255, 0.90);
+}
+
+.admin-dark .admin-dashboard-kpi-card .admin-kpi-meta,
+.theme-dark.admin-dark .admin-workspace-root .admin-dashboard-kpi-card .admin-kpi-meta {
+    -fx-text-fill: rgba(243, 246, 255, 0.84);
+}
+
+.admin-dark .admin-dashboard-kpi-card .admin-kpi-value,
+.theme-dark.admin-dark .admin-workspace-root .admin-dashboard-kpi-card .admin-kpi-value {
+    -fx-text-fill: #ffffff;
+}
+
+.admin-shell-root.admin-shell-collapsed .admin-sidebar {
+    -fx-padding: 24 12 24 12;
+}
+
+.admin-shell-root.admin-shell-collapsed .admin-sidebar-header {
+    -fx-alignment: center;
+}
+
+.admin-shell-root.admin-shell-collapsed .admin-nav-button,
+.admin-shell-root.admin-shell-collapsed .admin-sidebar-user-button {
+    -fx-padding: 12 10 12 10;
+}
+
+.admin-shell-root.admin-shell-collapsed .admin-nav-graphic {
+    -fx-alignment: center;
+    -fx-spacing: 0;
+}
+
+.admin-shell-root.admin-shell-collapsed .admin-sidebar-theme-row {
+    -fx-alignment: center;
+    -fx-padding: 12 10 12 10;
 }
 
 .admin-dark .admin-kpi-card-gradient {
@@ -1868,4 +1967,202 @@
 .admin-shell-root.admin-dark .admin-sidebar-user-button .admin-nav-icon-shell {
     -fx-background-color: rgba(110, 71, 220, 0.34);
     -fx-border-color: rgba(255, 244, 255, 0.26);
+}
+
+/* Final light-mode readability pass for the admin interface */
+.admin-shell-root.admin-light .label,
+.admin-shell-root.admin-light .text,
+.admin-shell-root.admin-light .button,
+.admin-shell-root.admin-light .button .text,
+.admin-shell-root.admin-light .menu-button,
+.admin-shell-root.admin-light .menu-button .label,
+.admin-shell-root.admin-light .combo-box-base,
+.admin-shell-root.admin-light .combo-box-base .text,
+.admin-shell-root.admin-light .combo-box-base > .list-cell,
+.admin-shell-root.admin-light .date-picker,
+.admin-shell-root.admin-light .date-picker .text-field,
+.admin-shell-root.admin-light .tab .tab-label,
+.admin-shell-root.admin-light .table-view .column-header .label,
+.admin-shell-root.admin-light .table-view .table-cell,
+.admin-shell-root.admin-light .tree-table-view .column-header .label,
+.admin-shell-root.admin-light .tree-table-view .table-cell,
+.admin-shell-root.admin-light .table-view .placeholder .label,
+.admin-shell-root.admin-light .tree-table-view .placeholder .label,
+.admin-shell-root.admin-light .chart-title,
+.admin-shell-root.admin-light .axis-label,
+.admin-shell-root.admin-light .axis .tick-label,
+.admin-shell-root.admin-light .chart-legend-item,
+.admin-shell-root.admin-light .chart-legend-item .label,
+.admin-shell-root.admin-light .chart-pie-label,
+.admin-shell-root.admin-light .list-cell,
+.admin-shell-root.admin-light .list-cell .text,
+.admin-shell-root.admin-light .section-title,
+.admin-shell-root.admin-light .detail-title,
+.admin-shell-root.admin-light .field-label,
+.admin-shell-root.admin-light .section-subtitle,
+.admin-shell-root.admin-light .detail-subtitle,
+.admin-shell-root.admin-light .card-subtitle,
+.admin-shell-root.admin-light .card-meta,
+.admin-shell-root.admin-light .form-helper,
+.admin-shell-root.admin-light .admin-dashboard-title,
+.admin-shell-root.admin-light .admin-dashboard-subtitle,
+.admin-shell-root.admin-light .admin-chart-summary,
+.admin-shell-root.admin-light .admin-kpi-label,
+.admin-shell-root.admin-light .admin-kpi-meta,
+.admin-shell-root.admin-light .admin-kpi-value,
+.admin-shell-root.admin-light .admin-nav-text,
+.admin-shell-root.admin-light .admin-sidebar-title,
+.admin-shell-root.admin-light .admin-sidebar-section,
+.admin-shell-root.admin-light .toolbar-chip,
+.admin-shell-root.admin-light .toolbar-chip-soft,
+.admin-shell-root.admin-light .status-pill,
+.admin-shell-root.admin-light .status-muted,
+.admin-shell-root.admin-light .status-success,
+.admin-shell-root.admin-light .status-warning,
+.admin-shell-root.admin-light .status-error,
+.admin-shell-root.admin-light .fixture-status,
+.admin-shell-root.admin-light .fixture-meta-chip,
+.admin-shell-root.admin-light .fixture-link-chip,
+.admin-shell-root.admin-light .player-card-meta-pill,
+.admin-shell-root.admin-light .annonce-user-meta-chip,
+.admin-shell-root.admin-light .sponsor-meta-chip,
+.admin-shell-root.admin-light .product-stock-chip,
+.admin-shell-root.admin-light .team-card-competition-badge,
+.admin-shell-root.admin-light .team-top-scorer-pill,
+.admin-shell-root.admin-light .flashscore-inline-badge,
+.admin-shell-root.admin-light .timeline-minute-chip,
+.admin-shell-root.admin-light .timeline-score-chip,
+.admin-shell-root.admin-light .pitch-side-badge,
+.admin-workspace-root.admin-light .label,
+.admin-workspace-root.admin-light .text,
+.admin-workspace-root.admin-light .button,
+.admin-workspace-root.admin-light .button .text,
+.admin-workspace-root.admin-light .menu-button,
+.admin-workspace-root.admin-light .menu-button .label,
+.admin-workspace-root.admin-light .combo-box-base,
+.admin-workspace-root.admin-light .combo-box-base .text,
+.admin-workspace-root.admin-light .combo-box-base > .list-cell,
+.admin-workspace-root.admin-light .date-picker,
+.admin-workspace-root.admin-light .date-picker .text-field,
+.admin-workspace-root.admin-light .tab .tab-label,
+.admin-workspace-root.admin-light .table-view .column-header .label,
+.admin-workspace-root.admin-light .table-view .table-cell,
+.admin-workspace-root.admin-light .tree-table-view .column-header .label,
+.admin-workspace-root.admin-light .tree-table-view .table-cell,
+.admin-workspace-root.admin-light .table-view .placeholder .label,
+.admin-workspace-root.admin-light .tree-table-view .placeholder .label,
+.admin-workspace-root.admin-light .chart-title,
+.admin-workspace-root.admin-light .axis-label,
+.admin-workspace-root.admin-light .axis .tick-label,
+.admin-workspace-root.admin-light .chart-legend-item,
+.admin-workspace-root.admin-light .chart-legend-item .label,
+.admin-workspace-root.admin-light .chart-pie-label,
+.admin-workspace-root.admin-light .list-cell,
+.admin-workspace-root.admin-light .list-cell .text,
+.admin-workspace-root.admin-light .section-title,
+.admin-workspace-root.admin-light .detail-title,
+.admin-workspace-root.admin-light .field-label,
+.admin-workspace-root.admin-light .section-subtitle,
+.admin-workspace-root.admin-light .detail-subtitle,
+.admin-workspace-root.admin-light .card-subtitle,
+.admin-workspace-root.admin-light .card-meta,
+.admin-workspace-root.admin-light .form-helper,
+.admin-workspace-root.admin-light .admin-dashboard-title,
+.admin-workspace-root.admin-light .admin-dashboard-subtitle,
+.admin-workspace-root.admin-light .admin-chart-summary,
+.admin-workspace-root.admin-light .admin-kpi-label,
+.admin-workspace-root.admin-light .admin-kpi-meta,
+.admin-workspace-root.admin-light .admin-kpi-value,
+.admin-workspace-root.admin-light .toolbar-chip,
+.admin-workspace-root.admin-light .toolbar-chip-soft,
+.admin-workspace-root.admin-light .status-pill,
+.admin-workspace-root.admin-light .status-muted,
+.admin-workspace-root.admin-light .status-success,
+.admin-workspace-root.admin-light .status-warning,
+.admin-workspace-root.admin-light .status-error {
+    -fx-text-fill: #050505;
+}
+
+.admin-shell-root.admin-light .text,
+.admin-shell-root.admin-light .chart-pie-label,
+.admin-shell-root.admin-light .axis .tick-label,
+.admin-shell-root.admin-light .button .text,
+.admin-workspace-root.admin-light .text,
+.admin-workspace-root.admin-light .chart-pie-label,
+.admin-workspace-root.admin-light .axis .tick-label,
+.admin-workspace-root.admin-light .button .text {
+    -fx-fill: #050505;
+}
+
+.admin-shell-root.admin-light .text-input,
+.admin-shell-root.admin-light .text-field,
+.admin-shell-root.admin-light .password-field,
+.admin-shell-root.admin-light .text-area,
+.admin-shell-root.admin-light .form-field,
+.admin-shell-root.admin-light .form-area,
+.admin-shell-root.admin-light .form-text-field,
+.admin-shell-root.admin-light .search-field,
+.admin-shell-root.admin-light .glass-combo,
+.admin-shell-root.admin-light .form-combo,
+.admin-shell-root.admin-light .combo-box-base,
+.admin-shell-root.admin-light .date-picker,
+.admin-shell-root.admin-light .form-date-picker,
+.admin-shell-root.admin-light .match-date-picker,
+.admin-shell-root.admin-light .match-search-field,
+.admin-shell-root.admin-light .date-picker > .text-field,
+.admin-shell-root.admin-light .date-picker .text-field,
+.admin-shell-root.admin-light .combo-box-base > .list-cell,
+.admin-shell-root.admin-light .combo-box-base .text-input,
+.admin-shell-root.admin-light #searchField,
+.admin-workspace-root.admin-light .text-input,
+.admin-workspace-root.admin-light .text-field,
+.admin-workspace-root.admin-light .password-field,
+.admin-workspace-root.admin-light .text-area,
+.admin-workspace-root.admin-light .form-field,
+.admin-workspace-root.admin-light .form-area,
+.admin-workspace-root.admin-light .form-text-field,
+.admin-workspace-root.admin-light .search-field,
+.admin-workspace-root.admin-light .glass-combo,
+.admin-workspace-root.admin-light .form-combo,
+.admin-workspace-root.admin-light .combo-box-base,
+.admin-workspace-root.admin-light .date-picker,
+.admin-workspace-root.admin-light .form-date-picker,
+.admin-workspace-root.admin-light .match-date-picker,
+.admin-workspace-root.admin-light .match-search-field,
+.admin-workspace-root.admin-light .date-picker > .text-field,
+.admin-workspace-root.admin-light .date-picker .text-field,
+.admin-workspace-root.admin-light .combo-box-base > .list-cell,
+.admin-workspace-root.admin-light .combo-box-base .text-input,
+.admin-workspace-root.admin-light #searchField {
+    -fx-text-fill: #050505;
+    -fx-prompt-text-fill: rgba(5, 5, 5, 0.62);
+}
+
+.admin-shell-root.admin-light .combo-box-base .arrow,
+.admin-shell-root.admin-light .date-picker .arrow,
+.admin-shell-root.admin-light .form-combo .arrow,
+.admin-shell-root.admin-light .form-date-picker .arrow,
+.admin-shell-root.admin-light .match-date-picker .arrow,
+.admin-workspace-root.admin-light .combo-box-base .arrow,
+.admin-workspace-root.admin-light .date-picker .arrow,
+.admin-workspace-root.admin-light .form-combo .arrow,
+.admin-workspace-root.admin-light .form-date-picker .arrow,
+.admin-workspace-root.admin-light .match-date-picker .arrow,
+.admin-shell-root.admin-light .admin-nav-icon-svg,
+.admin-workspace-root.admin-light .admin-nav-icon-svg {
+    -fx-background-color: #050505;
+    -fx-fill: #050505;
+}
+
+.table-inline-actions {
+    -fx-alignment: center;
+}
+
+.table-inline-actions .button,
+.table-row-action-button,
+.table-row-danger-button {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 7 10 7 10;
+    -fx-background-insets: 0;
 }

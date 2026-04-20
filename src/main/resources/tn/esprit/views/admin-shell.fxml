@@ -19,13 +19,14 @@
             fx:controller="tn.esprit.Controller.AdminShellController"
             styleClass="page-root admin-page-root admin-shell-root">
     <left>
-        <ScrollPane fitToWidth="true"
+        <ScrollPane fx:id="adminSidebarScroll"
+                    fitToWidth="true"
                     hbarPolicy="NEVER"
                     vbarPolicy="AS_NEEDED"
                     pannable="true"
                     prefWidth="286"
-                    minWidth="244"
-                    maxWidth="304"
+                    minWidth="286"
+                    maxWidth="286"
                     styleClass="admin-sidebar-scroll"
                     BorderPane.alignment="TOP_LEFT">
             <content>
@@ -34,7 +35,15 @@
                         <Insets top="24" right="18" bottom="24" left="18"/>
                     </padding>
 
-                    <Label text="Administration" styleClass="admin-sidebar-title"/>
+                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="admin-sidebar-header">
+                        <Label fx:id="adminSidebarTitleLabel" text="Administration" styleClass="admin-sidebar-title"/>
+                        <Region fx:id="sidebarHeaderSpacer" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="sidebarToggleButton"
+                                onAction="#handleToggleSidebar"
+                                mnemonicParsing="false"
+                                text="‹"
+                                styleClass="admin-sidebar-toggle-button"/>
+                    </HBox>
 
                     <Button fx:id="dashboardNavButton"
                             onAction="#handleDashboard"

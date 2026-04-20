@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.BarChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -31,172 +27,81 @@
                 <HBox alignment="CENTER_LEFT" spacing="18" styleClass="admin-hero-row">
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
                         <Label text="Admin Command Center" styleClass="admin-dashboard-title"/>
-                        <Label text="A darker CRM-inspired view for live administration, module health, recent activity, and football operations."
-                               wrapText="true"
-                               styleClass="admin-dashboard-subtitle"/>
                     </VBox>
                     <Label fx:id="dashboardStatusLabel"
                            text="Chargement..."
                            styleClass="status-pill status-muted admin-hero-status"/>
                 </HBox>
 
-                <HBox spacing="18" styleClass="admin-metric-ribbon">
-                    <VBox spacing="8" styleClass="admin-kpi-card admin-kpi-card-gradient admin-kpi-card-primary" HBox.hgrow="ALWAYS">
+                <FlowPane hgap="18" vgap="18" prefWrapLength="1260" styleClass="admin-metric-ribbon admin-kpi-grid">
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
                         <Label text="Users online base" styleClass="admin-kpi-label"/>
                         <Label fx:id="userCountLabel" text="..." styleClass="admin-kpi-value"/>
                         <Label text="accounts tracked across the application" wrapText="true" styleClass="admin-kpi-meta"/>
                     </VBox>
 
-                    <VBox spacing="8" styleClass="admin-kpi-card admin-kpi-card-gradient admin-kpi-card-secondary" HBox.hgrow="ALWAYS">
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
                         <Label text="Match control room" styleClass="admin-kpi-label"/>
                         <Label fx:id="matchCountLabel" text="..." styleClass="admin-kpi-value"/>
                         <Label text="fixtures available for monitoring and detail sync" wrapText="true" styleClass="admin-kpi-meta"/>
                     </VBox>
 
-                    <VBox spacing="18" styleClass="admin-kpi-stack" minWidth="228" prefWidth="246">
-                        <VBox spacing="6" styleClass="admin-kpi-card admin-kpi-card-compact admin-kpi-card-dark">
-                            <Label text="Announcements" styleClass="admin-kpi-label"/>
-                            <Label fx:id="annonceCountLabel" text="..." styleClass="admin-kpi-value"/>
-                            <Label text="published posts" styleClass="admin-kpi-meta"/>
-                        </VBox>
-                        <VBox spacing="6" styleClass="admin-kpi-card admin-kpi-card-compact admin-kpi-card-dark">
-                            <Label text="Training" styleClass="admin-kpi-label"/>
-                            <Label fx:id="entrainementCountLabel" text="..." styleClass="admin-kpi-value"/>
-                            <Label text="planned sessions" styleClass="admin-kpi-meta"/>
-                        </VBox>
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="Announcements" styleClass="admin-kpi-label"/>
+                        <Label fx:id="annonceCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="published posts" wrapText="true" styleClass="admin-kpi-meta"/>
                     </VBox>
 
-                    <VBox spacing="18" styleClass="admin-kpi-stack" minWidth="228" prefWidth="246">
-                        <VBox spacing="6" styleClass="admin-kpi-card admin-kpi-card-compact admin-kpi-card-dark">
-                            <Label text="Teams" styleClass="admin-kpi-label"/>
-                            <Label fx:id="equipeCountLabel" text="..." styleClass="admin-kpi-value"/>
-                            <Label text="clubs in the workspace" styleClass="admin-kpi-meta"/>
-                        </VBox>
-                        <VBox spacing="6" styleClass="admin-kpi-card admin-kpi-card-compact admin-kpi-card-dark">
-                            <Label text="Players" styleClass="admin-kpi-label"/>
-                            <Label fx:id="joueurCountLabel" text="..." styleClass="admin-kpi-value"/>
-                            <Label text="player profiles linked to teams" wrapText="true" styleClass="admin-kpi-meta"/>
-                        </VBox>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="18" styleClass="admin-analytics-grid">
-                    <VBox spacing="14" styleClass="panel-card admin-analytics-card admin-analytics-card-wide" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER_LEFT" spacing="14">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Team performance radar" styleClass="section-title admin-section-title"/>
-                                <Label text="Pick a club and compare win, draw, and loss rates from recorded final scores."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <ComboBox fx:id="teamStatsComboBox"
-                                      promptText="Choisir une equipe"
-                                      styleClass="glass-combo admin-dashboard-combo"/>
-                        </HBox>
-
-                        <BarChart fx:id="teamRateChart"
-                                  animated="false"
-                                  legendVisible="false"
-                                  categoryGap="20"
-                                  barGap="8"
-                                  prefHeight="320"
-                                  styleClass="admin-stats-chart admin-stats-chart-wide">
-                            <xAxis>
-                                <CategoryAxis/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis autoRanging="false" lowerBound="0.0" upperBound="100.0" tickUnit="20.0"/>
-                            </yAxis>
-                        </BarChart>
-
-                        <Label fx:id="teamStatsSummaryLabel"
-                               text="Selectionnez une equipe pour voir ses statistiques."
-                               wrapText="true"
-                               styleClass="admin-chart-summary"/>
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="Teams" styleClass="admin-kpi-label"/>
+                        <Label fx:id="equipeCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="clubs in the workspace" wrapText="true" styleClass="admin-kpi-meta"/>
                     </VBox>
 
-                    <VBox spacing="18" minWidth="340" maxWidth="374">
-                        <VBox spacing="12" styleClass="panel-card admin-analytics-card admin-analytics-card-side">
-                            <Label text="Fixture status split" styleClass="section-title admin-section-title"/>
-                            <Label text="Scheduled, completed, and follow-up match distribution across the local database."
-                                   wrapText="true"
-                                   styleClass="section-subtitle"/>
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="Training" styleClass="admin-kpi-label"/>
+                        <Label fx:id="entrainementCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="planned sessions" wrapText="true" styleClass="admin-kpi-meta"/>
+                    </VBox>
 
-                            <PieChart fx:id="matchStatusChart"
-                                      clockwise="true"
-                                      labelsVisible="true"
-                                      prefHeight="268"
-                                      styleClass="admin-stats-chart admin-stats-pie"/>
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="Players" styleClass="admin-kpi-label"/>
+                        <Label fx:id="joueurCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="player profiles linked to teams" wrapText="true" styleClass="admin-kpi-meta"/>
+                    </VBox>
+                </FlowPane>
 
-                            <Label fx:id="matchChartSummaryLabel"
-                                   text="Aucune statistique match disponible."
-                                   wrapText="true"
-                                   styleClass="admin-chart-summary"/>
-                        </VBox>
-
-                        <VBox spacing="10" styleClass="panel-card admin-note-card">
-                            <Label text="Dark analytics mode" styleClass="section-title admin-section-title"/>
-                            <Label text="This dashboard keeps the real admin data, but presents it through a darker neon command-center layout with stronger contrast and clearer visual hierarchy."
+                <VBox spacing="12" styleClass="panel-card admin-table-card admin-operations-card">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Operations feed" styleClass="section-title admin-section-title"/>
+                            <Label text="Latest team, player, and match records surfaced for quick admin review."
                                    wrapText="true"
                                    styleClass="section-subtitle"/>
                         </VBox>
-                    </VBox>
-                </HBox>
+                        <Label text="Live" styleClass="toolbar-chip-soft"/>
+                    </HBox>
 
-                <HBox spacing="18" styleClass="admin-analytics-grid">
-                    <VBox spacing="14" styleClass="panel-card admin-analytics-card" HBox.hgrow="ALWAYS">
-                        <Label text="Squad distribution" styleClass="section-title admin-section-title"/>
-                        <Label text="Top teams by player volume, sourced directly from the linked player records."
-                               wrapText="true"
-                               styleClass="section-subtitle"/>
-
-                        <BarChart fx:id="playerDistributionChart"
-                                  animated="false"
-                                  legendVisible="false"
-                                  categoryGap="18"
-                                  barGap="10"
-                                  prefHeight="300"
-                                  styleClass="admin-stats-chart admin-stats-chart-wide">
-                            <xAxis>
-                                <CategoryAxis/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis/>
-                            </yAxis>
-                        </BarChart>
-
-                        <Label fx:id="playerChartSummaryLabel"
-                               text="Aucune statistique joueur disponible."
-                               wrapText="true"
-                               styleClass="admin-chart-summary"/>
-                    </VBox>
-
-                    <VBox spacing="12" styleClass="panel-card admin-table-card admin-operations-card" minWidth="400" maxWidth="438">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Operations feed" styleClass="section-title admin-section-title"/>
-                                <Label text="Latest team, player, and match records surfaced for quick admin review."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <Label text="Live" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <TableView fx:id="operationsTableView"
-                                   prefHeight="316"
-                                   styleClass="data-table admin-dashboard-table admin-dashboard-table-compact">
-                            <columns>
-                                <TableColumn fx:id="operationModuleColumn" text="Module" prefWidth="120"/>
-                                <TableColumn fx:id="operationPrimaryColumn" text="Element" prefWidth="210"/>
-                                <TableColumn fx:id="operationSecondaryColumn" text="Detail" prefWidth="180"/>
-                                <TableColumn fx:id="operationMetaColumn" text="Meta" prefWidth="110"/>
-                            </columns>
-                            <placeholder>
-                                <Label text="Aucune donnee operationnelle disponible." styleClass="empty-text"/>
-                            </placeholder>
-                        </TableView>
-                    </VBox>
-                </HBox>
+                    <TableView fx:id="operationsTableView"
+                               prefHeight="316"
+                               styleClass="data-table admin-dashboard-table admin-dashboard-table-compact">
+                        <columns>
+                            <TableColumn fx:id="operationModuleColumn" text="Module" prefWidth="120"/>
+                            <TableColumn fx:id="operationPrimaryColumn" text="Element" prefWidth="210"/>
+                            <TableColumn fx:id="operationSecondaryColumn" text="Detail" prefWidth="180"/>
+                            <TableColumn fx:id="operationMetaColumn" text="Meta" prefWidth="110"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucune donnee operationnelle disponible." styleClass="empty-text"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
 
                 <HBox spacing="18" styleClass="admin-dashboard-grid">
                     <VBox spacing="12" styleClass="panel-card admin-table-card" HBox.hgrow="ALWAYS">
