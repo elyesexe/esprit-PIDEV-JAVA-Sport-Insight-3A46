@@ -25,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
@@ -72,7 +73,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MatchDetailController {
+public class MatchDetailController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
@@ -208,8 +209,12 @@ public class MatchDetailController {
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong apiRequestSequence = new AtomicLong();
     private List<ApiFootballMatchIncident> currentIncidents = List.of();
+    private ApiFootballLineupSide currentHomeLineup;
+    private ApiFootballLineupSide currentAwayLineup;
+    private List<ApiFootballStatisticRow> currentStatistics = List.of();
     private Long currentMvpPlayerId;
     private String currentMvpPlayerNameKey;
+    private String currentApiFootballStatus = "Detailed match data not loaded yet.";
     private MatchDetailTab activeTab = MatchDetailTab.SUMMARY;
 
     @FXML
@@ -259,6 +264,157 @@ public class MatchDetailController {
             return detailTitleLabel.getText();
         }
         return match == null ? "Current match" : buildMatchLabel(match);
+    }
+
+    public List<String> getCurrentHomeStartingLineupNames() {
+        return extractStartingLineupNames(currentHomeLineup);
+    }
+
+    public List<String> getCurrentAwayStartingLineupNames() {
+        return extractStartingLineupNames(currentAwayLineup);
+    }
+
+    public String getCurrentHomeLineupMeta() {
+        return buildLineupMeta(currentHomeLineup);
+    }
+
+    public String getCurrentAwayLineupMeta() {
+        return buildLineupMeta(currentAwayLineup);
+    }
+
+    public String getCurrentScoreLabel() {
+        return detailScoreValueLabel != null && detailScoreValueLabel.getText() != null && !detailScoreValueLabel.getText().isBlank()
+                ? detailScoreValueLabel.getText()
+                : (match == null ? "- : -" : buildScore(match));
+    }
+
+    public String getCurrentStatusLabel() {
+        return detailStatutValueLabel != null && detailStatutValueLabel.getText() != null && !detailStatutValueLabel.getText().isBlank()
+                ? detailStatutValueLabel.getText()
+                : resolveStatus(match);
+    }
+
+    public String getCurrentCompetitionLabel() {
+        return detailCompetitionValueLabel != null && detailCompetitionValueLabel.getText() != null && !detailCompetitionValueLabel.getText().isBlank()
+                ? detailCompetitionValueLabel.getText()
+                : emptyToFallback(resolveCompetitionLabel(match == null ? null : match.getCompetitionCode()), "Competition");
+    }
+
+    public String getCurrentDateLabel() {
+        return detailDateValueLabel != null && detailDateValueLabel.getText() != null && !detailDateValueLabel.getText().isBlank()
+                ? detailDateValueLabel.getText()
+                : formatDate(match == null ? null : match.getDateMatch());
+    }
+
+    public String getCurrentTimeLabel() {
+        return detailHeureValueLabel != null && detailHeureValueLabel.getText() != null && !detailHeureValueLabel.getText().isBlank()
+                ? detailHeureValueLabel.getText()
+                : formatTime(match == null ? null : match.getHeureDebut());
+    }
+
+    public String getCurrentVenueLabel() {
+        return detailLieuValueLabel != null && detailLieuValueLabel.getText() != null && !detailLieuValueLabel.getText().isBlank()
+                ? detailLieuValueLabel.getText()
+                : emptyToFallback(match == null ? null : match.getLieu(), "Unknown venue");
+    }
+
+    public String getCurrentApiStatusLabel() {
+        return currentApiFootballStatus;
+    }
+
+    public List<ApiFootballStatisticRow> getCurrentStatistics() {
+        return currentStatistics == null ? List.of() : List.copyOf(currentStatistics);
+    }
+
+    public List<String> getCurrentGoalHighlights() {
+        return currentIncidents == null ? List.of() : currentIncidents.stream()
+                .filter(java.util.Objects::nonNull)
+                .filter(ApiFootballMatchIncident::isGoal)
+                .map(this::buildIncidentHighlight)
+                .toList();
+    }
+
+    public List<String> getCurrentCardHighlights() {
+        return currentIncidents == null ? List.of() : currentIncidents.stream()
+                .filter(java.util.Objects::nonNull)
+                .filter(ApiFootballMatchIncident::isCard)
+                .map(this::buildIncidentHighlight)
+                .toList();
+    }
+
+    public String getCurrentMvpSummary() {
+        ApiFootballLineupPlayer mvpPlayer = findCurrentMvpPlayer();
+        if (mvpPlayer == null) {
+            return null;
+        }
+
+        String teamName = lineupContainsPlayer(currentHomeLineup, mvpPlayer)
+                ? getCurrentHomeTeamName()
+                : lineupContainsPlayer(currentAwayLineup, mvpPlayer) ? getCurrentAwayTeamName() : "this match";
+        PlayerIncidentSummary summary = summarizePlayerIncidents(mvpPlayer);
+
+        List<String> parts = new ArrayList<>();
+        if (mvpPlayer.rating() != null) {
+            parts.add("rating " + formatRating(mvpPlayer.rating()));
+        }
+        if (summary.goals() > 0) {
+            parts.add(summary.goals() + " goal" + (summary.goals() > 1 ? "s" : ""));
+        }
+        if (summary.assists() > 0) {
+            parts.add(summary.assists() + " assist" + (summary.assists() > 1 ? "s" : ""));
+        }
+        if (summary.yellowCards() > 0) {
+            parts.add(summary.yellowCards() + " yellow");
+        }
+        if (summary.redCards() > 0) {
+            parts.add(summary.redCards() + " red");
+        }
+
+        StringBuilder builder = new StringBuilder(emptyToFallback(mvpPlayer.playerName(), "Unknown player"))
+                .append(" is the current MVP for ")
+                .append(teamName);
+        if (!parts.isEmpty()) {
+            builder.append(" with ").append(String.join(", ", parts));
+        }
+        builder.append(".");
+        return builder.toString();
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        StringBuilder summary = new StringBuilder()
+                .append("Current match screen.\n")
+                .append("Match: ").append(getCurrentMatchLabel()).append(".\n")
+                .append("Competition: ").append(getCurrentCompetitionLabel()).append(".\n")
+                .append("Score: ").append(getCurrentScoreLabel()).append(". Status: ").append(getCurrentStatusLabel()).append(".\n")
+                .append("Date: ").append(getCurrentDateLabel()).append(" ").append(getCurrentTimeLabel()).append(". Venue: ").append(getCurrentVenueLabel()).append(".\n")
+                .append("Home lineup: ").append(getCurrentHomeTeamName()).append(" - ").append(getCurrentHomeLineupMeta()).append(".\n")
+                .append("Away lineup: ").append(getCurrentAwayTeamName()).append(" - ").append(getCurrentAwayLineupMeta()).append(".\n");
+
+        String mvpSummary = getCurrentMvpSummary();
+        if (mvpSummary != null && !mvpSummary.isBlank()) {
+            summary.append("MVP: ").append(mvpSummary).append('\n');
+        }
+
+        List<String> goals = getCurrentGoalHighlights();
+        if (!goals.isEmpty()) {
+            summary.append("Goal events: ").append(String.join(" | ", goals.stream().limit(6).toList())).append(".\n");
+        }
+
+        List<ApiFootballStatisticRow> statistics = getCurrentStatistics();
+        if (!statistics.isEmpty()) {
+            List<String> statSummaries = statistics.stream()
+                    .filter(java.util.Objects::nonNull)
+                    .limit(6)
+                    .map(row -> emptyToFallback(row.label(), "Stat") + ": "
+                            + emptyToFallback(row.homeValue(), "N/A") + " - "
+                            + emptyToFallback(row.awayValue(), "N/A"))
+                    .toList();
+            summary.append("Key stats: ").append(String.join(" | ", statSummaries)).append(".\n");
+        }
+
+        summary.append("Detailed data status: ").append(emptyToFallback(currentApiFootballStatus, "Unknown"));
+        return summary.toString();
     }
 
     public void openSummaryTabFromAssistant() {
@@ -415,6 +571,9 @@ public class MatchDetailController {
             lineupDomicileMetaLabel.setText("Formation indisponible");
             lineupExterieurMetaLabel.setText("Formation indisponible");
             currentIncidents = List.of();
+            currentHomeLineup = null;
+            currentAwayLineup = null;
+            currentStatistics = List.of();
             currentMvpPlayerId = null;
             currentMvpPlayerNameKey = null;
             renderSummary(List.of());
@@ -497,6 +656,9 @@ public class MatchDetailController {
         ApiFootballLineupSide storedAwayLineup = buildStoredLineup(match == null ? null : match.getLineupExterieur(), awayTeam);
         ApiFootballLineupSide homeLineup = chooseRenderableLineup(details.homeLineup(), storedHomeLineup);
         ApiFootballLineupSide awayLineup = chooseRenderableLineup(details.awayLineup(), storedAwayLineup);
+        currentHomeLineup = homeLineup;
+        currentAwayLineup = awayLineup;
+        currentStatistics = details.statistics() == null ? List.of() : List.copyOf(details.statistics());
         selectMatchMvp(homeLineup, awayLineup);
 
         lineupDomicileMetaLabel.setText(buildLineupMeta(homeLineup));
@@ -512,13 +674,41 @@ public class MatchDetailController {
         currentIncidents = List.of();
         currentMvpPlayerId = null;
         currentMvpPlayerNameKey = null;
+        currentStatistics = List.of();
         renderSummary(List.of());
         ApiFootballLineupSide homeStored = chooseRenderableLineup(buildStoredLineup(match == null ? null : match.getLineupDomicile(), homeTeam), null);
         ApiFootballLineupSide awayStored = chooseRenderableLineup(buildStoredLineup(match == null ? null : match.getLineupExterieur(), awayTeam), null);
+        currentHomeLineup = homeStored;
+        currentAwayLineup = awayStored;
         lineupDomicileMetaLabel.setText(buildLineupMeta(homeStored));
         lineupExterieurMetaLabel.setText(buildLineupMeta(awayStored));
         renderLineupSection(homeLineupPitchContainer, homeBenchContainer, homeStored, false);
         renderLineupSection(awayLineupPitchContainer, awayBenchContainer, awayStored, true);
+    }
+
+    private List<String> extractStartingLineupNames(ApiFootballLineupSide lineup) {
+        if (lineup == null || lineup.startingPlayers() == null || lineup.startingPlayers().isEmpty()) {
+            return List.of();
+        }
+
+        return lineup.startingPlayers().stream()
+                .filter(java.util.Objects::nonNull)
+                .map(player -> emptyToFallback(player.playerName(), "Joueur"))
+                .toList();
+    }
+
+    private String buildIncidentHighlight(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return "";
+        }
+
+        String minute = emptyToFallback(incident.minuteLabel(), "--");
+        String title = buildTimelineTitle(incident);
+        String meta = buildTimelineMeta(incident);
+        if (meta == null || meta.isBlank()) {
+            return minute + " " + title;
+        }
+        return minute + " " + title + " (" + meta + ")";
     }
 
     private void applyActiveTab() {
@@ -1464,6 +1654,37 @@ public class MatchDetailController {
         }
         return currentMvpPlayerNameKey != null
                 && currentMvpPlayerNameKey.equals(normalizeComparableName(player.playerName()));
+    }
+
+    private ApiFootballLineupPlayer findCurrentMvpPlayer() {
+        for (ApiFootballLineupPlayer player : allRatedPlayers(currentHomeLineup, currentAwayLineup)) {
+            if (isMvpPlayer(player)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    private boolean lineupContainsPlayer(ApiFootballLineupSide lineup, ApiFootballLineupPlayer targetPlayer) {
+        if (lineup == null || targetPlayer == null) {
+            return false;
+        }
+
+        if (lineup.startingPlayers() != null) {
+            for (ApiFootballLineupPlayer player : lineup.startingPlayers()) {
+                if (matchesPlayer(player, targetPlayer.playerId(), targetPlayer.playerName())) {
+                    return true;
+                }
+            }
+        }
+        if (lineup.substitutePlayers() != null) {
+            for (ApiFootballLineupPlayer player : lineup.substitutePlayers()) {
+                if (matchesPlayer(player, targetPlayer.playerId(), targetPlayer.playerName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean matchesPlayer(ApiFootballLineupPlayer player, Long playerId, String playerName) {
@@ -2750,6 +2971,7 @@ public class MatchDetailController {
             apiFootballStatusLabel.getStyleClass().add(styleClass);
         }
         apiFootballStatusLabel.setText(message);
+        currentApiFootballStatus = message;
     }
 
     private String shortError(Throwable throwable) {

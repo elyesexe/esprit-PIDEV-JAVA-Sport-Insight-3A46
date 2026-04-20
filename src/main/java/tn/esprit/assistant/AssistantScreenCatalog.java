@@ -70,9 +70,9 @@ public final class AssistantScreenCatalog {
             List.of(
                     "Browse competitions or match lists.",
                     "Inspect a fixture to view details and lineups.",
-                    "Use this area for scheduling and score tracking."
+                    "Use this area for scheduling, score tracking, and Jarvis match predictions."
             ),
-            List.of("Explain the match workflow", "Open Champions League matches", "Open Bayern vs Real Madrid details")
+            List.of("Predict this match", "Explain the match workflow", "Open Champions League matches", "Open Bayern vs Real Madrid details")
     );
     private static final ScreenMeta LEAGUES = new ScreenMeta(
             "Leagues",

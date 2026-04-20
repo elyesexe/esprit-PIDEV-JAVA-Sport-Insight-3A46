@@ -39,6 +39,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -76,7 +77,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Pattern;
 
-public class JoueurController {
+public class JoueurController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final Path SYMFONY_JOUEURS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "joueurs");
     private static final double CARD_IMAGE_SIZE = 82;
@@ -200,6 +201,7 @@ public class JoueurController {
     private Joueur selectedJoueur;
     private File lastImageDirectory;
     private boolean serviceReady;
+    private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
     private final Set<Integer> loadingImageIds = new HashSet<>();
 
@@ -230,6 +232,47 @@ public class JoueurController {
             showErrorStatus("Connexion base impossible.");
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de charger les joueurs.\n" + e.getMessage());
         }
+    }
+
+    public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
+        if (playerDistributionChart != null) {
+            playerDistributionChart.applyCss();
+        }
+        Platform.runLater(this::updatePlayerDistributionChart);
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        String filterTeam = equipeFilterComboBox != null && equipeFilterComboBox.getValue() != null
+                ? emptyIfNull(equipeFilterComboBox.getValue().getNom())
+                : "All teams";
+        String selectedName = selectedJoueur == null ? null : buildFullName(selectedJoueur);
+
+        return """
+                Current player management screen.
+                Visible players: %s. Results meta: %s. Team count: %s.
+                Search query: %s. Team filter: %s.
+                Selection state: %s.
+                Selected or preview player: %s.
+                Player subtitle: %s.
+                Team: %s. Number: %s.
+                Player distribution summary: %s.
+                Toolbar status: %s.
+                """.formatted(
+                emptyIfNull(resultCountLabel == null ? null : resultCountLabel.getText()),
+                emptyIfNull(resultsMetaLabel == null ? null : resultsMetaLabel.getText()),
+                emptyIfNull(teamCountLabel == null ? null : teamCountLabel.getText()),
+                emptyIfNull(searchField == null ? null : searchField.getText()),
+                emptyIfNull(filterTeam),
+                emptyIfNull(selectionStateLabel == null ? null : selectionStateLabel.getText()),
+                emptyIfNull(selectedName != null ? selectedName : detailNameLabel == null ? null : detailNameLabel.getText()),
+                emptyIfNull(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText()),
+                emptyIfNull(detailEquipeValueLabel == null ? null : detailEquipeValueLabel.getText()),
+                emptyIfNull(detailNumeroValueLabel == null ? null : detailNumeroValueLabel.getText()),
+                emptyIfNull(playerChartSummaryLabel == null ? null : playerChartSummaryLabel.getText()),
+                emptyIfNull(statusLabel == null ? null : statusLabel.getText())
+        );
     }
 
     @FXML
@@ -741,7 +784,9 @@ public class JoueurController {
                 .limit(6)
                 .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
         playerDistributionChart.getData().add(series);
-        applyBarColors(series, List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
+        applyBarColors(series, darkMode
+                ? List.of("#8b5cf6", "#a855f7", "#c084fc", "#60a5fa", "#38bdf8", "#f472b6")
+                : List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
 
         long withoutTeam = filteredJoueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count();
         double averageAge = filteredJoueurs.stream()

@@ -166,3 +166,1706 @@
     -fx-background-color: rgba(82, 82, 91, 0.94);
     -fx-background-radius: 999;
 }
+
+/* Neon admin dark redesign */
+.admin-dark.admin-shell-root,
+.theme-dark.admin-shell-root,
+.theme-dark.admin-page-root.admin-shell-root {
+    -fx-background-color:
+        radial-gradient(center 16% 8%, radius 34%, rgba(190, 120, 255, 0.30) 0%, rgba(190, 120, 255, 0.10) 52%, transparent 53%),
+        radial-gradient(center 96% 92%, radius 30%, rgba(52, 211, 255, 0.20) 0%, rgba(52, 211, 255, 0.06) 46%, transparent 47%),
+        linear-gradient(from 0% 0% to 100% 100%, #323752 0%, #2a2f47 55%, #23273b 100%);
+}
+
+.admin-dark .admin-content-stage,
+.admin-dark .admin-dashboard-wrap,
+.admin-dark .admin-dashboard-scroll,
+.admin-dark .admin-dashboard-scroll > .viewport,
+.admin-dark .page-shell-wrap {
+    -fx-background-color: transparent;
+}
+
+.admin-dark .admin-sidebar-scroll {
+    -fx-background-color: rgba(24, 29, 53, 0.94);
+    -fx-background-radius: 34;
+    -fx-background-insets: 0;
+    -fx-border-color: rgba(145, 129, 255, 0.16);
+    -fx-border-radius: 34;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(6, 10, 24, 0.54), 42, 0.24, 0, 18);
+}
+
+.admin-dark .admin-sidebar-scroll > .viewport,
+.admin-dark .admin-sidebar-scroll > .corner {
+    -fx-background-color: transparent;
+}
+
+.admin-dark .admin-sidebar {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+.admin-dark .admin-sidebar-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 28px;
+    -fx-text-fill: #edf1ff;
+    -fx-padding: 0 0 14 2;
+}
+
+.admin-dark .admin-sidebar-section {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f970dd;
+    -fx-padding: 14 0 6 2;
+}
+
+.admin-dark .admin-nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(129, 141, 196, 0.12);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-text-fill: #cfd8ff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 16 12 16;
+}
+
+.admin-dark .admin-nav-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(111, 81, 188, 0.26) 0%, rgba(43, 52, 94, 0.18) 100%);
+    -fx-border-color: rgba(194, 150, 255, 0.26);
+}
+
+.admin-dark .admin-nav-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(182, 104, 255, 0.42) 0%, rgba(84, 65, 156, 0.28) 52%, rgba(42, 48, 83, 0.22) 100%);
+    -fx-border-color: rgba(223, 164, 255, 0.34);
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(187, 113, 255, 0.24), 18, 0.18, 0, 2);
+}
+
+.admin-dark .admin-nav-icon-shell {
+    -fx-background-color: rgba(15, 20, 41, 0.86);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(124, 139, 201, 0.18);
+    -fx-border-radius: 10;
+}
+
+.admin-dark .admin-nav-button:hover .admin-nav-icon-shell,
+.admin-dark .admin-nav-button-active .admin-nav-icon-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(70, 90, 170, 0.62) 0%, rgba(166, 88, 255, 0.28) 100%);
+    -fx-border-color: rgba(201, 168, 255, 0.32);
+}
+
+.admin-dark .admin-nav-icon-svg {
+    -fx-fill: #85d2ff;
+}
+
+.admin-dark .admin-nav-button-active .admin-nav-icon-svg,
+.admin-dark .admin-nav-button-active .admin-nav-text,
+.admin-dark .admin-nav-button:hover .admin-nav-text {
+    -fx-fill: #ffffff;
+    -fx-text-fill: #ffffff;
+}
+
+.admin-dark .admin-sidebar-user-button,
+.admin-dark .primary-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #d96cff 0%, #8b5dff 48%, #4ac8ff 100%);
+    -fx-border-color: rgba(226, 209, 255, 0.26);
+    -fx-text-fill: #fefeff;
+    -fx-font-weight: 800;
+    -fx-effect: dropshadow(gaussian, rgba(110, 77, 255, 0.28), 20, 0.18, 0, 8);
+}
+
+.admin-dark .admin-sidebar-user-button:hover,
+.admin-dark .primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #e57bff 0%, #9d71ff 46%, #57d5ff 100%);
+    -fx-border-color: rgba(238, 227, 255, 0.34);
+}
+
+.admin-dark .ghost-button,
+.admin-dark .soft-button,
+.admin-dark .navbar-admin-button {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.20);
+    -fx-text-fill: #e6ebff;
+}
+
+.admin-dark .ghost-button:hover,
+.admin-dark .soft-button:hover,
+.admin-dark .navbar-admin-button:hover {
+    -fx-background-color: rgba(32, 39, 68, 0.98);
+    -fx-border-color: rgba(185, 168, 255, 0.28);
+}
+
+.admin-dark .danger-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff5b7f 0%, #d03363 100%);
+    -fx-border-color: rgba(255, 171, 198, 0.22);
+    -fx-text-fill: #fff4f7;
+}
+
+.admin-dark .admin-sidebar-theme-row {
+    -fx-background-color: rgba(19, 24, 45, 0.74);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(129, 141, 196, 0.12);
+    -fx-border-radius: 18;
+    -fx-padding: 12 14 12 14;
+}
+
+.admin-dark .admin-sidebar-theme-label {
+    -fx-text-fill: #b8c2ee;
+}
+
+.admin-dark .admin-content-stack {
+    -fx-background-color: rgba(15, 19, 39, 0.90);
+    -fx-background-radius: 38;
+    -fx-border-color: rgba(137, 124, 255, 0.14);
+    -fx-border-radius: 38;
+    -fx-border-width: 1;
+    -fx-padding: 8;
+    -fx-effect: dropshadow(gaussian, rgba(8, 12, 27, 0.60), 56, 0.26, 0, 20);
+}
+
+.admin-dark .admin-dashboard-shell {
+    -fx-background-color: transparent;
+    -fx-max-width: 1560;
+}
+
+.admin-dark .admin-dashboard-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 34px;
+    -fx-text-fill: #f4f7ff;
+}
+
+.admin-dark .admin-dashboard-subtitle,
+.admin-dark .section-subtitle,
+.admin-dark .admin-chart-summary,
+.admin-dark .admin-user-note,
+.admin-dark .empty-text {
+    -fx-text-fill: #95a2d8;
+}
+
+.admin-dark .admin-hero-status {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(51, 230, 214, 0.20) 0%, rgba(97, 120, 255, 0.18) 100%);
+    -fx-border-color: rgba(95, 230, 219, 0.22);
+    -fx-text-fill: #dffdf9;
+    -fx-padding: 10 16 10 16;
+}
+
+.admin-dark .admin-metric-ribbon {
+    -fx-alignment: top-left;
+}
+
+.admin-dark .admin-kpi-stack {
+    -fx-alignment: top-left;
+}
+
+.admin-dark .admin-kpi-card,
+.admin-dark .panel-card,
+.admin-dark .admin-hint-card,
+.admin-dark .toolbar-summary-card,
+.admin-dark .admin-workspace-root .toolbar-panel,
+.admin-dark .admin-workspace-root .results-panel,
+.admin-dark .admin-workspace-root .detail-card,
+.admin-dark .admin-workspace-root .form-card,
+.admin-dark .admin-workspace-root .match-toolbar,
+.admin-dark .admin-workspace-root .sync-toolbar-row,
+.admin-dark .detail-logo-shell,
+.admin-dark .player-avatar-shell,
+.admin-dark .player-detail-photo-shell,
+.admin-dark .stat-chip,
+.admin-dark .empty-state-box,
+.admin-dark .fixture-card,
+.admin-dark .fixture-team-logo-shell,
+.admin-dark .match-detail-logo-shell,
+.admin-dark .fixture-score-shell,
+.admin-dark .match-detail-score-shell,
+.admin-dark .match-detail-board {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(129, 141, 196, 0.14);
+    -fx-border-radius: 28;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(4, 7, 19, 0.38), 30, 0.18, 0, 12);
+}
+
+.admin-dark .admin-kpi-card {
+    -fx-padding: 20 22 20 22;
+}
+
+.admin-dark .admin-kpi-card-gradient {
+    -fx-border-color: transparent;
+}
+
+.admin-dark .admin-kpi-card-primary {
+    -fx-background-color:
+        radial-gradient(center 22% 24%, radius 58%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 52%, transparent 53%),
+        radial-gradient(center 88% 76%, radius 38%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.02) 42%, transparent 43%),
+        linear-gradient(from 0% 0% to 100% 100%, #d25eff 0%, #9f67ff 52%, #7c84ff 100%);
+}
+
+.admin-dark .admin-kpi-card-secondary {
+    -fx-background-color:
+        radial-gradient(center 18% 24%, radius 56%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 50%, transparent 51%),
+        radial-gradient(center 90% 70%, radius 34%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 41%),
+        linear-gradient(from 0% 0% to 100% 100%, #1fd6dd 0%, #36b8f4 52%, #6a89ff 100%);
+}
+
+.admin-dark .admin-kpi-card-compact {
+    -fx-min-height: 132;
+}
+
+.admin-dark .admin-kpi-card-dark {
+    -fx-background-color: rgba(25, 30, 55, 0.98);
+}
+
+.admin-dark .admin-kpi-label {
+    -fx-text-fill: rgba(242, 246, 255, 0.80);
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.admin-dark .admin-kpi-card-dark .admin-kpi-label {
+    -fx-text-fill: #b2bde9;
+}
+
+.admin-dark .admin-kpi-value {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 46px;
+    -fx-text-fill: #fbfdff;
+}
+
+.admin-dark .admin-kpi-card-compact .admin-kpi-value {
+    -fx-font-size: 30px;
+}
+
+.admin-dark .admin-kpi-meta {
+    -fx-text-fill: rgba(241, 246, 255, 0.76);
+    -fx-font-size: 12px;
+}
+
+.admin-dark .admin-kpi-card-dark .admin-kpi-meta {
+    -fx-text-fill: #93a1d6;
+}
+
+.admin-dark .admin-analytics-grid,
+.admin-dark .admin-dashboard-grid {
+    -fx-alignment: top-left;
+}
+
+.admin-dark .admin-analytics-card,
+.admin-dark .admin-table-card,
+.admin-dark .admin-note-card {
+    -fx-padding: 22 24 22 24;
+}
+
+.admin-dark .admin-analytics-card-wide {
+    -fx-min-width: 0;
+}
+
+.admin-dark .admin-note-card {
+    -fx-background-color:
+        radial-gradient(center 100% 0%, radius 40%, rgba(75, 212, 255, 0.12) 0%, transparent 52%),
+        linear-gradient(from 0% 0% to 100% 100%, rgba(25, 30, 55, 0.98) 0%, rgba(30, 36, 63, 0.98) 100%);
+}
+
+.admin-dark .admin-section-title,
+.admin-dark .section-title,
+.admin-dark .card-title,
+.admin-dark .detail-title,
+.admin-dark .empty-title,
+.admin-dark .toolbar-summary-value,
+.admin-dark .stat-value {
+    -fx-text-fill: #eff3ff;
+}
+
+.admin-dark .toolbar-chip-soft,
+.admin-dark .status-muted,
+.admin-dark .toolbar-chip {
+    -fx-background-color: rgba(31, 38, 67, 0.98);
+    -fx-border-color: rgba(129, 141, 196, 0.16);
+    -fx-text-fill: #d5dcff;
+}
+
+.admin-dark .status-success {
+    -fx-background-color: rgba(33, 181, 161, 0.18);
+    -fx-border-color: rgba(67, 226, 206, 0.18);
+    -fx-text-fill: #d3fff9;
+}
+
+.admin-dark .status-warning {
+    -fx-background-color: rgba(255, 179, 52, 0.18);
+    -fx-border-color: rgba(255, 204, 121, 0.18);
+    -fx-text-fill: #fff2cd;
+}
+
+.admin-dark .status-error {
+    -fx-background-color: rgba(255, 92, 143, 0.18);
+    -fx-border-color: rgba(255, 157, 192, 0.16);
+    -fx-text-fill: #ffe0ea;
+}
+
+.admin-dark .admin-dashboard-combo,
+.admin-dark .form-text-field,
+.admin-dark .glass-combo,
+.admin-dark .form-date-picker,
+.admin-dark .match-date-picker,
+.admin-dark .match-search-field,
+.admin-dark #searchField {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background: rgba(18, 22, 43, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.20);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-text-fill: #eef2ff;
+    -fx-prompt-text-fill: #8d9acb;
+}
+
+.admin-dark .admin-dashboard-combo {
+    -fx-pref-width: 248;
+}
+
+.admin-dark .admin-dashboard-combo:focused,
+.admin-dark .form-text-field:focused,
+.admin-dark .glass-combo:focused,
+.admin-dark .form-date-picker:focused,
+.admin-dark .match-date-picker:focused,
+.admin-dark .match-search-field:focused,
+.admin-dark #searchField:focused {
+    -fx-border-color: rgba(94, 215, 255, 0.36);
+    -fx-effect: dropshadow(gaussian, rgba(82, 201, 255, 0.16), 18, 0.16, 0, 0);
+}
+
+.admin-dark .glass-combo .arrow,
+.admin-dark .form-date-picker .arrow,
+.admin-dark .match-date-picker .arrow {
+    -fx-background-color: #e9edff;
+}
+
+.admin-dark .admin-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+    -fx-legend-visible: true;
+}
+
+.admin-dark .admin-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(18, 22, 43, 0.72);
+    -fx-background-radius: 22;
+}
+
+.admin-dark .admin-stats-chart .chart-vertical-grid-lines,
+.admin-dark .admin-stats-chart .chart-horizontal-grid-lines,
+.admin-dark .admin-stats-chart .chart-alternative-row-fill,
+.admin-dark .admin-stats-chart .chart-alternative-column-fill {
+    -fx-stroke: rgba(125, 137, 184, 0.22);
+}
+
+.admin-dark .admin-stats-chart .axis,
+.admin-dark .admin-stats-chart .axis-label,
+.admin-dark .admin-stats-chart .chart-legend-item,
+.admin-dark .admin-stats-chart .chart-legend-item .label,
+.admin-dark .admin-stats-chart .chart-pie-label {
+    -fx-text-fill: #d7ddff;
+}
+
+.admin-dark .admin-stats-chart .chart-pie-label {
+    -fx-fill: #edf1ff;
+}
+
+.admin-dark .admin-stats-chart .chart-pie-label-line {
+    -fx-stroke: rgba(237, 241, 255, 0.46);
+}
+
+.admin-dark .admin-stats-chart .chart-legend {
+    -fx-background-color: rgba(18, 22, 43, 0.66);
+    -fx-background-radius: 16;
+}
+
+.admin-dark .admin-stats-pie .default-color0.chart-pie {
+    -fx-pie-color: #2cd3e8;
+}
+
+.admin-dark .admin-stats-pie .default-color1.chart-pie {
+    -fx-pie-color: #5a8cff;
+}
+
+.admin-dark .admin-stats-pie .default-color2.chart-pie {
+    -fx-pie-color: #b667ff;
+}
+
+.admin-dark .admin-stats-pie .default-color3.chart-pie {
+    -fx-pie-color: #ff63d0;
+}
+
+.admin-dark .admin-stats-pie .default-color4.chart-pie {
+    -fx-pie-color: #ffc14d;
+}
+
+.admin-dark .data-table,
+.admin-dark .admin-dashboard-table,
+.theme-dark.admin-page-root .data-table,
+.theme-dark.admin-page-root .admin-dashboard-table {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background-alt: rgba(22, 28, 52, 0.98);
+    -fx-border-color: rgba(129, 141, 196, 0.18);
+    -fx-table-cell-border-color: rgba(86, 96, 142, 0.22);
+    -fx-selection-bar: rgba(87, 102, 173, 0.42);
+    -fx-selection-bar-non-focused: rgba(63, 74, 122, 0.36);
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
+}
+
+.admin-dark .data-table .virtual-flow,
+.admin-dark .data-table .clipped-container,
+.admin-dark .data-table .sheet,
+.admin-dark .data-table .filler,
+.admin-dark .data-table .corner,
+.admin-dark .admin-dashboard-table .virtual-flow,
+.admin-dark .admin-dashboard-table .clipped-container,
+.admin-dark .admin-dashboard-table .sheet,
+.admin-dark .admin-dashboard-table .filler,
+.admin-dark .admin-dashboard-table .corner {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+}
+
+.admin-dark .data-table .column-header-background,
+.admin-dark .admin-dashboard-table .column-header-background {
+    -fx-background-color: rgba(26, 31, 58, 0.98);
+    -fx-border-color: transparent transparent rgba(86, 96, 142, 0.34) transparent;
+}
+
+.admin-dark .data-table .column-header,
+.admin-dark .admin-dashboard-table .column-header {
+    -fx-background-color: transparent;
+}
+
+.admin-dark .data-table .column-header .label,
+.admin-dark .admin-dashboard-table .column-header .label {
+    -fx-text-fill: #d9e2ff;
+    -fx-font-weight: 700;
+}
+
+.admin-dark .data-table .table-row-cell,
+.admin-dark .admin-dashboard-table .table-row-cell {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-border-color: transparent transparent rgba(86, 96, 142, 0.20) transparent;
+}
+
+.admin-dark .data-table .table-row-cell:odd,
+.admin-dark .admin-dashboard-table .table-row-cell:odd {
+    -fx-background-color: rgba(21, 26, 48, 0.98);
+}
+
+.admin-dark .data-table .table-cell,
+.admin-dark .admin-dashboard-table .table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #eff3ff;
+}
+
+.admin-dark .data-table .placeholder .label,
+.admin-dark .admin-dashboard-table .placeholder .label {
+    -fx-text-fill: #95a2d8;
+}
+
+.admin-dark .data-table .scroll-bar:horizontal,
+.admin-dark .data-table .scroll-bar:vertical,
+.admin-dark .admin-dashboard-table .scroll-bar:horizontal,
+.admin-dark .admin-dashboard-table .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.admin-dark .data-table .scroll-bar .track,
+.admin-dark .admin-dashboard-table .scroll-bar .track,
+.admin-dark .admin-sidebar-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(14, 18, 35, 0.84);
+    -fx-background-radius: 999;
+}
+
+.admin-dark .data-table .scroll-bar .thumb,
+.admin-dark .admin-dashboard-table .scroll-bar .thumb,
+.admin-dark .admin-sidebar-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(182, 105, 255, 0.86) 0%, rgba(74, 198, 255, 0.78) 100%);
+    -fx-background-radius: 999;
+}
+
+.admin-dark .data-table .increment-button,
+.admin-dark .data-table .decrement-button,
+.admin-dark .data-table .increment-arrow,
+.admin-dark .data-table .decrement-arrow,
+.admin-dark .admin-dashboard-table .increment-button,
+.admin-dark .admin-dashboard-table .decrement-button,
+.admin-dark .admin-dashboard-table .increment-arrow,
+.admin-dark .admin-dashboard-table .decrement-arrow {
+    -fx-padding: 0;
+    -fx-shape: "";
+    -fx-background-color: transparent;
+}
+
+/* Full-bleed neon dashboard layout */
+.admin-dark.admin-shell-root .admin-content-stage,
+.theme-dark.admin-shell-root .admin-content-stage,
+.theme-dark.admin-page-root.admin-shell-root .admin-content-stage {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.admin-dark.admin-shell-root .admin-content-stack,
+.theme-dark.admin-shell-root .admin-content-stack,
+.theme-dark.admin-page-root.admin-shell-root .admin-content-stack {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-padding: 0;
+    -fx-effect: none;
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-scroll,
+.admin-dark.admin-shell-root .admin-dashboard-scroll > .viewport,
+.admin-dark.admin-shell-root .admin-dashboard-scroll > .corner,
+.admin-dark.admin-shell-root .admin-dashboard-wrap,
+.theme-dark.admin-shell-root .admin-dashboard-scroll,
+.theme-dark.admin-shell-root .admin-dashboard-scroll > .viewport,
+.theme-dark.admin-shell-root .admin-dashboard-scroll > .corner,
+.theme-dark.admin-shell-root .admin-dashboard-wrap,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll > .viewport,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll > .corner,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-wrap {
+    -fx-background-color:
+        radial-gradient(center 14% 10%, radius 34%, rgba(205, 114, 255, 0.22) 0%, rgba(205, 114, 255, 0.06) 50%, transparent 51%),
+        radial-gradient(center 94% 18%, radius 28%, rgba(63, 221, 255, 0.14) 0%, rgba(63, 221, 255, 0.04) 46%, transparent 47%),
+        linear-gradient(from 0% 0% to 100% 100%, #141932 0%, #171d39 52%, #10162c 100%);
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-scroll,
+.theme-dark.admin-shell-root .admin-dashboard-scroll,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll {
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-wrap,
+.theme-dark.admin-shell-root .admin-dashboard-wrap,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-wrap {
+    -fx-alignment: top-left;
+    -fx-padding: 0;
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-shell,
+.theme-dark.admin-shell-root .admin-dashboard-shell,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-shell {
+    -fx-background-color: transparent;
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical,
+.theme-dark.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical .track,
+.theme-dark.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical .track,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(14, 18, 35, 0.82);
+    -fx-background-radius: 999;
+}
+
+.admin-dark.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical .thumb,
+.theme-dark.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical .thumb,
+.theme-dark.admin-page-root.admin-shell-root .admin-dashboard-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(182, 105, 255, 0.88) 0%, rgba(74, 198, 255, 0.78) 100%);
+    -fx-background-radius: 999;
+}
+
+/* Unify every admin workspace page to the violet shell theme */
+.admin-shell-root.admin-dark .admin-workspace-root,
+.admin-shell-root.admin-dark .admin-workspace-root.page-root,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .viewport,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .corner,
+.admin-shell-root.admin-dark .admin-workspace-root .page-shell-wrap,
+.admin-shell-root.admin-dark .admin-workspace-root .page-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .content-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .side-column {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-panel,
+.admin-shell-root.admin-dark .admin-workspace-root .results-panel,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-card,
+.admin-shell-root.admin-dark .admin-workspace-root .form-card,
+.admin-shell-root.admin-dark .admin-workspace-root .panel-card,
+.admin-shell-root.admin-dark .admin-workspace-root .hero-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-info-card,
+.admin-shell-root.admin-dark .admin-workspace-root .team-list-card,
+.admin-shell-root.admin-dark .admin-workspace-root .squad-card,
+.admin-shell-root.admin-dark .admin-workspace-root .team-top-scorer-row,
+.admin-shell-root.admin-dark .admin-workspace-root .competition-card-button,
+.admin-shell-root.admin-dark .admin-workspace-root .annonce-metric-card,
+.admin-shell-root.admin-dark .admin-workspace-root .empty-state-box,
+.admin-shell-root.admin-dark .admin-workspace-root .stat-chip,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-logo-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .player-avatar-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .player-detail-photo-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-card,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-team-logo-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .match-detail-logo-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-score-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .match-detail-score-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .match-detail-board,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-summary-card {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(129, 141, 196, 0.16);
+    -fx-border-radius: 28;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(4, 7, 19, 0.40), 30, 0.18, 0, 12);
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .hero-overlay {
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%, rgba(13, 16, 36, 0.92) 0%, rgba(36, 30, 82, 0.78) 52%, rgba(80, 86, 210, 0.52) 100%);
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .section-title,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-title,
+.admin-shell-root.admin-dark .admin-workspace-root .card-title,
+.admin-shell-root.admin-dark .admin-workspace-root .competition-card-title,
+.admin-shell-root.admin-dark .admin-workspace-root .empty-title,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-team-name,
+.admin-shell-root.admin-dark .admin-workspace-root .match-detail-team-name,
+.admin-shell-root.admin-dark .admin-workspace-root .player-card-title,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-summary-value,
+.admin-shell-root.admin-dark .admin-workspace-root .stat-value,
+.admin-shell-root.admin-dark .admin-workspace-root .info-value-label,
+.admin-shell-root.admin-dark .admin-workspace-root .squad-name,
+.admin-shell-root.admin-dark .admin-workspace-root .team-top-scorer-name {
+    -fx-text-fill: #eef3ff;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .section-subtitle,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-subtitle,
+.admin-shell-root.admin-dark .admin-workspace-root .card-subtitle,
+.admin-shell-root.admin-dark .admin-workspace-root .card-subtitle-muted,
+.admin-shell-root.admin-dark .admin-workspace-root .card-meta,
+.admin-shell-root.admin-dark .admin-workspace-root .empty-text,
+.admin-shell-root.admin-dark .admin-workspace-root .field-label,
+.admin-shell-root.admin-dark .admin-workspace-root .form-helper,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-summary-caption,
+.admin-shell-root.admin-dark .admin-workspace-root .player-card-meta,
+.admin-shell-root.admin-dark .admin-workspace-root .player-card-team,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-date,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-id,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-team-role,
+.admin-shell-root.admin-dark .admin-workspace-root .match-detail-team-role,
+.admin-shell-root.admin-dark .admin-workspace-root .fixture-score-caption,
+.admin-shell-root.admin-dark .admin-workspace-root .match-detail-score-caption,
+.admin-shell-root.admin-dark .admin-workspace-root .stat-caption,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-chip-soft,
+.admin-shell-root.admin-dark .admin-workspace-root .squad-meta,
+.admin-shell-root.admin-dark .admin-workspace-root .team-top-scorer-meta {
+    -fx-text-fill: #95a2d8;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-chip,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-chip-soft,
+.admin-shell-root.admin-dark .admin-workspace-root .status-muted,
+.admin-shell-root.admin-dark .admin-workspace-root .team-card-competition-badge,
+.admin-shell-root.admin-dark .admin-workspace-root .team-top-scorer-pill,
+.admin-shell-root.admin-dark .admin-workspace-root .card-link,
+.admin-shell-root.admin-dark .admin-workspace-root .empty-icon {
+    -fx-background-color: rgba(31, 38, 67, 0.98);
+    -fx-border-color: rgba(129, 141, 196, 0.18);
+    -fx-text-fill: #d8e0ff;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .primary-button,
+.admin-shell-root.admin-dark .admin-workspace-root .sidebar-open-button,
+.admin-shell-root.admin-dark .admin-workspace-root .navbar-settings-button,
+.admin-shell-root.admin-dark .admin-workspace-root .competition-card-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #d96cff 0%, #8b5dff 48%, #4ac8ff 100%);
+    -fx-border-color: rgba(226, 209, 255, 0.28);
+    -fx-text-fill: #fefeff;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .ghost-button,
+.admin-shell-root.admin-dark .admin-workspace-root .soft-button,
+.admin-shell-root.admin-dark .admin-workspace-root .navbar-admin-button,
+.admin-shell-root.admin-dark .admin-workspace-root .sidebar-nav-button,
+.admin-shell-root.admin-dark .admin-workspace-root .navbar-nav-button,
+.admin-shell-root.admin-dark .admin-workspace-root .navbar-submenu-button,
+.admin-shell-root.admin-dark .admin-workspace-root .sidebar-submenu-button,
+.admin-shell-root.admin-dark .admin-workspace-root .sidebar-toggle-button {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.20);
+    -fx-text-fill: #e6ebff;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .form-text-field,
+.admin-shell-root.admin-dark .admin-workspace-root .glass-combo,
+.admin-shell-root.admin-dark .admin-workspace-root .form-date-picker,
+.admin-shell-root.admin-dark .admin-workspace-root .match-date-picker,
+.admin-shell-root.admin-dark .admin-workspace-root .match-search-field,
+.admin-shell-root.admin-dark .admin-workspace-root #searchField {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background: rgba(18, 22, 43, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.22);
+    -fx-text-fill: #eef2ff;
+    -fx-prompt-text-fill: #8d9acb;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .glass-combo .arrow,
+.admin-shell-root.admin-dark .admin-workspace-root .form-date-picker .arrow,
+.admin-shell-root.admin-dark .admin-workspace-root .match-date-picker .arrow {
+    -fx-background-color: #e9edff;
+}
+
+/* Final admin dark pass: keep every admin page violet and readable */
+.admin-shell-root.admin-dark .admin-workspace-root .sponsor-metric-card,
+.admin-shell-root.admin-dark .admin-workspace-root .sponsor-admin-metric-card,
+.admin-shell-root.admin-dark .admin-workspace-root .sponsor-chart-card,
+.admin-shell-root.admin-dark .admin-workspace-root .sponsor-logo-preview-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .competition-card-logo-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-info-card,
+.admin-shell-root.admin-dark .admin-workspace-root .squad-card,
+.admin-shell-root.admin-dark .admin-workspace-root .team-top-scorer-row,
+.admin-shell-root.admin-dark .admin-workspace-root .product-thumbnail-shell {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.16);
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+}
+
+.admin-shell-root.admin-dark .label,
+.admin-shell-root.admin-dark .button,
+.admin-shell-root.admin-dark .check-box,
+.admin-shell-root.admin-dark .check-box .text,
+.admin-shell-root.admin-dark .radio-button,
+.admin-shell-root.admin-dark .radio-button .text,
+.admin-shell-root.admin-dark .menu-button,
+.admin-shell-root.admin-dark .combo-box-base,
+.admin-shell-root.admin-dark .tab .tab-label,
+.admin-shell-root.admin-dark .table-view .column-header .label,
+.admin-shell-root.admin-dark .table-view .table-cell,
+.admin-shell-root.admin-dark .tree-table-view .column-header .label,
+.admin-shell-root.admin-dark .tree-table-view .table-cell,
+.admin-shell-root.admin-dark .chart-title,
+.admin-shell-root.admin-dark .axis-label,
+.admin-shell-root.admin-dark .axis .tick-label,
+.admin-shell-root.admin-dark .chart-legend-item,
+.admin-shell-root.admin-dark .chart-legend-item .label,
+.admin-shell-root.admin-dark .chart-pie-label {
+    -fx-text-fill: #eef3ff;
+}
+
+.admin-shell-root.admin-dark .text,
+.admin-shell-root.admin-dark .chart-pie-label {
+    -fx-fill: #eef3ff;
+}
+
+.admin-shell-root.admin-dark .section-subtitle,
+.admin-shell-root.admin-dark .field-label,
+.admin-shell-root.admin-dark .form-helper,
+.admin-shell-root.admin-dark .admin-chart-summary,
+.admin-shell-root.admin-dark .admin-user-note,
+.admin-shell-root.admin-dark .empty-text,
+.admin-shell-root.admin-dark .card-subtitle,
+.admin-shell-root.admin-dark .card-subtitle-muted,
+.admin-shell-root.admin-dark .card-meta,
+.admin-shell-root.admin-dark .fixture-date,
+.admin-shell-root.admin-dark .fixture-id,
+.admin-shell-root.admin-dark .fixture-team-role,
+.admin-shell-root.admin-dark .match-detail-team-role,
+.admin-shell-root.admin-dark .fixture-score-caption,
+.admin-shell-root.admin-dark .match-detail-score-caption,
+.admin-shell-root.admin-dark .stat-caption,
+.admin-shell-root.admin-dark .toolbar-summary-caption,
+.admin-shell-root.admin-dark .sponsor-metric-label,
+.admin-shell-root.admin-dark .toolbar-chip-soft {
+    -fx-text-fill: #95a2d8;
+}
+
+.admin-shell-root.admin-dark .tab-pane,
+.admin-shell-root.admin-dark .tab-pane > .tab-header-area,
+.admin-shell-root.admin-dark .tab-pane > .tab-header-area > .headers-region,
+.admin-shell-root.admin-dark .tab-pane > .tab-header-area > .tab-header-background,
+.admin-shell-root.admin-dark .tab-pane > .tab-content-area {
+    -fx-background-color: transparent;
+}
+
+.admin-shell-root.admin-dark .tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.18);
+    -fx-background-radius: 16 16 0 0;
+    -fx-border-radius: 16 16 0 0;
+}
+
+.admin-shell-root.admin-dark .tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(217, 108, 255, 0.82) 0%, rgba(139, 93, 255, 0.72) 48%, rgba(74, 200, 255, 0.58) 100%);
+    -fx-border-color: rgba(226, 209, 255, 0.30);
+}
+
+.admin-shell-root.admin-dark .tab-pane > .tab-content-area {
+    -fx-background-color: rgba(25, 30, 55, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.16);
+    -fx-background-radius: 0 24 24 24;
+    -fx-border-radius: 0 24 24 24;
+    -fx-padding: 18;
+}
+
+.admin-shell-root.admin-dark .table-view,
+.admin-shell-root.admin-dark .tree-table-view {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background-alt: rgba(21, 26, 48, 0.98);
+    -fx-border-color: rgba(129, 141, 196, 0.18);
+    -fx-table-cell-border-color: rgba(86, 96, 142, 0.20);
+    -fx-selection-bar: rgba(87, 102, 173, 0.42);
+    -fx-selection-bar-non-focused: rgba(63, 74, 122, 0.36);
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
+}
+
+.admin-shell-root.admin-dark .table-view .virtual-flow,
+.admin-shell-root.admin-dark .table-view .clipped-container,
+.admin-shell-root.admin-dark .table-view .sheet,
+.admin-shell-root.admin-dark .table-view .filler,
+.admin-shell-root.admin-dark .table-view .corner,
+.admin-shell-root.admin-dark .tree-table-view .virtual-flow,
+.admin-shell-root.admin-dark .tree-table-view .clipped-container,
+.admin-shell-root.admin-dark .tree-table-view .sheet,
+.admin-shell-root.admin-dark .tree-table-view .filler,
+.admin-shell-root.admin-dark .tree-table-view .corner {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+}
+
+.admin-shell-root.admin-dark .table-view .column-header-background,
+.admin-shell-root.admin-dark .tree-table-view .column-header-background {
+    -fx-background-color: rgba(26, 31, 58, 0.98);
+    -fx-border-color: transparent transparent rgba(86, 96, 142, 0.34) transparent;
+}
+
+.admin-shell-root.admin-dark .table-view .table-row-cell,
+.admin-shell-root.admin-dark .tree-table-view .table-row-cell {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-border-color: transparent transparent rgba(86, 96, 142, 0.20) transparent;
+}
+
+.admin-shell-root.admin-dark .table-view .table-row-cell:odd,
+.admin-shell-root.admin-dark .tree-table-view .table-row-cell:odd {
+    -fx-background-color: rgba(21, 26, 48, 0.98);
+}
+
+.admin-shell-root.admin-dark .text-field,
+.admin-shell-root.admin-dark .password-field,
+.admin-shell-root.admin-dark .text-area,
+.admin-shell-root.admin-dark .combo-box-base,
+.admin-shell-root.admin-dark .date-picker,
+.admin-shell-root.admin-dark .date-picker .text-field,
+.admin-shell-root.admin-dark .combo-box-base > .list-cell,
+.admin-shell-root.admin-dark .combo-box-base .text-input {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-control-inner-background: rgba(18, 22, 43, 0.96);
+    -fx-border-color: rgba(129, 141, 196, 0.22);
+    -fx-text-fill: #eef2ff;
+    -fx-prompt-text-fill: #8d9acb;
+}
+
+.admin-shell-root.admin-dark .text-area .content {
+    -fx-background-color: rgba(18, 22, 43, 0.96);
+    -fx-background-radius: 16;
+}
+
+.admin-shell-root.admin-dark .combo-box-base .arrow,
+.admin-shell-root.admin-dark .date-picker .arrow {
+    -fx-background-color: #e9edff;
+}
+
+.admin-shell-root.admin-dark .chart-plot-background {
+    -fx-background-color: rgba(18, 22, 43, 0.72);
+    -fx-background-radius: 22;
+}
+
+.admin-shell-root.admin-dark .chart-vertical-grid-lines,
+.admin-shell-root.admin-dark .chart-horizontal-grid-lines,
+.admin-shell-root.admin-dark .chart-alternative-row-fill,
+.admin-shell-root.admin-dark .chart-alternative-column-fill {
+    -fx-stroke: rgba(125, 137, 184, 0.22);
+}
+
+.admin-shell-root.admin-dark .chart-pie-label-line {
+    -fx-stroke: rgba(237, 241, 255, 0.46);
+}
+
+.admin-shell-root.admin-dark .chart-legend {
+    -fx-background-color: rgba(31, 38, 67, 0.96);
+    -fx-background-radius: 16;
+}
+
+.admin-shell-root.admin-dark .default-color0.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #36d7ff 0%, #5f8bff 100%);
+}
+
+.admin-shell-root.admin-dark .default-color1.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #9d71ff 0%, #b667ff 100%);
+}
+
+.admin-shell-root.admin-dark .default-color2.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #ff63d0 0%, #ff8eb6 100%);
+}
+
+.admin-shell-root.admin-dark .default-color3.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #ffc14d 0%, #ff9f5b 100%);
+}
+
+.admin-shell-root.admin-dark .default-color0.chart-pie {
+    -fx-pie-color: #36d7ff;
+}
+
+.admin-shell-root.admin-dark .default-color1.chart-pie {
+    -fx-pie-color: #5f8bff;
+}
+
+.admin-shell-root.admin-dark .default-color2.chart-pie {
+    -fx-pie-color: #b667ff;
+}
+
+.admin-shell-root.admin-dark .default-color3.chart-pie {
+    -fx-pie-color: #ff63d0;
+}
+
+.admin-shell-root.admin-dark .default-color4.chart-pie {
+    -fx-pie-color: #ffc14d;
+}
+
+/* Workspace-level violet pass: this stylesheet is also attached directly to loaded admin pages */
+.admin-workspace-root.admin-dark,
+.theme-dark.admin-workspace-root {
+    -fx-background-color:
+        radial-gradient(center 16% 12%, radius 38%, rgba(182, 96, 255, 0.22) 0%, rgba(182, 96, 255, 0) 100%),
+        radial-gradient(center 84% 14%, radius 34%, rgba(85, 201, 255, 0.16) 0%, rgba(85, 201, 255, 0) 100%),
+        linear-gradient(from 0% 0% to 100% 100%, #130f2d 0%, #181438 48%, #1c1742 100%);
+}
+
+.admin-workspace-root.admin-dark .page-scroll,
+.admin-workspace-root.admin-dark .page-scroll > .viewport,
+.admin-workspace-root.admin-dark .page-scroll > .corner,
+.admin-workspace-root.admin-dark .page-scroll > .viewport > .content,
+.admin-workspace-root.admin-dark .page-shell-wrap,
+.admin-workspace-root.admin-dark .page-shell,
+.admin-workspace-root.admin-dark .content-shell,
+.admin-workspace-root.admin-dark .side-column,
+.admin-workspace-root.admin-dark .product-content-shell,
+.admin-workspace-root.admin-dark .sponsor-admin-shell,
+.admin-workspace-root.admin-dark .admin-users-shell,
+.admin-workspace-root.admin-dark .toolbar-row,
+.admin-workspace-root.admin-dark .competition-filter-bar,
+.admin-workspace-root.admin-dark .sponsor-overview-grid,
+.admin-workspace-root.admin-dark .product-chart-grid,
+.admin-workspace-root.admin-dark .training-cards,
+.admin-workspace-root.admin-dark .annonce-feed,
+.admin-workspace-root.admin-dark .annonce-comment-stack {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.admin-workspace-root.admin-dark .panel-card,
+.admin-workspace-root.admin-dark .toolbar-panel,
+.admin-workspace-root.admin-dark .results-panel,
+.admin-workspace-root.admin-dark .detail-card,
+.admin-workspace-root.admin-dark .form-card,
+.admin-workspace-root.admin-dark .hero-shell,
+.admin-workspace-root.admin-dark .match-toolbar,
+.admin-workspace-root.admin-dark .sync-toolbar-row,
+.admin-workspace-root.admin-dark .toolbar-summary-card,
+.admin-workspace-root.admin-dark .training-card,
+.admin-workspace-root.admin-dark .training-card-hero,
+.admin-workspace-root.admin-dark .training-card-body,
+.admin-workspace-root.admin-dark .note-card,
+.admin-workspace-root.admin-dark .player-list-card,
+.admin-workspace-root.admin-dark .player-avatar-shell,
+.admin-workspace-root.admin-dark .player-detail-photo-shell,
+.admin-workspace-root.admin-dark .fixture-card,
+.admin-workspace-root.admin-dark .fixture-team-logo-shell,
+.admin-workspace-root.admin-dark .match-detail-logo-shell,
+.admin-workspace-root.admin-dark .fixture-score-shell,
+.admin-workspace-root.admin-dark .match-detail-score-shell,
+.admin-workspace-root.admin-dark .match-detail-board,
+.admin-workspace-root.admin-dark .match-stat-row,
+.admin-workspace-root.admin-dark .competition-card-button,
+.admin-workspace-root.admin-dark .competition-card-logo-shell,
+.admin-workspace-root.admin-dark .annonce-post-card,
+.admin-workspace-root.admin-dark .annonce-comment-card,
+.admin-workspace-root.admin-dark .annonce-user-description-box,
+.admin-workspace-root.admin-dark .annonce-metric-card,
+.admin-workspace-root.admin-dark .annonce-post-card-urgent,
+.admin-workspace-root.admin-dark .annonce-post-card-urgent .annonce-comment-card,
+.admin-workspace-root.admin-dark .annonce-post-card-urgent .annonce-user-description-box,
+.admin-workspace-root.admin-dark .product-header-card,
+.admin-workspace-root.admin-dark .product-toolbar-panel,
+.admin-workspace-root.admin-dark .product-detail-card,
+.admin-workspace-root.admin-dark .product-form-card,
+.admin-workspace-root.admin-dark .product-metric-card,
+.admin-workspace-root.admin-dark .product-chart-card,
+.admin-workspace-root.admin-dark .product-thumbnail-shell,
+.admin-workspace-root.admin-dark .product-detail-image-shell,
+.admin-workspace-root.admin-dark .product-info-pill,
+.admin-workspace-root.admin-dark .sponsor-card,
+.admin-workspace-root.admin-dark .sponsor-contract-card,
+.admin-workspace-root.admin-dark .sponsor-empty-card,
+.admin-workspace-root.admin-dark .sponsor-chart-card,
+.admin-workspace-root.admin-dark .sponsor-metric-card,
+.admin-workspace-root.admin-dark .sponsor-admin-metric-card,
+.admin-workspace-root.admin-dark .sponsor-logo-shell,
+.admin-workspace-root.admin-dark .sponsor-logo-preview-shell,
+.admin-workspace-root.admin-dark .detail-info-card,
+.admin-workspace-root.admin-dark .squad-card,
+.admin-workspace-root.admin-dark .team-top-scorer-row,
+.admin-workspace-root.admin-dark .card-logo-shell,
+.admin-workspace-root.admin-dark .detail-logo-shell,
+.admin-workspace-root.admin-dark .stat-chip,
+.admin-workspace-root.admin-dark .empty-state-box,
+.admin-workspace-root.admin-dark .flashscore-score-card,
+.admin-workspace-root.admin-dark .flashscore-lineup-card,
+.admin-workspace-root.admin-dark .flashscore-stats-card,
+.admin-workspace-root.admin-dark .flashscore-scoreboard,
+.admin-workspace-root.admin-dark .flashscore-fact-chip,
+.admin-workspace-root.admin-dark .flashscore-logo-shell,
+.admin-workspace-root.admin-dark .bench-column,
+.admin-workspace-root.admin-dark .flashscore-stat-card,
+.admin-workspace-root.admin-dark .bench-player-chip,
+.admin-workspace-root.admin-dark .bench-placeholder-chip,
+.admin-workspace-root.admin-dark .flashscore-summary-card,
+.admin-workspace-root.admin-dark .timeline-event-box,
+.admin-workspace-root.admin-dark .pitch-player-identity-pill {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(48, 38, 99, 0.96) 0%, rgba(29, 23, 71, 0.98) 100%);
+    -fx-border-color: rgba(178, 145, 255, 0.26);
+    -fx-effect: dropshadow(gaussian, rgba(9, 7, 24, 0.34), 30, 0.22, 0, 12);
+}
+
+.admin-workspace-root.admin-dark .button,
+.admin-workspace-root.admin-dark .button .text,
+.admin-workspace-root.admin-dark .label,
+.admin-workspace-root.admin-dark .text,
+.admin-workspace-root.admin-dark .text-input,
+.admin-workspace-root.admin-dark .check-box,
+.admin-workspace-root.admin-dark .check-box .text,
+.admin-workspace-root.admin-dark .radio-button,
+.admin-workspace-root.admin-dark .radio-button .text,
+.admin-workspace-root.admin-dark .menu-button,
+.admin-workspace-root.admin-dark .menu-button .label,
+.admin-workspace-root.admin-dark .combo-box-base,
+.admin-workspace-root.admin-dark .combo-box-base .text,
+.admin-workspace-root.admin-dark .combo-box-base > .list-cell,
+.admin-workspace-root.admin-dark .date-picker,
+.admin-workspace-root.admin-dark .date-picker .text-field,
+.admin-workspace-root.admin-dark .tab .tab-label,
+.admin-workspace-root.admin-dark .table-view .column-header .label,
+.admin-workspace-root.admin-dark .table-view .table-cell,
+.admin-workspace-root.admin-dark .tree-table-view .column-header .label,
+.admin-workspace-root.admin-dark .tree-table-view .table-cell,
+.admin-workspace-root.admin-dark .table-view .placeholder .label,
+.admin-workspace-root.admin-dark .tree-table-view .placeholder .label,
+.admin-workspace-root.admin-dark .chart-title,
+.admin-workspace-root.admin-dark .axis-label,
+.admin-workspace-root.admin-dark .axis .tick-label,
+.admin-workspace-root.admin-dark .chart-legend-item,
+.admin-workspace-root.admin-dark .chart-legend-item .label,
+.admin-workspace-root.admin-dark .chart-pie-label,
+.admin-workspace-root.admin-dark .list-cell,
+.admin-workspace-root.admin-dark .list-cell .text {
+    -fx-text-fill: #f7f8ff;
+}
+
+.admin-workspace-root.admin-dark .text,
+.admin-workspace-root.admin-dark .chart-pie-label,
+.admin-workspace-root.admin-dark .axis .tick-label {
+    -fx-fill: #f7f8ff;
+}
+
+.admin-workspace-root.admin-dark .text-field,
+.admin-workspace-root.admin-dark .password-field,
+.admin-workspace-root.admin-dark .text-area,
+.admin-workspace-root.admin-dark .form-text-field,
+.admin-workspace-root.admin-dark .search-field,
+.admin-workspace-root.admin-dark .form-field,
+.admin-workspace-root.admin-dark .form-area,
+.admin-workspace-root.admin-dark .annonce-text-area,
+.admin-workspace-root.admin-dark .glass-combo,
+.admin-workspace-root.admin-dark .form-combo,
+.admin-workspace-root.admin-dark .combo-box-base,
+.admin-workspace-root.admin-dark .date-picker,
+.admin-workspace-root.admin-dark .form-date-picker,
+.admin-workspace-root.admin-dark .match-date-picker,
+.admin-workspace-root.admin-dark .date-picker > .text-field,
+.admin-workspace-root.admin-dark .date-picker .text-field,
+.admin-workspace-root.admin-dark .combo-box-base > .list-cell,
+.admin-workspace-root.admin-dark .combo-box-base .text-input,
+.admin-workspace-root.admin-dark #searchField {
+    -fx-background-color: rgba(23, 18, 54, 0.98);
+    -fx-control-inner-background: rgba(23, 18, 54, 0.98);
+    -fx-border-color: rgba(178, 145, 255, 0.30);
+    -fx-text-fill: #f7f8ff;
+    -fx-prompt-text-fill: rgba(247, 248, 255, 0.82);
+}
+
+.admin-workspace-root.admin-dark .text-area .content,
+.admin-workspace-root.admin-dark .form-area .content,
+.admin-workspace-root.admin-dark .annonce-text-area .content {
+    -fx-background-color: rgba(23, 18, 54, 0.98);
+    -fx-background-radius: 16;
+}
+
+.admin-workspace-root.admin-dark .combo-box-base .arrow,
+.admin-workspace-root.admin-dark .date-picker .arrow,
+.admin-workspace-root.admin-dark .form-combo .arrow,
+.admin-workspace-root.admin-dark .form-date-picker .arrow,
+.admin-workspace-root.admin-dark .match-date-picker .arrow {
+    -fx-background-color: #f7f8ff;
+}
+
+.admin-workspace-root.admin-dark .check-box .box,
+.admin-workspace-root.admin-dark .radio-button .radio {
+    -fx-background-color: rgba(23, 18, 54, 0.98);
+    -fx-border-color: rgba(178, 145, 255, 0.30);
+}
+
+.admin-workspace-root.admin-dark .check-box:selected .mark,
+.admin-workspace-root.admin-dark .radio-button:selected .dot {
+    -fx-background-color: #f7f8ff;
+}
+
+.admin-workspace-root.admin-dark .primary-button,
+.admin-workspace-root.admin-dark .ghost-button,
+.admin-workspace-root.admin-dark .soft-button,
+.admin-workspace-root.admin-dark .danger-button,
+.admin-workspace-root.admin-dark .competition-filter-button,
+.admin-workspace-root.admin-dark .detail-tab-button,
+.admin-workspace-root.admin-dark .toolbar-chip,
+.admin-workspace-root.admin-dark .toolbar-chip-soft,
+.admin-workspace-root.admin-dark .status-pill,
+.admin-workspace-root.admin-dark .status-muted,
+.admin-workspace-root.admin-dark .status-success,
+.admin-workspace-root.admin-dark .status-warning,
+.admin-workspace-root.admin-dark .status-error,
+.admin-workspace-root.admin-dark .fixture-status,
+.admin-workspace-root.admin-dark .fixture-meta-chip,
+.admin-workspace-root.admin-dark .fixture-link-chip,
+.admin-workspace-root.admin-dark .player-card-meta-pill,
+.admin-workspace-root.admin-dark .annonce-user-meta-chip,
+.admin-workspace-root.admin-dark .sponsor-meta-chip,
+.admin-workspace-root.admin-dark .product-stock-chip,
+.admin-workspace-root.admin-dark .product-stock-good,
+.admin-workspace-root.admin-dark .product-stock-low,
+.admin-workspace-root.admin-dark .product-stock-out,
+.admin-workspace-root.admin-dark .team-card-competition-badge,
+.admin-workspace-root.admin-dark .team-top-scorer-pill,
+.admin-workspace-root.admin-dark .flashscore-inline-badge,
+.admin-workspace-root.admin-dark .timeline-minute-chip,
+.admin-workspace-root.admin-dark .timeline-score-chip,
+.admin-workspace-root.admin-dark .pitch-side-badge,
+.admin-workspace-root.admin-dark .sponsor-tab-pane > .tab-header-area .tab,
+.admin-workspace-root.admin-dark .tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(214, 113, 255, 0.88) 0%, rgba(139, 93, 255, 0.84) 52%, rgba(85, 201, 255, 0.80) 100%);
+    -fx-border-color: rgba(233, 219, 255, 0.34);
+    -fx-text-fill: #ffffff;
+}
+
+.admin-workspace-root.admin-dark .sponsor-tab-pane > .tab-header-area .tab:selected,
+.admin-workspace-root.admin-dark .tab-pane > .tab-header-area > .headers-region > .tab:selected,
+.admin-workspace-root.admin-dark .competition-card-button-active,
+.admin-workspace-root.admin-dark .detail-tab-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(227, 132, 255, 0.96) 0%, rgba(157, 113, 255, 0.92) 50%, rgba(87, 213, 255, 0.90) 100%);
+    -fx-border-color: rgba(247, 239, 255, 0.42);
+    -fx-text-fill: #ffffff;
+}
+
+.admin-workspace-root.admin-dark .tab-pane,
+.admin-workspace-root.admin-dark .tab-pane > .tab-header-area,
+.admin-workspace-root.admin-dark .tab-pane > .tab-header-area > .headers-region,
+.admin-workspace-root.admin-dark .tab-pane > .tab-header-area > .tab-header-background,
+.admin-workspace-root.admin-dark .tab-pane > .tab-content-area,
+.admin-workspace-root.admin-dark .sponsor-tab-pane > .tab-content-area {
+    -fx-background-color: transparent;
+}
+
+.admin-workspace-root.admin-dark .data-table,
+.admin-workspace-root.admin-dark .table-view,
+.admin-workspace-root.admin-dark .tree-table-view {
+    -fx-background-color: rgba(23, 18, 54, 0.98);
+    -fx-control-inner-background: rgba(23, 18, 54, 0.98);
+    -fx-control-inner-background-alt: rgba(29, 23, 71, 0.98);
+    -fx-border-color: rgba(178, 145, 255, 0.24);
+    -fx-table-cell-border-color: rgba(178, 145, 255, 0.14);
+    -fx-selection-bar: rgba(139, 93, 255, 0.52);
+    -fx-selection-bar-non-focused: rgba(89, 60, 166, 0.46);
+}
+
+.admin-workspace-root.admin-dark .data-table .virtual-flow,
+.admin-workspace-root.admin-dark .data-table .clipped-container,
+.admin-workspace-root.admin-dark .data-table .sheet,
+.admin-workspace-root.admin-dark .data-table .filler,
+.admin-workspace-root.admin-dark .data-table .corner,
+.admin-workspace-root.admin-dark .table-view .virtual-flow,
+.admin-workspace-root.admin-dark .table-view .clipped-container,
+.admin-workspace-root.admin-dark .table-view .sheet,
+.admin-workspace-root.admin-dark .table-view .filler,
+.admin-workspace-root.admin-dark .table-view .corner,
+.admin-workspace-root.admin-dark .tree-table-view .virtual-flow,
+.admin-workspace-root.admin-dark .tree-table-view .clipped-container,
+.admin-workspace-root.admin-dark .tree-table-view .sheet,
+.admin-workspace-root.admin-dark .tree-table-view .filler,
+.admin-workspace-root.admin-dark .tree-table-view .corner {
+    -fx-background-color: rgba(23, 18, 54, 0.98);
+}
+
+.admin-workspace-root.admin-dark .data-table .column-header-background,
+.admin-workspace-root.admin-dark .table-view .column-header-background,
+.admin-workspace-root.admin-dark .tree-table-view .column-header-background {
+    -fx-background-color: rgba(38, 30, 82, 0.98);
+    -fx-border-color: transparent transparent rgba(178, 145, 255, 0.20) transparent;
+}
+
+.admin-workspace-root.admin-dark .data-table .table-row-cell,
+.admin-workspace-root.admin-dark .table-view .table-row-cell,
+.admin-workspace-root.admin-dark .tree-table-view .table-row-cell {
+    -fx-background-color: rgba(23, 18, 54, 0.98);
+    -fx-border-color: transparent transparent rgba(178, 145, 255, 0.12) transparent;
+}
+
+.admin-workspace-root.admin-dark .data-table .table-row-cell:odd,
+.admin-workspace-root.admin-dark .table-view .table-row-cell:odd,
+.admin-workspace-root.admin-dark .tree-table-view .table-row-cell:odd {
+    -fx-background-color: rgba(29, 23, 71, 0.98);
+}
+
+.admin-workspace-root.admin-dark .chart-plot-background,
+.admin-workspace-root.admin-dark .module-stats-chart .chart-plot-background,
+.admin-workspace-root.admin-dark .product-stats-chart .chart-plot-background,
+.admin-workspace-root.admin-dark .admin-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(29, 23, 71, 0.92);
+    -fx-background-radius: 22;
+}
+
+.admin-workspace-root.admin-dark .chart-vertical-grid-lines,
+.admin-workspace-root.admin-dark .chart-horizontal-grid-lines,
+.admin-workspace-root.admin-dark .chart-alternative-row-fill,
+.admin-workspace-root.admin-dark .chart-alternative-column-fill {
+    -fx-stroke: rgba(240, 236, 255, 0.12);
+}
+
+.admin-workspace-root.admin-dark .chart-pie-label-line {
+    -fx-stroke: rgba(247, 248, 255, 0.42);
+}
+
+.admin-workspace-root.admin-dark .chart-legend {
+    -fx-background-color: rgba(39, 30, 82, 0.96);
+    -fx-background-radius: 16;
+}
+
+.admin-workspace-root.admin-dark .default-color0.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #d96cff 0%, #8b5dff 100%);
+}
+
+.admin-workspace-root.admin-dark .default-color1.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #7f7cff 0%, #57d5ff 100%);
+}
+
+.admin-workspace-root.admin-dark .default-color2.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #ff63d0 0%, #ff8bdc 100%);
+}
+
+.admin-workspace-root.admin-dark .default-color3.chart-bar {
+    -fx-bar-fill: linear-gradient(from 0% 0% to 0% 100%, #b667ff 0%, #8b5dff 100%);
+}
+
+.admin-workspace-root.admin-dark .default-color0.chart-pie {
+    -fx-pie-color: #8b5dff;
+}
+
+.admin-workspace-root.admin-dark .default-color1.chart-pie {
+    -fx-pie-color: #57d5ff;
+}
+
+.admin-workspace-root.admin-dark .default-color2.chart-pie {
+    -fx-pie-color: #ff63d0;
+}
+
+.admin-workspace-root.admin-dark .default-color3.chart-pie {
+    -fx-pie-color: #b667ff;
+}
+
+.admin-workspace-root.admin-dark .default-color4.chart-pie {
+    -fx-pie-color: #7f7cff;
+}
+
+/* Final admin dark shell override: keep the whole admin canvas violet, including empty workspace gutters */
+.admin-shell-root.admin-dark,
+.admin-page-root.admin-dark.admin-shell-root,
+.theme-dark.admin-shell-root,
+.theme-dark.admin-page-root.admin-shell-root {
+    -fx-background-color:
+        radial-gradient(center 14% 10%, radius 44%, rgba(217, 108, 255, 0.28) 0%, rgba(217, 108, 255, 0.08) 50%, transparent 51%),
+        radial-gradient(center 88% 14%, radius 34%, rgba(87, 213, 255, 0.18) 0%, rgba(87, 213, 255, 0.05) 48%, transparent 49%),
+        linear-gradient(from 0% 0% to 100% 100%, #120c30 0%, #181140 48%, #1e174f 100%);
+}
+
+.admin-shell-root.admin-dark .admin-content-stage,
+.admin-shell-root.admin-dark .admin-content-stack,
+.admin-shell-root.admin-dark .admin-shell-surface,
+.admin-shell-root.admin-dark .admin-workspace-root,
+.admin-shell-root.admin-dark .admin-workspace-root.page-root,
+.admin-page-root.admin-dark .admin-content-stage,
+.admin-page-root.admin-dark .admin-content-stack,
+.admin-page-root.admin-dark .admin-shell-surface,
+.admin-page-root.admin-dark .admin-workspace-root,
+.admin-page-root.admin-dark .admin-workspace-root.page-root,
+.theme-dark.admin-shell-root .admin-content-stage,
+.theme-dark.admin-shell-root .admin-content-stack,
+.theme-dark.admin-shell-root .admin-shell-surface,
+.theme-dark.admin-shell-root .admin-workspace-root,
+.theme-dark.admin-shell-root .admin-workspace-root.page-root {
+    -fx-background-color:
+        radial-gradient(center 14% 10%, radius 44%, rgba(217, 108, 255, 0.26) 0%, rgba(217, 108, 255, 0.08) 48%, transparent 49%),
+        radial-gradient(center 88% 14%, radius 34%, rgba(87, 213, 255, 0.16) 0%, rgba(87, 213, 255, 0.04) 46%, transparent 47%),
+        linear-gradient(from 0% 0% to 100% 100%, #140d34 0%, #1a1342 48%, #201954 100%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .viewport,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .corner,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .viewport > .content,
+.admin-shell-root.admin-dark .admin-workspace-root .page-shell-wrap,
+.admin-shell-root.admin-dark .admin-workspace-root .page-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .content-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .side-column,
+.admin-shell-root.admin-dark .admin-workspace-root .product-content-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .sponsor-admin-shell,
+.admin-shell-root.admin-dark .admin-workspace-root .admin-users-shell {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .panel-card,
+.admin-shell-root.admin-dark .admin-workspace-root .admin-kpi-card,
+.admin-shell-root.admin-dark .admin-workspace-root .admin-hint-card,
+.admin-shell-root.admin-dark .admin-workspace-root .admin-chart-card,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-panel,
+.admin-shell-root.admin-dark .admin-workspace-root .results-panel,
+.admin-shell-root.admin-dark .admin-workspace-root .detail-card,
+.admin-shell-root.admin-dark .admin-workspace-root .form-card,
+.admin-shell-root.admin-dark .admin-workspace-root .match-toolbar,
+.admin-shell-root.admin-dark .admin-workspace-root .sync-toolbar-row,
+.admin-shell-root.admin-dark .admin-workspace-root .toolbar-summary-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(50, 36, 113, 0.96) 0%, rgba(33, 23, 82, 0.98) 100%);
+    -fx-border-color: rgba(178, 145, 255, 0.28);
+}
+
+/* Final exact-match admin dark override for imported module themes */
+.theme-dark.admin-dark.page-root.admin-workspace-root,
+.theme-dark.admin-dark .admin-workspace-root.page-root,
+.theme-dark.admin-dark .admin-workspace-root .page-shell,
+.theme-dark.admin-dark .admin-workspace-root .page-shell-wrap,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll > .viewport,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll > .corner {
+    -fx-background-color:
+        radial-gradient(center 16% 10%, radius 44%, rgba(230, 118, 255, 0.26) 0%, rgba(230, 118, 255, 0.08) 48%, transparent 49%),
+        radial-gradient(center 86% 14%, radius 32%, rgba(102, 225, 255, 0.16) 0%, rgba(102, 225, 255, 0.04) 46%, transparent 47%),
+        linear-gradient(from 0% 0% to 100% 100%, #1c124a 0%, #261761 52%, #30207c 100%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .panel-card,
+.theme-dark.admin-dark .admin-workspace-root .admin-kpi-card,
+.theme-dark.admin-dark .admin-workspace-root .admin-hint-card,
+.theme-dark.admin-dark .admin-workspace-root .admin-chart-card,
+.theme-dark.admin-dark .admin-workspace-root .toolbar-panel,
+.theme-dark.admin-dark .admin-workspace-root .results-panel,
+.theme-dark.admin-dark .admin-workspace-root .detail-card,
+.theme-dark.admin-dark .admin-workspace-root .form-card,
+.theme-dark.admin-dark .admin-workspace-root .match-toolbar,
+.theme-dark.admin-dark .admin-workspace-root .sync-toolbar-row,
+.theme-dark.admin-dark .admin-workspace-root .toolbar-summary-card,
+.theme-dark.admin-dark .admin-workspace-root .player-list-card,
+.theme-dark.admin-dark .admin-workspace-root .training-card,
+.theme-dark.admin-dark .admin-workspace-root .training-card-body,
+.theme-dark.admin-dark .admin-workspace-root .training-card-hero,
+.theme-dark.admin-dark .admin-workspace-root .hero-shell,
+.theme-dark.admin-dark .admin-workspace-root .note-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(62, 43, 146, 0.96) 0%, rgba(39, 27, 100, 0.98) 100%);
+    -fx-border-color: rgba(195, 165, 255, 0.30);
+    -fx-effect: dropshadow(gaussian, rgba(10, 7, 28, 0.30), 26, 0.18, 0, 10);
+}
+
+.theme-dark.admin-dark .admin-workspace-root .data-table,
+.theme-dark.admin-dark .admin-workspace-root .table-view,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view,
+.theme-dark.admin-dark .admin-workspace-root .data-table .virtual-flow,
+.theme-dark.admin-dark .admin-workspace-root .data-table .clipped-container,
+.theme-dark.admin-dark .admin-workspace-root .data-table .sheet,
+.theme-dark.admin-dark .admin-workspace-root .data-table .filler,
+.theme-dark.admin-dark .admin-workspace-root .data-table .corner,
+.theme-dark.admin-dark .admin-workspace-root .table-view .virtual-flow,
+.theme-dark.admin-dark .admin-workspace-root .table-view .clipped-container,
+.theme-dark.admin-dark .admin-workspace-root .table-view .sheet,
+.theme-dark.admin-dark .admin-workspace-root .table-view .filler,
+.theme-dark.admin-dark .admin-workspace-root .table-view .corner,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .virtual-flow,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .clipped-container,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .sheet,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .filler,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .corner {
+    -fx-background-color: rgba(36, 24, 90, 0.985);
+    -fx-control-inner-background: rgba(36, 24, 90, 0.985);
+    -fx-control-inner-background-alt: rgba(44, 29, 106, 0.985);
+    -fx-border-color: rgba(195, 165, 255, 0.24);
+    -fx-table-cell-border-color: rgba(195, 165, 255, 0.12);
+    -fx-selection-bar: rgba(164, 117, 255, 0.54);
+    -fx-selection-bar-non-focused: rgba(116, 82, 210, 0.42);
+}
+
+.theme-dark.admin-dark .admin-workspace-root .data-table .column-header-background,
+.theme-dark.admin-dark .admin-workspace-root .table-view .column-header-background,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .column-header-background {
+    -fx-background-color: rgba(52, 35, 118, 0.985);
+    -fx-border-color: transparent transparent rgba(195, 165, 255, 0.20) transparent;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .data-table .table-row-cell,
+.theme-dark.admin-dark .admin-workspace-root .table-view .table-row-cell,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .table-row-cell {
+    -fx-background-color: rgba(36, 24, 90, 0.985);
+    -fx-border-color: transparent transparent rgba(195, 165, 255, 0.12) transparent;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .data-table .table-row-cell:odd,
+.theme-dark.admin-dark .admin-workspace-root .table-view .table-row-cell:odd,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .table-row-cell:odd {
+    -fx-background-color: rgba(45, 30, 104, 0.985);
+}
+
+.theme-dark.admin-dark .admin-workspace-root .text-field,
+.theme-dark.admin-dark .admin-workspace-root .password-field,
+.theme-dark.admin-dark .admin-workspace-root .text-area,
+.theme-dark.admin-dark .admin-workspace-root .form-field,
+.theme-dark.admin-dark .admin-workspace-root .form-area,
+.theme-dark.admin-dark .admin-workspace-root .form-text-field,
+.theme-dark.admin-dark .admin-workspace-root .search-field,
+.theme-dark.admin-dark .admin-workspace-root .glass-combo,
+.theme-dark.admin-dark .admin-workspace-root .form-combo,
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base,
+.theme-dark.admin-dark .admin-workspace-root .date-picker,
+.theme-dark.admin-dark .admin-workspace-root .form-date-picker,
+.theme-dark.admin-dark .admin-workspace-root .match-date-picker,
+.theme-dark.admin-dark .admin-workspace-root .match-search-field,
+.theme-dark.admin-dark .admin-workspace-root .date-picker > .text-field,
+.theme-dark.admin-dark .admin-workspace-root .date-picker .text-field,
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base > .list-cell,
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base .text-input,
+.theme-dark.admin-dark .admin-workspace-root #searchField {
+    -fx-background-color: rgba(32, 21, 82, 0.985);
+    -fx-control-inner-background: rgba(32, 21, 82, 0.985);
+    -fx-border-color: rgba(195, 165, 255, 0.30);
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: rgba(247, 248, 255, 0.80);
+}
+
+.theme-dark.admin-dark .admin-workspace-root .text-area .content,
+.theme-dark.admin-dark .admin-workspace-root .form-area .content {
+    -fx-background-color: rgba(32, 21, 82, 0.985);
+}
+
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base .arrow,
+.theme-dark.admin-dark .admin-workspace-root .date-picker .arrow,
+.theme-dark.admin-dark .admin-workspace-root .form-combo .arrow,
+.theme-dark.admin-dark .admin-workspace-root .form-date-picker .arrow,
+.theme-dark.admin-dark .admin-workspace-root .match-date-picker .arrow {
+    -fx-background-color: #ffffff;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .button,
+.theme-dark.admin-dark .admin-workspace-root .button .text,
+.theme-dark.admin-dark .admin-workspace-root .label,
+.theme-dark.admin-dark .admin-workspace-root .text,
+.theme-dark.admin-dark .admin-workspace-root .menu-button,
+.theme-dark.admin-dark .admin-workspace-root .menu-button .label,
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base,
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base .text,
+.theme-dark.admin-dark .admin-workspace-root .combo-box-base > .list-cell,
+.theme-dark.admin-dark .admin-workspace-root .date-picker,
+.theme-dark.admin-dark .admin-workspace-root .date-picker .text-field,
+.theme-dark.admin-dark .admin-workspace-root .tab .tab-label,
+.theme-dark.admin-dark .admin-workspace-root .table-view .column-header .label,
+.theme-dark.admin-dark .admin-workspace-root .table-view .table-cell,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .column-header .label,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .table-cell,
+.theme-dark.admin-dark .admin-workspace-root .table-view .placeholder .label,
+.theme-dark.admin-dark .admin-workspace-root .tree-table-view .placeholder .label,
+.theme-dark.admin-dark .admin-workspace-root .chart-title,
+.theme-dark.admin-dark .admin-workspace-root .axis-label,
+.theme-dark.admin-dark .admin-workspace-root .axis .tick-label,
+.theme-dark.admin-dark .admin-workspace-root .chart-legend-item,
+.theme-dark.admin-dark .admin-workspace-root .chart-legend-item .label,
+.theme-dark.admin-dark .admin-workspace-root .chart-pie-label,
+.theme-dark.admin-dark .admin-workspace-root .list-cell,
+.theme-dark.admin-dark .admin-workspace-root .list-cell .text,
+.theme-dark.admin-dark .admin-workspace-root .section-title,
+.theme-dark.admin-dark .admin-workspace-root .detail-title,
+.theme-dark.admin-dark .admin-workspace-root .field-label,
+.theme-dark.admin-dark .admin-workspace-root .section-subtitle,
+.theme-dark.admin-dark .admin-workspace-root .detail-subtitle,
+.theme-dark.admin-dark .admin-workspace-root .card-subtitle,
+.theme-dark.admin-dark .admin-workspace-root .card-meta,
+.theme-dark.admin-dark .admin-workspace-root .form-helper,
+.theme-dark.admin-dark .admin-workspace-root .admin-chart-summary,
+.theme-dark.admin-dark .admin-workspace-root .admin-dashboard-title,
+.theme-dark.admin-dark .admin-workspace-root .admin-dashboard-subtitle,
+.theme-dark.admin-dark .admin-workspace-root .admin-kpi-label,
+.theme-dark.admin-dark .admin-workspace-root .admin-kpi-meta {
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .text,
+.theme-dark.admin-dark .admin-workspace-root .chart-pie-label,
+.theme-dark.admin-dark .admin-workspace-root .axis .tick-label {
+    -fx-fill: #ffffff;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .chart-plot-background,
+.theme-dark.admin-dark .admin-workspace-root .module-stats-chart .chart-plot-background,
+.theme-dark.admin-dark .admin-workspace-root .product-stats-chart .chart-plot-background,
+.theme-dark.admin-dark .admin-workspace-root .admin-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(48, 32, 112, 0.92);
+    -fx-background-radius: 22;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .chart-legend {
+    -fx-background-color: rgba(52, 35, 118, 0.96);
+    -fx-background-radius: 16;
+}
+
+.theme-dark.admin-dark .admin-workspace-root .tab-pane > .tab-header-area > .headers-region > .tab,
+.theme-dark.admin-dark .admin-workspace-root .sponsor-tab-pane > .tab-header-area .tab,
+.theme-dark.admin-dark .admin-workspace-root .primary-button,
+.theme-dark.admin-dark .admin-workspace-root .ghost-button,
+.theme-dark.admin-dark .admin-workspace-root .soft-button,
+.theme-dark.admin-dark .admin-workspace-root .detail-tab-button,
+.theme-dark.admin-dark .admin-workspace-root .competition-filter-button,
+.theme-dark.admin-dark .admin-workspace-root .toolbar-chip,
+.theme-dark.admin-dark .admin-workspace-root .toolbar-chip-soft,
+.theme-dark.admin-dark .admin-workspace-root .status-pill,
+.theme-dark.admin-dark .admin-workspace-root .status-muted {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, rgba(219, 116, 255, 0.92) 0%, rgba(148, 97, 255, 0.90) 55%, rgba(96, 214, 255, 0.88) 100%);
+    -fx-border-color: rgba(243, 233, 255, 0.34);
+    -fx-text-fill: #ffffff;
+}
+
+/* Final light-violet button pass for admin dark mode */
+.admin-shell-root.admin-dark .admin-nav-button,
+.admin-shell-root.admin-dark .admin-sidebar-user-button,
+.admin-shell-root.admin-dark .button,
+.admin-page-root.admin-dark .button,
+.theme-dark.admin-dark .admin-workspace-root .button,
+.theme-dark.admin-dark .admin-workspace-root .primary-button,
+.theme-dark.admin-dark .admin-workspace-root .ghost-button,
+.theme-dark.admin-dark .admin-workspace-root .soft-button,
+.theme-dark.admin-dark .admin-workspace-root .danger-button,
+.theme-dark.admin-dark .admin-workspace-root .detail-tab-button,
+.theme-dark.admin-dark .admin-workspace-root .competition-filter-button,
+.theme-dark.admin-dark .admin-workspace-root .toolbar-chip,
+.theme-dark.admin-dark .admin-workspace-root .toolbar-chip-soft,
+.theme-dark.admin-dark .admin-workspace-root .status-pill,
+.theme-dark.admin-dark .admin-workspace-root .status-muted,
+.theme-dark.admin-dark .admin-workspace-root .fixture-status,
+.theme-dark.admin-dark .admin-workspace-root .fixture-meta-chip,
+.theme-dark.admin-dark .admin-workspace-root .fixture-link-chip,
+.theme-dark.admin-dark .admin-workspace-root .player-card-meta-pill,
+.theme-dark.admin-dark .admin-workspace-root .annonce-user-meta-chip,
+.theme-dark.admin-dark .admin-workspace-root .sponsor-meta-chip,
+.theme-dark.admin-dark .admin-workspace-root .product-stock-chip,
+.theme-dark.admin-dark .admin-workspace-root .team-card-competition-badge,
+.theme-dark.admin-dark .admin-workspace-root .team-top-scorer-pill,
+.theme-dark.admin-dark .admin-workspace-root .flashscore-inline-badge,
+.theme-dark.admin-dark .admin-workspace-root .timeline-minute-chip,
+.theme-dark.admin-dark .admin-workspace-root .timeline-score-chip,
+.theme-dark.admin-dark .admin-workspace-root .pitch-side-badge {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #efb2ff 0%, #d98eff 46%, #c27eff 78%, #a98cff 100%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 238, 255, 0.52);
+    -fx-border-width: 1;
+    -fx-border-radius: 18;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(204, 132, 255, 0.30), 20, 0.18, 0, 6);
+}
+
+.admin-shell-root.admin-dark .admin-nav-button:hover,
+.admin-shell-root.admin-dark .admin-sidebar-user-button:hover,
+.admin-shell-root.admin-dark .button:hover,
+.admin-page-root.admin-dark .button:hover,
+.theme-dark.admin-dark .admin-workspace-root .button:hover,
+.theme-dark.admin-dark .admin-workspace-root .primary-button:hover,
+.theme-dark.admin-dark .admin-workspace-root .ghost-button:hover,
+.theme-dark.admin-dark .admin-workspace-root .soft-button:hover,
+.theme-dark.admin-dark .admin-workspace-root .danger-button:hover,
+.theme-dark.admin-dark .admin-workspace-root .detail-tab-button:hover,
+.theme-dark.admin-dark .admin-workspace-root .competition-filter-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #f5c2ff 0%, #e7a6ff 44%, #cf93ff 76%, #b49cff 100%);
+    -fx-border-color: rgba(255, 243, 255, 0.62);
+    -fx-text-fill: #ffffff;
+}
+
+.admin-shell-root.admin-dark .admin-nav-button:pressed,
+.admin-shell-root.admin-dark .admin-sidebar-user-button:pressed,
+.admin-shell-root.admin-dark .button:pressed,
+.admin-page-root.admin-dark .button:pressed,
+.theme-dark.admin-dark .admin-workspace-root .button:pressed {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #dfa0ff 0%, #ca82ff 52%, #af77ff 100%);
+    -fx-border-color: rgba(255, 234, 255, 0.58);
+}
+
+.admin-shell-root.admin-dark .admin-nav-button-active,
+.theme-dark.admin-dark .admin-workspace-root .competition-card-button-active,
+.theme-dark.admin-dark .admin-workspace-root .detail-tab-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #f3bcff 0%, #e3a0ff 40%, #cb88ff 72%, #ae9aff 100%);
+    -fx-border-color: rgba(255, 244, 255, 0.72);
+    -fx-text-fill: #ffffff;
+}
+
+.admin-shell-root.admin-dark .admin-nav-button .text,
+.admin-shell-root.admin-dark .admin-sidebar-user-button .text,
+.admin-shell-root.admin-dark .button .text,
+.admin-page-root.admin-dark .button .text,
+.theme-dark.admin-dark .admin-workspace-root .button .text,
+.theme-dark.admin-dark .admin-workspace-root .tab .tab-label {
+    -fx-fill: #ffffff;
+    -fx-text-fill: #ffffff;
+}
+
+.admin-shell-root.admin-dark .admin-nav-button .admin-nav-text,
+.admin-shell-root.admin-dark .admin-sidebar-user-button .admin-nav-text,
+.admin-shell-root.admin-dark .admin-nav-button .admin-nav-icon-svg,
+.admin-shell-root.admin-dark .admin-sidebar-user-button .admin-nav-icon-svg {
+    -fx-text-fill: #ffffff;
+    -fx-fill: #ffffff;
+}
+
+.admin-shell-root.admin-dark .admin-nav-button .admin-nav-icon-shell,
+.admin-shell-root.admin-dark .admin-sidebar-user-button .admin-nav-icon-shell {
+    -fx-background-color: rgba(110, 71, 220, 0.34);
+    -fx-border-color: rgba(255, 244, 255, 0.26);
+}

@@ -2,6 +2,7 @@ package tn.esprit.Controller;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -120,6 +121,7 @@ public class AdminUserModerationController {
     private UserService userService;
     private UserPdfExportService userPdfExportService;
     private User selectedUser;
+    private boolean darkMode;
 
     @FXML
     public void initialize() {
@@ -140,16 +142,28 @@ public class AdminUserModerationController {
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         if (userTableView == null) {
-            return;
-        }
-        if (darkMode) {
-            if (!userTableView.getStyleClass().contains(DARK_TABLE_CLASS)) {
-                userTableView.getStyleClass().add(DARK_TABLE_CLASS);
+            if (accountStatusPieChart != null) {
+                Platform.runLater(this::applyPieChartTheme);
             }
-            return;
+        } else {
+            if (darkMode) {
+                if (!userTableView.getStyleClass().contains(DARK_TABLE_CLASS)) {
+                    userTableView.getStyleClass().add(DARK_TABLE_CLASS);
+                }
+            } else {
+                userTableView.getStyleClass().remove(DARK_TABLE_CLASS);
+            }
         }
-        userTableView.getStyleClass().remove(DARK_TABLE_CLASS);
+        if (accountStatusBarChart != null) {
+            accountStatusBarChart.applyCss();
+        }
+        if (accountStatusPieChart != null) {
+            accountStatusPieChart.applyCss();
+            Platform.runLater(this::applyPieChartTheme);
+        }
+        Platform.runLater(this::updateCharts);
     }
 
     @FXML
@@ -444,9 +458,15 @@ public class AdminUserModerationController {
             series.getData().add(new XYChart.Data<>("Blocked", blockedCount));
             series.getData().add(new XYChart.Data<>("Other", otherCount));
             accountStatusBarChart.getData().setAll(series);
-            applyBarColor(series.getData().get(0), "#22c55e");
-            applyBarColor(series.getData().get(1), "#ef4444");
-            applyBarColor(series.getData().get(2), "#f59e0b");
+            if (darkMode) {
+                applyBarColor(series.getData().get(0), "#9d71ff");
+                applyBarColor(series.getData().get(1), "#ff63d0");
+                applyBarColor(series.getData().get(2), "#57d5ff");
+            } else {
+                applyBarColor(series.getData().get(0), "#22c55e");
+                applyBarColor(series.getData().get(1), "#ef4444");
+                applyBarColor(series.getData().get(2), "#f59e0b");
+            }
         }
 
         if (accountStatusPieChart != null) {
@@ -464,6 +484,7 @@ public class AdminUserModerationController {
                 chartData.add(new PieChart.Data("No users", 1));
             }
             accountStatusPieChart.setData(chartData);
+            Platform.runLater(this::applyPieChartTheme);
         }
 
         if (chartSummaryLabel != null) {
@@ -620,6 +641,27 @@ public class AdminUserModerationController {
         } else {
             data.nodeProperty().addListener((obs, oldNode, newNode) -> styler.run());
         }
+    }
+
+    private void applyPieChartTheme() {
+        if (accountStatusPieChart == null) {
+            return;
+        }
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
+        accountStatusPieChart.applyCss();
+        accountStatusPieChart.lookupAll(".chart-pie-label").forEach(node ->
+                node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
+        accountStatusPieChart.lookupAll(".chart-pie-label-line").forEach(node ->
+                node.setStyle("-fx-stroke: " + lineColor + ";"));
+        accountStatusPieChart.lookupAll(".chart-legend").forEach(node ->
+                node.setStyle("-fx-background-color: " + legendBackground + "; -fx-background-radius: 12;"));
+        accountStatusPieChart.lookupAll(".chart-legend-item").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+        accountStatusPieChart.lookupAll(".chart-legend-item .label").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
     }
 
     private String emptyIfNull(String value) {

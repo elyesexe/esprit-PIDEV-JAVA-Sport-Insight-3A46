@@ -10,6 +10,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -32,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-public class JoueurDetailController {
+public class JoueurDetailController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-detail-image-import"));
@@ -110,6 +111,29 @@ public class JoueurDetailController {
         if (detailNameLabel != null) {
             renderJoueur();
         }
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        return """
+                Current player detail screen.
+                Player: %s.
+                Subtitle: %s.
+                Team: %s. Number: %s.
+                Birth date: %s. Age: %s.
+                Position: %s. Nationality: %s.
+                Source: %s.
+                """.formatted(
+                emptyToFallback(detailNameLabel == null ? null : detailNameLabel.getText(), "Player"),
+                emptyToFallback(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText(), "No subtitle"),
+                emptyToFallback(detailEquipeValueLabel == null ? null : detailEquipeValueLabel.getText(), "Unknown"),
+                emptyToFallback(detailNumeroValueLabel == null ? null : detailNumeroValueLabel.getText(), "Unknown"),
+                emptyToFallback(detailDateNaissanceValueLabel == null ? null : detailDateNaissanceValueLabel.getText(), "Unknown"),
+                emptyToFallback(detailAgeValueLabel == null ? null : detailAgeValueLabel.getText(), "Unknown"),
+                emptyToFallback(detailPositionValueLabel == null ? null : detailPositionValueLabel.getText(), "Unknown"),
+                emptyToFallback(detailNationaliteValueLabel == null ? null : detailNationaliteValueLabel.getText(), "Unknown"),
+                emptyToFallback(detailSourceValueLabel == null ? null : detailSourceValueLabel.getText(), "Unknown")
+        );
     }
 
     @FXML

@@ -132,6 +132,7 @@ public class SponsorAdminController {
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
     private SponsorRow selectedSponsorRow;
     private ContractRow selectedContractRow;
+    private boolean darkMode;
 
     @FXML
     public void initialize() {
@@ -192,6 +193,7 @@ public class SponsorAdminController {
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         if (budgetChart != null) {
             budgetChart.applyCss();
         }
@@ -1007,10 +1009,10 @@ public class SponsorAdminController {
         if (chart == null) {
             return;
         }
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
 
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node ->
@@ -1026,7 +1028,7 @@ public class SponsorAdminController {
     }
 
     private boolean isDarkModeEnabled() {
-        return themeToggleButton != null && themeToggleButton.isSelected();
+        return darkMode || (themeToggleButton != null && themeToggleButton.isSelected());
     }
 
     private boolean confirm(String message) {

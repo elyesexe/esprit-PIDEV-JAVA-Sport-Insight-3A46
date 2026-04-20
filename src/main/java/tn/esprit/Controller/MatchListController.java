@@ -21,6 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
@@ -48,7 +49,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class MatchListController {
+public class MatchListController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final double CARD_LOGO_SIZE = 68;
@@ -191,6 +192,58 @@ public class MatchListController {
 
     public void openMatchDetailFromAssistant(Matchs match) {
         openMatchDetail(match);
+    }
+
+    public List<Matchs> getFilteredMatchsSnapshot() {
+        return List.copyOf(filteredMatchs);
+    }
+
+    public List<Equipe> getKnownTeamsSnapshot() {
+        return List.copyOf(equipeById.values());
+    }
+
+    public String getAssistantCompetitionLabel() {
+        return selectedCompetitionCode == null ? "All competitions" : resolveCompetitionLabel(selectedCompetitionCode);
+    }
+
+    public String getAssistantMatchLabel(Matchs match) {
+        return buildMatchLabel(match);
+    }
+
+    public String getAssistantTeamName(Integer equipeId) {
+        return getEquipeName(equipeId);
+    }
+
+    public String getAssistantFixtureSchedule(Matchs match) {
+        if (match == null) {
+            return "Unknown schedule";
+        }
+        return formatDate(match.getDateMatch()) + " at " + formatTime(match.getHeureDebut());
+    }
+
+    public String getAssistantStatus(Matchs match) {
+        return resolveStatus(match);
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        List<Matchs> visibleMatchs = getFilteredMatchsSnapshot();
+        String header = "Matches page for " + getAssistantCompetitionLabel() + ". Visible fixtures: " + visibleMatchs.size() + ".";
+        if (visibleMatchs.isEmpty()) {
+            return header + " No fixtures are currently visible.";
+        }
+
+        List<Matchs> upcoming = visibleMatchs.stream()
+                .sorted(Comparator
+                        .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
+                        .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo)))
+                .limit(3)
+                .toList();
+
+        String fixtures = upcoming.stream()
+                .map(match -> getAssistantMatchLabel(match) + " on " + getAssistantFixtureSchedule(match) + " [" + getAssistantStatus(match) + "]")
+                .collect(Collectors.joining(" | "));
+        return header + " Next visible fixtures: " + fixtures + ".";
     }
 
     @FXML

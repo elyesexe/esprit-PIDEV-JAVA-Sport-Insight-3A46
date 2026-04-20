@@ -154,6 +154,10 @@ public class OrderController {
         if (orderTableView != null) {
             orderTableView.refresh();
         }
+        if (statusChart != null) {
+            statusChart.applyCss();
+        }
+        updateCharts();
         Platform.runLater(() -> applyPieChartTheme(paymentChart));
     }
 
@@ -645,6 +649,15 @@ public class OrderController {
     }
 
     private String colorForStatus(String status) {
+        if (darkMode) {
+            return switch (status) {
+                case "CONFIRMED" -> "#9d71ff";
+                case "SHIPPED" -> "#7c84ff";
+                case "DELIVERED" -> "#57d5ff";
+                case "CANCELLED" -> "#ff63d0";
+                default -> "#c084fc";
+            };
+        }
         return switch (status) {
             case "CONFIRMED" -> "#0ea5e9";
             case "SHIPPED" -> "#6366f1";
@@ -810,10 +823,10 @@ public class OrderController {
         if (chart == null) {
             return;
         }
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node -> node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
         chart.lookupAll(".chart-pie-label-line").forEach(node -> node.setStyle("-fx-stroke: " + lineColor + ";"));

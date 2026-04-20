@@ -132,6 +132,7 @@ public class ProductController {
     private ProductPdfExportService productPdfExportService;
     private Product selectedProduct;
     private boolean serviceReady;
+    private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
@@ -164,6 +165,7 @@ public class ProductController {
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         Platform.runLater(this::applyWorkspaceSurface);
         if (productTableView != null) {
             productTableView.refresh();
@@ -174,6 +176,7 @@ public class ProductController {
         if (categoryDistributionChart != null) {
             categoryDistributionChart.applyCss();
         }
+        updateCharts();
         Platform.runLater(() -> applyPieChartTheme(categoryDistributionChart, darkMode));
     }
 
@@ -634,9 +637,15 @@ public class ProductController {
             XYChart.Data<String, Number> outData = new XYChart.Data<>("Out", outOfStock);
             series.getData().addAll(healthyData, lowData, outData);
             stockStatusChart.getData().setAll(series);
-            applyBarColor(healthyData, "#22c55e");
-            applyBarColor(lowData, "#f59e0b");
-            applyBarColor(outData, "#ef4444");
+            if (isDarkModeEnabled()) {
+                applyBarColor(healthyData, "#9d71ff");
+                applyBarColor(lowData, "#57d5ff");
+                applyBarColor(outData, "#ff63d0");
+            } else {
+                applyBarColor(healthyData, "#22c55e");
+                applyBarColor(lowData, "#f59e0b");
+                applyBarColor(outData, "#ef4444");
+            }
         }
 
         Map<String, Long> categories = products.stream()
@@ -1034,10 +1043,10 @@ public class ProductController {
         if (chart == null) {
             return;
         }
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
 
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node ->
@@ -1053,7 +1062,7 @@ public class ProductController {
     }
 
     private boolean isDarkModeEnabled() {
-        return themeToggleButton != null && themeToggleButton.isSelected();
+        return darkMode || (themeToggleButton != null && themeToggleButton.isSelected());
     }
 
     private Node resolveNavigationSource(Node preferred, Node fallback) {

@@ -22,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
@@ -44,7 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class LeagueTableController {
+public class LeagueTableController implements AssistantContextProvider {
     private static final double CREST_SIZE = 26;
     private static final ExecutorService API_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("league-table-api-worker"));
@@ -111,6 +112,8 @@ public class LeagueTableController {
     private boolean loadingData;
     private boolean loadingScorers;
     private SidebarModuleGroup sidebarModuleGroup;
+    private LeagueStandingsSnapshot currentSnapshot;
+    private List<ApiFootballScorerEntry> currentTopScorers = List.of();
 
     @FXML
     public void initialize() {
@@ -139,6 +142,8 @@ public class LeagueTableController {
 
     public void setCompetitionFilter(String competitionCode) {
         competitionFilterCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        currentSnapshot = null;
+        currentTopScorers = List.of();
         updateCompetitionTexts();
         if (serviceReady) {
             loadStandingsAsync("Chargement du classement...");
@@ -443,6 +448,7 @@ public class LeagueTableController {
             updateToolbarState();
 
             LeagueStandingsSnapshot snapshot = loadTask.getValue();
+            currentSnapshot = snapshot;
             standings.setAll(snapshot == null ? List.of() : snapshot.table());
             updateCompetitionTexts(snapshot);
             updateEmptyState();
@@ -456,6 +462,7 @@ public class LeagueTableController {
 
             loadingData = false;
             updateToolbarState();
+            currentSnapshot = null;
             updateEmptyState();
             Throwable throwable = loadTask.getException();
             showStatus("status-error", "Erreur lors du chargement du classement.");
@@ -490,7 +497,8 @@ public class LeagueTableController {
 
             loadingScorers = false;
             updateToolbarState();
-            renderTopScorers(loadTask.getValue());
+            currentTopScorers = loadTask.getValue() == null ? List.of() : List.copyOf(loadTask.getValue());
+            renderTopScorers(currentTopScorers);
             showScorersStatus("status-success", "Meilleurs buteurs actualises.");
         });
 
@@ -501,6 +509,7 @@ public class LeagueTableController {
 
             loadingScorers = false;
             updateToolbarState();
+            currentTopScorers = List.of();
             renderTopScorers(List.of());
             Throwable throwable = loadTask.getException();
             showScorersStatus("status-warning", shortError(throwable));
@@ -510,6 +519,7 @@ public class LeagueTableController {
     }
 
     private void renderTopScorers(List<ApiFootballScorerEntry> scorers) {
+        currentTopScorers = scorers == null ? List.of() : List.copyOf(scorers);
         scorersContainer.getChildren().clear();
         boolean hasScorers = scorers != null && !scorers.isEmpty();
         scorersEmptyLabel.setManaged(!hasScorers);
@@ -593,6 +603,49 @@ public class LeagueTableController {
         sectionSubtitleLabel.setText(snapshot == null
                 ? "Vue generale du championnat avec bilan, difference, points et forme recente."
                 : "Source : football-data.org | " + defaultIfBlank(snapshot.stage(), "Classement total"));
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        StringBuilder summary = new StringBuilder()
+                .append("Current league table screen.\n")
+                .append("Competition: ").append(defaultIfBlank(pageTitleLabel == null ? null : pageTitleLabel.getText(), "League Table")).append(".\n")
+                .append("Subtitle: ").append(defaultIfBlank(pageSubtitleLabel == null ? null : pageSubtitleLabel.getText(), "No subtitle")).append(".\n")
+                .append("Chips: ").append(defaultIfBlank(clubCountChipLabel == null ? null : clubCountChipLabel.getText(), "Unknown"))
+                .append(", ").append(defaultIfBlank(matchdayChipLabel == null ? null : matchdayChipLabel.getText(), "Unknown"))
+                .append(", ").append(defaultIfBlank(seasonChipLabel == null ? null : seasonChipLabel.getText(), "Unknown")).append(".\n")
+                .append("Status: ").append(defaultIfBlank(statusLabel == null ? null : statusLabel.getText(), "Unknown")).append(".\n");
+
+        List<LeagueStandingEntry> table = currentSnapshot != null && currentSnapshot.table() != null
+                ? currentSnapshot.table()
+                : List.copyOf(standings);
+        if (!table.isEmpty()) {
+            List<String> leaders = table.stream()
+                    .limit(5)
+                    .map(entry -> entry.position() + ". " + defaultIfBlank(entry.displayName(), "Team")
+                            + " - " + entry.points() + " pts, goals " + entry.goalsSummary()
+                            + ", GD " + entry.goalDifferenceSummary())
+                    .toList();
+            summary.append("Top 5: ").append(String.join(" | ", leaders)).append(".\n");
+        }
+
+        if (!currentTopScorers.isEmpty()) {
+            List<String> scorers = currentTopScorers.stream()
+                    .limit(3)
+                    .map(entry -> entry.rank() + ". "
+                            + defaultIfBlank(entry.playerName(), "Player")
+                            + " (" + defaultIfBlank(entry.teamName(), "Team") + ") - "
+                            + (entry.goals() == null ? "-" : entry.goals()) + " goals")
+                    .toList();
+            summary.append("Top scorers: ").append(String.join(" | ", scorers)).append(".\n");
+        }
+
+        if (currentSnapshot != null) {
+            summary.append("Stage: ").append(defaultIfBlank(currentSnapshot.stage(), "Overall"))
+                    .append(". Area: ").append(defaultIfBlank(currentSnapshot.areaName(), "Unknown"))
+                    .append(". Matchday: ").append(currentSnapshot.currentMatchday() == null ? "-" : currentSnapshot.currentMatchday()).append('.');
+        }
+        return summary.toString();
     }
 
     private String buildSubtitle(LeagueStandingsSnapshot snapshot) {

@@ -108,7 +108,7 @@ public final class AssistantOverlay extends StackPane {
         panel.setPrefWidth(390);
         panel.setMaxWidth(390);
 
-        Label titleLabel = new Label("Sport Insight Assistant");
+        Label titleLabel = new Label("Jarvis");
         titleLabel.getStyleClass().add("assistant-title");
 
         screenLabel.setText(screenMeta.title());
@@ -117,7 +117,7 @@ public final class AssistantOverlay extends StackPane {
         Label roleChip = new Label(context.admin() ? "Admin access" : (context.authenticated() ? "User access" : "Guest"));
         roleChip.getStyleClass().add("assistant-chip");
 
-        Label modelChip = new Label("Local AI: " + service.preferredModel());
+        Label modelChip = new Label("Local AI: " + service.modelRoutingLabel());
         modelChip.getStyleClass().add("assistant-chip");
 
         voiceChip.setText("Voice: " + service.voiceLabel());
@@ -172,7 +172,14 @@ public final class AssistantOverlay extends StackPane {
 
         speakToggle.getStyleClass().add("assistant-toggle-button");
         speakToggle.setSelected(service.isSpeakRepliesEnabled());
-        speakToggle.selectedProperty().addListener((obs, oldValue, selected) -> service.setSpeakRepliesEnabled(selected));
+        refreshVoiceControls();
+        speakToggle.selectedProperty().addListener((obs, oldValue, selected) -> {
+            service.setSpeakRepliesEnabled(selected);
+            refreshVoiceControls();
+            refreshStatus(selected
+                    ? "Voice replies are on. I'll answer back out loud."
+                    : "Voice replies are muted. Turn Voice back on for spoken answers.");
+        });
 
         HBox actions = new HBox(8, speakToggle, micButton, new Region(), sendButton);
         HBox.setHgrow(actions.getChildren().get(2), Priority.ALWAYS);
@@ -245,7 +252,7 @@ public final class AssistantOverlay extends StackPane {
 
             refreshMessages();
             refreshStatus(null);
-            voiceChip.setText("Voice: " + service.voiceLabel());
+            refreshVoiceControls();
             if (reply != null && reply.command() != null) {
                 reply.command().execute(stage);
             }
@@ -253,11 +260,15 @@ public final class AssistantOverlay extends StackPane {
     }
 
     private void handleMicButton() {
+        if (!service.isSpeakRepliesEnabled()) {
+            speakToggle.setSelected(true);
+        }
+
         if (!service.isVoiceRecording()) {
             try {
                 service.startVoiceRecording();
                 micButton.setText("Stop");
-                refreshStatus("Listening... Click Stop when you finish speaking.");
+                refreshStatus("Listening... Speak naturally, then click Stop and I'll answer back with voice.");
             } catch (Exception ex) {
                 refreshStatus("Microphone setup failed: " + ex.getMessage());
             }
@@ -280,7 +291,34 @@ public final class AssistantOverlay extends StackPane {
             }
             composer.setText(normalizedTranscript);
             refreshStatus("Voice captured: " + normalizedTranscript);
-            sendPrompt(normalizedTranscript);
+            sendVoicePrompt(normalizedTranscript);
+        }));
+    }
+
+    private void sendVoicePrompt(String rawPrompt) {
+        String prompt = rawPrompt == null ? "" : rawPrompt.trim();
+        if (prompt.isBlank()) {
+            return;
+        }
+
+        composer.clear();
+        setBusy(true, "Thinking...");
+        refreshMessages();
+
+        service.submitVoice(prompt, context).whenComplete((reply, throwable) -> Platform.runLater(() -> {
+            setBusy(false, null);
+            if (throwable != null) {
+                refreshMessages();
+                refreshStatus("The assistant could not answer right now: " + throwable.getMessage());
+                return;
+            }
+
+            refreshMessages();
+            refreshStatus(null);
+            refreshVoiceControls();
+            if (reply != null && reply.command() != null) {
+                reply.command().execute(stage);
+            }
         }));
     }
 
@@ -297,7 +335,7 @@ public final class AssistantOverlay extends StackPane {
     }
 
     private void updateLauncherLabel() {
-        launcherButton.setText(panelVisible ? "Hide assistant" : "AI assistant");
+        launcherButton.setText(panelVisible ? "Hide Jarvis" : "Jarvis");
     }
 
     private void setBusy(boolean busy, String statusText) {
@@ -315,5 +353,11 @@ public final class AssistantOverlay extends StackPane {
 
     private void refreshStatus(String override) {
         statusLabel.setText(override == null || override.isBlank() ? service.runtimeStatus(context) : override);
+    }
+
+    private void refreshVoiceControls() {
+        boolean voiceEnabled = service.isSpeakRepliesEnabled();
+        voiceChip.setText("Voice: " + service.voiceLabel() + (voiceEnabled ? " on" : " muted"));
+        speakToggle.setText(voiceEnabled ? "Voice on" : "Voice off");
     }
 }

@@ -1,6 +1,7 @@
 package tn.esprit.assistant;
 
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
@@ -32,7 +33,8 @@ public final class VoiceOutputService {
             "https://github.com/rhasspy/piper/releases/download/" + PIPER_RELEASE_TAG + "/piper_windows_amd64.zip"
     );
     private static final String VOICE_ID = "en_US-ryan-low";
-    private static final String VOICE_LABEL = "Piper Ryan";
+    private static final String VOICE_LABEL = "Fast local voice";
+    private static final int REALTIME_SPEECH_CHAR_LIMIT = 170;
     private static final URI VOICE_MODEL_URI = URI.create(
             "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ryan/low/en_US-ryan-low.onnx?download=true"
     );
@@ -70,9 +72,23 @@ public final class VoiceOutputService {
             return "Voice replies are limited on this operating system.";
         }
         if (isReady()) {
-            return "Voice replies use " + VOICE_LABEL + " through the local Piper neural voice.";
+            return "Short replies use low-latency local speech and longer replies use the Piper Ryan neural voice.";
         }
-        return "Voice replies use " + VOICE_LABEL + " through the local Piper neural voice, which downloads on first use.";
+        return "Voice replies use low-latency local speech and Piper Ryan for longer answers. Piper downloads on first use.";
+    }
+
+    public void prepareFastReplyAsync() {
+        if (!isSupported()) {
+            return;
+        }
+        executor.execute(() -> {
+            try {
+                ensurePiperInstalled();
+                ensureVoiceInstalled();
+            } catch (Exception ignored) {
+                // Best effort warm-up only.
+            }
+        });
     }
 
     public void speakAsync(String rawText) {
@@ -88,6 +104,11 @@ public final class VoiceOutputService {
         executor.execute(() -> {
             stop();
             try {
+                if (shouldUseRealtimeSpeech(text)) {
+                    speakWithWindowsSpeech(text);
+                    return;
+                }
+
                 ensurePiperInstalled();
                 ensureVoiceInstalled();
 
@@ -96,12 +117,14 @@ public final class VoiceOutputService {
                 Path wavPath = Files.createTempFile(outputDirectory, "assistant-", ".wav");
                 try {
                     synthesizeWithPiper(text, wavPath);
-                    playWav(wavPath);
+                    if (!playWavWithWindows(wavPath)) {
+                        playWav(wavPath);
+                    }
                 } finally {
                     Files.deleteIfExists(wavPath);
                 }
             } catch (Exception ignored) {
-                fallbackSpeak(text);
+                speakWithWindowsSpeech(text);
             }
         });
     }
@@ -234,54 +257,96 @@ public final class VoiceOutputService {
         }
     }
 
+    private boolean playWavWithWindows(Path wavPath) {
+        try {
+            String encodedPath = Base64.getEncoder().encodeToString(wavPath.toString().getBytes(StandardCharsets.UTF_8));
+            String script = "$p=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('" + encodedPath + "'));"
+                    + "$player=New-Object System.Media.SoundPlayer $p;"
+                    + "$player.Load();"
+                    + "$player.PlaySync();";
+            Process process = new ProcessBuilder("powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script)
+                    .redirectErrorStream(true)
+                    .start();
+            activeProcess = process;
+            int exitCode = process.waitFor();
+            return exitCode == 0;
+        } catch (Exception ignored) {
+            return false;
+        } finally {
+            activeProcess = null;
+        }
+    }
+
     private void playWav(Path wavPath) throws Exception {
-        try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(wavPath.toFile())) {
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioInputStream.getFormat());
-            SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-            synchronized (playbackLock) {
-                activeLine = line;
+        try (AudioInputStream sourceStream = AudioSystem.getAudioInputStream(wavPath.toFile())) {
+            AudioInputStream playbackStream = sourceStream;
+            AudioFormat sourceFormat = sourceStream.getFormat();
+            if (!AudioFormat.Encoding.PCM_SIGNED.equals(sourceFormat.getEncoding())
+                    || sourceFormat.getSampleSizeInBits() <= 0) {
+                AudioFormat targetFormat = new AudioFormat(
+                        AudioFormat.Encoding.PCM_SIGNED,
+                        sourceFormat.getSampleRate(),
+                        16,
+                        sourceFormat.getChannels(),
+                        Math.max(1, sourceFormat.getChannels()) * 2,
+                        sourceFormat.getSampleRate(),
+                        false
+                );
+                playbackStream = AudioSystem.getAudioInputStream(targetFormat, sourceStream);
             }
 
-            try {
-                line.open(audioInputStream.getFormat());
-                line.start();
-
-                byte[] buffer = new byte[8_192];
-                int bytesRead;
-                while ((bytesRead = audioInputStream.read(buffer, 0, buffer.length)) != -1) {
-                    if (!line.isOpen()) {
-                        break;
-                    }
-                    line.write(buffer, 0, bytesRead);
+            try (AudioInputStream audioInputStream = playbackStream) {
+                DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioInputStream.getFormat());
+                if (!AudioSystem.isLineSupported(info)) {
+                    throw new IOException("No supported output line for format " + audioInputStream.getFormat() + ".");
                 }
 
-                if (line.isOpen()) {
-                    line.drain();
-                    line.stop();
-                }
-            } finally {
-                try {
-                    line.close();
-                } catch (Exception ignored) {
-                    // Best effort only.
-                }
+                SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                 synchronized (playbackLock) {
-                    if (activeLine == line) {
-                        activeLine = null;
+                    activeLine = line;
+                }
+
+                try {
+                    line.open(audioInputStream.getFormat());
+                    line.start();
+
+                    byte[] buffer = new byte[8_192];
+                    int bytesRead;
+                    while ((bytesRead = audioInputStream.read(buffer, 0, buffer.length)) != -1) {
+                        if (!line.isOpen()) {
+                            break;
+                        }
+                        line.write(buffer, 0, bytesRead);
+                    }
+
+                    if (line.isOpen()) {
+                        line.drain();
+                        line.stop();
+                    }
+                } finally {
+                    try {
+                        line.close();
+                    } catch (Exception ignored) {
+                        // Best effort only.
+                    }
+                    synchronized (playbackLock) {
+                        if (activeLine == line) {
+                            activeLine = null;
+                        }
                     }
                 }
             }
         }
     }
 
-    private void fallbackSpeak(String text) {
+    private void speakWithWindowsSpeech(String text) {
         try {
             String encoded = Base64.getEncoder().encodeToString(text.getBytes(StandardCharsets.UTF_8));
             String script = "$t=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('" + encoded + "'));"
                     + "Add-Type -AssemblyName System.Speech;"
                     + "$s=New-Object System.Speech.Synthesis.SpeechSynthesizer;"
                     + "$s.SetOutputToDefaultAudioDevice();"
-                    + "$s.Rate=0;"
+                    + "$s.Rate=1;"
                     + "$s.Volume=100;"
                     + "$s.Speak($t);";
             Process process = new ProcessBuilder("powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script)
@@ -294,6 +359,14 @@ public final class VoiceOutputService {
         } finally {
             activeProcess = null;
         }
+    }
+
+    private boolean shouldUseRealtimeSpeech(String text) {
+        if (text == null || text.isBlank()) {
+            return false;
+        }
+        int sentenceCount = text.split("[.!?]+").length;
+        return text.length() <= REALTIME_SPEECH_CHAR_LIMIT && sentenceCount <= 2;
     }
 
     private String sanitize(String rawText) {

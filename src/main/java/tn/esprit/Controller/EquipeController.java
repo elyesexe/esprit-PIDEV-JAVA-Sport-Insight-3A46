@@ -27,6 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
@@ -60,7 +61,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
-public class EquipeController {
+public class EquipeController implements AssistantContextProvider {
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
     private static final String ALL_COMPETITIONS_LABEL = "Toutes competitions";
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
@@ -180,6 +181,7 @@ public class EquipeController {
     private boolean serviceReady;
     private boolean loadingData;
     private boolean mutatingData;
+    private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
     private String selectedCompetitionCode;
     private final Map<String, Button> competitionFilterButtons = new java.util.LinkedHashMap<>();
@@ -213,6 +215,45 @@ public class EquipeController {
             showStatus("status-error", "Connexion a la base impossible.");
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de charger les equipes.\n" + e.getMessage());
         }
+    }
+
+    public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
+        if (teamRateChart != null) {
+            teamRateChart.applyCss();
+        }
+        Platform.runLater(() -> updateTeamRateChart(resolveTeamStatsSelection()));
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        Equipe selectedEquipe = equipeTableView == null ? null : equipeTableView.getSelectionModel().getSelectedItem();
+        String competitionFilter = selectedCompetitionCode == null ? "All competitions" : FootballDataCompetitions.labelOf(selectedCompetitionCode);
+        String selectedTeamName = selectedEquipe == null ? null : emptyToNull(selectedEquipe.getNom());
+
+        return """
+                Current team management screen.
+                Visible teams: %s. Results meta: %s.
+                Search query: %s. Competition filter: %s.
+                Selection state: %s.
+                Selected or preview team: %s.
+                Team detail subtitle: %s.
+                Coach: %s. Status: %s.
+                Team statistics summary: %s.
+                Toolbar status: %s.
+                """.formatted(
+                emptyIfNull(resultCountLabel == null ? null : resultCountLabel.getText()),
+                emptyIfNull(resultsMetaLabel == null ? null : resultsMetaLabel.getText()),
+                emptyIfNull(searchField == null ? null : searchField.getText()),
+                emptyIfNull(competitionFilter),
+                emptyIfNull(selectionStateLabel == null ? null : selectionStateLabel.getText()),
+                emptyIfNull(selectedTeamName != null ? selectedTeamName : detailNameLabel == null ? null : detailNameLabel.getText()),
+                emptyIfNull(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText()),
+                emptyIfNull(detailCoachValueLabel == null ? null : detailCoachValueLabel.getText()),
+                emptyIfNull(detailStatusValueLabel == null ? null : detailStatusValueLabel.getText()),
+                emptyIfNull(teamStatsSummaryLabel == null ? null : teamStatsSummaryLabel.getText()),
+                emptyIfNull(statusLabel == null ? null : statusLabel.getText())
+        );
     }
 
     @FXML
@@ -685,7 +726,9 @@ public class EquipeController {
             series.getData().add(new XYChart.Data<>("Defaites", roundRate(losses, total)));
         }
         teamRateChart.getData().add(series);
-        applyBarColors(series, List.of("#16a34a", "#f59e0b", "#dc2626"));
+        applyBarColors(series, darkMode
+                ? List.of("#9d71ff", "#57d5ff", "#ff63d0")
+                : List.of("#16a34a", "#f59e0b", "#dc2626"));
 
         if (teamStatsSummaryLabel != null) {
             long pendingMatches = teamMatches.size() - completedMatches.size();

@@ -48,7 +48,9 @@ tn\esprit\assistant\AssistantService.class
 tn\esprit\Controller\EquipeController$1.class
 tn\esprit\tools\FootballDataConfig.class
 tn\esprit\Controller\AdminDashboardController$TeamOption.class
+tn\esprit\assistant\OllamaClient$ChatProfile.class
 tn\esprit\services\football\ApiFootballInsightsService$TheSportsDbTeamProfile.class
+tn\esprit\assistant\AssistantService$InteractionMode.class
 tn\esprit\services\SponsoringWorkspaceService$SponsoringSnapshot.class
 tn\esprit\Controller\AnnonceController.class
 tn\esprit\Controller\MatchListController$2.class
@@ -76,6 +78,7 @@ tn\esprit\Controller\AdminDashboardController$AnnonceRow.class
 tn\esprit\Controller\JoueurListController$2.class
 tn\esprit\repositories\ProductRepository$ProductSortField.class
 tn\esprit\services\CommentaireService.class
+tn\esprit\assistant\AssistantContextProvider.class
 tn\esprit\gui\ThemeManager.class
 tn\esprit\services\football\TheSportsDbCompetitionMappings.class
 tn\esprit\Controller\OrderController$2.class
@@ -219,6 +222,7 @@ tn\esprit\services\football\LeagueStandingEntry.class
 tn\esprit\services\football\ApiFootballInsightsService.class
 tn\esprit\Controller\HomeController$1.class
 tn\esprit\services\SponsorService.class
+tn\esprit\assistant\OllamaClient$ModelCatalog.class
 tn\esprit\mains\MatchMain.class
 tn\esprit\services\football\ApiFootballInsightsService$FootballDataScorerSnapshot.class
 tn\esprit\services\FootballDataSyncService$TeamRow.class
@@ -234,11 +238,14 @@ tn\esprit\Controller\MatchController$SqlRunnable.class
 tn\esprit\Controller\EquipeController$MatchResult.class
 tn\esprit\services\OrderPdfExportService$DocumentWriter.class
 tn\esprit\Controller\EquipeListController$2.class
+tn\esprit\assistant\AssistantService$MatchPredictionInsight.class
+tn\esprit\assistant\AssistantService$TeamPredictionSnapshot.class
 tn\esprit\Controller\JoueurController$1.class
 tn\esprit\Controller\MatchController$RefreshPayload.class
 tn\esprit\services\MatchsService.class
 tn\esprit\assistant\AssistantService$MatchLookupResult.class
 tn\esprit\tools\JoueurAvatarGenerator.class
 tn\esprit\Controller\MatchController$3.class
+tn\esprit\assistant\AssistantService$CurrentMatchTeamSide.class
 tn\esprit\Controller\MatchDetailController.class
 tn\esprit\services\football\ApiFootballMatchDetails.class

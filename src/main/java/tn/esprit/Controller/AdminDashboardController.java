@@ -12,14 +12,17 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.StackPane;
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Entrainement;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
 import tn.esprit.entities.User;
+import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.AnnonceService;
 import tn.esprit.services.EntrainementService;
@@ -45,8 +48,26 @@ import java.util.stream.Collectors;
 
 public class AdminDashboardController {
     private static final String DARK_TABLE_CLASS = "admin-dashboard-force-dark";
+    private static final String TRANSPARENT_SURFACE_STYLE =
+            "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;";
+    private static final String DARK_DASHBOARD_SURFACE_STYLE =
+            "-fx-background-color:"
+                    + " radial-gradient(center 14% 10%, radius 34%, rgba(205, 114, 255, 0.22) 0%, rgba(205, 114, 255, 0.06) 50%, transparent 51%),"
+                    + " radial-gradient(center 94% 18%, radius 28%, rgba(63, 221, 255, 0.14) 0%, rgba(63, 221, 255, 0.04) 46%, transparent 47%),"
+                    + " linear-gradient(from 0% 0% to 100% 100%, #141932 0%, #171d39 52%, #10162c 100%);"
+                    + " -fx-padding: 0;";
+    private static final String LIGHT_DASHBOARD_SURFACE_STYLE =
+            "-fx-background-color:"
+                    + " linear-gradient(from 0% 0% to 100% 100%, #f8fbff 0%, #eef2ff 52%, #f6f8ff 100%);"
+                    + " -fx-padding: 0;";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final List<String> LIGHT_TEAM_RATE_COLORS = List.of("#16a34a", "#f59e0b", "#dc2626");
+    private static final List<String> DARK_TEAM_RATE_COLORS = List.of("#38d9ff", "#9d71ff", "#ff63d0");
+    private static final List<String> LIGHT_PLAYER_DISTRIBUTION_COLORS =
+            List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e");
+    private static final List<String> DARK_PLAYER_DISTRIBUTION_COLORS =
+            List.of("#36d7ff", "#5f8bff", "#b667ff", "#ff63d0", "#ffc14d", "#45e6c3");
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("admin-dashboard-db"));
 
@@ -72,6 +93,10 @@ public class AdminDashboardController {
     private Label playerChartSummaryLabel;
     @FXML
     private Label matchChartSummaryLabel;
+    @FXML
+    private ScrollPane dashboardScroll;
+    @FXML
+    private StackPane dashboardWrap;
     @FXML
     private BarChart<String, Number> teamRateChart;
     @FXML
@@ -127,20 +152,31 @@ public class AdminDashboardController {
 
     private List<Joueur> dashboardJoueurs = List.of();
     private List<Matchs> dashboardMatchs = List.of();
+    private boolean darkMode = ThemeManager.isDarkMode();
 
     @FXML
     public void initialize() {
         configureTables();
         configureCharts();
+        applyWorkspaceSurface();
+        if (dashboardScroll != null) {
+            dashboardScroll.skinProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(this::applyWorkspaceSurface));
+            dashboardScroll.sceneProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(this::applyWorkspaceSurface));
+        }
+        Platform.runLater(this::applyWorkspaceSurface);
         setLoadingState();
         loadDashboardAsync();
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         toggleDarkClass(usersTableView, darkMode);
         toggleDarkClass(annoncesTableView, darkMode);
         toggleDarkClass(entrainementsTableView, darkMode);
         toggleDarkClass(operationsTableView, darkMode);
+        applyWorkspaceSurface();
+        Platform.runLater(this::applyWorkspaceSurface);
+        refreshActiveChartColors();
     }
 
     private void configureTables() {
@@ -474,7 +510,7 @@ public class AdminDashboardController {
                     + (pendingMatches > 0 ? " | " + pendingMatches + " matchs en attente" : ""));
         }
         teamRateChart.getData().add(series);
-        applyBarColors(series, List.of("#16a34a", "#f59e0b", "#dc2626"));
+        applyBarColors(series, darkMode ? DARK_TEAM_RATE_COLORS : LIGHT_TEAM_RATE_COLORS);
     }
 
     private void updatePlayerDistributionChart(List<Joueur> joueurs, Map<Integer, String> equipeNames) {
@@ -501,7 +537,7 @@ public class AdminDashboardController {
                 .limit(6)
                 .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
         playerDistributionChart.getData().add(series);
-        applyBarColors(series, List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
+        applyBarColors(series, darkMode ? DARK_PLAYER_DISTRIBUTION_COLORS : LIGHT_PLAYER_DISTRIBUTION_COLORS);
 
         long unassignedCount = joueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count();
         String averageAge = buildAverageAge(joueurs);
@@ -551,6 +587,30 @@ public class AdminDashboardController {
             return;
         }
         tableView.getStyleClass().remove(DARK_TABLE_CLASS);
+    }
+
+    private void refreshActiveChartColors() {
+        if (teamRateChart != null && !teamRateChart.getData().isEmpty()) {
+            repaintBarColors(teamRateChart.getData().get(0), darkMode ? DARK_TEAM_RATE_COLORS : LIGHT_TEAM_RATE_COLORS);
+        }
+        if (playerDistributionChart != null && !playerDistributionChart.getData().isEmpty()) {
+            repaintBarColors(
+                    playerDistributionChart.getData().get(0),
+                    darkMode ? DARK_PLAYER_DISTRIBUTION_COLORS : LIGHT_PLAYER_DISTRIBUTION_COLORS
+            );
+        }
+    }
+
+    private void applyWorkspaceSurface() {
+        if (dashboardScroll != null) {
+            dashboardScroll.setStyle(TRANSPARENT_SURFACE_STYLE);
+            forceTransparent(dashboardScroll);
+            forceTransparent(dashboardScroll.lookup(".viewport"));
+            forceTransparent(dashboardScroll.lookup(".content"));
+        }
+        if (dashboardWrap != null) {
+            dashboardWrap.setStyle(darkMode ? DARK_DASHBOARD_SURFACE_STYLE : LIGHT_DASHBOARD_SURFACE_STYLE);
+        }
     }
 
     private void setStatus(String message, String styleClass) {
@@ -659,6 +719,22 @@ public class AdminDashboardController {
                 data.nodeProperty().addListener((observable, oldNode, newNode) -> applyBarColor(data, color));
             }
         });
+    }
+
+    private void repaintBarColors(XYChart.Series<String, Number> series, List<String> colors) {
+        Platform.runLater(() -> {
+            for (int index = 0; index < series.getData().size(); index++) {
+                XYChart.Data<String, Number> data = series.getData().get(index);
+                applyBarColor(data, colors.get(index % colors.size()));
+            }
+        });
+    }
+
+    private void forceTransparent(Node node) {
+        if (node == null) {
+            return;
+        }
+        node.setStyle(TRANSPARENT_SURFACE_STYLE);
     }
 
     private void applyBarColor(XYChart.Data<String, Number> data, String color) {

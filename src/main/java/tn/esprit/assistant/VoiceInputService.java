@@ -39,6 +39,8 @@ import java.util.zip.ZipInputStream;
 public final class VoiceInputService {
     private static final float SAMPLE_RATE = 16_000.0f;
     private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
+    private static final double QUICK_AUDIO_SECONDS_LIMIT = 6.5;
+    private static final int QUICK_MIN_WORDS = 2;
 
     private static final String WHISPER_RELEASE_TAG = "v1.8.4";
     private static final URI WHISPER_RUNTIME_URI = URI.create(
@@ -74,11 +76,23 @@ public final class VoiceInputService {
         return activeSession != null;
     }
 
+    public void prepareRealtimeRecognitionAsync() {
+        executor.execute(() -> {
+            try {
+                Path modelDirectory = ensureVoskModelInstalled();
+                loadVoskModel(modelDirectory);
+            } catch (Exception ignored) {
+                // Best effort warm-up only.
+            }
+        });
+    }
+
     public synchronized void startRecording() throws LineUnavailableException {
         if (activeSession != null) {
             return;
         }
 
+        prepareRealtimeRecognitionAsync();
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, AUDIO_FORMAT);
         if (!AudioSystem.isLineSupported(info)) {
             throw new LineUnavailableException("No compatible microphone line is available.");
@@ -115,15 +129,35 @@ public final class VoiceInputService {
                 status.accept("I did not catch enough audio. Try speaking a little longer and a little closer to the microphone.");
                 return "";
             }
+
+            double audioSeconds = audioDurationSeconds(audio);
+            String quickTranscript = "";
             try {
-                status.accept("Preparing the local Whisper voice model...");
+                status.accept("Running the quick recognizer...");
+                Path voskModelDirectory = ensureVoskModelInstalled();
+                quickTranscript = transcribeWithVosk(voskModelDirectory, audio);
+                if (shouldUseQuickTranscript(quickTranscript, audioSeconds)) {
+                    return quickTranscript;
+                }
+                status.accept(quickTranscript.isBlank()
+                        ? "Quick recognizer missed that. Refining the transcript..."
+                        : "Refining the transcript for accuracy...");
+            } catch (Exception ignored) {
+                status.accept("Quick recognizer unavailable. Refining the transcript...");
+            }
+
+            try {
                 String transcript = transcribeWithWhisper(audio);
                 if (!transcript.isBlank()) {
                     return transcript;
                 }
-                status.accept("Whisper heard very little. Trying the backup recognizer...");
+                status.accept("Whisper heard very little. Falling back to the quick recognizer...");
             } catch (Exception ignored) {
-                status.accept("Whisper needs a backup pass. Trying the secondary recognizer...");
+                status.accept("Whisper needs a backup pass. Returning to the quick recognizer...");
+            }
+
+            if (!quickTranscript.isBlank()) {
+                return quickTranscript;
             }
 
             try {
@@ -289,6 +323,40 @@ public final class VoiceInputService {
         }
     }
 
+    private boolean shouldUseQuickTranscript(String transcript, double audioSeconds) {
+        String normalized = AssistantService.normalize(transcript);
+        if (normalized.isBlank()) {
+            return false;
+        }
+
+        int wordCount = normalized.split("\\s+").length;
+        if (wordCount >= 2 && normalized.length() >= 6) {
+            return true;
+        }
+
+        if (containsAny(normalized,
+                "open", "show", "go to", "goto", "search", "find", "explain", "tell me",
+                "match", "matches", "details", "detail", "score", "mvp", "lineup", "lineups",
+                "teams", "players", "joueurs", "equipes", "league", "table", "standings",
+                "real madrid", "bayern", "premier league", "champions league", "settings",
+                "store", "sponsors", "admin", "home")) {
+            return true;
+        }
+
+        if (audioSeconds <= QUICK_AUDIO_SECONDS_LIMIT && wordCount >= QUICK_MIN_WORDS) {
+            return true;
+        }
+
+        return audioSeconds <= 3.0 && wordCount >= 1 && normalized.length() >= 5;
+    }
+
+    private double audioDurationSeconds(byte[] audio) {
+        if (audio == null || audio.length == 0) {
+            return 0.0;
+        }
+        return audio.length / (double) AUDIO_FORMAT.getFrameSize() / SAMPLE_RATE;
+    }
+
     private Model loadVoskModel(Path modelDirectory) throws IOException {
         if (cachedModel != null) {
             return cachedModel;
@@ -342,6 +410,18 @@ public final class VoiceInputService {
             thread.setDaemon(true);
             return thread;
         };
+    }
+
+    private static boolean containsAny(String source, String... terms) {
+        if (source == null || source.isBlank()) {
+            return false;
+        }
+        for (String term : terms) {
+            if (source.contains(term)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private record RecordingSession(

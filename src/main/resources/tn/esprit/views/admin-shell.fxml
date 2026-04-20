@@ -17,21 +17,21 @@
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.Controller.AdminShellController"
-            styleClass="page-root admin-page-root">
+            styleClass="page-root admin-page-root admin-shell-root">
     <left>
         <ScrollPane fitToWidth="true"
                     hbarPolicy="NEVER"
                     vbarPolicy="AS_NEEDED"
                     pannable="true"
-                    prefWidth="248"
-                    minWidth="220"
-                    maxWidth="280"
+                    prefWidth="286"
+                    minWidth="244"
+                    maxWidth="304"
                     styleClass="admin-sidebar-scroll"
                     BorderPane.alignment="TOP_LEFT">
             <content>
                 <VBox fx:id="adminSidebarRoot" spacing="10" styleClass="admin-sidebar">
                     <padding>
-                        <Insets top="20" right="16" bottom="20" left="16"/>
+                        <Insets top="24" right="18" bottom="24" left="18"/>
                     </padding>
 
                     <Label text="Administration" styleClass="admin-sidebar-title"/>
@@ -235,6 +235,8 @@
     </left>
 
     <center>
-        <StackPane fx:id="contentStack" styleClass="admin-content-stack" BorderPane.alignment="CENTER"/>
+        <StackPane styleClass="admin-content-stage" BorderPane.alignment="CENTER">
+            <StackPane fx:id="contentStack" styleClass="admin-content-stack admin-shell-surface"/>
+        </StackPane>
     </center>
 </BorderPane>

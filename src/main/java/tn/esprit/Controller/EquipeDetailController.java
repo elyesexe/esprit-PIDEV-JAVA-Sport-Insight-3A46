@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.EquipeUiSupport;
@@ -36,7 +37,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class EquipeDetailController {
+public class EquipeDetailController implements AssistantContextProvider {
     private static final ExecutorService API_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-detail-api-worker"));
     @FXML
@@ -102,6 +103,8 @@ public class EquipeDetailController {
     private Equipe equipe;
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong scorersRequestSequence = new AtomicLong();
+    private List<Joueur> currentSquad = List.of();
+    private List<ApiFootballScorerEntry> currentTopScorers = List.of();
 
     @FXML
     public void initialize() {
@@ -245,6 +248,7 @@ public class EquipeDetailController {
             detailSourceValueLabel.setText(emptyToFallback(equipe.getExternalSource(), "Manuel"));
 
             updateLogo();
+            currentSquad = squad == null ? List.of() : List.copyOf(squad);
             renderSquad(squad);
             loadTopScorersAsync();
         } catch (SQLException e) {
@@ -253,6 +257,7 @@ public class EquipeDetailController {
     }
 
     private void renderSquad(List<Joueur> squad) {
+        currentSquad = squad == null ? List.of() : List.copyOf(squad);
         squadContainer.getChildren().clear();
         boolean hasPlayers = squad != null && !squad.isEmpty();
         squadEmptyLabel.setManaged(!hasPlayers);
@@ -331,6 +336,7 @@ public class EquipeDetailController {
     }
 
     private void renderTopScorers(List<ApiFootballScorerEntry> scorers) {
+        currentTopScorers = scorers == null ? List.of() : List.copyOf(scorers);
         topScorersContainer.getChildren().clear();
         boolean hasScorers = scorers != null && !scorers.isEmpty();
         topScorersEmptyLabel.setManaged(!hasScorers);
@@ -369,6 +375,42 @@ public class EquipeDetailController {
         return "Assists " + (scorer.assists() == null ? "-" : scorer.assists())
                 + " | Matchs " + (scorer.appearances() == null ? "-" : scorer.appearances())
                 + " | Minutes " + (scorer.minutes() == null ? "-" : scorer.minutes());
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        StringBuilder summary = new StringBuilder()
+                .append("Current team detail screen.\n")
+                .append("Team: ").append(emptyToFallback(detailTitleLabel == null ? null : detailTitleLabel.getText(), "Team")).append(".\n")
+                .append("Subtitle: ").append(emptyToFallback(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText(), "No subtitle")).append(".\n")
+                .append("Coach: ").append(emptyToFallback(detailCoachValueLabel == null ? null : detailCoachValueLabel.getText(), "Unknown")).append(". ")
+                .append("Competition: ").append(emptyToFallback(detailCompetitionValueLabel == null ? null : detailCompetitionValueLabel.getText(), "Unknown")).append(". ")
+                .append("Player count: ").append(emptyToFallback(detailPlayerCountValueLabel == null ? null : detailPlayerCountValueLabel.getText(), "0")).append(".\n")
+                .append("Contact: ")
+                .append(emptyToFallback(detailAddressValueLabel == null ? null : detailAddressValueLabel.getText(), "No address"))
+                .append(" | ").append(emptyToFallback(detailPhoneValueLabel == null ? null : detailPhoneValueLabel.getText(), "No phone"))
+                .append(" | ").append(emptyToFallback(detailEmailValueLabel == null ? null : detailEmailValueLabel.getText(), "No email")).append(".\n");
+
+        if (!currentSquad.isEmpty()) {
+            List<String> squad = currentSquad.stream()
+                    .limit(8)
+                    .map(joueur -> buildPlayerName(joueur) + " (" + emptyToFallback(joueur.getPosition(), "Position unknown") + ")")
+                    .toList();
+            summary.append("Squad sample: ").append(String.join(" | ", squad)).append(".\n");
+        }
+
+        if (!currentTopScorers.isEmpty()) {
+            List<String> scorers = currentTopScorers.stream()
+                    .limit(3)
+                    .map(entry -> entry.rank() + ". "
+                            + emptyToFallback(entry.playerName(), "Player")
+                            + " - " + (entry.goals() == null ? "-" : entry.goals()) + " goals")
+                    .toList();
+            summary.append("Top scorers: ").append(String.join(" | ", scorers)).append(".\n");
+        }
+
+        summary.append("Top scorer status: ").append(emptyToFallback(topScorersStatusLabel == null ? null : topScorersStatusLabel.getText(), "Unknown"));
+        return summary.toString();
     }
 
     private void showTopScorersStatus(String styleClass, String message) {
