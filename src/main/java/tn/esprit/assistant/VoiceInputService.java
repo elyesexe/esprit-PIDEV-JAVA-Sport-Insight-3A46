@@ -25,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,6 +43,7 @@ public final class VoiceInputService {
     private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
     private static final double QUICK_AUDIO_SECONDS_LIMIT = 6.5;
     private static final int QUICK_MIN_WORDS = 2;
+    private static final Set<String> QUICK_AMBIGUOUS_TOKENS = Set.of("much", "one", "on");
 
     private static final String WHISPER_RELEASE_TAG = "v1.8.4";
     private static final URI WHISPER_RUNTIME_URI = URI.create(
@@ -53,7 +56,7 @@ public final class VoiceInputService {
     private static final String VOSK_MODEL_NAME = "vosk-model-small-en-us-0.15";
     private static final URI VOSK_MODEL_DOWNLOAD_URI = URI.create("https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
 
-    private static final String WHISPER_PROMPT = "Sport Insight, Real Madrid, Bayern Munchen, Bayern Munich, UEFA Champions League, Equipes, Joueurs, Matchs, Entrainements, Sponsors, Store.";
+    private static final String WHISPER_PROMPT_BASE = "Sport Insight, Real Madrid, Bayern Munich, UEFA Champions League, Equipes, Joueurs, Matchs, Entrainements, Sponsors, Store, player profile, match details, scorer, assists, cards, lineups, standings, statistics.";
     private static final Path INSTALL_ROOT = Path.of(System.getProperty("user.home"), ".sport-insight", "assistant", "stt");
     private static final Path WHISPER_RUNTIME_DIR = INSTALL_ROOT.resolve("whisper");
     private static final Path WHISPER_EXE = WHISPER_RUNTIME_DIR.resolve("Release").resolve("whisper-cli.exe");
@@ -68,6 +71,7 @@ public final class VoiceInputService {
             .build();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Object modelLock = new Object();
+    private final AssistantEntityLexicon entityLexicon = AssistantEntityLexicon.getInstance();
 
     private volatile RecordingSession activeSession;
     private volatile Model cachedModel;
@@ -88,6 +92,10 @@ public final class VoiceInputService {
     }
 
     public synchronized void startRecording() throws LineUnavailableException {
+        startRecording(null);
+    }
+
+    public synchronized void startRecording(Consumer<VoiceCaptureUpdate> updateConsumer) throws LineUnavailableException {
         if (activeSession != null) {
             return;
         }
@@ -102,19 +110,22 @@ public final class VoiceInputService {
         line.open(AUDIO_FORMAT);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         AtomicBoolean running = new AtomicBoolean(true);
+        Recognizer recognizer = tryCreateRealtimeRecognizer();
         line.start();
-        Future<?> captureFuture = executor.submit(() -> captureAudio(line, output, running));
-        activeSession = new RecordingSession(line, output, running, captureFuture);
+        Consumer<VoiceCaptureUpdate> safeUpdateConsumer = updateConsumer == null ? ignored -> { } : updateConsumer;
+        Future<?> captureFuture = executor.submit(() -> captureAudio(line, output, running, recognizer, safeUpdateConsumer));
+        activeSession = new RecordingSession(line, output, running, captureFuture, recognizer, safeUpdateConsumer);
+        safeUpdateConsumer.accept(VoiceCaptureUpdate.listening());
     }
 
-    public CompletableFuture<String> stopRecordingAndTranscribe(Consumer<String> statusConsumer) {
+    public CompletableFuture<VoiceCaptureResult> stopRecordingAndTranscribe(Consumer<String> statusConsumer) {
         RecordingSession session;
         synchronized (this) {
             session = activeSession;
             activeSession = null;
         }
         if (session == null) {
-            return CompletableFuture.completedFuture("");
+            return CompletableFuture.completedFuture(VoiceCaptureResult.empty());
         }
 
         session.running().set(false);
@@ -127,56 +138,93 @@ public final class VoiceInputService {
             byte[] audio = session.audio().toByteArray();
             if (audio.length < 6_400) {
                 status.accept("I did not catch enough audio. Try speaking a little longer and a little closer to the microphone.");
-                return "";
+                closeRecognizer(session.recognizer());
+                return VoiceCaptureResult.empty();
             }
 
             double audioSeconds = audioDurationSeconds(audio);
-            String quickTranscript = "";
+            QuickRecognition quickRecognition = QuickRecognition.empty();
             try {
                 status.accept("Running the quick recognizer...");
-                Path voskModelDirectory = ensureVoskModelInstalled();
-                quickTranscript = transcribeWithVosk(voskModelDirectory, audio);
-                if (shouldUseQuickTranscript(quickTranscript, audioSeconds)) {
-                    return quickTranscript;
+                quickRecognition = readQuickRecognition(session, audio);
+                if (shouldUseQuickTranscript(quickRecognition, audioSeconds)) {
+                    VoiceCaptureResult quickResult = buildCaptureResult(quickRecognition.text(), quickRecognition.confidence(), false);
+                    session.updateConsumer().accept(VoiceCaptureUpdate.finalText(quickResult.transcript(), quickResult.confidence()));
+                    if (quickResult.clarificationNeeded()) {
+                        status.accept("Low-confidence voice capture. Please confirm the transcript before sending.");
+                    }
+                    return quickResult;
                 }
-                status.accept(quickTranscript.isBlank()
+                status.accept(quickRecognition.text().isBlank()
                         ? "Quick recognizer missed that. Refining the transcript..."
                         : "Refining the transcript for accuracy...");
             } catch (Exception ignored) {
+                closeRecognizer(session.recognizer());
                 status.accept("Quick recognizer unavailable. Refining the transcript...");
             }
 
             try {
                 String transcript = transcribeWithWhisper(audio);
                 if (!transcript.isBlank()) {
-                    return transcript;
+                    VoiceCaptureResult whisperResult = buildCaptureResult(transcript, Math.max(quickRecognition.confidence(), 0.82), true);
+                    session.updateConsumer().accept(VoiceCaptureUpdate.finalText(whisperResult.transcript(), whisperResult.confidence()));
+                    return whisperResult;
                 }
                 status.accept("Whisper heard very little. Falling back to the quick recognizer...");
             } catch (Exception ignored) {
                 status.accept("Whisper needs a backup pass. Returning to the quick recognizer...");
             }
 
-            if (!quickTranscript.isBlank()) {
-                return quickTranscript;
+            if (!quickRecognition.text().isBlank()) {
+                VoiceCaptureResult quickResult = buildCaptureResult(quickRecognition.text(), quickRecognition.confidence(), false);
+                session.updateConsumer().accept(VoiceCaptureUpdate.finalText(quickResult.transcript(), quickResult.confidence()));
+                if (quickResult.clarificationNeeded()) {
+                    status.accept("Low-confidence voice capture. Please confirm the transcript before sending.");
+                }
+                return quickResult;
             }
 
             try {
                 Path voskModelDirectory = ensureVoskModelInstalled();
                 status.accept("Running the backup recognizer...");
-                return transcribeWithVosk(voskModelDirectory, audio);
+                QuickRecognition backupRecognition = transcribeWithVoskDetailed(voskModelDirectory, audio);
+                VoiceCaptureResult backupResult = buildCaptureResult(backupRecognition.text(), backupRecognition.confidence(), false);
+                session.updateConsumer().accept(VoiceCaptureUpdate.finalText(backupResult.transcript(), backupResult.confidence()));
+                return backupResult;
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }
         }, executor);
     }
 
-    private void captureAudio(TargetDataLine line, ByteArrayOutputStream output, AtomicBoolean running) {
+    private void captureAudio(
+            TargetDataLine line,
+            ByteArrayOutputStream output,
+            AtomicBoolean running,
+            Recognizer recognizer,
+            Consumer<VoiceCaptureUpdate> updateConsumer
+    ) {
         byte[] buffer = new byte[4_096];
+        String lastPartial = "";
         try {
             while (running.get()) {
                 int read = line.read(buffer, 0, buffer.length);
                 if (read > 0) {
                     output.write(buffer, 0, read);
+                    if (recognizer != null) {
+                        boolean utteranceComplete = recognizer.acceptWaveForm(buffer, read);
+                        String realtimeJson = utteranceComplete ? recognizer.getResult() : recognizer.getPartialResult();
+                        QuickRecognition realtimeRecognition = parseRecognitionJson(realtimeJson);
+                        if (realtimeRecognition != null && !realtimeRecognition.text().isBlank()) {
+                            String partialText = finalizeTranscript(realtimeRecognition.text());
+                            if (!partialText.isBlank() && !partialText.equals(lastPartial)) {
+                                lastPartial = partialText;
+                                updateConsumer.accept(utteranceComplete
+                                        ? VoiceCaptureUpdate.finalText(partialText, realtimeRecognition.confidence())
+                                        : VoiceCaptureUpdate.partial(partialText, realtimeRecognition.confidence()));
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception ignored) {
@@ -189,6 +237,19 @@ public final class VoiceInputService {
             captureFuture.get();
         } catch (Exception ignored) {
             // Capture may stop abruptly when the line closes.
+        }
+    }
+
+    private Recognizer tryCreateRealtimeRecognizer() {
+        try {
+            Path modelDirectory = ensureVoskModelInstalled();
+            Model model = loadVoskModel(modelDirectory);
+            Recognizer recognizer = new Recognizer(model, SAMPLE_RATE);
+            recognizer.setWords(true);
+            recognizer.setPartialWords(true);
+            return recognizer;
+        } catch (Exception ignored) {
+            return null;
         }
     }
 
@@ -219,7 +280,7 @@ public final class VoiceInputService {
                     "-np",
                     "-ng",
                     "--prompt",
-                    WHISPER_PROMPT
+                    buildWhisperPrompt()
             )
                     .directory(WHISPER_EXE.getParent().toFile())
                     .redirectErrorStream(true)
@@ -305,9 +366,10 @@ public final class VoiceInputService {
         }
     }
 
-    private String transcribeWithVosk(Path modelDirectory, byte[] audio) throws IOException {
+    private QuickRecognition transcribeWithVoskDetailed(Path modelDirectory, byte[] audio) throws IOException {
         Model model = loadVoskModel(modelDirectory);
         try (Recognizer recognizer = new Recognizer(model, SAMPLE_RATE)) {
+            recognizer.setWords(true);
             int offset = 0;
             while (offset < audio.length) {
                 int chunkSize = Math.min(4_096, audio.length - offset);
@@ -316,21 +378,51 @@ public final class VoiceInputService {
                 recognizer.acceptWaveForm(chunk, chunkSize);
                 offset += chunkSize;
             }
-            JsonNode resultNode = objectMapper.readTree(recognizer.getFinalResult());
-            return resultNode.path("text").asText("").trim();
+            QuickRecognition recognition = parseRecognitionJson(recognizer.getFinalResult());
+            return recognition == null ? QuickRecognition.empty() : recognition;
         } catch (Exception ex) {
             throw new IOException("The offline voice engine could not transcribe the recording.", ex);
         }
     }
 
-    private boolean shouldUseQuickTranscript(String transcript, double audioSeconds) {
-        String normalized = AssistantService.normalize(transcript);
+    private QuickRecognition readQuickRecognition(RecordingSession session, byte[] audio) throws IOException, InterruptedException {
+        Recognizer sessionRecognizer = session.recognizer();
+        if (sessionRecognizer != null) {
+            try {
+                QuickRecognition recognition = parseRecognitionJson(sessionRecognizer.getFinalResult());
+                return recognition == null ? QuickRecognition.empty() : recognition;
+            } finally {
+                closeRecognizer(sessionRecognizer);
+            }
+        }
+
+        Path voskModelDirectory = ensureVoskModelInstalled();
+        return transcribeWithVoskDetailed(voskModelDirectory, audio);
+    }
+
+    private boolean shouldUseQuickTranscript(QuickRecognition recognition, double audioSeconds) {
+        String normalized = AssistantService.normalize(recognition.text());
         if (normalized.isBlank()) {
             return false;
         }
+        String corrected = entityLexicon.correctTranscriptEntities(normalized);
 
         int wordCount = normalized.split("\\s+").length;
-        if (wordCount >= 2 && normalized.length() >= 6) {
+        if (looksLikeAmbiguousQuickTranscript(normalized) && recognition.confidence() < 0.82) {
+            return false;
+        }
+        if (!corrected.equals(normalized) && recognition.confidence() < 0.90) {
+            return false;
+        }
+        if (looksLikeEntityHeavyCommand(corrected) && recognition.confidence() < 0.84) {
+            return false;
+        }
+
+        if (recognition.confidence() >= 0.86 && wordCount >= 2) {
+            return true;
+        }
+
+        if (wordCount >= 3 && normalized.length() >= 10 && recognition.confidence() >= 0.55) {
             return true;
         }
 
@@ -350,11 +442,117 @@ public final class VoiceInputService {
         return audioSeconds <= 3.0 && wordCount >= 1 && normalized.length() >= 5;
     }
 
+    static boolean shouldRequestClarification(String normalizedTranscript, double confidence, boolean refinedTranscript) {
+        if (normalizedTranscript == null || normalizedTranscript.isBlank()) {
+            return false;
+        }
+
+        String normalized = AssistantService.normalize(normalizedTranscript);
+        int wordCount = normalized.isBlank() ? 0 : normalized.split("\\s+").length;
+        if (normalized.contains("unk")) {
+            return true;
+        }
+        if (!refinedTranscript && confidence > 0.0 && confidence < 0.58) {
+            return true;
+        }
+        if (!refinedTranscript && confidence == 0.0 && wordCount <= 2) {
+            return true;
+        }
+        if (!refinedTranscript && wordCount <= 2 && confidence > 0.0 && confidence < 0.72) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean looksLikeAmbiguousQuickTranscript(String normalized) {
+        List<String> tokens = List.of(normalized.split("\\s+"));
+        return tokens.stream().anyMatch(QUICK_AMBIGUOUS_TOKENS::contains);
+    }
+
+    private String finalizeTranscript(String transcript) {
+        return entityLexicon.correctTranscriptEntities(AssistantService.normalize(transcript));
+    }
+
+    private VoiceCaptureResult buildCaptureResult(String transcript, double confidence, boolean refinedTranscript) {
+        String finalizedTranscript = finalizeTranscript(transcript);
+        if (finalizedTranscript.isBlank()) {
+            return VoiceCaptureResult.empty();
+        }
+
+        boolean clarificationNeeded = shouldRequestClarification(finalizedTranscript, confidence, refinedTranscript);
+        String clarificationPrompt = clarificationNeeded
+                ? "I heard \"" + finalizedTranscript + "\". Press Send if that's right, or try again."
+                : "";
+        return new VoiceCaptureResult(
+                finalizedTranscript,
+                confidence,
+                clarificationNeeded,
+                clarificationPrompt,
+                refinedTranscript
+        );
+    }
+
+    private QuickRecognition parseRecognitionJson(String recognitionJson) {
+        if (recognitionJson == null || recognitionJson.isBlank()) {
+            return null;
+        }
+
+        try {
+            JsonNode root = objectMapper.readTree(recognitionJson);
+            String text = root.path("partial").asText("").trim();
+            JsonNode wordsNode = root.path("partial_result");
+            if (text.isBlank()) {
+                text = root.path("text").asText("").trim();
+                wordsNode = root.path("result");
+            }
+            if (text.isBlank()) {
+                return null;
+            }
+            return new QuickRecognition(text, averageConfidence(wordsNode));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private double averageConfidence(JsonNode wordsNode) {
+        if (wordsNode == null || !wordsNode.isArray() || wordsNode.isEmpty()) {
+            return 0.0;
+        }
+
+        double sum = 0.0;
+        int count = 0;
+        for (JsonNode wordNode : wordsNode) {
+            if (wordNode == null || !wordNode.has("conf")) {
+                continue;
+            }
+            sum += wordNode.path("conf").asDouble(0.0);
+            count++;
+        }
+        return count == 0 ? 0.0 : sum / count;
+    }
+
+    private void closeRecognizer(Recognizer recognizer) {
+        if (recognizer == null) {
+            return;
+        }
+        try {
+            recognizer.close();
+        } catch (Exception ignored) {
+            // Recognizer shutdown is best-effort.
+        }
+    }
+
     private double audioDurationSeconds(byte[] audio) {
         if (audio == null || audio.length == 0) {
             return 0.0;
         }
         return audio.length / (double) AUDIO_FORMAT.getFrameSize() / SAMPLE_RATE;
+    }
+
+    private String buildWhisperPrompt() {
+        String lexiconHint = entityLexicon.buildSpeechPromptHint();
+        String prompt = lexiconHint.isBlank() ? WHISPER_PROMPT_BASE : WHISPER_PROMPT_BASE + ", " + lexiconHint;
+        return prompt.length() <= 420 ? prompt : prompt.substring(0, 420);
     }
 
     private Model loadVoskModel(Path modelDirectory) throws IOException {
@@ -424,11 +622,26 @@ public final class VoiceInputService {
         return false;
     }
 
+    private static boolean looksLikeEntityHeavyCommand(String normalized) {
+        return containsAny(normalized,
+                "profile", "player", "players", "joueur", "joueurs",
+                "team", "teams", "club", "league", "competition",
+                "champions", "premier", "bundesliga", "laliga", "la liga");
+    }
+
     private record RecordingSession(
             TargetDataLine line,
             ByteArrayOutputStream audio,
             AtomicBoolean running,
-            Future<?> captureFuture
+            Future<?> captureFuture,
+            Recognizer recognizer,
+            Consumer<VoiceCaptureUpdate> updateConsumer
     ) {
+    }
+
+    private record QuickRecognition(String text, double confidence) {
+        private static QuickRecognition empty() {
+            return new QuickRecognition("", 0.0);
+        }
     }
 }

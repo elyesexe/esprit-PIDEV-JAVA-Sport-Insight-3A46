@@ -1,6 +1,5 @@
 package tn.esprit.assistant;
 
-import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -186,12 +185,6 @@ public enum AssistantNavigationTarget {
     }
 
     private static String normalize(String rawText) {
-        if (rawText == null) {
-            return "";
-        }
-        String normalized = Normalizer.normalize(rawText, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}+", "")
-                .toLowerCase();
-        return normalized.replaceAll("[^a-z0-9 ]", " ").replaceAll("\\s+", " ").trim();
+        return AssistantService.normalize(rawText);
     }
 }

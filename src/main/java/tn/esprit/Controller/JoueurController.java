@@ -77,6 +77,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javafx.util.StringConverter;
@@ -85,6 +86,8 @@ public class JoueurController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final Path SYMFONY_JOUEURS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "joueurs");
     private static final double CARD_IMAGE_SIZE = 82;
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("joueur-db-worker"));
     private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-image-import"));
     private static final Pattern PERSON_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L} .'-]{0,100}");
@@ -198,6 +201,7 @@ public class JoueurController implements AssistantContextProvider {
     private final ObservableList<Equipe> equipes = FXCollections.observableArrayList();
     private final FilteredList<Joueur> filteredJoueurs = new FilteredList<>(joueurs, joueur -> true);
     private final Map<Integer, Equipe> equipeById = new HashMap<>();
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     private JoueurService joueurService;
     private EquipeService equipeService;
@@ -206,6 +210,8 @@ public class JoueurController implements AssistantContextProvider {
     private File lastImageDirectory;
     private boolean serviceReady;
     private boolean darkMode;
+    private boolean loadingData;
+    private boolean mutatingData;
     private SidebarModuleGroup sidebarModuleGroup;
     private final Set<Integer> loadingImageIds = new HashSet<>();
     private TableColumn<Joueur, Void> actionsColumn;
@@ -230,8 +236,7 @@ public class JoueurController implements AssistantContextProvider {
             equipeService = new EquipeService();
             excelExportService = new AdminExcelExportService();
             serviceReady = true;
-            refreshData(null);
-            showSuccessStatus("Module Joueur pret.");
+            refreshDataAsync(null, "Chargement des joueurs...", "status-muted", "Module Joueur pret.");
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -290,15 +295,15 @@ public class JoueurController implements AssistantContextProvider {
             return;
         }
 
-        try {
-            joueurService.add(joueur);
-            refreshData(null);
-            clearForm();
-            showSuccessStatus("Joueur ajoute avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant l'ajout.");
-            showAlert(Alert.AlertType.ERROR, "Ajout", "Erreur lors de l'ajout du joueur.\n" + e.getMessage());
-        }
+        runMutation(
+                () -> joueurService.add(joueur),
+                null,
+                true,
+                "Joueur ajoute avec succes.",
+                "Ajout",
+                "Erreur pendant l'ajout.",
+                "Erreur lors de l'ajout du joueur."
+        );
     }
 
     @FXML
@@ -317,14 +322,15 @@ public class JoueurController implements AssistantContextProvider {
 
         joueur.setId(selectedJoueur.getId());
 
-        try {
-            joueurService.update(joueur);
-            refreshData(selectedJoueur.getId());
-            showSuccessStatus("Joueur modifie avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant la modification.");
-            showAlert(Alert.AlertType.ERROR, "Modification", "Erreur lors de la modification du joueur.\n" + e.getMessage());
-        }
+        runMutation(
+                () -> joueurService.update(joueur),
+                selectedJoueur.getId(),
+                false,
+                "Joueur modifie avec succes.",
+                "Modification",
+                "Erreur pendant la modification.",
+                "Erreur lors de la modification du joueur."
+        );
     }
 
     @FXML
@@ -346,21 +352,20 @@ public class JoueurController implements AssistantContextProvider {
             return;
         }
 
-        try {
-            joueurService.delete(selectedJoueur.getId());
-            refreshData(null);
-            clearForm();
-            showSuccessStatus("Joueur supprime avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant la suppression.");
-            showAlert(Alert.AlertType.ERROR, "Suppression", "Erreur lors de la suppression du joueur.\n" + e.getMessage());
-        }
+        runMutation(
+                () -> joueurService.delete(selectedJoueur.getId()),
+                null,
+                true,
+                "Joueur supprime avec succes.",
+                "Suppression",
+                "Erreur pendant la suppression.",
+                "Erreur lors de la suppression du joueur."
+        );
     }
 
     @FXML
     private void handleRefresh() {
-        refreshData(getSelectedJoueurId());
-        showMutedStatus("Liste des joueurs actualisee.");
+        refreshDataAsync(getSelectedJoueurId(), "Actualisation des joueurs...", "status-muted", "Liste des joueurs actualisee.");
     }
 
     @FXML
@@ -761,14 +766,15 @@ public class JoueurController implements AssistantContextProvider {
             return;
         }
 
-        try {
-            joueurService.update(candidate);
-            refreshData(original.getId());
-            showSuccessStatus("Joueur modifie depuis le tableau.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant la modification.");
-            showAlert(Alert.AlertType.ERROR, "Modification", "Erreur lors de la modification du joueur.\n" + e.getMessage());
-        }
+        runMutation(
+                () -> joueurService.update(candidate),
+                original.getId(),
+                false,
+                "Joueur modifie depuis le tableau.",
+                "Modification",
+                "Erreur pendant la modification.",
+                "Erreur lors de la modification du joueur."
+        );
     }
 
     private void deleteJoueurFromTable(Joueur joueur) {
@@ -788,15 +794,15 @@ public class JoueurController implements AssistantContextProvider {
             return;
         }
 
-        try {
-            joueurService.delete(joueur.getId());
-            refreshData(null);
-            clearForm();
-            showSuccessStatus("Joueur supprime avec succes.");
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant la suppression.");
-            showAlert(Alert.AlertType.ERROR, "Suppression", "Erreur lors de la suppression du joueur.\n" + e.getMessage());
-        }
+        runMutation(
+                () -> joueurService.delete(joueur.getId()),
+                null,
+                true,
+                "Joueur supprime avec succes.",
+                "Suppression",
+                "Erreur pendant la suppression.",
+                "Erreur lors de la suppression du joueur."
+        );
     }
 
     private Joueur copyJoueur(Joueur source) {
@@ -989,48 +995,89 @@ public class JoueurController implements AssistantContextProvider {
         return wrapper;
     }
 
-    private void refreshData(Integer preferredSelectionId) {
+    private void refreshDataAsync(
+            Integer preferredSelectionId,
+            String loadingMessage,
+            String successStyleClass,
+            String successMessage
+    ) {
         if (joueurService == null || equipeService == null) {
             return;
         }
 
-        try {
-            loadEquipes();
-            List<Joueur> loadedJoueurs = new ArrayList<>(joueurService.getAll());
-            loadedJoueurs.sort(Comparator
-                    .comparing(this::getEquipeNameForSort, String.CASE_INSENSITIVE_ORDER)
-                    .thenComparing(Joueur::getNumero)
-                    .thenComparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                    .thenComparing(Joueur::getPrenom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+        Integer selectedFormEquipeId = getSelectedFormEquipeId();
+        Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
+        long requestId = refreshSequence.incrementAndGet();
 
-            joueurs.setAll(loadedJoueurs);
+        loadingData = true;
+        updateActionAvailability();
+        if (loadingMessage != null && !loadingMessage.isBlank()) {
+            showMutedStatus(loadingMessage);
+        }
+
+        Task<RefreshPayload> loadTask = new Task<>() {
+            @Override
+            protected RefreshPayload call() throws Exception {
+                List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
+                loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+                Map<Integer, Equipe> loadedEquipeById = new HashMap<>();
+                for (Equipe equipe : loadedEquipes) {
+                    if (equipe.getId() != null) {
+                        loadedEquipeById.put(equipe.getId(), equipe);
+                    }
+                }
+
+                List<Joueur> loadedJoueurs = new ArrayList<>(joueurService.getAll());
+                loadedJoueurs.sort(Comparator.<Joueur, String>comparing(
+                                joueur -> getEquipeNameForSort(joueur, loadedEquipeById),
+                                String.CASE_INSENSITIVE_ORDER
+                        )
+                        .thenComparing(Joueur::getNumero)
+                        .thenComparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                        .thenComparing(Joueur::getPrenom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+                return new RefreshPayload(loadedEquipes, loadedEquipeById, loadedJoueurs);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            loadingData = false;
+            RefreshPayload payload = loadTask.getValue();
+            equipeById.clear();
+            equipeById.putAll(payload.equipeById());
+            equipes.setAll(payload.equipes());
+            selectEquipeInForm(selectedFormEquipeId);
+            selectEquipeInFilter(selectedFilterEquipeId);
+            joueurs.setAll(payload.joueurs());
             applyFilters();
             restoreSelection(preferredSelectionId);
             updateDetailPanel();
             updatePlayerDistributionChart();
-        } catch (SQLException e) {
-            showErrorStatus("Erreur pendant le chargement.");
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n" + e.getMessage());
-        }
-    }
-
-    private void loadEquipes() throws SQLException {
-        Integer selectedFormEquipeId = getSelectedFormEquipeId();
-        Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
-
-        List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
-        loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
-
-        equipeById.clear();
-        for (Equipe equipe : loadedEquipes) {
-            if (equipe.getId() != null) {
-                equipeById.put(equipe.getId(), equipe);
+            updateActionAvailability();
+            if (successMessage != null && !successMessage.isBlank()) {
+                setStatus(successMessage, successStyleClass == null || successStyleClass.isBlank() ? "status-success" : successStyleClass);
             }
-        }
+        });
 
-        equipes.setAll(loadedEquipes);
-        selectEquipeInForm(selectedFormEquipeId);
-        selectEquipeInFilter(selectedFilterEquipeId);
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            loadingData = false;
+            updateActionAvailability();
+            showErrorStatus("Erreur pendant le chargement.");
+            Throwable throwable = loadTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n" + details);
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void applyFilters() {
@@ -1440,13 +1487,16 @@ public class JoueurController implements AssistantContextProvider {
 
     private void updateActionAvailability() {
         boolean hasSelection = selectedJoueur != null;
-        boolean createMode = serviceReady && !hasSelection;
+        boolean busy = loadingData || mutatingData;
+        boolean createMode = serviceReady && !busy && !hasSelection;
 
         addButton.setDisable(!createMode);
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
-        clearButton.setDisable(!serviceReady);
-        refreshButton.setDisable(!serviceReady);
+        clearButton.setDisable(!serviceReady || busy);
+        refreshButton.setDisable(!serviceReady || busy);
+        searchField.setDisable(!serviceReady || busy);
+        equipeFilterComboBox.setDisable(!serviceReady || busy);
         nomField.setDisable(!createMode);
         prenomField.setDisable(!createMode);
         dateNaissancePicker.setDisable(!createMode);
@@ -1454,10 +1504,10 @@ public class JoueurController implements AssistantContextProvider {
         equipeComboBox.setDisable(!createMode);
         imageField.setDisable(!createMode);
         if (joueurTableView != null) {
-            joueurTableView.setDisable(!serviceReady);
+            joueurTableView.setDisable(!serviceReady || busy);
         }
         if (joueurListView != null) {
-            joueurListView.setDisable(!serviceReady);
+            joueurListView.setDisable(!serviceReady || busy);
         }
     }
 
@@ -1539,6 +1589,12 @@ public class JoueurController implements AssistantContextProvider {
 
     private String getEquipeNameForSort(Joueur joueur) {
         String equipeName = getEquipeName(joueur.getEquipeId());
+        return "-".equals(equipeName) ? "zzzz" : equipeName;
+    }
+
+    private String getEquipeNameForSort(Joueur joueur, Map<Integer, Equipe> loadedEquipeById) {
+        Equipe equipe = joueur == null || joueur.getEquipeId() == null ? null : loadedEquipeById.get(joueur.getEquipeId());
+        String equipeName = equipe == null ? "-" : emptyIfNull(equipe.getNom());
         return "-".equals(equipeName) ? "zzzz" : equipeName;
     }
 
@@ -1833,6 +1889,57 @@ public class JoueurController implements AssistantContextProvider {
         return null;
     }
 
+    @FunctionalInterface
+    private interface SqlRunnable {
+        void run() throws SQLException;
+    }
+
+    private void runMutation(
+            SqlRunnable mutation,
+            Integer preferredSelectionId,
+            boolean clearFormOnSuccess,
+            String successMessage,
+            String errorTitle,
+            String errorStatusMessage,
+            String errorDialogPrefix
+    ) {
+        if (joueurService == null) {
+            return;
+        }
+
+        mutatingData = true;
+        updateActionAvailability();
+        showMutedStatus("Operation en cours...");
+
+        Task<Void> mutationTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                mutation.run();
+                return null;
+            }
+        };
+
+        mutationTask.setOnSucceeded(event -> {
+            mutatingData = false;
+            updateActionAvailability();
+            if (clearFormOnSuccess) {
+                clearForm();
+            }
+            refreshDataAsync(preferredSelectionId, null, "status-success", successMessage);
+        });
+
+        mutationTask.setOnFailed(event -> {
+            mutatingData = false;
+            updateActionAvailability();
+            showErrorStatus(errorStatusMessage);
+            Throwable throwable = mutationTask.getException();
+            String details = throwable == null ? "Erreur inconnue." : throwable.getMessage();
+            showAlert(Alert.AlertType.ERROR, errorTitle, errorDialogPrefix + "\n" + details);
+        });
+
+        DB_EXECUTOR.execute(mutationTask);
+    }
+
     private static ThreadFactory daemonFactory(String name) {
         return runnable -> {
             Thread thread = new Thread(runnable, name);
@@ -1936,6 +2043,13 @@ public class JoueurController implements AssistantContextProvider {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private record RefreshPayload(
+            List<Equipe> equipes,
+            Map<Integer, Equipe> equipeById,
+            List<Joueur> joueurs
+    ) {
     }
 }
 

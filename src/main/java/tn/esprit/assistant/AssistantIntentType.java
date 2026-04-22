@@ -1,0 +1,20 @@
+package tn.esprit.assistant;
+
+public enum AssistantIntentType {
+    UNKNOWN,
+    CURRENT_SCREEN,
+    SCREEN_HELP,
+    MATCH_SCORERS,
+    MATCH_ASSISTS,
+    MATCH_WINNER,
+    MATCH_SCORE,
+    MATCH_CARDS,
+    MATCH_STATISTICS,
+    MATCH_LINEUP,
+    MATCH_MVP,
+    MATCH_SUMMARY,
+    SAFE_ACTION,
+    RISKY_ACTION,
+    CONFIRMATION,
+    CANCELLATION
+}

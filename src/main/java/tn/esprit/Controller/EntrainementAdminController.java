@@ -3,6 +3,7 @@ package tn.esprit.Controller;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -39,11 +40,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class EntrainementAdminController {
     private static final DateTimeFormatter DATE_LABEL = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_LABEL = DateTimeFormatter.ofPattern("HH:mm");
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("training-admin-db"));
 
     @FXML
     private Button adminNavButton;
@@ -158,6 +165,7 @@ public class EntrainementAdminController {
 
     private Evaluation selectedEvaluation;
     private Participation selectedParticipation;
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -226,12 +234,7 @@ public class EntrainementAdminController {
             evaluationService = new EvaluationService();
             participationService = new ParticipationService();
             userService = new UserService();
-            loadCoaches();
-            loadTrainingOptions();
-            loadPlayerOptions();
-            refreshData();
-            refreshEvaluations();
-            refreshParticipations();
+            refreshWorkspaceAsync();
         } catch (SQLException e) {
             showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
         }
@@ -249,7 +252,7 @@ public class EntrainementAdminController {
 
     @FXML
     private void handleRefresh() {
-        refreshData();
+        refreshWorkspaceAsync();
     }
 
     @FXML
@@ -261,7 +264,7 @@ public class EntrainementAdminController {
         }
         try {
             entrainementService.add(entrainement);
-            refreshData();
+            refreshWorkspaceAsync();
             clearForm();
         } catch (SQLException e) {
             showError("Ajout", "Erreur lors de l'ajout.\n" + e.getMessage());
@@ -282,7 +285,7 @@ public class EntrainementAdminController {
         entrainement.setId(selected.getId());
         try {
             entrainementService.update(entrainement);
-            refreshData();
+            refreshWorkspaceAsync();
             clearForm();
         } catch (SQLException e) {
             showError("Modification", "Erreur lors de la modification.\n" + e.getMessage());
@@ -306,7 +309,7 @@ public class EntrainementAdminController {
         }
         try {
             entrainementService.delete(selected.getId());
-            refreshData();
+            refreshWorkspaceAsync();
             clearForm();
         } catch (SQLException e) {
             showError("Suppression", "Erreur lors de la suppression.\n" + e.getMessage());
@@ -320,7 +323,7 @@ public class EntrainementAdminController {
 
     @FXML
     private void handleRefreshEvaluations() {
-        refreshEvaluations();
+        refreshWorkspaceAsync();
     }
 
     @FXML
@@ -332,7 +335,7 @@ public class EntrainementAdminController {
         }
         try {
             evaluationService.add(evaluation);
-            refreshEvaluations();
+            refreshWorkspaceAsync();
             clearEvaluationForm();
         } catch (SQLException e) {
             showError("Evaluation", "Erreur lors de l'ajout.\n" + e.getMessage());
@@ -353,7 +356,7 @@ public class EntrainementAdminController {
         evaluation.setId(selectedEvaluation.getId());
         try {
             evaluationService.update(evaluation);
-            refreshEvaluations();
+            refreshWorkspaceAsync();
             clearEvaluationForm();
         } catch (SQLException e) {
             showError("Evaluation", "Erreur lors de la modification.\n" + e.getMessage());
@@ -372,7 +375,7 @@ public class EntrainementAdminController {
         }
         try {
             evaluationService.delete(selectedEvaluation.getId());
-            refreshEvaluations();
+            refreshWorkspaceAsync();
             clearEvaluationForm();
         } catch (SQLException e) {
             showError("Evaluation", "Erreur lors de la suppression.\n" + e.getMessage());
@@ -386,7 +389,7 @@ public class EntrainementAdminController {
 
     @FXML
     private void handleRefreshParticipations() {
-        refreshParticipations();
+        refreshWorkspaceAsync();
     }
 
     @FXML
@@ -398,7 +401,7 @@ public class EntrainementAdminController {
         }
         try {
             participationService.add(participation);
-            refreshParticipations();
+            refreshWorkspaceAsync();
             clearParticipationForm();
         } catch (SQLException e) {
             showError("Participation", "Erreur lors de l'ajout.\n" + e.getMessage());
@@ -419,7 +422,7 @@ public class EntrainementAdminController {
         participation.setId(selectedParticipation.getId());
         try {
             participationService.update(participation);
-            refreshParticipations();
+            refreshWorkspaceAsync();
             clearParticipationForm();
         } catch (SQLException e) {
             showError("Participation", "Erreur lors de la modification.\n" + e.getMessage());
@@ -438,7 +441,7 @@ public class EntrainementAdminController {
         }
         try {
             participationService.delete(selectedParticipation.getId());
-            refreshParticipations();
+            refreshWorkspaceAsync();
             clearParticipationForm();
         } catch (SQLException e) {
             showError("Participation", "Erreur lors de la suppression.\n" + e.getMessage());
@@ -451,13 +454,7 @@ public class EntrainementAdminController {
     }
 
     private void refreshData() {
-        try {
-            master.setAll(entrainementService.getAll());
-            loadTrainingOptions();
-            applyFilters();
-        } catch (SQLException e) {
-            showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
-        }
+        refreshWorkspaceAsync();
     }
 
     private void applyFilters() {
@@ -479,12 +476,7 @@ public class EntrainementAdminController {
     }
 
     private void refreshEvaluations() {
-        try {
-            evaluationMaster.setAll(evaluationService.getAll());
-            applyEvaluationFilters();
-        } catch (SQLException e) {
-            showError("Evaluation", "Impossible de charger les evaluations.\n" + e.getMessage());
-        }
+        refreshWorkspaceAsync();
     }
 
     private void applyEvaluationFilters() {
@@ -514,12 +506,69 @@ public class EntrainementAdminController {
     }
 
     private void refreshParticipations() {
-        try {
-            participationMaster.setAll(participationService.getAll());
-            applyParticipationFilters();
-        } catch (SQLException e) {
-            showError("Participation", "Impossible de charger les participations.\n" + e.getMessage());
+        refreshWorkspaceAsync();
+    }
+
+    private void refreshWorkspaceAsync() {
+        if (entrainementService == null || evaluationService == null || participationService == null || userService == null) {
+            return;
         }
+
+        long requestId = refreshSequence.incrementAndGet();
+        Integer selectedTrainingId = selected == null ? null : selected.getId();
+        Integer selectedEvaluationId = selectedEvaluation == null ? null : selectedEvaluation.getId();
+        Integer selectedParticipationId = selectedParticipation == null ? null : selectedParticipation.getId();
+
+        Task<WorkspacePayload> loadTask = new Task<>() {
+            @Override
+            protected WorkspacePayload call() throws Exception {
+                List<User> users = userService.getAll();
+                List<Entrainement> entrainements = entrainementService.getAll();
+                List<Evaluation> evaluations = evaluationService.getAll();
+                List<Participation> participations = participationService.getAll();
+                return new WorkspacePayload(users, entrainements, evaluations, participations);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            WorkspacePayload payload = loadTask.getValue();
+            coachOptions.setAll(buildCoachOptions(payload.users()));
+            coachField.setItems(coachOptions);
+
+            trainingOptions.setAll(buildTrainingOptions(payload.entrainements()));
+            evaluationTrainingField.setItems(trainingOptions);
+            participationTrainingField.setItems(trainingOptions);
+
+            playerOptions.setAll(buildPlayerOptions(payload.users()));
+            evaluationPlayerField.setItems(playerOptions);
+            participationPlayerField.setItems(playerOptions);
+
+            master.setAll(payload.entrainements());
+            evaluationMaster.setAll(payload.evaluations());
+            participationMaster.setAll(payload.participations());
+
+            applyFilters();
+            applyEvaluationFilters();
+            applyParticipationFilters();
+
+            restoreTrainingSelection(selectedTrainingId);
+            restoreEvaluationSelection(selectedEvaluationId);
+            restoreParticipationSelection(selectedParticipationId);
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            Throwable exception = loadTask.getException();
+            showError("Chargement", "Impossible de charger les entrainements.\n" + (exception == null ? "" : exception.getMessage()));
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void applyParticipationFilters() {
@@ -757,11 +806,7 @@ public class EntrainementAdminController {
         return value.trim();
     }
 
-    private void loadCoaches() throws SQLException {
-        if (userService == null) {
-            return;
-        }
-        List<User> users = userService.getAll();
+    private List<CoachOption> buildCoachOptions(List<User> users) {
         List<CoachOption> options = users.stream()
                 .filter(this::isCoach)
                 .map(CoachOption::fromUser)
@@ -773,12 +818,10 @@ public class EntrainementAdminController {
                     .sorted(Comparator.comparing(CoachOption::fullName, String.CASE_INSENSITIVE_ORDER))
                     .collect(Collectors.toList());
         }
-        coachOptions.setAll(options);
-        coachField.setItems(coachOptions);
+        return options;
     }
 
-    private void loadPlayerOptions() throws SQLException {
-        List<User> users = userService.getAll();
+    private List<UserOption> buildPlayerOptions(List<User> users) {
         List<UserOption> options = users.stream()
                 .filter(this::isPlayer)
                 .map(UserOption::fromUser)
@@ -790,19 +833,14 @@ public class EntrainementAdminController {
                     .sorted(Comparator.comparing(UserOption::fullName, String.CASE_INSENSITIVE_ORDER))
                     .collect(Collectors.toList());
         }
-        playerOptions.setAll(options);
-        evaluationPlayerField.setItems(playerOptions);
-        participationPlayerField.setItems(playerOptions);
+        return options;
     }
 
-    private void loadTrainingOptions() throws SQLException {
-        List<TrainingOption> options = entrainementService.getAll().stream()
+    private List<TrainingOption> buildTrainingOptions(List<Entrainement> entrainements) {
+        return entrainements.stream()
                 .map(TrainingOption::fromTraining)
                 .sorted(Comparator.comparing(TrainingOption::label, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
-        trainingOptions.setAll(options);
-        evaluationTrainingField.setItems(trainingOptions);
-        participationTrainingField.setItems(trainingOptions);
     }
 
     private boolean isCoach(User user) {
@@ -1000,6 +1038,36 @@ public class EntrainementAdminController {
         }
     }
 
+    private void restoreTrainingSelection(Integer trainingId) {
+        if (trainingId == null) {
+            return;
+        }
+        master.stream()
+                .filter(item -> Objects.equals(item.getId(), trainingId))
+                .findFirst()
+                .ifPresent(item -> tableView.getSelectionModel().select(item));
+    }
+
+    private void restoreEvaluationSelection(Integer evaluationId) {
+        if (evaluationId == null) {
+            return;
+        }
+        evaluationMaster.stream()
+                .filter(item -> Objects.equals(item.getId(), evaluationId))
+                .findFirst()
+                .ifPresent(item -> evaluationTableView.getSelectionModel().select(item));
+    }
+
+    private void restoreParticipationSelection(Integer participationId) {
+        if (participationId == null) {
+            return;
+        }
+        participationMaster.stream()
+                .filter(item -> Objects.equals(item.getId(), participationId))
+                .findFirst()
+                .ifPresent(item -> participationTableView.getSelectionModel().select(item));
+    }
+
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -1068,5 +1136,21 @@ public class EntrainementAdminController {
         public String toString() {
             return fullName();
         }
+    }
+
+    private record WorkspacePayload(
+            List<User> users,
+            List<Entrainement> entrainements,
+            List<Evaluation> evaluations,
+            List<Participation> participations
+    ) {
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }

@@ -1,14 +1,17 @@
 package tn.esprit.assistant;
 
+import tn.esprit.Controller.LeagueTableController;
+import tn.esprit.Controller.JoueurDetailController;
 import tn.esprit.Controller.MatchDetailController;
 import tn.esprit.Controller.MatchListController;
-import tn.esprit.Controller.LeagueTableController;
 import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
 import tn.esprit.entities.User;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
+import tn.esprit.services.JoueurService;
 import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.ApiFootballStatisticRow;
 import tn.esprit.services.football.FootballDataCompetitions;
@@ -45,7 +48,25 @@ public final class AssistantService {
     private static final int FAST_PROMPT_CHAR_LIMIT = 120;
     private static final int FAST_PROMPT_TOKEN_LIMIT = 18;
     private static final int MIN_TEAM_MATCH_SCORE = 45;
+    private static final int MIN_PLAYER_MATCH_SCORE = 90;
     private static final int PREDICTION_RECENT_MATCH_LIMIT = 6;
+    private static final Set<String> MATCH_OBJECT_TOKENS = Set.of("match", "matches", "matchs", "fixture", "fixtures", "game", "games");
+    private static final Set<String> MATCH_MISRECOGNIZED_TOKENS = Set.of("much");
+    private static final Set<String> MATCH_CONTEXT_TOKENS = Set.of(
+            "match", "matches", "matchs", "fixture", "fixtures", "game", "games",
+            "detail", "details", "page", "screen", "score", "scores",
+            "stat", "stats", "statistics", "lineup", "lineups", "summary", "timeline",
+            "prediction", "predictions", "predict", "today", "tomorrow", "tonight",
+            "league", "competition", "competitions", "standings", "table",
+            "versus", "against", "vs"
+    );
+    private static final Set<String> MATCH_DIRECTIVE_TOKENS = Set.of(
+            "open", "show", "find", "search", "navigate", "switch", "take", "bring", "go", "predict", "explain"
+    );
+    private static final Set<String> MATCH_SHORT_PREFIX_TOKENS = Set.of("this", "that", "next", "latest", "recent", "current", "last");
+    private static final Set<String> WIN_MISRECOGNIZED_TOKENS = Set.of("on", "one");
+    private static final Set<String> WIN_PREFIX_TOKENS = Set.of("who");
+    private static final Set<String> WIN_SHORT_PREFIX_TOKENS = Set.of("this", "that", "the", "current", "last", "latest", "next");
     private static final List<String> MATCH_DELIMITERS = List.of(" versus ", " against ", " contre ", " face ", " vs ", " v ");
     private static final Map<String, String> COMPETITION_ALIASES = createCompetitionAliases();
     private static final AssistantService INSTANCE = new AssistantService();
@@ -56,6 +77,9 @@ public final class AssistantService {
     private final OllamaClient ollamaClient = new OllamaClient();
     private final VoiceOutputService voiceOutputService = new VoiceOutputService();
     private final VoiceInputService voiceInputService = new VoiceInputService();
+    private final AssistantClapWakeService clapWakeService = new AssistantClapWakeService();
+    private final AssistantIntentResolver intentResolver = new AssistantIntentResolver();
+    private final AssistantConversationMemory conversationMemory = new AssistantConversationMemory();
     private final String knowledgeBase;
 
     private volatile boolean panelOpen;
@@ -126,20 +150,47 @@ public final class AssistantService {
     }
 
     public void startVoiceRecording() throws Exception {
+        startVoiceRecording(null);
+    }
+
+    public void startVoiceRecording(java.util.function.Consumer<VoiceCaptureUpdate> updateConsumer) throws Exception {
+        clapWakeService.pauseMonitoring();
         voiceInputService.prepareRealtimeRecognitionAsync();
         voiceOutputService.prepareFastReplyAsync();
         CompletableFuture.runAsync(() -> ollamaClient.warmModel(FAST_MODEL, OllamaClient.ChatProfile.REALTIME));
-        voiceInputService.startRecording();
+        try {
+            voiceInputService.startRecording(updateConsumer);
+        } catch (Exception ex) {
+            clapWakeService.resumeMonitoring();
+            throw ex;
+        }
     }
 
-    public CompletableFuture<String> stopVoiceRecording(java.util.function.Consumer<String> statusConsumer) {
-        return voiceInputService.stopRecordingAndTranscribe(statusConsumer);
+    public CompletableFuture<VoiceCaptureResult> stopVoiceRecording(java.util.function.Consumer<String> statusConsumer) {
+        return voiceInputService.stopRecordingAndTranscribe(statusConsumer)
+                .whenComplete((result, throwable) -> clapWakeService.resumeMonitoring());
+    }
+
+    public void setWakeWordListener(java.util.function.Consumer<AssistantWakeSignal> listener) {
+        clapWakeService.setWakeListener(listener);
+    }
+
+    public String wakeWordLabel() {
+        return clapWakeService.statusLabel();
+    }
+
+    public void announceWakeGreeting(String message) {
+        String clean = message == null ? "" : message.trim();
+        if (clean.isBlank()) {
+            return;
+        }
+        remember(AssistantMessage.Role.ASSISTANT, clean);
     }
 
     public String runtimeStatus(Context context) {
         AssistantScreenCatalog.ScreenMeta screenMeta = AssistantScreenCatalog.resolve(context.fxmlPath());
         String modelStatus = buildModelRuntimeStatus();
-        return screenMeta.title() + " active. " + modelStatus + " Mic input uses low-latency Vosk with Whisper refinement fallback. " + voiceOutputService.statusSummary();
+        return screenMeta.title() + " active. " + modelStatus + " Wake word: " + clapWakeService.statusLabel() + ". Mic input streams partial Vosk captions, checks confidence, and refines with Whisper when needed. " + voiceOutputService.statusSummary();
     }
 
     public CompletableFuture<Reply> submit(String rawPrompt, Context context) {
@@ -174,6 +225,15 @@ public final class AssistantService {
     private Reply buildReply(String prompt, Context context, InteractionMode mode) {
         String normalized = normalize(prompt);
         AssistantScreenCatalog.ScreenMeta currentScreen = AssistantScreenCatalog.resolve(context.fxmlPath());
+        conversationMemory.observeContext(context);
+
+        AssistantConversationMemory.MemorySnapshot memorySnapshot = conversationMemory.snapshot();
+        AssistantIntent intent = intentResolver.resolve(normalized, context, memorySnapshot);
+        Optional<Reply> intentReply = tryHandleIntent(intent, normalized, context, currentScreen, memorySnapshot);
+        if (intentReply.isPresent()) {
+            conversationMemory.rememberIntent(intent, context);
+            return intentReply.get();
+        }
 
         Optional<Reply> localReply = tryHandleLocally(normalized, context, currentScreen);
         if (localReply.isPresent()) {
@@ -193,6 +253,121 @@ public final class AssistantService {
         }
 
         return new Reply(buildOfflineFallback(currentScreen, context, mode), null, true);
+    }
+
+    private Optional<Reply> tryHandleIntent(
+            AssistantIntent intent,
+            String normalized,
+            Context context,
+            AssistantScreenCatalog.ScreenMeta currentScreen,
+            AssistantConversationMemory.MemorySnapshot memorySnapshot
+    ) {
+        if (intent == null || intent.isUnknown()) {
+            return Optional.empty();
+        }
+
+        return switch (intent.type()) {
+            case CURRENT_SCREEN -> Optional.of(new Reply(describeCurrentScreen(currentScreen), null, true));
+            case SCREEN_HELP -> Optional.of(new Reply(describeCurrentActions(currentScreen), null, true));
+            case SAFE_ACTION -> Optional.of(handleSafeAction(intent, context));
+            case RISKY_ACTION -> {
+                conversationMemory.rememberPendingConfirmation(intent, normalized);
+                yield Optional.of(new Reply(
+                        "That action could change data. Please say confirm if you really want me to continue.",
+                        null,
+                        true
+                ));
+            }
+            case CANCELLATION -> {
+                conversationMemory.clearPendingConfirmation();
+                yield Optional.of(new Reply("Cancelled. I won't take any risky action.", null, true));
+            }
+            case CONFIRMATION -> {
+                conversationMemory.clearPendingConfirmation();
+                yield Optional.of(new Reply(
+                        "I have your confirmation. Jarvis only performs safe local actions automatically right now, so I did not change any data yet.",
+                        null,
+                        true
+                ));
+            }
+            case MATCH_SCORERS, MATCH_ASSISTS, MATCH_WINNER, MATCH_SCORE, MATCH_CARDS ->
+                    handleMatchSnapshotIntent(intent, resolveCurrentMatchSnapshot(context, memorySnapshot));
+            default -> Optional.empty();
+        };
+    }
+
+    private Optional<Reply> handleMatchSnapshotIntent(
+            AssistantIntent intent,
+            AssistantConversationMemory.MatchSnapshot snapshot
+    ) {
+        if (snapshot == null) {
+            return Optional.of(new Reply(
+                    "I don't have a recent match in focus yet. Open a match or ask me about the current match page first.",
+                    null,
+                    true
+            ));
+        }
+
+        return switch (intent.type()) {
+            case MATCH_SCORERS -> Optional.of(new Reply(
+                    intent.policy().compose(
+                            summarizeGoalScorers(snapshot.scorers()),
+                            buildSecondaryMatchDetail(snapshot.statusLabel(), snapshot.competitionLabel())
+                    ),
+                    null,
+                    true
+            ));
+            case MATCH_ASSISTS -> Optional.of(new Reply(
+                    intent.policy().compose(
+                            summarizeAssistProviders(snapshot.assists()),
+                            buildSecondaryMatchDetail(snapshot.statusLabel(), snapshot.competitionLabel())
+                    ),
+                    null,
+                    true
+            ));
+            case MATCH_WINNER -> Optional.of(new Reply(
+                    intent.policy().compose(
+                            buildWinnerReplyText(
+                                    snapshot.homeTeam(),
+                                    snapshot.awayTeam(),
+                                    snapshot.homeScore(),
+                                    snapshot.awayScore(),
+                                    snapshot.scoreLabel(),
+                                    snapshot.statusLabel()
+                            ),
+                            ""
+                    ),
+                    null,
+                    true
+            ));
+            case MATCH_SCORE -> Optional.of(new Reply(
+                    intent.policy().compose(
+                            emptyToFallback(snapshot.matchLabel(), "This match") + ": " + emptyToFallback(snapshot.scoreLabel(), "- : -") + ".",
+                            buildSecondaryMatchDetail(snapshot.statusLabel(), snapshot.competitionLabel())
+                    ),
+                    null,
+                    true
+            ));
+            case MATCH_CARDS -> Optional.of(new Reply(
+                    intent.policy().compose(
+                            summarizeCardEvents(snapshot.cards()),
+                            buildSecondaryMatchDetail(snapshot.statusLabel(), snapshot.competitionLabel())
+                    ),
+                    null,
+                    true
+            ));
+            default -> Optional.empty();
+        };
+    }
+
+    private AssistantConversationMemory.MatchSnapshot resolveCurrentMatchSnapshot(
+            Context context,
+            AssistantConversationMemory.MemorySnapshot memorySnapshot
+    ) {
+        if (context != null && context.controller() instanceof MatchDetailController controller) {
+            return AssistantConversationMemory.MatchSnapshot.fromController(controller);
+        }
+        return memorySnapshot == null ? null : memorySnapshot.recentMatch().orElse(null);
     }
 
     private Optional<Reply> tryHandleLocally(String normalized, Context context, AssistantScreenCatalog.ScreenMeta currentScreen) {
@@ -227,6 +402,11 @@ public final class AssistantService {
         Optional<Reply> teamMatchReply = tryHandleSingleTeamMatchNavigation(normalized, context);
         if (teamMatchReply.isPresent()) {
             return teamMatchReply;
+        }
+
+        Optional<Reply> playerProfileReply = tryHandleSpecificPlayerNavigation(normalized, context);
+        if (playerProfileReply.isPresent()) {
+            return playerProfileReply;
         }
 
         if (containsAny(normalized, "who are you", "what can you do", "what do you do", "introduce yourself")) {
@@ -414,28 +594,46 @@ public final class AssistantService {
             ));
         }
 
-        if (looksLikeScoreQuestion(normalized)) {
-            return Optional.of(new Reply(
-                    currentLabel + " is " + controller.getCurrentScoreLabel()
-                            + ". Status: " + controller.getCurrentStatusLabel()
-                            + ". Competition: " + controller.getCurrentCompetitionLabel() + ".",
-                    null,
-                    true
-            ));
-        }
-
         if (looksLikeScorerQuestion(normalized)) {
-            List<String> goals = controller.getCurrentGoalHighlights();
-            if (goals.isEmpty()) {
+            List<String> scorers = controller.getCurrentGoalScorerSummaries();
+            if (scorers.isEmpty()) {
                 return Optional.of(new Reply(
-                        "I don't have any recorded goal events for " + currentLabel + " yet. I'll open the summary tab for you.",
+                        "No scorers recorded yet for " + currentLabel + ".",
                         stage -> controller.openSummaryTabFromAssistant(),
                         true
                 ));
             }
             return Optional.of(new Reply(
-                    "Goal events for " + currentLabel + ": " + String.join(" | ", goals.stream().limit(8).toList()) + ".",
+                    summarizeGoalScorers(scorers),
                     stage -> controller.openSummaryTabFromAssistant(),
+                    true
+            ));
+        }
+
+        if (looksLikeWinnerQuestion(normalized)) {
+            return Optional.of(new Reply(
+                    buildWinnerReplyText(
+                            controller.getCurrentHomeTeamName(),
+                            controller.getCurrentAwayTeamName(),
+                            controller.getCurrentMatch() == null ? null : controller.getCurrentMatch().getScoreEquipeDomicile(),
+                            controller.getCurrentMatch() == null ? null : controller.getCurrentMatch().getScoreEquipeExterieur(),
+                            controller.getCurrentScoreLabel(),
+                            controller.getCurrentStatusLabel()
+                    ),
+                    null,
+                    true
+            ));
+        }
+
+        if (looksLikeScoreQuestion(normalized)) {
+            return Optional.of(new Reply(
+                    buildScoreReplyText(
+                            currentLabel,
+                            controller.getCurrentScoreLabel(),
+                            controller.getCurrentStatusLabel(),
+                            controller.getCurrentCompetitionLabel()
+                    ),
+                    null,
                     true
             ));
         }
@@ -470,6 +668,115 @@ public final class AssistantService {
         }
 
         return Optional.empty();
+    }
+
+    static String summarizeGoalScorers(List<String> scorers) {
+        if (scorers == null || scorers.isEmpty()) {
+            return "No scorers recorded yet.";
+        }
+        if (scorers.size() == 1) {
+            return "Scorer: " + scorers.get(0) + ".";
+        }
+        return "Scorers: " + String.join(", ", scorers) + ".";
+    }
+
+    static String summarizeAssistProviders(List<String> assists) {
+        if (assists == null || assists.isEmpty()) {
+            return "No assists recorded yet.";
+        }
+        if (assists.size() == 1) {
+            return "Assist provider: " + assists.get(0) + ".";
+        }
+        return "Assist providers: " + String.join(", ", assists) + ".";
+    }
+
+    static String summarizeCardEvents(List<String> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return "No cards recorded yet.";
+        }
+        return "Cards: " + String.join(" | ", cards.stream().limit(6).toList()) + ".";
+    }
+
+    private static String buildSecondaryMatchDetail(String statusLabel, String competitionLabel) {
+        StringBuilder detail = new StringBuilder();
+        if (statusLabel != null && !statusLabel.isBlank()) {
+            detail.append("Status: ").append(statusLabel.trim());
+        }
+        if (competitionLabel != null && !competitionLabel.isBlank()) {
+            if (!detail.isEmpty()) {
+                detail.append(". ");
+            }
+            detail.append("Competition: ").append(competitionLabel.trim()).append(".");
+        } else if (!detail.isEmpty()) {
+            detail.append(".");
+        }
+        return detail.toString();
+    }
+
+    static String buildWinnerReplyText(
+            String homeTeam,
+            String awayTeam,
+            Integer homeScore,
+            Integer awayScore,
+            String scoreLabel,
+            String statusLabel
+    ) {
+        String status = normalize(statusLabel);
+        ScoreSnapshot score = resolveScoreSnapshot(homeScore, awayScore, scoreLabel);
+        if (score == null) {
+            return "There is no winner yet.";
+        }
+
+        if (score.homeScore() == score.awayScore()) {
+            if (isFinishedStatusText(status)) {
+                return "It ended in a draw, " + score.displayLabel() + ".";
+            }
+            if (isLiveStatusText(status)) {
+                return "It is currently level at " + score.displayLabel() + ".";
+            }
+            return "It is level at " + score.displayLabel() + ".";
+        }
+
+        String winner = score.homeScore() > score.awayScore()
+                ? emptyToFallback(homeTeam, "The home team")
+                : emptyToFallback(awayTeam, "The away team");
+        if (isFinishedStatusText(status)) {
+            return winner + " won " + score.displayLabel() + ".";
+        }
+        if (isLiveStatusText(status)) {
+            return winner + " is leading " + score.displayLabel() + ".";
+        }
+        return winner + " is ahead " + score.displayLabel() + ".";
+    }
+
+    static String buildScoreReplyText(String currentLabel, String scoreLabel, String statusLabel, String competitionLabel) {
+        StringBuilder reply = new StringBuilder(emptyToFallback(currentLabel, "This match"))
+                .append(": ")
+                .append(emptyToFallback(scoreLabel, "- : -"));
+        if (statusLabel != null && !statusLabel.isBlank()) {
+            reply.append(". Status: ").append(statusLabel.trim());
+        }
+        if (competitionLabel != null && !competitionLabel.isBlank()) {
+            reply.append(". Competition: ").append(competitionLabel.trim());
+        }
+        reply.append(".");
+        return reply.toString();
+    }
+
+    private static ScoreSnapshot resolveScoreSnapshot(Integer homeScore, Integer awayScore, String scoreLabel) {
+        if (homeScore != null && awayScore != null) {
+            return new ScoreSnapshot(homeScore, awayScore, homeScore + " : " + awayScore);
+        }
+        if (scoreLabel == null || scoreLabel.isBlank()) {
+            return null;
+        }
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)\\s*[:\\-]\\s*(\\d+)").matcher(scoreLabel);
+        if (!matcher.find()) {
+            return null;
+        }
+        int parsedHomeScore = Integer.parseInt(matcher.group(1));
+        int parsedAwayScore = Integer.parseInt(matcher.group(2));
+        return new ScoreSnapshot(parsedHomeScore, parsedAwayScore, parsedHomeScore + " : " + parsedAwayScore);
     }
 
     private Optional<Reply> tryHandleMatchPrediction(String normalized, MatchDetailController controller, String currentLabel) {
@@ -530,6 +837,52 @@ public final class AssistantService {
                     true
             ));
         }
+    }
+
+    private Reply handleSafeAction(AssistantIntent intent, Context context) {
+        if (intent == null || context == null) {
+            return new Reply("I couldn't run that action from here.", null, true);
+        }
+
+        Object controller = context.controller();
+        if (controller instanceof MatchDetailController matchDetailController) {
+            return switch (intent.subject()) {
+                case "open_lineups" -> new Reply(
+                        "Opening the lineups tab.",
+                        stage -> matchDetailController.openLineupTabFromAssistant(),
+                        true
+                );
+                case "open_stats" -> new Reply(
+                        "Opening the statistics tab.",
+                        stage -> matchDetailController.openStatsTabFromAssistant(),
+                        true
+                );
+                case "open_summary" -> new Reply(
+                        "Opening the summary tab.",
+                        stage -> matchDetailController.openSummaryTabFromAssistant(),
+                        true
+                );
+                case "open_match_list" -> new Reply(
+                        "Opening the competition match list.",
+                        stage -> matchDetailController.openMatchListFromAssistant(),
+                        true
+                );
+                default -> new Reply("I couldn't run that action from this match screen.", null, true);
+            };
+        }
+
+        if (controller instanceof MatchListController matchListController) {
+            return switch (intent.subject()) {
+                case "clear_match_search" -> new Reply(
+                        "Clearing the current match filters.",
+                        stage -> matchListController.applyAssistantSearch(""),
+                        true
+                );
+                default -> new Reply("I couldn't run that action from this match list.", null, true);
+            };
+        }
+
+        return new Reply("I couldn't run that action from here.", null, true);
     }
 
     private Optional<Reply> tryHandleMatchListPageActions(String normalized, Context context, MatchListController controller) {
@@ -790,6 +1143,40 @@ public final class AssistantService {
         }
     }
 
+    private Optional<Reply> tryHandleSpecificPlayerNavigation(String normalized, Context context) {
+        if (!looksLikeSpecificPlayerNavigationRequest(normalized)) {
+            return Optional.empty();
+        }
+
+        if (!context.authenticated()) {
+            return Optional.of(new Reply("You need to sign in before opening player profiles.", null, true));
+        }
+
+        String focus = extractPlayerSearchFocus(normalized);
+        if (focus.isBlank()) {
+            return Optional.empty();
+        }
+
+        try {
+            PlayerCandidate candidate = findBestPlayerCandidate(focus, new JoueurService().getAll());
+            if (candidate == null) {
+                return Optional.of(new Reply(
+                        "I couldn't find a player profile for " + formatSearchLabel(focus) + ".",
+                        null,
+                        true
+                ));
+            }
+
+            return Optional.of(new Reply(
+                    "Opening " + buildPlayerDisplayName(candidate.player()) + " profile.",
+                    commandForPlayerDetail(candidate.player()),
+                    true
+            ));
+        } catch (Exception ignored) {
+            return Optional.empty();
+        }
+    }
+
     private MatchLookupResult findBestMatch(TeamPairQuery teamPair, String requestedCompetitionCode) throws Exception {
         EquipeService equipeService = new EquipeService();
         MatchsService matchsService = new MatchsService();
@@ -922,6 +1309,9 @@ public final class AssistantService {
             score = Math.max(score, 92 + queryTokens.size() * 4);
         }
 
+        double fuzzySimilarity = AssistantFuzzyMatcher.similarity(query, teamName);
+        score = Math.max(score, (int) Math.round(fuzzySimilarity * 150));
+
         return score;
     }
 
@@ -994,11 +1384,40 @@ public final class AssistantService {
     }
 
     private Optional<String> findRequestedCompetitionCode(String normalized) {
-        return COMPETITION_ALIASES.entrySet().stream()
+        Optional<String> exactMatch = COMPETITION_ALIASES.entrySet().stream()
                 .filter(entry -> normalized.contains(entry.getKey()))
                 .sorted(Map.Entry.<String, String>comparingByKey(Comparator.comparingInt(String::length)).reversed())
                 .map(Map.Entry::getValue)
                 .findFirst();
+        if (exactMatch.isPresent()) {
+            return exactMatch;
+        }
+
+        String focus = extractCompetitionFocus(normalized);
+        if (focus.isBlank()) {
+            return Optional.empty();
+        }
+
+        String bestCode = null;
+        double bestScore = 0.0;
+        for (Map.Entry<String, String> entry : COMPETITION_ALIASES.entrySet()) {
+            double score = AssistantFuzzyMatcher.similarity(focus, entry.getKey());
+            if (score > bestScore) {
+                bestScore = score;
+                bestCode = entry.getValue();
+            }
+        }
+        return bestScore >= 0.74 ? Optional.ofNullable(bestCode) : Optional.empty();
+    }
+
+    private String extractCompetitionFocus(String normalized) {
+        if (normalized == null || normalized.isBlank()) {
+            return "";
+        }
+        return normalized
+                .replaceAll("\\b(open|show|take|bring|go|goto|me|to|page|screen|match|matches|matchs|fixture|fixtures|details|detail|table|standings|ranking|leaderboard|please|for|of|the|a|an)\\b", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     private String currentCompetitionCodeFor(Context context) {
@@ -1359,10 +1778,18 @@ public final class AssistantService {
     }
 
     private boolean isFinishedStatus(String normalizedStatus) {
+        return isFinishedStatusText(normalizedStatus);
+    }
+
+    private static boolean isFinishedStatusText(String normalizedStatus) {
         return containsAny(normalizedStatus, "fini", "finished", "full time", "termine", "ended", "complete");
     }
 
     private boolean isLiveStatus(String normalizedStatus) {
+        return isLiveStatusText(normalizedStatus);
+    }
+
+    private static boolean isLiveStatusText(String normalizedStatus) {
         return containsAny(
                 normalizedStatus,
                 "en cours",
@@ -1555,6 +1982,20 @@ public final class AssistantService {
         );
     }
 
+    private AssistantCommand commandForPlayerDetail(Joueur joueur) {
+        return stage -> SceneNavigator.setScene(
+                stage,
+                "/tn/esprit/views/joueur-detail-view.fxml",
+                "/tn/esprit/styles/joueur-theme.css",
+                "Fiche joueur",
+                controller -> {
+                    if (controller instanceof JoueurDetailController joueurDetailController) {
+                        joueurDetailController.setJoueurContext(joueur);
+                    }
+                }
+        );
+    }
+
     private String buildSystemPrompt(Context context, AssistantScreenCatalog.ScreenMeta currentScreen, InteractionMode mode) {
         String liveContext = resolveLiveContext(context.controller());
         if (mode == InteractionMode.VOICE) {
@@ -1567,6 +2008,7 @@ public final class AssistantService {
                     - Use the live screen data as ground truth.
                     - If the live screen data contains the answer, answer directly.
                     - Prefer practical, immediate answers over explanations.
+                    - For match questions, answer the exact intent: scorers for "who scored", winner for "who won", score only for "what is the score".
                     - Never claim you opened a page unless the local action layer already did it.
                     - If the user asks your name, say you are Jarvis.
                     - If the user asks something unrelated to the app, say you only help with Sport Insight.
@@ -1605,6 +2047,7 @@ public final class AssistantService {
                 - Accept casual phrasing, typos, and short follow-ups like "this match", "that player", or "who is MVP".
                 - When the user asks how to do something, explain the nearest Sport Insight workflow.
                 - Respect role boundaries: admin-only features require an admin account.
+                - For match questions, answer the exact intent first: scorers for "who scored", winner for "who won", and the score only when the user asks for the score.
                 - Never invent live database values or external API results you cannot see.
                 - Never claim that you opened a page or changed data unless the local action layer already did it.
                 - When the user asks to open a page or act on the current screen, prefer the local action layer over a descriptive answer.
@@ -1830,6 +2273,113 @@ public final class AssistantService {
                 .trim();
     }
 
+    private static String extractPlayerSearchFocus(String normalized) {
+        if (normalized == null || normalized.isBlank()) {
+            return "";
+        }
+        return normalized
+                .replaceAll("\\b(open|show|take|bring|go|goto|navigate|switch|find|search|me|to|my|player|players|joueur|joueurs|profile|profiles|detail|details|fiche|page|screen|please|of|for|the|a|an|user|account)\\b", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private static String buildPlayerDisplayName(Joueur joueur) {
+        if (joueur == null) {
+            return "this player";
+        }
+        String firstName = joueur.getPrenom() == null ? "" : joueur.getPrenom().trim();
+        String lastName = joueur.getNom() == null ? "" : joueur.getNom().trim();
+        String fullName = (firstName + " " + lastName).trim();
+        if (!fullName.isBlank()) {
+            return fullName;
+        }
+        return emptyToFallback(lastName, "this player");
+    }
+
+    private static String formatSearchLabel(String value) {
+        if (value == null || value.isBlank()) {
+            return "that player";
+        }
+        return tokens(value).stream()
+                .map(token -> token.isBlank()
+                        ? token
+                        : Character.toUpperCase(token.charAt(0)) + token.substring(1))
+                .collect(Collectors.joining(" "));
+    }
+
+    private static PlayerCandidate findBestPlayerCandidate(String query, List<Joueur> joueurs) {
+        if (query == null || query.isBlank() || joueurs == null || joueurs.isEmpty()) {
+            return null;
+        }
+
+        PlayerCandidate bestCandidate = null;
+        for (Joueur joueur : joueurs) {
+            int score = scorePlayerCandidate(query, joueur);
+            if (score < MIN_PLAYER_MATCH_SCORE) {
+                continue;
+            }
+
+            if (bestCandidate == null || score > bestCandidate.score()) {
+                bestCandidate = new PlayerCandidate(joueur, score);
+            }
+        }
+        return bestCandidate;
+    }
+
+    private static int scorePlayerCandidate(String query, Joueur joueur) {
+        if (joueur == null || query == null || query.isBlank()) {
+            return 0;
+        }
+
+        String fullName = normalize(buildPlayerDisplayName(joueur));
+        if (fullName.isBlank()) {
+            return 0;
+        }
+        if (query.equals(fullName)) {
+            return 180;
+        }
+
+        String firstName = normalize(joueur.getPrenom());
+        String lastName = normalize(joueur.getNom());
+        int score = 0;
+
+        if (fullName.contains(query)) {
+            score = Math.max(score, 132 - Math.abs(fullName.length() - query.length()));
+        }
+        if (query.contains(fullName)) {
+            score = Math.max(score, 118 - Math.abs(query.length() - fullName.length()));
+        }
+        if (!lastName.isBlank() && query.equals(lastName)) {
+            score = Math.max(score, 108);
+        }
+        if (!firstName.isBlank() && query.equals(firstName)) {
+            score = Math.max(score, 94);
+        }
+
+        List<String> queryTokens = tokens(query);
+        List<String> playerTokens = tokens(fullName);
+        long matchedTokens = queryTokens.stream()
+                .filter(token -> token.length() > 1)
+                .filter(token -> fullName.contains(token) || playerTokens.contains(token))
+                .count();
+
+        if (matchedTokens > 0) {
+            score = Math.max(score, (int) (54 + matchedTokens * 18));
+        }
+        if (!queryTokens.isEmpty() && matchedTokens == queryTokens.size()) {
+            score = Math.max(score, 104 + queryTokens.size() * 10);
+        }
+        if (queryTokens.size() >= 2
+                && !firstName.isBlank()
+                && !lastName.isBlank()
+                && query.contains(firstName)
+                && query.contains(lastName)) {
+            score = Math.max(score, 155);
+        }
+        score = Math.max(score, (int) Math.round(AssistantFuzzyMatcher.similarity(query, fullName) * 175));
+        return score;
+    }
+
     private String resolveTeamName(Map<Integer, Equipe> teamById, Integer teamId, String fallback) {
         if (teamId == null) {
             return fallback;
@@ -1943,6 +2493,19 @@ public final class AssistantService {
                 && containsAny(normalized, "match", "matches", "matchs", "fixture", "fixtures", "game", "games");
     }
 
+    private static boolean looksLikeSpecificPlayerNavigationRequest(String normalized) {
+        boolean hasNavigationCue = looksLikeNavigationRequest(normalized) || containsAny(normalized, "detail", "details", "fiche");
+        boolean hasProfileCue = containsAny(normalized, "profile", "detail", "details", "fiche");
+        boolean hasPlayerCue = containsAny(normalized, "player", "players", "joueur", "joueurs");
+        if (!hasNavigationCue || (!hasProfileCue && !hasPlayerCue)) {
+            return false;
+        }
+
+        String focus = extractPlayerSearchFocus(normalized);
+        int focusTokens = countTokens(focus);
+        return focusTokens >= 2 || (focusTokens == 1 && hasPlayerCue);
+    }
+
     private static boolean looksLikeExplanationRequest(String normalized) {
         return containsAny(normalized, "how", "what", "explain", "help", "guide", "walk me");
     }
@@ -1970,11 +2533,27 @@ public final class AssistantService {
     }
 
     private static boolean looksLikeScoreQuestion(String normalized) {
-        return containsAny(normalized, "score", "result", "who is winning", "who won", "what s the score", "what is the score");
+        if (looksLikeScorerQuestion(normalized) || looksLikeWinnerQuestion(normalized)) {
+            return false;
+        }
+        return containsAny(normalized, "score", "result", "who is winning", "who won", "who win", "what s the score", "what is the score")
+                || normalized.matches(".*\\bwon (this|that|the|current|last|latest|next) (match|game|fixture)\\b.*")
+                || normalized.matches(".*\\bwinner of (this|that|the|current|last|latest|next) (match|game|fixture)\\b.*");
+    }
+
+    private static boolean looksLikeWinnerQuestion(String normalized) {
+        return containsAny(
+                normalized,
+                "who won",
+                "winner",
+                "which team won",
+                "did they win",
+                "did we win"
+        ) || normalized.matches(".*\\bwon (this|that|the|current|last|latest|next) (match|game|fixture)\\b.*");
     }
 
     private static boolean looksLikeScorerQuestion(String normalized) {
-        return containsAny(normalized, "who scored", "scorer", "scorers", "goalscorer", "goal scorers", "goal events");
+        return containsAny(normalized, "who scored", "scorer", "scorers", "goalscorer", "goal scorers", "goal events", "which players scored", "name the scorers");
     }
 
     private static boolean looksLikeCardQuestion(String normalized) {
@@ -2087,7 +2666,82 @@ public final class AssistantService {
         String normalized = Normalizer.normalize(rawText, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}+", "")
                 .toLowerCase(Locale.ROOT);
-        return normalized.replaceAll("[^a-z0-9 ]", " ").replaceAll("\\s+", " ").trim();
+        normalized = normalized.replaceAll("[^a-z0-9 ]", " ").replaceAll("\\s+", " ").trim();
+        return applySpeechCommandCorrections(normalized);
+    }
+
+    private static String applySpeechCommandCorrections(String normalized) {
+        List<String> rawTokens = tokens(normalized);
+        if (rawTokens.isEmpty()) {
+            return normalized;
+        }
+
+        List<String> correctedTokens = new ArrayList<>(rawTokens);
+        for (int index = 0; index < correctedTokens.size(); index++) {
+            if (shouldRewriteAsWon(correctedTokens, index)) {
+                correctedTokens.set(index, "won");
+            }
+        }
+        for (int index = 0; index < correctedTokens.size(); index++) {
+            if (shouldRewriteAsMatch(correctedTokens, index)) {
+                correctedTokens.set(index, "match");
+            }
+        }
+        return String.join(" ", correctedTokens);
+    }
+
+    private static boolean shouldRewriteAsWon(List<String> tokens, int index) {
+        String token = tokenAt(tokens, index);
+        if (!WIN_MISRECOGNIZED_TOKENS.contains(token)) {
+            return false;
+        }
+
+        String previous = tokenAt(tokens, index - 1);
+        String next = tokenAt(tokens, index + 1);
+        String nextNext = tokenAt(tokens, index + 2);
+        if (WIN_PREFIX_TOKENS.contains(previous) && (WIN_SHORT_PREFIX_TOKENS.contains(next) || isMatchObjectToken(next))) {
+            return true;
+        }
+        return index == 0
+                && WIN_SHORT_PREFIX_TOKENS.contains(next)
+                && (isMatchObjectToken(nextNext) || MATCH_MISRECOGNIZED_TOKENS.contains(nextNext));
+    }
+
+    private static boolean shouldRewriteAsMatch(List<String> tokens, int index) {
+        String token = tokenAt(tokens, index);
+        if (!MATCH_MISRECOGNIZED_TOKENS.contains(token)) {
+            return false;
+        }
+        if (tokens.size() == 1) {
+            return true;
+        }
+
+        String previous = tokenAt(tokens, index - 1);
+        String next = tokenAt(tokens, index + 1);
+        if (MATCH_CONTEXT_TOKENS.contains(previous) || MATCH_CONTEXT_TOKENS.contains(next)) {
+            return true;
+        }
+        if (MATCH_DIRECTIVE_TOKENS.contains(previous)) {
+            return true;
+        }
+        if (MATCH_SHORT_PREFIX_TOKENS.contains(previous)) {
+            String previousPrevious = tokenAt(tokens, index - 2);
+            return MATCH_DIRECTIVE_TOKENS.contains(previousPrevious)
+                    || MATCH_CONTEXT_TOKENS.contains(next)
+                    || index == tokens.size() - 1;
+        }
+        return false;
+    }
+
+    private static boolean isMatchObjectToken(String token) {
+        return MATCH_OBJECT_TOKENS.contains(token);
+    }
+
+    private static String tokenAt(List<String> tokens, int index) {
+        if (index < 0 || index >= tokens.size()) {
+            return "";
+        }
+        return tokens.get(index);
     }
 
     public static Context contextFor(String fxmlPath, String title, Object controller) {
@@ -2137,7 +2791,13 @@ public final class AssistantService {
     private record TeamCandidate(Equipe team, int score) {
     }
 
+    private record PlayerCandidate(Joueur player, int score) {
+    }
+
     private record MatchLookupResult(Matchs match, Map<Integer, Equipe> teamById, Integer focusTeamId) {
+    }
+
+    private record ScoreSnapshot(int homeScore, int awayScore, String displayLabel) {
     }
 
     private record TeamPredictionSnapshot(

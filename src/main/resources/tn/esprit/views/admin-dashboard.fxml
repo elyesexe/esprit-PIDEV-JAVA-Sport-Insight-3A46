@@ -33,7 +33,7 @@
                            styleClass="status-pill status-muted admin-hero-status"/>
                 </HBox>
 
-                <FlowPane hgap="18" vgap="18" prefWrapLength="1260" styleClass="admin-metric-ribbon admin-kpi-grid">
+                <FlowPane fx:id="metricsRibbon" hgap="18" vgap="18" prefWrapLength="1260" styleClass="admin-metric-ribbon admin-kpi-grid">
                     <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
                           styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
                         <Label text="Users online base" styleClass="admin-kpi-label"/>

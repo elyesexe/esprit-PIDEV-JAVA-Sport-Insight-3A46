@@ -1,15 +1,25 @@
 package tn.esprit.assistant;
 
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.CacheHint;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -18,11 +28,17 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import tn.esprit.gui.SceneNavigator;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import javafx.util.Duration;
 
 public final class AssistantOverlay extends StackPane {
+    private static final String JARVIS_ICON_PATH = "/tn/esprit/images/Jarvis.png";
+    private static final AtomicReference<Image> JARVIS_IMAGE = new AtomicReference<>();
+
     private final AssistantService service = AssistantService.getInstance();
     private final Stage stage;
     private final String fxmlPath;
@@ -30,11 +46,12 @@ public final class AssistantOverlay extends StackPane {
     private final AssistantService.Context context;
     private final AssistantScreenCatalog.ScreenMeta screenMeta;
 
-    private final VBox panel = new VBox(14);
+    private final VBox panel = new VBox(12);
     private final Button launcherButton = new Button();
     private final Label screenLabel = new Label();
     private final Label statusLabel = new Label();
     private final Label voiceChip = new Label();
+    private final Label wakeChip = new Label();
     private final VBox messagesBox = new VBox(10);
     private final ScrollPane messagesScroll = new ScrollPane(messagesBox);
     private final FlowPane quickActionsBox = new FlowPane();
@@ -42,8 +59,12 @@ public final class AssistantOverlay extends StackPane {
     private final Button sendButton = new Button("Send");
     private final Button micButton = new Button("Mic");
     private final ToggleButton speakToggle = new ToggleButton("Voice");
+    private final StackPane launcherOrb = new StackPane();
 
     private boolean panelVisible;
+    private boolean panelStateInitialized;
+    private ParallelTransition panelTransition;
+    private ScaleTransition listeningPulse;
 
     private AssistantOverlay(Stage stage, String fxmlPath, String title, Object controller) {
         this.stage = stage;
@@ -56,6 +77,7 @@ public final class AssistantOverlay extends StackPane {
         setPickOnBounds(false);
         setPadding(new Insets(20));
         getStyleClass().add("assistant-overlay-root");
+        service.setWakeWordListener(signal -> Platform.runLater(() -> handleWakeSignal(signal)));
 
         VBox dock = new VBox(12);
         dock.setAlignment(Pos.BOTTOM_RIGHT);
@@ -105,11 +127,19 @@ public final class AssistantOverlay extends StackPane {
 
     private void configurePanel() {
         panel.getStyleClass().add("assistant-panel");
-        panel.setPrefWidth(390);
-        panel.setMaxWidth(390);
+        panel.setPrefWidth(388);
+        panel.setMaxWidth(388);
 
         Label titleLabel = new Label("Jarvis");
         titleLabel.getStyleClass().add("assistant-title");
+        Label subtitleLabel = new Label("Voice Copilot");
+        subtitleLabel.getStyleClass().add("assistant-subtitle");
+        VBox titleBox = new VBox(1, titleLabel, subtitleLabel);
+        titleBox.getStyleClass().add("assistant-title-box");
+        ImageView brandIcon = createLogoView(34);
+        if (brandIcon != null) {
+            brandIcon.getStyleClass().add("assistant-brand-icon");
+        }
 
         screenLabel.setText(screenMeta.title());
         screenLabel.getStyleClass().add("assistant-screen-label");
@@ -122,17 +152,25 @@ public final class AssistantOverlay extends StackPane {
 
         voiceChip.setText("Voice: " + service.voiceLabel());
         voiceChip.getStyleClass().add("assistant-chip");
+        wakeChip.getStyleClass().add("assistant-chip");
+        refreshWakeChip();
 
         Button closeButton = new Button("Close");
         closeButton.getStyleClass().add("assistant-close-button");
         closeButton.setOnAction(event -> togglePanel(false));
 
-        HBox headerTop = new HBox(10, titleLabel, new Region(), closeButton);
-        HBox.setHgrow(headerTop.getChildren().get(1), Priority.ALWAYS);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox headerTop = brandIcon == null
+                ? new HBox(10, titleBox, spacer, closeButton)
+                : new HBox(12, brandIcon, titleBox, spacer, closeButton);
         headerTop.setAlignment(Pos.CENTER_LEFT);
+        headerTop.getStyleClass().add("assistant-header-top");
 
-        HBox chipRow = new HBox(8, screenLabel, roleChip, modelChip, voiceChip);
+        FlowPane chipRow = new FlowPane(8, 8, screenLabel, roleChip, modelChip, voiceChip, wakeChip);
         chipRow.setAlignment(Pos.CENTER_LEFT);
+        chipRow.setPrefWrapLength(340);
+        chipRow.getStyleClass().add("assistant-chip-row");
 
         statusLabel.getStyleClass().add("assistant-status");
         statusLabel.setWrapText(true);
@@ -151,7 +189,7 @@ public final class AssistantOverlay extends StackPane {
         messagesScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         messagesScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         messagesScroll.getStyleClass().add("assistant-scroll");
-        messagesScroll.setPrefViewportHeight(290);
+        messagesScroll.setPrefViewportHeight(258);
 
         composer.getStyleClass().add("assistant-composer");
         composer.setPromptText("Ask about this screen, or say open teams / open Champions League / open Bayern vs Real Madrid details...");
@@ -193,6 +231,8 @@ public final class AssistantOverlay extends StackPane {
 
     private void configureLauncher() {
         launcherButton.getStyleClass().add("assistant-launcher");
+        launcherButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        launcherButton.setGraphic(createLauncherGraphic());
         launcherButton.setOnAction(event -> togglePanel(!panelVisible));
         updateLauncherLabel();
     }
@@ -260,39 +300,94 @@ public final class AssistantOverlay extends StackPane {
     }
 
     private void handleMicButton() {
-        if (!service.isSpeakRepliesEnabled()) {
-            speakToggle.setSelected(true);
-        }
-
         if (!service.isVoiceRecording()) {
-            try {
-                service.startVoiceRecording();
-                micButton.setText("Stop");
-                refreshStatus("Listening... Speak naturally, then click Stop and I'll answer back with voice.");
-            } catch (Exception ex) {
-                refreshStatus("Microphone setup failed: " + ex.getMessage());
-            }
+            beginVoiceRecording("Listening... Speak naturally, then click Stop and I'll answer back with voice.");
             return;
         }
 
         micButton.setDisable(true);
         refreshStatus("Stopping the microphone and preparing transcription...");
-        service.stopVoiceRecording(this::refreshStatus).whenComplete((transcript, throwable) -> Platform.runLater(() -> {
+        service.stopVoiceRecording(this::refreshStatus).whenComplete((result, throwable) -> Platform.runLater(() -> {
             micButton.setDisable(false);
             micButton.setText("Mic");
+            refreshWakeChip();
+            updateListeningState();
             if (throwable != null) {
                 refreshStatus("Voice transcription failed: " + throwable.getMessage());
                 return;
             }
-            String normalizedTranscript = transcript == null ? "" : transcript.trim();
+            String normalizedTranscript = result == null ? "" : result.transcript().trim();
             if (normalizedTranscript.isBlank()) {
                 refreshStatus("I did not catch any clear speech. Try again and speak a little closer to the microphone.");
                 return;
             }
             composer.setText(normalizedTranscript);
+            if (result != null && result.clarificationNeeded()) {
+                refreshStatus(result.clarificationPrompt());
+                return;
+            }
             refreshStatus("Voice captured: " + normalizedTranscript);
             sendVoicePrompt(normalizedTranscript);
         }));
+    }
+
+    private void beginVoiceRecording(String statusText) {
+        if (!service.isSpeakRepliesEnabled()) {
+            speakToggle.setSelected(true);
+        }
+
+        try {
+            service.startVoiceRecording(update -> Platform.runLater(() -> handleVoiceUpdate(update)));
+            micButton.setText("Stop");
+            refreshWakeChip();
+            updateListeningState();
+            refreshStatus(statusText);
+        } catch (Exception ex) {
+            refreshWakeChip();
+            updateListeningState();
+            refreshStatus("Microphone setup failed: " + ex.getMessage());
+        }
+    }
+
+    private void handleWakeSignal(AssistantWakeSignal signal) {
+        refreshWakeChip();
+        if (signal == null) {
+            return;
+        }
+
+        togglePanel(true);
+        if (service.isVoiceRecording()) {
+            refreshStatus("Hello sir. I'm already listening.");
+            return;
+        }
+        if (composer.isDisabled()) {
+            refreshStatus("Hello sir. I'm finishing the current reply first.");
+            return;
+        }
+        service.announceWakeGreeting("Hello sir.");
+        refreshMessages();
+        beginVoiceRecording("Hello sir. Listening now.");
+    }
+
+    private void handleVoiceUpdate(VoiceCaptureUpdate update) {
+        if (update == null) {
+            return;
+        }
+        if (update.type() == VoiceCaptureUpdate.Type.LISTENING) {
+            refreshStatus("Listening... Speak naturally.");
+            return;
+        }
+
+        String text = update.text() == null ? "" : update.text().trim();
+        if (text.isBlank()) {
+            return;
+        }
+        composer.setText(text);
+        if (update.type() == VoiceCaptureUpdate.Type.PARTIAL) {
+            refreshStatus("Hearing: " + text);
+            return;
+        }
+        refreshStatus("Heard: " + text);
     }
 
     private void sendVoicePrompt(String rawPrompt) {
@@ -329,13 +424,24 @@ public final class AssistantOverlay extends StackPane {
     }
 
     private void updatePanelVisibility() {
-        panel.setVisible(panelVisible);
-        panel.setManaged(panelVisible);
+        if (!panelStateInitialized) {
+            applyPanelState(panelVisible);
+            panelStateInitialized = true;
+            updateLauncherLabel();
+            return;
+        }
+        animatePanel(panelVisible);
         updateLauncherLabel();
     }
 
     private void updateLauncherLabel() {
-        launcherButton.setText(panelVisible ? "Hide Jarvis" : "Jarvis");
+        launcherButton.setText("");
+        launcherButton.setAccessibleText(panelVisible ? "Hide Jarvis" : "Open Jarvis");
+        if (panelVisible) {
+            launcherButton.getStyleClass().add("assistant-launcher-open");
+        } else {
+            launcherButton.getStyleClass().remove("assistant-launcher-open");
+        }
     }
 
     private void setBusy(boolean busy, String statusText) {
@@ -344,6 +450,7 @@ public final class AssistantOverlay extends StackPane {
         if (!service.isVoiceRecording()) {
             micButton.setText("Mic");
         }
+        updateListeningState();
         if (!busy) {
             refreshStatus(statusText);
             return;
@@ -359,5 +466,176 @@ public final class AssistantOverlay extends StackPane {
         boolean voiceEnabled = service.isSpeakRepliesEnabled();
         voiceChip.setText("Voice: " + service.voiceLabel() + (voiceEnabled ? " on" : " muted"));
         speakToggle.setText(voiceEnabled ? "Voice on" : "Voice off");
+        refreshWakeChip();
+        updateListeningState();
+    }
+
+    private void refreshWakeChip() {
+        wakeChip.setText("Wake: " + service.wakeWordLabel());
+    }
+
+    private void applyPanelState(boolean visible) {
+        panel.setManaged(visible);
+        panel.setVisible(visible);
+        panel.setOpacity(visible ? 1.0 : 0.0);
+        panel.setScaleX(1.0);
+        panel.setScaleY(1.0);
+        panel.setTranslateY(0.0);
+    }
+
+    private void animatePanel(boolean visible) {
+        if (panelTransition != null) {
+            panelTransition.stop();
+        }
+
+        if (visible) {
+            panel.setManaged(true);
+            panel.setVisible(true);
+            panel.setOpacity(0.0);
+            panel.setScaleX(0.88);
+            panel.setScaleY(0.88);
+            panel.setTranslateY(22);
+
+            FadeTransition fade = new FadeTransition(Duration.millis(220), panel);
+            fade.setFromValue(0.0);
+            fade.setToValue(1.0);
+            fade.setInterpolator(Interpolator.EASE_BOTH);
+
+            ScaleTransition scale = new ScaleTransition(Duration.millis(240), panel);
+            scale.setFromX(0.88);
+            scale.setFromY(0.88);
+            scale.setToX(1.0);
+            scale.setToY(1.0);
+            scale.setInterpolator(Interpolator.EASE_OUT);
+
+            TranslateTransition slide = new TranslateTransition(Duration.millis(240), panel);
+            slide.setFromY(22);
+            slide.setToY(0);
+            slide.setInterpolator(Interpolator.EASE_OUT);
+
+            panelTransition = new ParallelTransition(fade, scale, slide);
+            panelTransition.play();
+            return;
+        }
+
+        if (!panel.isVisible()) {
+            panel.setManaged(false);
+            return;
+        }
+
+        FadeTransition fade = new FadeTransition(Duration.millis(170), panel);
+        fade.setFromValue(Math.max(0.0, panel.getOpacity()));
+        fade.setToValue(0.0);
+        fade.setInterpolator(Interpolator.EASE_BOTH);
+
+        ScaleTransition scale = new ScaleTransition(Duration.millis(180), panel);
+        scale.setFromX(panel.getScaleX() == 0.0 ? 1.0 : panel.getScaleX());
+        scale.setFromY(panel.getScaleY() == 0.0 ? 1.0 : panel.getScaleY());
+        scale.setToX(0.94);
+        scale.setToY(0.94);
+        scale.setInterpolator(Interpolator.EASE_IN);
+
+        TranslateTransition slide = new TranslateTransition(Duration.millis(180), panel);
+        slide.setFromY(panel.getTranslateY());
+        slide.setToY(18);
+        slide.setInterpolator(Interpolator.EASE_IN);
+
+        panelTransition = new ParallelTransition(fade, scale, slide);
+        panelTransition.setOnFinished(event -> {
+            panel.setVisible(false);
+            panel.setManaged(false);
+            panel.setTranslateY(0);
+            panel.setScaleX(1.0);
+            panel.setScaleY(1.0);
+        });
+        panelTransition.play();
+    }
+
+    private StackPane createLauncherGraphic() {
+        launcherOrb.getChildren().clear();
+        launcherOrb.getStyleClass().setAll("assistant-launcher-orb");
+        ImageView logo = createLogoView(64);
+        if (logo != null) {
+            logo.getStyleClass().add("assistant-launcher-image");
+            launcherOrb.getChildren().add(logo);
+        } else {
+            Label fallback = new Label("J");
+            fallback.getStyleClass().add("assistant-launcher-fallback");
+            launcherOrb.getChildren().add(fallback);
+        }
+        return launcherOrb;
+    }
+
+    private ImageView createLogoView(double size) {
+        Image image = loadJarvisImage();
+        if (image == null) {
+            return null;
+        }
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
+        imageView.setCacheHint(CacheHint.QUALITY);
+        return imageView;
+    }
+
+    private Image loadJarvisImage() {
+        Image cached = JARVIS_IMAGE.get();
+        if (cached != null) {
+            return cached;
+        }
+
+        return Optional.ofNullable(AssistantOverlay.class.getResourceAsStream(JARVIS_ICON_PATH))
+                .map(stream -> {
+                    try (var input = stream) {
+                        Image image = new Image(input);
+                        JARVIS_IMAGE.compareAndSet(null, image);
+                        return image;
+                    } catch (Exception ignored) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .orElse(null);
+    }
+
+    private void updateListeningState() {
+        boolean listening = service.isVoiceRecording();
+        if (listening) {
+            if (!launcherButton.getStyleClass().contains("assistant-launcher-listening")) {
+                launcherButton.getStyleClass().add("assistant-launcher-listening");
+            }
+            startListeningPulse();
+            return;
+        }
+
+        launcherButton.getStyleClass().remove("assistant-launcher-listening");
+        stopListeningPulse();
+    }
+
+    private void startListeningPulse() {
+        if (listeningPulse == null) {
+            listeningPulse = new ScaleTransition(Duration.millis(900), launcherOrb);
+            listeningPulse.setFromX(1.0);
+            listeningPulse.setFromY(1.0);
+            listeningPulse.setToX(1.08);
+            listeningPulse.setToY(1.08);
+            listeningPulse.setInterpolator(Interpolator.EASE_BOTH);
+            listeningPulse.setCycleCount(Animation.INDEFINITE);
+            listeningPulse.setAutoReverse(true);
+        }
+        if (listeningPulse.getStatus() != Animation.Status.RUNNING) {
+            listeningPulse.playFromStart();
+        }
+    }
+
+    private void stopListeningPulse() {
+        if (listeningPulse != null) {
+            listeningPulse.stop();
+        }
+        launcherOrb.setScaleX(1.0);
+        launcherOrb.setScaleY(1.0);
     }
 }

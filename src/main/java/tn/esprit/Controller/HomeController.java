@@ -21,6 +21,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.Node;
+import javafx.scene.CacheHint;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -146,6 +147,7 @@ public class HomeController {
         }
 
         Platform.runLater(() -> {
+            enableAnimationCaching();
             installTileHoverAnimations();
             installNavbarHoverAnimations();
             playHomeIntroAnimations();
@@ -505,6 +507,31 @@ public class HomeController {
         installHoverAnimation(leaguesNavButton, 1.015, -2.0, 140, false);
         installHoverAnimation(joueursNavButton, 1.015, -2.0, 140, false);
         installHoverAnimation(adminNavButton, 1.02, -3.0, 150, false);
+    }
+
+    private void enableAnimationCaching() {
+        for (Node node : new Node[] {
+                homeWelcomeCard,
+                equipesButton,
+                joueursButton,
+                matchsButton,
+                annoncesModuleBox,
+                trainModuleBox,
+                sponsorsModuleBox,
+                storeModuleBox,
+                matchsNavButton,
+                annonceNavButton,
+                equipesNavButton,
+                leaguesNavButton,
+                joueursNavButton,
+                adminNavButton
+        }) {
+            if (node == null) {
+                continue;
+            }
+            node.setCache(true);
+            node.setCacheHint(CacheHint.SPEED);
+        }
     }
 
     private void playHomeIntroAnimations() {

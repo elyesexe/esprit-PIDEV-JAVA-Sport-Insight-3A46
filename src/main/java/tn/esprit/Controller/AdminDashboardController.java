@@ -15,6 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Entrainement;
@@ -63,6 +65,27 @@ public class AdminDashboardController {
             "-fx-background-color:"
                     + " linear-gradient(from 0% 0% to 100% 100%, #f8fbff 0%, #eef2ff 52%, #f6f8ff 100%);"
                     + " -fx-padding: 0;";
+    private static final String DARK_KPI_CARD_STYLE =
+            "-fx-background-color: "
+                    + "radial-gradient(center 100% 0%, radius 34%, rgba(100, 219, 255, 0.18) 0%, transparent 52%), "
+                    + "radial-gradient(center 0% 100%, radius 40%, rgba(224, 128, 255, 0.22) 0%, transparent 56%), "
+                    + "linear-gradient(from 0% 0% to 100% 100%, rgba(67, 47, 154, 0.98) 0%, rgba(44, 31, 114, 0.99) 100%); "
+                    + "-fx-background-insets: 0; "
+                    + "-fx-background-radius: 30; "
+                    + "-fx-border-color: rgba(214, 187, 255, 0.34); "
+                    + "-fx-border-width: 1.2; "
+                    + "-fx-border-radius: 30; "
+                    + "-fx-padding: 22 24 22 24; "
+                    + "-fx-effect: dropshadow(gaussian, rgba(11, 7, 32, 0.36), 36, 0.20, 0, 14);";
+    private static final String LIGHT_KPI_CARD_STYLE =
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 255, 0.98) 100%); "
+                    + "-fx-background-insets: 0; "
+                    + "-fx-background-radius: 26; "
+                    + "-fx-border-color: rgba(157, 166, 196, 0.26); "
+                    + "-fx-border-width: 1; "
+                    + "-fx-border-radius: 26; "
+                    + "-fx-padding: 22 24 22 24; "
+                    + "-fx-effect: dropshadow(gaussian, rgba(87, 96, 125, 0.14), 26, 0.16, 0, 10);";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final List<String> LIGHT_TEAM_RATE_COLORS = List.of("#16a34a", "#f59e0b", "#dc2626");
@@ -100,6 +123,8 @@ public class AdminDashboardController {
     private ScrollPane dashboardScroll;
     @FXML
     private StackPane dashboardWrap;
+    @FXML
+    private FlowPane metricsRibbon;
     @FXML
     private BarChart<String, Number> teamRateChart;
     @FXML
@@ -613,6 +638,19 @@ public class AdminDashboardController {
         }
         if (dashboardWrap != null) {
             dashboardWrap.setStyle(darkMode ? DARK_DASHBOARD_SURFACE_STYLE : LIGHT_DASHBOARD_SURFACE_STYLE);
+        }
+        applyMetricCardSurface();
+    }
+
+    private void applyMetricCardSurface() {
+        if (metricsRibbon == null) {
+            return;
+        }
+        String cardStyle = darkMode ? DARK_KPI_CARD_STYLE : LIGHT_KPI_CARD_STYLE;
+        for (Node child : metricsRibbon.getChildren()) {
+            if (child instanceof Region region) {
+                region.setStyle(cardStyle);
+            }
         }
     }
 

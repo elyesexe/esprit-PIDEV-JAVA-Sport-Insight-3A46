@@ -62,6 +62,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -331,6 +332,52 @@ public class MatchDetailController implements AssistantContextProvider {
                 .filter(java.util.Objects::nonNull)
                 .filter(ApiFootballMatchIncident::isGoal)
                 .map(this::buildIncidentHighlight)
+                .toList();
+    }
+
+    public List<String> getCurrentGoalScorerSummaries() {
+        if (currentIncidents == null || currentIncidents.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, List<String>> scorerMinutes = new LinkedHashMap<>();
+        for (ApiFootballMatchIncident incident : currentIncidents) {
+            if (incident == null || !incident.isGoal()) {
+                continue;
+            }
+
+            String scorer = emptyToFallback(incident.playerName(), "Unknown scorer");
+            String minute = emptyToFallback(incident.minuteLabel(), "--");
+            scorerMinutes.computeIfAbsent(scorer, ignored -> new ArrayList<>()).add(minute);
+        }
+
+        return scorerMinutes.entrySet().stream()
+                .map(entry -> entry.getKey() + " (" + String.join(", ", entry.getValue()) + ")")
+                .toList();
+    }
+
+    public List<String> getCurrentAssistSummaries() {
+        if (currentIncidents == null || currentIncidents.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, List<String>> assistMinutes = new LinkedHashMap<>();
+        for (ApiFootballMatchIncident incident : currentIncidents) {
+            if (incident == null || !incident.isGoal()) {
+                continue;
+            }
+
+            String assistName = emptyToNull(incident.assistPlayerName());
+            if (assistName == null) {
+                continue;
+            }
+
+            String minute = emptyToFallback(incident.minuteLabel(), "--");
+            assistMinutes.computeIfAbsent(assistName, ignored -> new ArrayList<>()).add(minute);
+        }
+
+        return assistMinutes.entrySet().stream()
+                .map(entry -> entry.getKey() + " (" + String.join(", ", entry.getValue()) + ")")
                 .toList();
     }
 

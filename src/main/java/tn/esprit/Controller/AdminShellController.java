@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javafx.util.Duration;
 /**
@@ -101,6 +103,7 @@ public class AdminShellController {
     private Object activeContentController;
     private Timeline sidebarTimeline;
     private boolean sidebarCollapsed;
+    private final Map<String, LoadedWorkspace> workspaceCache = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -186,47 +189,62 @@ public class AdminShellController {
     }
 
     private void showDashboard() {
-        URL url = AdminShellController.class.getResource(DASHBOARD);
-        if (url == null) {
-            return;
-        }
-        try {
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent panel = loader.load();
-            activeContentController = loader.getController();
-            panel.getStyleClass().add("admin-workspace-root");
-            attachWorkspaceStylesheet(panel);
-            applyWorkspaceModeStyles(panel);
-            applyControllerModeStyles(activeContentController);
-            contentStack.getChildren().setAll(Collections.singletonList(panel));
-        } catch (IOException e) {
-            e.printStackTrace();
+        LoadedWorkspace workspace = getOrLoadWorkspace(DASHBOARD, false);
+        if (workspace != null) {
+            showWorkspace(workspace);
         }
         highlightNav(dashboardNavButton);
     }
 
     private void loadStrippedCrud(String resourcePath) {
+        LoadedWorkspace workspace = getOrLoadWorkspace(resourcePath, true);
+        if (workspace != null) {
+            showWorkspace(workspace);
+        }
+    }
+
+    private LoadedWorkspace getOrLoadWorkspace(String resourcePath, boolean stripCrudChrome) {
+        LoadedWorkspace cachedWorkspace = workspaceCache.get(resourcePath);
+        if (cachedWorkspace != null) {
+            return cachedWorkspace;
+        }
+
         URL url = AdminShellController.class.getResource(resourcePath);
         if (url == null) {
-            return;
+            return null;
         }
         try {
             FXMLLoader loader = new FXMLLoader(url);
-            BorderPane root = loader.load();
-            activeContentController = loader.getController();
-            root.setTop(null);
+            Parent root = loader.load();
+            if (stripCrudChrome && root instanceof BorderPane borderPane) {
+                borderPane.setTop(null);
+            }
+            Object controller = loader.getController();
+            attachWorkspaceStylesheet(root);
             if (!root.getStyleClass().contains("admin-workspace-root")) {
                 root.getStyleClass().add("admin-workspace-root");
             }
-            attachWorkspaceStylesheet(root);
-            stripNodesByStyleClass(root, "hero-shell");
-            stripNodesByStyleClass(root, "home-hero-shell");
-            applyWorkspaceModeStyles(root);
-            applyControllerModeStyles(activeContentController);
-            contentStack.getChildren().setAll(Collections.singletonList(root));
+            if (stripCrudChrome) {
+                stripNodesByStyleClass(root, "hero-shell");
+                stripNodesByStyleClass(root, "home-hero-shell");
+            }
+            LoadedWorkspace workspace = new LoadedWorkspace(root, controller);
+            workspaceCache.put(resourcePath, workspace);
+            return workspace;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
+    }
+
+    private void showWorkspace(LoadedWorkspace workspace) {
+        if (workspace == null || contentStack == null) {
+            return;
+        }
+        activeContentController = workspace.controller();
+        applyWorkspaceModeStyles(workspace.root());
+        applyControllerModeStyles(activeContentController);
+        contentStack.getChildren().setAll(Collections.singletonList(workspace.root()));
     }
 
     private void applyAdminModeStyles(boolean darkMode) {
@@ -243,6 +261,9 @@ public class AdminShellController {
         }
         for (Node child : contentStack.getChildren()) {
             applyWorkspaceModeStyles(child, darkMode);
+        }
+        for (LoadedWorkspace workspace : workspaceCache.values()) {
+            applyWorkspaceModeStyles(workspace.root(), darkMode);
         }
         applyControllerModeStyles(activeContentController, darkMode);
     }
@@ -473,5 +494,8 @@ public class AdminShellController {
         } else if (controller instanceof OrderController orderController) {
             orderController.setDarkMode(darkMode);
         }
+    }
+
+    private record LoadedWorkspace(Parent root, Object controller) {
     }
 }
