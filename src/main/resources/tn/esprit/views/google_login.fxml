@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  google_login.fxml
+  Controller: tn.esprit.Controller.GoogleLoginController
+
+  This screen appears while the browser is open for Google sign-in.
+  The OAuth flow starts automatically in initialize().
+-->
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="tn.esprit.Controller.GoogleLoginController"
+      alignment="CENTER"
+      spacing="0"
+      style="-fx-background-color: #1a1a2e;">
+
+    <VBox alignment="CENTER" spacing="20" maxWidth="380"
+          style="-fx-background-color: #16213e;
+                 -fx-background-radius: 14;
+                 -fx-padding: 48 40 36 40;">
+
+        <Label text="Sport Insight"
+               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e0e0e0;"/>
+
+        <!-- Google logo-style G pill -->
+        <HBox alignment="CENTER" spacing="10"
+              style="-fx-background-color: #ffffff;
+                     -fx-background-radius: 8;
+                     -fx-padding: 10 24 10 24;">
+            <Label text="G" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4285F4;"/>
+            <Label text="Connecting with Google…" style="-fx-font-size: 13px; -fx-text-fill: #333;"/>
+        </HBox>
+
+        <ProgressIndicator fx:id="spinner" prefWidth="44" prefHeight="44"/>
+
+        <Label fx:id="statusLabel"
+               text="Opening browser…"
+               wrapText="true"
+               styleClass="status-muted"
+               style="-fx-font-size: 13px; -fx-text-alignment: center;"/>
+
+        <Label text="A browser window will open. Sign in with your Google account, then return here."
+               wrapText="true"
+               style="-fx-font-size: 11px; -fx-text-fill: #6a6a8a; -fx-text-alignment: center;"/>
+
+        <Button fx:id="retryBtn"
+                text="Try again"
+                onAction="#onRetry"
+                visible="false"
+                style="-fx-background-color: #5865f2;
+                       -fx-text-fill: white;
+                       -fx-font-size: 13px;
+                       -fx-background-radius: 7;
+                       -fx-padding: 9 32 9 32;"/>
+
+        <Button fx:id="cancelBtn"
+                text="Cancel"
+                onAction="#onCancel"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #7289da;
+                       -fx-font-size: 12px;
+                       -fx-underline: true;"/>
+    </VBox>
+</VBox>
