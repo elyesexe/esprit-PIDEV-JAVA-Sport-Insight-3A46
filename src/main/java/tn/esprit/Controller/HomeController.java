@@ -469,6 +469,16 @@ public class HomeController {
     }
 
     @FXML
+    private void handleRegisterFace() {
+        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/face_register.fxml", "/tn/esprit/styles/auth-theme.css", "Register Face | Sport Insight");
+    }
+
+    @FXML
+    private void handleDeleteFace() {
+        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/face_login.fxml", "/tn/esprit/styles/auth-theme.css", "Delete Face | Sport Insight");
+    }
+
+    @FXML
     private void handleOpenLeagues() {
         SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
     }

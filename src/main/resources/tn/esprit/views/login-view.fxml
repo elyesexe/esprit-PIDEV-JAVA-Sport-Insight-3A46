@@ -11,7 +11,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -21,15 +20,16 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="tn.esprit.Controller.LoginController"
            styleClass="page-root auth-page-root">
+
     <Region styleClass="auth-scene-backdrop"/>
 
     <BorderPane styleClass="auth-layout">
+
         <top>
             <HBox alignment="CENTER_LEFT" spacing="16" styleClass="auth-topbar" BorderPane.alignment="CENTER">
                 <padding>
                     <Insets top="14" right="24" bottom="8" left="24"/>
                 </padding>
-
                 <StackPane styleClass="auth-logo-shell">
                     <ImageView fitWidth="156" fitHeight="52" preserveRatio="true" smooth="true">
                         <image>
@@ -37,9 +37,7 @@
                         </image>
                     </ImageView>
                 </StackPane>
-
                 <Region HBox.hgrow="ALWAYS"/>
-
                 <ToggleButton fx:id="themeToggleButton"
                               mnemonicParsing="false"
                               contentDisplay="GRAPHIC_ONLY"
@@ -71,14 +69,13 @@
                                 <Insets top="12" right="28" bottom="28" left="28"/>
                             </padding>
 
+                            <!-- Hero banner -->
                             <StackPane styleClass="auth-hero">
                                 <Region styleClass="auth-hero-glow auth-hero-glow-left"/>
                                 <Region styleClass="auth-hero-glow auth-hero-glow-right"/>
-
                                 <StackPane styleClass="auth-hero-card">
                                     <Region styleClass="auth-hero-photo"/>
                                     <Region styleClass="auth-hero-overlay"/>
-
                                     <VBox spacing="12" styleClass="auth-hero-content">
                                         <Label text="Authentication" styleClass="auth-eyebrow"/>
                                         <Label text="Welcome back to Sport Insight" styleClass="auth-hero-title"/>
@@ -89,14 +86,16 @@
                                 </StackPane>
                             </StackPane>
 
+                            <!-- Main panel: aside + form -->
                             <HBox spacing="18" styleClass="auth-panel">
+
+                                <!-- Left aside -->
                                 <VBox spacing="16" styleClass="auth-panel-aside" HBox.hgrow="ALWAYS">
                                     <Label text="Secure access" styleClass="auth-panel-badge"/>
                                     <Label text="Sign in fast and keep control." wrapText="true" styleClass="auth-panel-title"/>
                                     <Label text="Use your account to sync your activity across the Sport Insight workspace."
                                            wrapText="true"
                                            styleClass="auth-panel-copy"/>
-
                                     <VBox spacing="10">
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
                                             <Region styleClass="auth-point-dot"/>
@@ -113,6 +112,7 @@
                                     </VBox>
                                 </VBox>
 
+                                <!-- Right form -->
                                 <VBox spacing="14" styleClass="auth-panel-form" HBox.hgrow="ALWAYS">
                                     <Label text="Sign in" styleClass="auth-form-title"/>
                                     <Label text="Enter your credentials to access your account."
@@ -126,6 +126,7 @@
                                            styleClass="auth-feedback"/>
 
                                     <VBox spacing="12" styleClass="auth-form">
+
                                         <VBox spacing="6">
                                             <Label text="Email" styleClass="auth-label"/>
                                             <TextField fx:id="emailField"
@@ -141,6 +142,7 @@
                                                            styleClass="auth-input"/>
                                         </VBox>
 
+                                        <!-- Sign in + Face login -->
                                         <HBox spacing="10" styleClass="auth-actions">
                                             <Button fx:id="signInButton"
                                                     onAction="#handleSignIn"
@@ -148,22 +150,35 @@
                                                     maxWidth="Infinity"
                                                     styleClass="auth-primary-button"
                                                     HBox.hgrow="ALWAYS"/>
+                                            <Button fx:id="faceLoginButton"
+                                                    text="Face login"
+                                                    onAction="#onFaceLogin"
+                                                    maxWidth="Infinity"
+                                                    styleClass="auth-primary-button"
+                                                    HBox.hgrow="ALWAYS"/>
                                         </HBox>
-                                    </VBox>
 
-                                    <VBox spacing="8" styleClass="auth-switch">
-                                        <Label text="New here? Create your account." styleClass="auth-switch-copy"/>
-                                        <Button onAction="#handleOpenSignup"
-                                                text="Create account"
+                                        <!-- Forgot password -->
+                                        <Button text="Forgot password?"
+                                                onAction="#onForgotPassword"
                                                 maxWidth="Infinity"
                                                 styleClass="auth-ghost-button"/>
+
+                                        <!-- Google login -->
+                                        <Button text="Continue with Google"
+                                                onAction="#onGoogleLogin"
+                                                maxWidth="Infinity"
+                                                styleClass="auth-ghost-button"/>
+
                                     </VBox>
                                 </VBox>
+
                             </HBox>
                         </VBox>
                     </StackPane>
                 </content>
             </ScrollPane>
         </center>
+
     </BorderPane>
 </StackPane>

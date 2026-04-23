@@ -70,4 +70,8 @@ public final class AuthSession {
         }
         return null;
     }
+
+    public static void setCurrentUser(User user) {
+        currentUser = user;
+    }
 }
