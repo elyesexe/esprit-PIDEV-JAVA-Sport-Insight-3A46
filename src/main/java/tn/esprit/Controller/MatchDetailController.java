@@ -1,9 +1,13 @@
 package tn.esprit.Controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.concurrent.Task;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,10 +15,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -22,18 +29,29 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.ChromiumBrowserView;
+import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
+import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.MatchsService;
+import tn.esprit.services.football.ApiFootballFixtureSnapshot;
 import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.ApiFootballLineupPlayer;
 import tn.esprit.services.football.ApiFootballLineupSide;
@@ -41,6 +59,8 @@ import tn.esprit.services.football.ApiFootballMatchIncident;
 import tn.esprit.services.football.ApiFootballMatchDetails;
 import tn.esprit.services.football.ApiFootballStatisticRow;
 import tn.esprit.services.football.FootballDataCompetitions;
+import tn.esprit.services.football.YouTubeService;
+import tn.esprit.services.football.YouTubeVideo;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -55,7 +75,9 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
@@ -64,15 +86,19 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MatchDetailController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -92,11 +118,17 @@ public class MatchDetailController implements AssistantContextProvider {
     private static final Map<String, CompletableFuture<Image>> PLAYER_PHOTO_REQUESTS = new ConcurrentHashMap<>();
     private static final ExecutorService API_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("match-detail-api-worker"));
+    private static final ExecutorService VIDEO_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("match-detail-video-worker"));
     private static final ExecutorService PHOTO_EXECUTOR =
             Executors.newFixedThreadPool(4, daemonFactory("match-detail-photo-worker"));
     private static final HttpClient PHOTO_HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(20))
             .build();
+    private static final Pattern LIVE_MINUTE_PATTERN = Pattern.compile("(\\d+(?:\\+\\d+)?')");
+    private static final Color LIVE_ATTENTION_ACCENT = Color.web("#ef4444");
+    private static final Color LIVE_ATTENTION_LIGHT_BASE = Color.web("#111827");
+    private static final Color LIVE_ATTENTION_DARK_BASE = Color.web("#f8fafc");
 
     @FXML
     private HBox navbarRoot;
@@ -141,6 +173,10 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Label detailScoreValueLabel;
     @FXML
+    private Label detailLivePhaseLabel;
+    @FXML
+    private Label detailLiveMinuteLabel;
+    @FXML
     private Label detailDateValueLabel;
     @FXML
     private Label detailHeureValueLabel;
@@ -161,11 +197,21 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Button lineupTabButton;
     @FXML
+    private Button videosTabButton;
+    @FXML
+    private Button followHomeTeamButton;
+    @FXML
+    private Button followAwayTeamButton;
+    @FXML
+    private Button followCompetitionButton;
+    @FXML
     private VBox summarySection;
     @FXML
     private VBox statsSection;
     @FXML
     private VBox lineupSection;
+    @FXML
+    private VBox videosSection;
     @FXML
     private Label summaryHomeTeamLabel;
     @FXML
@@ -200,15 +246,48 @@ public class MatchDetailController implements AssistantContextProvider {
     private VBox matchStatsContainer;
     @FXML
     private Label matchStatsEmptyLabel;
+    @FXML
+    private Label matchVideoStatusLabel;
+    @FXML
+    private Label youtubeMatchInfoLabel;
+    @FXML
+    private Label selectedVideoTitleLabel;
+    @FXML
+    private Label selectedVideoMetaLabel;
+    @FXML
+    private Button fullscreenVideoButton;
+    @FXML
+    private Button inAppYouTubePlayerButton;
+    @FXML
+    private Button localMp4DemoButton;
+    @FXML
+    private StackPane chromiumPlayerHost;
+    @FXML
+    private StackPane matchVideoPlayerShell;
+    @FXML
+    private ListView<YouTubeVideo> youtubeVideoListView;
+    @FXML
+    private WebView matchVideoWebView;
+    @FXML
+    private MediaView localDemoMediaView;
+    @FXML
+    private VBox matchVideoEmptyStateBox;
+    @FXML
+    private Label matchVideoEmptyTitleLabel;
+    @FXML
+    private Label matchVideoEmptyBodyLabel;
 
     private MatchsService matchsService;
     private EquipeService equipeService;
     private ApiFootballInsightsService apiFootballInsightsService;
+    private MatchFollowTargetService matchFollowTargetService;
+    private YouTubeService youtubeService;
     private Matchs match;
     private Equipe homeTeam;
     private Equipe awayTeam;
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong apiRequestSequence = new AtomicLong();
+    private final AtomicLong videoRequestSequence = new AtomicLong();
     private List<ApiFootballMatchIncident> currentIncidents = List.of();
     private ApiFootballLineupSide currentHomeLineup;
     private ApiFootballLineupSide currentAwayLineup;
@@ -217,17 +296,40 @@ public class MatchDetailController implements AssistantContextProvider {
     private String currentMvpPlayerNameKey;
     private String currentApiFootballStatus = "Detailed match data not loaded yet.";
     private MatchDetailTab activeTab = MatchDetailTab.SUMMARY;
+    private Timeline liveRefreshTimeline;
+    private Timeline liveAttentionTimeline;
+    private boolean liveAttentionAccentFrame;
+    private boolean liveAttentionMinuteVisible;
+    private boolean apiRefreshInProgress;
+    private final ObservableList<YouTubeVideo> youtubeVideos = FXCollections.observableArrayList();
+    private YouTubeVideo selectedYouTubeVideo;
+    private YouTubeVideo loadedYouTubeVideo;
+    private ChromiumBrowserView chromiumBrowserView;
+    private MediaPlayer localDemoMediaPlayer;
+    private File currentLocalMp4File;
+    private Instant lastMatchVideoRefreshAt = Instant.EPOCH;
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
+        if (matchVideoWebView != null) {
+            matchVideoWebView.setContextMenuEnabled(false);
+            matchVideoWebView.getEngine().setJavaScriptEnabled(true);
+            matchVideoWebView.getEngine().setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36");
+        }
+        configureYouTubeVideoListView();
+        configureChromiumPlayer();
+        configureLocalDemoMediaView();
         applyActiveTab();
+        configureLiveRefreshLifecycle();
+        youtubeService = new YouTubeService();
 
         try {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
             apiFootballInsightsService = new ApiFootballInsightsService();
+            matchFollowTargetService = new MatchFollowTargetService();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de preparer la fiche match.\n" + e.getMessage());
         }
@@ -246,6 +348,221 @@ public class MatchDetailController implements AssistantContextProvider {
 
     public Matchs getCurrentMatch() {
         return match;
+    }
+
+    private void configureYouTubeVideoListView() {
+        if (youtubeVideoListView == null) {
+            return;
+        }
+
+        youtubeVideoListView.setItems(youtubeVideos);
+        youtubeVideoListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(YouTubeVideo video, boolean empty) {
+                super.updateItem(video, empty);
+                if (empty || video == null) {
+                    setText(null);
+                    return;
+                }
+                setText(emptyToFallback(video.title(), "YouTube highlight")
+                        + "\n"
+                        + emptyToFallback(video.channelTitle(), "YouTube"));
+                setWrapText(true);
+            }
+        });
+        youtubeVideoListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedYouTubeVideo = newValue;
+            renderSelectedMatchVideo();
+        });
+    }
+
+    private void configureChromiumPlayer() {
+        if (chromiumPlayerHost == null) {
+            return;
+        }
+        chromiumBrowserView = new ChromiumBrowserView();
+        chromiumBrowserView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        chromiumPlayerHost.getChildren().setAll(chromiumBrowserView);
+        chromiumPlayerHost.setManaged(false);
+        chromiumPlayerHost.setVisible(false);
+    }
+
+    private void configureLocalDemoMediaView() {
+        if (localDemoMediaView == null) {
+            return;
+        }
+        StackPane sizingHost = matchVideoPlayerShell == null ? chromiumPlayerHost : matchVideoPlayerShell;
+        if (sizingHost != null) {
+            localDemoMediaView.fitWidthProperty().bind(sizingHost.widthProperty());
+            localDemoMediaView.fitHeightProperty().bind(sizingHost.heightProperty());
+        }
+        localDemoMediaView.setPreserveRatio(true);
+        localDemoMediaView.setManaged(false);
+        localDemoMediaView.setVisible(false);
+    }
+
+    @FXML
+    private void handleToggleFollowHomeTeam() {
+        toggleTeamFollow(homeTeam);
+    }
+
+    @FXML
+    private void handleToggleFollowAwayTeam() {
+        toggleTeamFollow(awayTeam);
+    }
+
+    @FXML
+    private void handleToggleFollowCompetition() {
+        if (match == null || matchFollowTargetService == null) {
+            showApiFootballStatus("Les alertes live ne sont pas disponibles pour le moment.", "status-warning");
+            return;
+        }
+
+        UserSessionTarget userTarget = resolveCurrentUserTarget();
+        if (userTarget == null) {
+            showApiFootballStatus("Connectez-vous pour suivre cette competition.", "status-warning");
+            return;
+        }
+
+        String competitionCode = FootballDataCompetitions.normalizeCode(match.getCompetitionCode());
+        if (competitionCode == null) {
+            showApiFootballStatus("Aucune competition n'est associee a ce match.", "status-warning");
+            return;
+        }
+
+        try {
+            boolean alreadyFollowing = matchFollowTargetService.isCompetitionFavorite(userTarget.userId(), competitionCode);
+            if (alreadyFollowing) {
+                matchFollowTargetService.removeCompetitionFavorite(userTarget.userId(), competitionCode);
+                showApiFootballStatus(resolveCompetitionLabel(competitionCode) + " retiree des alertes live.", "status-muted");
+            } else {
+                matchFollowTargetService.addCompetitionFavorite(userTarget.userId(), competitionCode);
+                showApiFootballStatus(resolveCompetitionLabel(competitionCode) + " ajoutee aux alertes live.", "status-success");
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+            refreshFollowButtons();
+        } catch (SQLException e) {
+            showApiFootballStatus("Impossible de mettre a jour les alertes live.", "status-warning");
+        }
+    }
+
+    private void configureLiveRefreshLifecycle() {
+        if (navbarRoot == null) {
+            return;
+        }
+
+        navbarRoot.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                stopLiveRefresh();
+                stopLiveAttentionAnimation();
+                unloadMatchVideoPlayer();
+                return;
+            }
+            startLiveRefreshIfNeeded();
+        });
+    }
+
+    private void startLiveRefreshIfNeeded() {
+        if (liveRefreshTimeline == null) {
+            liveRefreshTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(25), event -> refreshLiveMatchAsync(false)));
+            liveRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        }
+
+        if (liveRefreshTimeline.getStatus() != javafx.animation.Animation.Status.RUNNING) {
+            liveRefreshTimeline.play();
+        }
+    }
+
+    private void stopLiveRefresh() {
+        if (liveRefreshTimeline != null) {
+            liveRefreshTimeline.stop();
+        }
+    }
+
+    private void toggleTeamFollow(Equipe team) {
+        if (team == null || team.getId() == null || matchFollowTargetService == null) {
+            showApiFootballStatus("Cette equipe ne peut pas encore etre suivie.", "status-warning");
+            return;
+        }
+
+        UserSessionTarget userTarget = resolveCurrentUserTarget();
+        if (userTarget == null) {
+            showApiFootballStatus("Connectez-vous pour suivre cette equipe.", "status-warning");
+            return;
+        }
+
+        try {
+            boolean alreadyFollowing = matchFollowTargetService.isTeamFavorite(userTarget.userId(), team.getId());
+            if (alreadyFollowing) {
+                matchFollowTargetService.removeTeamFavorite(userTarget.userId(), team.getId());
+                showApiFootballStatus(emptyToFallback(team.getNom(), "Equipe") + " retiree des alertes live.", "status-muted");
+            } else {
+                matchFollowTargetService.addTeamFavorite(userTarget.userId(), team.getId());
+                showApiFootballStatus(emptyToFallback(team.getNom(), "Equipe") + " ajoutee aux alertes live.", "status-success");
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+            refreshFollowButtons();
+        } catch (SQLException e) {
+            showApiFootballStatus("Impossible de mettre a jour les alertes live.", "status-warning");
+        }
+    }
+
+    private void refreshFollowButtons() {
+        updateTeamFollowButton(followHomeTeamButton, homeTeam);
+        updateTeamFollowButton(followAwayTeamButton, awayTeam);
+        updateCompetitionFollowButton();
+    }
+
+    private void updateTeamFollowButton(Button button, Equipe team) {
+        if (button == null) {
+            return;
+        }
+
+        UserSessionTarget userTarget = resolveCurrentUserTarget();
+        boolean enabled = userTarget != null && team != null && team.getId() != null && matchFollowTargetService != null;
+        button.setDisable(!enabled);
+        if (!enabled) {
+            button.setText(team == null ? "Follow team" : "Follow " + emptyToFallback(team.getNom(), "team"));
+            return;
+        }
+
+        try {
+            boolean following = matchFollowTargetService.isTeamFavorite(userTarget.userId(), team.getId());
+            button.setText((following ? "Following " : "Follow ") + emptyToFallback(team.getNom(), "team"));
+            button.getStyleClass().removeAll("ghost-button", "soft-button", "primary-button");
+            button.getStyleClass().add(following ? "primary-button" : "soft-button");
+        } catch (SQLException e) {
+            button.setText("Follow " + emptyToFallback(team.getNom(), "team"));
+        }
+    }
+
+    private void updateCompetitionFollowButton() {
+        if (followCompetitionButton == null) {
+            return;
+        }
+
+        UserSessionTarget userTarget = resolveCurrentUserTarget();
+        String competitionCode = match == null ? null : FootballDataCompetitions.normalizeCode(match.getCompetitionCode());
+        boolean enabled = userTarget != null && competitionCode != null && matchFollowTargetService != null;
+        followCompetitionButton.setDisable(!enabled);
+        if (!enabled) {
+            followCompetitionButton.setText("Follow competition");
+            return;
+        }
+
+        try {
+            boolean following = matchFollowTargetService.isCompetitionFavorite(userTarget.userId(), competitionCode);
+            followCompetitionButton.setText((following ? "Following " : "Follow ") + resolveCompetitionLabel(competitionCode));
+            followCompetitionButton.getStyleClass().removeAll("ghost-button", "soft-button", "primary-button");
+            followCompetitionButton.getStyleClass().add(following ? "primary-button" : "ghost-button");
+        } catch (SQLException e) {
+            followCompetitionButton.setText("Follow competition");
+        }
+    }
+
+    private UserSessionTarget resolveCurrentUserTarget() {
+        var currentUser = AuthSession.getCurrentUser();
+        return currentUser == null || currentUser.getId() == null ? null : new UserSessionTarget(currentUser.getId());
     }
 
     public String getCurrentCompetitionCode() {
@@ -518,6 +835,7 @@ public class MatchDetailController implements AssistantContextProvider {
 
     @FXML
     private void handleBack() {
+        stopLiveRefresh();
         openMatchList();
     }
 
@@ -582,6 +900,69 @@ public class MatchDetailController implements AssistantContextProvider {
         applyActiveTab();
     }
 
+    @FXML
+    private void handleShowVideosTab() {
+        activeTab = MatchDetailTab.VIDEOS;
+        applyActiveTab();
+        if (youtubeVideos.isEmpty()) {
+            refreshMatchVideosAsync(true);
+        }
+    }
+
+    @FXML
+    private void handleRefreshVideos() {
+        refreshMatchVideosAsync(true);
+    }
+
+    @FXML
+    private void handleOpenLocalMp4Demo() {
+        javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+        chooser.setTitle("Choose a local MP4 highlight");
+        chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("MP4 videos", "*.mp4"));
+        File file = chooser.showOpenDialog(videosSection == null || videosSection.getScene() == null
+                ? null
+                : videosSection.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+        playLocalMp4Demo(file);
+    }
+
+    @FXML
+    private void handleOpenVideoFullscreen() {
+        if (localDemoMediaPlayer != null && localDemoMediaView != null && localDemoMediaView.isVisible()) {
+            openLocalMp4Fullscreen();
+            return;
+        }
+        if (selectedYouTubeVideo == null) {
+            return;
+        }
+
+        ChromiumBrowserView.openYouTubePlayerWindow(
+                selectedYouTubeVideo.videoId(),
+                selectedYouTubeVideo.getWatchUrl(),
+                emptyToFallback(selectedYouTubeVideo.title(), "Match video"),
+                true
+        ).thenAccept(loaded -> {
+            if (!loaded) {
+                Platform.runLater(() -> showAlert(
+                        Alert.AlertType.WARNING,
+                        "Video",
+                        "Impossible d'ouvrir le lecteur Sport Insight.\n" + ChromiumBrowserView.getLastErrorMessage()
+                ));
+            }
+        });
+    }
+
+    @FXML
+    private void handleOpenSelectedVideoInApp() {
+        if (selectedYouTubeVideo == null) {
+            return;
+        }
+        loadedYouTubeVideo = null;
+        loadYouTubeInChromium(selectedYouTubeVideo);
+    }
+
     private void renderMatch() {
         if (match == null || equipeService == null) {
             return;
@@ -602,6 +983,7 @@ public class MatchDetailController implements AssistantContextProvider {
             detailScoreValueLabel.setText(buildScore(match));
             detailDateValueLabel.setText(formatDate(match.getDateMatch()));
             detailHeureValueLabel.setText(formatTime(match.getHeureDebut()));
+            updateLiveScoreboard(null, match.getStatut());
             detailLieuValueLabel.setText(emptyToFallback(match.getLieu(), "Non renseigne"));
             detailTypeValueLabel.setText(emptyToFallback(match.getType(), "Non renseigne"));
             detailStatutValueLabel.setText(resolveStatus(match));
@@ -623,14 +1005,18 @@ public class MatchDetailController implements AssistantContextProvider {
             currentStatistics = List.of();
             currentMvpPlayerId = null;
             currentMvpPlayerNameKey = null;
+            resetMatchVideoUiForNewMatch();
             renderSummary(List.of());
             renderStoredLineups();
             renderStatistics(List.of());
 
             updateLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, homeTeam, "D");
             updateLogo(detailAwayLogoView, detailAwayLogoFallbackLabel, awayTeam, "E");
+            refreshFollowButtons();
             renderCachedInsights();
-            loadApiFootballInsightsAsync();
+            refreshMatchVideosAsync(true);
+            refreshLiveMatchAsync(true);
+            startLiveRefreshIfNeeded();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations du match.\n" + e.getMessage());
         }
@@ -656,18 +1042,44 @@ public class MatchDetailController implements AssistantContextProvider {
         showApiFootballStatus("Chargement des stats et compositions...", "status-muted");
     }
 
-    private void loadApiFootballInsightsAsync() {
+    private void refreshLiveMatchAsync(boolean forceDetailedRefresh) {
         if (match == null || apiFootballInsightsService == null) {
+            return;
+        }
+        if (apiRefreshInProgress && !forceDetailedRefresh) {
             return;
         }
 
         long requestId = apiRequestSequence.incrementAndGet();
-        showApiFootballStatus("Chargement des stats et compositions...", "status-muted");
+        apiRefreshInProgress = true;
+        if (forceDetailedRefresh) {
+            showApiFootballStatus("Chargement des stats et compositions...", "status-muted");
+        }
 
-        Task<ApiFootballMatchDetails> task = new Task<>() {
+        Task<LiveRefreshPayload> task = new Task<>() {
             @Override
-            protected ApiFootballMatchDetails call() throws Exception {
-                return apiFootballInsightsService.loadMatchDetails(match, homeTeam, awayTeam);
+            protected LiveRefreshPayload call() {
+                ApiFootballFixtureSnapshot snapshot = null;
+                ApiFootballMatchDetails details = null;
+                Throwable error = null;
+
+                try {
+                    snapshot = apiFootballInsightsService.refreshFixtureSnapshot(match, homeTeam, awayTeam);
+                } catch (Throwable throwable) {
+                    error = throwable;
+                }
+
+                boolean shouldLoadDetails = forceDetailedRefresh || shouldRefreshDetailedInsights(snapshot);
+                if (shouldLoadDetails) {
+                    try {
+                        details = apiFootballInsightsService.loadMatchDetails(match, homeTeam, awayTeam);
+                    } catch (Throwable throwable) {
+                        if (error == null) {
+                            error = throwable;
+                        }
+                    }
+                }
+                return new LiveRefreshPayload(snapshot, details, error);
             }
         };
 
@@ -675,20 +1087,709 @@ public class MatchDetailController implements AssistantContextProvider {
             if (requestId != apiRequestSequence.get()) {
                 return;
             }
-            ApiFootballMatchDetails details = task.getValue();
-            renderApiFootballInsights(details);
-            showApiFootballStatus("Donnees detaillees synchronisees pour ce match.", "status-success");
+            apiRefreshInProgress = false;
+            LiveRefreshPayload payload = task.getValue();
+            if (payload == null) {
+                showApiFootballStatus("Aucune donnee detaillee disponible pour ce match.", "status-warning");
+                return;
+            }
+
+            applyFixtureSnapshot(payload.snapshot());
+            if (payload.details() != null) {
+                renderApiFootballInsights(payload.details());
+            }
+            if (activeTab == MatchDetailTab.VIDEOS) {
+                refreshMatchVideosAsync(false);
+            }
+
+            if (payload.error() != null && payload.details() == null && payload.snapshot() == null) {
+                showApiFootballStatus(shortError(payload.error()), "status-warning");
+                return;
+            }
+
+            if (payload.snapshot() != null && payload.snapshot().isLive()) {
+                showApiFootballStatus("Suivi live actif : " + payload.snapshot().effectiveStatusLabel(), "status-success");
+            } else if (payload.details() != null) {
+                showApiFootballStatus("Donnees detaillees synchronisees pour ce match.", "status-success");
+            } else if (payload.snapshot() != null) {
+                showApiFootballStatus("Statut du match synchronise : " + payload.snapshot().effectiveStatusLabel(), "status-success");
+            } else {
+                showApiFootballStatus("Aucune composition detaillee disponible pour ce match.", "status-warning");
+            }
         });
 
         task.setOnFailed(event -> {
             if (requestId != apiRequestSequence.get()) {
                 return;
             }
+            apiRefreshInProgress = false;
             Throwable throwable = task.getException();
             showApiFootballStatus(shortError(throwable), "status-warning");
         });
 
+        task.setOnCancelled(event -> {
+            if (requestId == apiRequestSequence.get()) {
+                apiRefreshInProgress = false;
+                showApiFootballStatus("Chargement des stats annule.", "status-warning");
+            }
+        });
+
         API_EXECUTOR.execute(task);
+    }
+
+    private void refreshMatchVideosAsync(boolean force) {
+        if (match == null || youtubeService == null) {
+            return;
+        }
+        if (!force && Instant.now().isBefore(lastMatchVideoRefreshAt.plusSeconds(75))) {
+            return;
+        }
+
+        if (!isFinishedMatch(match)) {
+            lastMatchVideoRefreshAt = Instant.now();
+            youtubeVideos.clear();
+            selectedYouTubeVideo = null;
+            showMatchVideoStatus("This match has not finished yet. Highlights are not available.");
+            showMatchVideoPlaceholder(
+                    "This match has not finished yet.",
+                    "Highlights are not available."
+            );
+            return;
+        }
+
+        long requestId = videoRequestSequence.incrementAndGet();
+        showMatchVideoStatus("Searching YouTube highlights...");
+
+        Task<List<YouTubeVideo>> task = new Task<>() {
+            @Override
+            protected List<YouTubeVideo> call() throws Exception {
+                return youtubeService.searchInAppHighlights(match, homeTeam, awayTeam);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestId != videoRequestSequence.get()) {
+                return;
+            }
+
+            lastMatchVideoRefreshAt = Instant.now();
+            List<YouTubeVideo> videos = task.getValue() == null ? List.of() : task.getValue();
+            youtubeVideos.setAll(videos);
+            if (videos.isEmpty()) {
+                selectedYouTubeVideo = null;
+                showMatchVideoStatus("No in-app highlight available for this match.");
+                showMatchVideoPlaceholder(
+                        "No in-app highlight available for this match.",
+                        "YouTube did not return a playable highlight for this finished match."
+                );
+                return;
+            }
+
+            showMatchVideoStatus(videos.size() + " YouTube highlight" + (videos.size() > 1 ? "s" : "") + " found for in-app playback.");
+            youtubeVideoListView.getSelectionModel().selectFirst();
+        });
+
+        task.setOnFailed(event -> {
+            if (requestId != videoRequestSequence.get()) {
+                return;
+            }
+
+            youtubeVideos.clear();
+            selectedYouTubeVideo = null;
+            showMatchVideoStatus(YouTubeService.API_ERROR_MESSAGE);
+            showMatchVideoPlaceholder(
+                    "YouTube API error. Check API key or quota.",
+                    "Set the YOUTUBE_API_KEY environment variable and make sure the quota is available."
+            );
+        });
+
+        VIDEO_EXECUTOR.execute(task);
+    }
+
+    private boolean shouldRefreshDetailedInsights(ApiFootballFixtureSnapshot snapshot) {
+        if (snapshot != null) {
+            if (snapshot.isLive()) {
+                return true;
+            }
+            LocalDateTime kickoff = snapshot.kickoffAt();
+            if (kickoff != null) {
+                LocalDateTime now = LocalDateTime.now();
+                return !now.isBefore(kickoff.minusMinutes(1)) && now.isBefore(kickoff.plusHours(4));
+            }
+        }
+
+        if (match == null || match.getDateMatch() == null) {
+            return false;
+        }
+        LocalDateTime kickoff = match.getHeureDebut() == null
+                ? match.getDateMatch().atStartOfDay()
+                : match.getDateMatch().atTime(match.getHeureDebut());
+        LocalDateTime now = LocalDateTime.now();
+        return !now.isBefore(kickoff.minusMinutes(1)) && now.isBefore(kickoff.plusHours(4));
+    }
+
+    private void applyFixtureSnapshot(ApiFootballFixtureSnapshot snapshot) {
+        if (snapshot == null || match == null) {
+            return;
+        }
+
+        if (snapshot.kickoffAt() != null) {
+            match.setDateMatch(snapshot.kickoffAt().toLocalDate());
+            match.setHeureDebut(snapshot.kickoffAt().toLocalTime().withSecond(0).withNano(0));
+        }
+        String statusLabel = snapshot.effectiveStatusLabel();
+        match.setStatut(statusLabel);
+        if (snapshot.homeScore() != null) {
+            match.setScoreEquipeDomicile(snapshot.homeScore());
+        }
+        if (snapshot.awayScore() != null) {
+            match.setScoreEquipeExterieur(snapshot.awayScore());
+        }
+        match.setApiFootballId(snapshot.fixtureId());
+
+        detailStatusChipLabel.setText(statusLabel);
+        applyDetailStatusStyle(detailStatusChipLabel, snapshot.matchStatus());
+        detailStatutValueLabel.setText(statusLabel);
+        detailScoreValueLabel.setText(buildScore(match));
+        detailDateValueLabel.setText(formatDate(match.getDateMatch()));
+        detailHeureValueLabel.setText(formatTime(match.getHeureDebut()));
+        updateLiveScoreboard(snapshot, statusLabel);
+    }
+
+    private void resetMatchVideoUiForNewMatch() {
+        youtubeVideos.clear();
+        selectedYouTubeVideo = null;
+        loadedYouTubeVideo = null;
+        lastMatchVideoRefreshAt = Instant.EPOCH;
+
+        if (youtubeMatchInfoLabel != null) {
+            youtubeMatchInfoLabel.setText(buildYouTubeMatchInfo());
+        }
+        showMatchVideoStatus("Click Load Highlights to search YouTube.");
+        showMatchVideoPlaceholder(
+                "No video selected",
+                "YouTube highlights will appear here after the match is finished."
+        );
+        if (selectedVideoTitleLabel != null) {
+            selectedVideoTitleLabel.setText("No video selected");
+        }
+        if (selectedVideoMetaLabel != null) {
+            selectedVideoMetaLabel.setText("YouTube videos play inside the embedded Chromium player.");
+        }
+        setInAppYouTubePlayerButtonVisible(false);
+        stopLocalMp4Demo();
+    }
+
+    private void renderSelectedMatchVideo() {
+        stopLocalMp4Demo();
+        if (selectedVideoTitleLabel != null) {
+            selectedVideoTitleLabel.setText(selectedYouTubeVideo == null
+                    ? "No video selected"
+                    : emptyToFallback(selectedYouTubeVideo.title(), "YouTube highlight"));
+        }
+        if (selectedVideoMetaLabel != null) {
+            selectedVideoMetaLabel.setText(selectedYouTubeVideo == null
+                    ? "YouTube videos play inside the embedded Chromium player."
+                    : emptyToFallback(selectedYouTubeVideo.channelTitle(), "YouTube"));
+        }
+        if (fullscreenVideoButton != null) {
+            fullscreenVideoButton.setDisable(selectedYouTubeVideo == null);
+        }
+        setInAppYouTubePlayerButtonVisible(false);
+
+        if (activeTab != MatchDetailTab.VIDEOS) {
+            unloadMatchVideoPlayer();
+            return;
+        }
+
+        if (selectedYouTubeVideo == null) {
+            showMatchVideoPlaceholder(
+                    youtubeVideos.isEmpty() ? "No in-app highlight available for this match." : "No video selected",
+                    youtubeVideos.isEmpty() ? "Load highlights to search YouTube videos for this match." : "Select a highlight from the list."
+            );
+            return;
+        }
+
+        setInAppYouTubePlayerButtonVisible(true);
+        if (Objects.equals(selectedYouTubeVideo, loadedYouTubeVideo)
+                && chromiumPlayerHost != null
+                && chromiumPlayerHost.isVisible()) {
+            if (matchVideoEmptyStateBox != null) {
+                matchVideoEmptyStateBox.setManaged(false);
+                matchVideoEmptyStateBox.setVisible(false);
+            }
+            return;
+        }
+
+        loadYouTubeInChromium(selectedYouTubeVideo);
+        if (matchVideoEmptyStateBox != null) {
+            matchVideoEmptyStateBox.setManaged(false);
+            matchVideoEmptyStateBox.setVisible(false);
+        }
+    }
+
+    private void loadYouTubeInChromium(YouTubeVideo video) {
+        if (video == null) {
+            return;
+        }
+        loadedYouTubeVideo = video;
+        showInAppPlayerWindowMessage(
+                "Opening Sport Insight player",
+                "Your highlight is opening in a dedicated in-app Chromium window."
+        );
+        showMatchVideoStatus("Opening YouTube highlight in the Sport Insight player...");
+
+        ChromiumBrowserView.openYouTubePlayerWindow(
+                video.videoId(),
+                video.getWatchUrl(),
+                emptyToFallback(video.title(), "Sport Insight Highlights"),
+                false
+        ).thenAccept(loaded -> Platform.runLater(() -> {
+            if (!Objects.equals(video, selectedYouTubeVideo)) {
+                return;
+            }
+            if (loaded) {
+                showInAppPlayerWindowMessage(
+                        "Playing in Sport Insight player",
+                        "The video is playing in a dedicated app window. If you closed it, click Reload in-app player."
+                );
+                showMatchVideoStatus("Playing in the Sport Insight in-app player.");
+                return;
+            }
+            showWebViewUnsupportedFallback(ChromiumBrowserView.getLastErrorMessage());
+        }));
+    }
+
+    private void showChromiumPlayer() {
+        if (chromiumPlayerHost != null) {
+            chromiumPlayerHost.setManaged(true);
+            chromiumPlayerHost.setVisible(true);
+        }
+        if (matchVideoWebView != null) {
+            matchVideoWebView.setManaged(false);
+            matchVideoWebView.setVisible(false);
+        }
+        if (localDemoMediaView != null) {
+            localDemoMediaView.setManaged(false);
+            localDemoMediaView.setVisible(false);
+        }
+    }
+
+    private void showInAppPlayerWindowMessage(String title, String body) {
+        if (chromiumPlayerHost != null) {
+            chromiumPlayerHost.setManaged(false);
+            chromiumPlayerHost.setVisible(false);
+        }
+        if (localDemoMediaView != null) {
+            localDemoMediaView.setManaged(false);
+            localDemoMediaView.setVisible(false);
+        }
+        if (matchVideoEmptyStateBox != null) {
+            matchVideoEmptyStateBox.setManaged(false);
+            matchVideoEmptyStateBox.setVisible(false);
+        }
+        if (matchVideoWebView != null) {
+            matchVideoWebView.getEngine().loadContent("""
+                    <html>
+                      <body style='margin:0;background:#050915;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;'>
+                        <div>
+                          <h2>%s</h2>
+                          <p style='max-width:680px;color:#c8d5e8;font-size:16px;'>%s</p>
+                        </div>
+                      </body>
+                    </html>
+                    """.formatted(escapeHtml(title), escapeHtml(body)), "text/html");
+            matchVideoWebView.setManaged(true);
+            matchVideoWebView.setVisible(true);
+        }
+    }
+
+    private void playLocalMp4Demo(File file) {
+        if (file == null) {
+            return;
+        }
+
+        stopLocalMp4Demo();
+        currentLocalMp4File = file;
+        loadedYouTubeVideo = null;
+        if (chromiumBrowserView != null) {
+            chromiumBrowserView.clear();
+        }
+        if (chromiumPlayerHost != null) {
+            chromiumPlayerHost.setManaged(false);
+            chromiumPlayerHost.setVisible(false);
+        }
+        if (matchVideoWebView != null) {
+            matchVideoWebView.getEngine().loadContent("<html><body style='margin:0;background:#0b1220;'></body></html>");
+            matchVideoWebView.setManaged(false);
+            matchVideoWebView.setVisible(false);
+        }
+        if (matchVideoEmptyStateBox != null) {
+            matchVideoEmptyStateBox.setManaged(false);
+            matchVideoEmptyStateBox.setVisible(false);
+        }
+        setInAppYouTubePlayerButtonVisible(false);
+
+        try {
+            Media media = new Media(file.toURI().toString());
+            localDemoMediaPlayer = new MediaPlayer(media);
+            localDemoMediaPlayer.setOnError(() -> {
+                String error = localDemoMediaPlayer.getError() == null
+                        ? "Unknown media error."
+                        : localDemoMediaPlayer.getError().getMessage();
+                showMatchVideoPlaceholder("Local MP4 unavailable", error);
+                showMatchVideoStatus("Local MP4 demo could not be played.");
+            });
+            localDemoMediaView.setMediaPlayer(localDemoMediaPlayer);
+            localDemoMediaView.setManaged(true);
+            localDemoMediaView.setVisible(true);
+            if (selectedVideoTitleLabel != null) {
+                selectedVideoTitleLabel.setText("Local MP4 demo");
+            }
+            if (selectedVideoMetaLabel != null) {
+                selectedVideoMetaLabel.setText(file.getName());
+            }
+            if (fullscreenVideoButton != null) {
+                fullscreenVideoButton.setDisable(false);
+            }
+            showMatchVideoStatus("Playing local MP4 demo.");
+            localDemoMediaPlayer.play();
+        } catch (RuntimeException e) {
+            currentLocalMp4File = null;
+            showMatchVideoPlaceholder("Local MP4 unavailable", e.getMessage());
+            showMatchVideoStatus("Local MP4 demo could not be played.");
+        }
+    }
+
+    private void stopLocalMp4Demo() {
+        if (localDemoMediaPlayer != null) {
+            localDemoMediaPlayer.stop();
+            localDemoMediaPlayer.dispose();
+            localDemoMediaPlayer = null;
+        }
+        currentLocalMp4File = null;
+        if (localDemoMediaView != null) {
+            localDemoMediaView.setMediaPlayer(null);
+            localDemoMediaView.setManaged(false);
+            localDemoMediaView.setVisible(false);
+        }
+    }
+
+    private void openLocalMp4Fullscreen() {
+        if (currentLocalMp4File == null || !currentLocalMp4File.isFile()) {
+            return;
+        }
+
+        try {
+            MediaPlayer player = new MediaPlayer(new Media(currentLocalMp4File.toURI().toString()));
+            MediaView mediaView = new MediaView(player);
+            mediaView.setPreserveRatio(true);
+            StackPane root = new StackPane(mediaView);
+            root.setStyle("-fx-background-color: #000000;");
+            mediaView.fitWidthProperty().bind(root.widthProperty());
+            mediaView.fitHeightProperty().bind(root.heightProperty());
+
+            Stage stage = new Stage();
+            stage.setTitle(currentLocalMp4File.getName());
+            stage.setScene(new Scene(root, 1280, 720, Color.BLACK));
+            stage.setFullScreen(true);
+            stage.setFullScreenExitHint("Press ESC to leave full screen");
+            stage.setOnHidden(event -> {
+                player.stop();
+                player.dispose();
+            });
+            stage.show();
+            player.play();
+        } catch (RuntimeException e) {
+            showAlert(Alert.AlertType.WARNING, "Video", "Impossible d'ouvrir la video locale.\n" + e.getMessage());
+        }
+    }
+
+    private void showWebViewUnsupportedFallback(String detail) {
+        String safeDetail = escapeHtml(emptyToFallback(detail, "No JCEF error details were reported."));
+        if (chromiumPlayerHost != null) {
+            chromiumPlayerHost.setManaged(false);
+            chromiumPlayerHost.setVisible(false);
+        }
+        if (matchVideoWebView != null) {
+            matchVideoWebView.getEngine().loadContent("""
+                    <html>
+                      <body style='margin:0;background:#0b1220;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;'>
+                        <div>
+                          <h2>Embedded Chromium is unavailable.</h2>
+                          <p>In-app YouTube playback needs the JCEF Chromium runtime.</p>
+                          <p style='max-width:720px;color:#93a4bd;font-size:14px;'>%s</p>
+                        </div>
+                      </body>
+                    </html>
+                    """.formatted(safeDetail), "text/html");
+            matchVideoWebView.setManaged(true);
+            matchVideoWebView.setVisible(true);
+        }
+        if (matchVideoEmptyStateBox != null) {
+            matchVideoEmptyStateBox.setManaged(false);
+            matchVideoEmptyStateBox.setVisible(false);
+        }
+        showMatchVideoStatus("Embedded Chromium is unavailable: " + emptyToFallback(detail, "JCEF startup failed."));
+        setInAppYouTubePlayerButtonVisible(false);
+    }
+
+    private void showMatchVideoPlaceholder(String title, String body) {
+        stopLocalMp4Demo();
+        if (matchVideoEmptyTitleLabel != null) {
+            matchVideoEmptyTitleLabel.setText(emptyToFallback(title, "Video unavailable"));
+        }
+        if (matchVideoEmptyBodyLabel != null) {
+            matchVideoEmptyBodyLabel.setText(emptyToFallback(body, "No in-app highlight available for this match."));
+        }
+        if (matchVideoWebView != null) {
+            matchVideoWebView.getEngine().loadContent("<html><body style='margin:0;background:#0b1220;'></body></html>");
+            matchVideoWebView.setManaged(false);
+            matchVideoWebView.setVisible(false);
+        }
+        loadedYouTubeVideo = null;
+        setInAppYouTubePlayerButtonVisible(false);
+        if (chromiumBrowserView != null) {
+            chromiumBrowserView.clear();
+        }
+        if (chromiumPlayerHost != null) {
+            chromiumPlayerHost.setManaged(false);
+            chromiumPlayerHost.setVisible(false);
+        }
+        if (localDemoMediaView != null) {
+            localDemoMediaView.setManaged(false);
+            localDemoMediaView.setVisible(false);
+        }
+        if (matchVideoEmptyStateBox != null) {
+            matchVideoEmptyStateBox.setManaged(true);
+            matchVideoEmptyStateBox.setVisible(true);
+        }
+    }
+
+    private void unloadMatchVideoPlayer() {
+        if (matchVideoWebView != null) {
+            matchVideoWebView.getEngine().loadContent("<html><body style='margin:0;background:#0b1220;'></body></html>");
+            matchVideoWebView.setManaged(false);
+            matchVideoWebView.setVisible(false);
+        }
+        loadedYouTubeVideo = null;
+        setInAppYouTubePlayerButtonVisible(false);
+        if (chromiumBrowserView != null) {
+            chromiumBrowserView.clear();
+        }
+        if (chromiumPlayerHost != null) {
+            chromiumPlayerHost.setManaged(false);
+            chromiumPlayerHost.setVisible(false);
+        }
+        stopLocalMp4Demo();
+    }
+
+    private void showMatchVideoStatus(String message) {
+        if (matchVideoStatusLabel != null) {
+            matchVideoStatusLabel.setText(emptyToFallback(message, "Videos du match"));
+        }
+    }
+
+    private String buildYouTubeMatchInfo() {
+        return emptyToFallback(buildMatchLabel(match), "Match")
+                + " | Status: "
+                + emptyToFallback(resolveStatus(match), "Unknown");
+    }
+
+    private boolean isFinishedMatch(Matchs value) {
+        return YouTubeService.isFinishedStatus(value == null ? null : value.getStatut());
+    }
+
+    private void setInAppYouTubePlayerButtonVisible(boolean visible) {
+        if (inAppYouTubePlayerButton != null) {
+            inAppYouTubePlayerButton.setText("Reload in-app player");
+            inAppYouTubePlayerButton.setDisable(selectedYouTubeVideo == null);
+            inAppYouTubePlayerButton.setManaged(visible);
+            inAppYouTubePlayerButton.setVisible(visible);
+        }
+    }
+
+    private void updateLiveScoreboard(ApiFootballFixtureSnapshot snapshot, String rawStatus) {
+        if (detailScoreValueLabel == null || detailLivePhaseLabel == null || detailLiveMinuteLabel == null) {
+            return;
+        }
+
+        LiveScoreboardState state = resolveLiveScoreboardState(snapshot, rawStatus);
+        boolean showPhase = state != null && state.phaseLabel() != null && !state.phaseLabel().isBlank();
+        boolean showMinute = state != null && state.minuteLabel() != null && !state.minuteLabel().isBlank();
+
+        detailLivePhaseLabel.setManaged(showPhase);
+        detailLivePhaseLabel.setVisible(showPhase);
+        detailLivePhaseLabel.setText(showPhase ? state.phaseLabel() : "");
+
+        detailLiveMinuteLabel.setManaged(showMinute);
+        detailLiveMinuteLabel.setVisible(showMinute);
+        detailLiveMinuteLabel.setText(showMinute ? state.minuteLabel() : "");
+
+        updateLiveAttentionAnimation(snapshot, rawStatus, showMinute);
+    }
+
+    private void updateLiveAttentionAnimation(ApiFootballFixtureSnapshot snapshot, String rawStatus, boolean showMinute) {
+        if (!isBlinkingLiveState(snapshot, rawStatus)) {
+            stopLiveAttentionAnimation();
+            return;
+        }
+
+        liveAttentionMinuteVisible = showMinute;
+        if (liveAttentionTimeline == null) {
+            liveAttentionTimeline = new Timeline(
+                    new KeyFrame(javafx.util.Duration.ZERO, event -> {
+                        liveAttentionAccentFrame = true;
+                        applyLiveAttentionFrame();
+                    }),
+                    new KeyFrame(javafx.util.Duration.millis(680), event -> {
+                        liveAttentionAccentFrame = false;
+                        applyLiveAttentionFrame();
+                    })
+            );
+            liveAttentionTimeline.setCycleCount(Timeline.INDEFINITE);
+        }
+
+        if (liveAttentionTimeline.getStatus() != javafx.animation.Animation.Status.RUNNING) {
+            liveAttentionTimeline.playFromStart();
+            return;
+        }
+        applyLiveAttentionFrame();
+    }
+
+    private boolean isBlinkingLiveState(ApiFootballFixtureSnapshot snapshot, String rawStatus) {
+        if (snapshot != null && snapshot.isLive()) {
+            return true;
+        }
+        return isLiveStatusText(normalize(rawStatus));
+    }
+
+    private void applyLiveAttentionFrame() {
+        String colorHex = toHexColor(liveAttentionAccentFrame
+                ? LIVE_ATTENTION_ACCENT
+                : (ThemeManager.isDarkMode() ? LIVE_ATTENTION_DARK_BASE : LIVE_ATTENTION_LIGHT_BASE));
+        detailScoreValueLabel.setStyle("-fx-text-fill: " + colorHex + ";");
+        detailLiveMinuteLabel.setStyle(liveAttentionMinuteVisible ? "-fx-text-fill: " + colorHex + ";" : "");
+    }
+
+    private void stopLiveAttentionAnimation() {
+        if (liveAttentionTimeline != null) {
+            liveAttentionTimeline.stop();
+        }
+        liveAttentionAccentFrame = false;
+        liveAttentionMinuteVisible = false;
+        clearLiveAttentionStyles();
+    }
+
+    private void clearLiveAttentionStyles() {
+        if (detailScoreValueLabel != null) {
+            detailScoreValueLabel.setStyle("");
+        }
+        if (detailLiveMinuteLabel != null) {
+            detailLiveMinuteLabel.setStyle("");
+        }
+    }
+
+    private String toHexColor(Color color) {
+        if (color == null) {
+            return "#ffffff";
+        }
+        return String.format(
+                Locale.ROOT,
+                "#%02x%02x%02x",
+                Math.round(color.getRed() * 255),
+                Math.round(color.getGreen() * 255),
+                Math.round(color.getBlue() * 255)
+        );
+    }
+
+    private LiveScoreboardState resolveLiveScoreboardState(ApiFootballFixtureSnapshot snapshot, String rawStatus) {
+        if (snapshot != null) {
+            String phaseLabel = mapLivePhaseLabel(snapshot.statusShort(), snapshot.statusLong());
+            String minuteLabel = normalizeLiveMinuteLabel(snapshot.minuteLabel());
+            if (phaseLabel != null || minuteLabel != null) {
+                return new LiveScoreboardState(phaseLabel, minuteLabel);
+            }
+            if (!snapshot.isLive()) {
+                return null;
+            }
+        }
+
+        String normalizedStatus = emptyToNull(rawStatus);
+        if (normalizedStatus == null) {
+            return null;
+        }
+
+        String lowerStatus = normalizedStatus.toLowerCase();
+        String phaseLabel = null;
+        if (lowerStatus.contains("1re mi-temps") || lowerStatus.contains("premiere mi-temps") || lowerStatus.contains("first half")) {
+            phaseLabel = "1RE MI-TEMPS";
+        } else if (lowerStatus.contains("2e mi-temps") || lowerStatus.contains("deuxieme mi-temps") || lowerStatus.contains("second half")) {
+            phaseLabel = "2E MI-TEMPS";
+        } else if (lowerStatus.contains("mi-temps")) {
+            phaseLabel = "MI-TEMPS";
+        } else if (lowerStatus.contains("prolong")) {
+            phaseLabel = "PROLONGATIONS";
+        } else if (lowerStatus.contains("tab") || lowerStatus.contains("pen") || lowerStatus.contains("tirs au but")) {
+            phaseLabel = "TIRS AU BUT";
+        } else if (lowerStatus.contains("direct") || lowerStatus.contains("live") || lowerStatus.contains("cours")) {
+            phaseLabel = "EN DIRECT";
+        }
+
+        Matcher matcher = LIVE_MINUTE_PATTERN.matcher(normalizedStatus);
+        String minuteLabel = matcher.find() ? matcher.group(1) : null;
+        if (phaseLabel == null && minuteLabel == null) {
+            return null;
+        }
+        return new LiveScoreboardState(phaseLabel, minuteLabel);
+    }
+
+    private String mapLivePhaseLabel(String statusShort, String statusLong) {
+        String normalizedShort = emptyToNull(statusShort);
+        if (normalizedShort != null) {
+            return switch (normalizedShort.toUpperCase()) {
+                case "1H" -> "1RE MI-TEMPS";
+                case "HT" -> "MI-TEMPS";
+                case "2H" -> "2E MI-TEMPS";
+                case "ET" -> "PROLONGATIONS";
+                case "BT" -> "PAUSE PROLONGATIONS";
+                case "P" -> "TIRS AU BUT";
+                case "LIVE" -> "EN DIRECT";
+                default -> null;
+            };
+        }
+
+        String normalizedLong = emptyToNull(statusLong);
+        if (normalizedLong == null) {
+            return null;
+        }
+
+        String lowerStatus = normalizedLong.toLowerCase();
+        if (lowerStatus.contains("first half")) {
+            return "1RE MI-TEMPS";
+        }
+        if (lowerStatus.contains("second half")) {
+            return "2E MI-TEMPS";
+        }
+        if (lowerStatus.contains("half-time")) {
+            return "MI-TEMPS";
+        }
+        if (lowerStatus.contains("extra time")) {
+            return "PROLONGATIONS";
+        }
+        if (lowerStatus.contains("penalties")) {
+            return "TIRS AU BUT";
+        }
+        return null;
+    }
+
+    private String normalizeLiveMinuteLabel(String minuteLabel) {
+        String normalized = emptyToNull(minuteLabel);
+        if (normalized == null) {
+            return null;
+        }
+        Matcher matcher = LIVE_MINUTE_PATTERN.matcher(normalized);
+        return matcher.find() ? matcher.group(1) : normalized;
     }
 
     private void renderApiFootballInsights(ApiFootballMatchDetails details) {
@@ -762,9 +1863,16 @@ public class MatchDetailController implements AssistantContextProvider {
         updateSectionVisibility(summarySection, activeTab == MatchDetailTab.SUMMARY);
         updateSectionVisibility(statsSection, activeTab == MatchDetailTab.STATS);
         updateSectionVisibility(lineupSection, activeTab == MatchDetailTab.LINEUP);
+        updateSectionVisibility(videosSection, activeTab == MatchDetailTab.VIDEOS);
         updateTabButton(summaryTabButton, activeTab == MatchDetailTab.SUMMARY);
         updateTabButton(statsTabButton, activeTab == MatchDetailTab.STATS);
         updateTabButton(lineupTabButton, activeTab == MatchDetailTab.LINEUP);
+        updateTabButton(videosTabButton, activeTab == MatchDetailTab.VIDEOS);
+        if (activeTab == MatchDetailTab.VIDEOS) {
+            renderSelectedMatchVideo();
+        } else {
+            unloadMatchVideoPlayer();
+        }
     }
 
     private void updateSectionVisibility(VBox section, boolean visible) {
@@ -3142,7 +4250,7 @@ public class MatchDetailController implements AssistantContextProvider {
         if (normalized == null) {
             return "fixture-status-scheduled";
         }
-        if (normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -3154,8 +4262,46 @@ public class MatchDetailController implements AssistantContextProvider {
         return "fixture-status-scheduled";
     }
 
+    private boolean isLiveStatusText(String normalized) {
+        if (normalized == null) {
+            return false;
+        }
+        return normalized.contains("direct")
+                || normalized.contains("cours")
+                || normalized.contains("live")
+                || normalized.contains("mi-temps")
+                || normalized.contains("mi temps")
+                || normalized.contains("1re mi")
+                || normalized.contains("premiere mi")
+                || normalized.contains("2e mi")
+                || normalized.contains("deuxieme mi")
+                || normalized.contains("half")
+                || normalized.contains("1h")
+                || normalized.contains("2h")
+                || normalized.contains("prolong")
+                || normalized.contains("extra time")
+                || normalized.contains("tirs au but")
+                || normalized.contains("penalties")
+                || normalized.contains("shootout");
+    }
+
     private String emptyToFallback(String value, String fallback) {
         String cleaned = emptyToNull(value);
+        return cleaned == null ? fallback : cleaned;
+    }
+
+    private String escapeHtml(String value) {
+        String cleaned = emptyToFallback(value, "");
+        return cleaned
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    private String firstNonBlank(String primary, String fallback) {
+        String cleaned = emptyToNull(primary);
         return cleaned == null ? fallback : cleaned;
     }
 
@@ -3330,11 +4476,25 @@ public class MatchDetailController implements AssistantContextProvider {
     private enum MatchDetailTab {
         SUMMARY,
         STATS,
-        LINEUP
+        LINEUP,
+        VIDEOS
     }
 
     private record PlayerIncidentSummary(int goals, int assists, int yellowCards, int redCards) {
         private static final PlayerIncidentSummary EMPTY = new PlayerIncidentSummary(0, 0, 0, 0);
+    }
+
+    private record LiveRefreshPayload(
+            ApiFootballFixtureSnapshot snapshot,
+            ApiFootballMatchDetails details,
+            Throwable error
+    ) {
+    }
+
+    private record LiveScoreboardState(String phaseLabel, String minuteLabel) {
+    }
+
+    private record UserSessionTarget(Integer userId) {
     }
 
     private enum TacticalBand {

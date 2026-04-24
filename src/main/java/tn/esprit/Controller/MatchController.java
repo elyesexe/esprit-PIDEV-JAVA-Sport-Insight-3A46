@@ -2254,7 +2254,7 @@ public class MatchController {
         if (normalized == null) {
             return "fixture-status-scheduled";
         }
-        if (normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -2291,7 +2291,7 @@ public class MatchController {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
-        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -2304,6 +2304,29 @@ public class MatchController {
             return STATUS_ANNULE;
         }
         return null;
+    }
+
+    private boolean isLiveStatusText(String normalized) {
+        if (normalized == null) {
+            return false;
+        }
+        return normalized.contains("direct")
+                || normalized.contains("cours")
+                || normalized.contains("live")
+                || normalized.contains("mi-temps")
+                || normalized.contains("mi temps")
+                || normalized.contains("1re mi")
+                || normalized.contains("premiere mi")
+                || normalized.contains("2e mi")
+                || normalized.contains("deuxieme mi")
+                || normalized.contains("half")
+                || normalized.contains("1h")
+                || normalized.contains("2h")
+                || normalized.contains("prolong")
+                || normalized.contains("extra time")
+                || normalized.contains("tirs au but")
+                || normalized.contains("penalties")
+                || normalized.contains("shootout");
     }
 
     private boolean isScoreLockedStatus(String status) {

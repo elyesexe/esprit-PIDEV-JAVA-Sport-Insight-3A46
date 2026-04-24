@@ -1,5 +1,7 @@
 package tn.esprit.Controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -33,9 +35,11 @@ import tn.esprit.services.EquipeService;
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
 import tn.esprit.services.MatchsService;
+import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -121,12 +125,14 @@ public class MatchListController implements AssistantContextProvider {
     private MatchsService matchsService;
     private EquipeService equipeService;
     private FootballDataSyncService footballDataSyncService;
+    private ApiFootballInsightsService apiFootballInsightsService;
     private Map<Integer, Equipe> equipeById = Map.of();
     private String selectedCompetitionCode;
     private boolean serviceReady;
     private boolean loadingData;
     private boolean syncingData;
     private SidebarModuleGroup sidebarModuleGroup;
+    private Timeline liveRefreshTimeline;
 
     @FXML
     public void initialize() {
@@ -139,12 +145,14 @@ public class MatchListController implements AssistantContextProvider {
         configureMatchList();
         updateSelectionState();
         updateActionAvailability();
+        configureLiveRefreshLifecycle();
 
         try {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
+            apiFootballInsightsService = new ApiFootballInsightsService();
             serviceReady = true;
-            refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.");
+            refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.", false);
         } catch (Exception e) {
             serviceReady = false;
             updateActionAvailability();
@@ -225,6 +233,42 @@ public class MatchListController implements AssistantContextProvider {
         return resolveStatus(match);
     }
 
+    private void configureLiveRefreshLifecycle() {
+        if (navbarRoot == null) {
+            return;
+        }
+
+        navbarRoot.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                stopLiveRefresh();
+                return;
+            }
+            startLiveRefresh();
+        });
+    }
+
+    private void startLiveRefresh() {
+        if (liveRefreshTimeline == null) {
+            liveRefreshTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(30), event -> {
+                if (!serviceReady || loadingData || syncingData) {
+                    return;
+                }
+                refreshDataAsync(null, null, null, true);
+            }));
+            liveRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        }
+
+        if (liveRefreshTimeline.getStatus() != javafx.animation.Animation.Status.RUNNING) {
+            liveRefreshTimeline.play();
+        }
+    }
+
+    private void stopLiveRefresh() {
+        if (liveRefreshTimeline != null) {
+            liveRefreshTimeline.stop();
+        }
+    }
+
     @Override
     public String assistantContextSummary() {
         List<Matchs> visibleMatchs = getFilteredMatchsSnapshot();
@@ -281,7 +325,7 @@ public class MatchListController implements AssistantContextProvider {
 
     @FXML
     private void handleRefresh() {
-        refreshDataAsync("Actualisation des matchs...", "status-success", "Liste des matchs actualisee.");
+        refreshDataAsync("Actualisation des matchs...", "status-success", "Liste des matchs actualisee.", false);
     }
 
     @FXML
@@ -329,6 +373,7 @@ public class MatchListController implements AssistantContextProvider {
         statusFilterComboBox.setItems(FXCollections.observableArrayList(
                 STATUS_FILTER_ALL,
                 STATUS_PROGRAMME,
+                STATUS_EN_DIRECT,
                 STATUS_FINI
         ));
         statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
@@ -473,14 +518,16 @@ public class MatchListController implements AssistantContextProvider {
         return box;
     }
 
-    private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage) {
+    private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage, boolean backgroundRefresh) {
         if (matchsService == null || equipeService == null) {
             return;
         }
 
         long requestId = refreshSequence.incrementAndGet();
-        loadingData = true;
-        updateActionAvailability();
+        loadingData = !backgroundRefresh;
+        if (!backgroundRefresh) {
+            updateActionAvailability();
+        }
         if (loadingMessage != null) {
             showMutedStatus(loadingMessage);
         }
@@ -490,8 +537,13 @@ public class MatchListController implements AssistantContextProvider {
             protected RefreshPayload call() throws Exception {
                 List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
                 loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                Map<Integer, Equipe> loadedEquipeById = loadedEquipes.stream()
+                        .filter(equipe -> equipe.getId() != null)
+                        .collect(Collectors.toMap(Equipe::getId, equipe -> equipe, (left, right) -> left));
 
                 List<Matchs> loadedMatchs = new ArrayList<>(matchsService.getAll());
+                refreshRelevantLiveSummaries(loadedMatchs, loadedEquipeById);
+                loadedMatchs = new ArrayList<>(matchsService.getAll());
                 loadedMatchs.sort(Comparator
                         .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
                         .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
@@ -529,13 +581,69 @@ public class MatchListController implements AssistantContextProvider {
 
             loadingData = false;
             updateActionAvailability();
-            showErrorStatus("Erreur pendant le chargement.");
-            Throwable throwable = loadTask.getException();
-            showAlert(Alert.AlertType.ERROR, "Chargement",
-                    "Erreur lors du chargement des matchs.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            if (!backgroundRefresh) {
+                showErrorStatus("Erreur pendant le chargement.");
+                Throwable throwable = loadTask.getException();
+                showAlert(Alert.AlertType.ERROR, "Chargement",
+                        "Erreur lors du chargement des matchs.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            }
         });
 
         DB_EXECUTOR.execute(loadTask);
+    }
+
+    private void refreshRelevantLiveSummaries(List<Matchs> loadedMatchs, Map<Integer, Equipe> loadedEquipeById) {
+        if (apiFootballInsightsService == null || loadedMatchs == null || loadedMatchs.isEmpty()) {
+            return;
+        }
+
+        List<Matchs> relevantMatches = loadedMatchs.stream()
+                .filter(this::shouldSyncLiveSummary)
+                .sorted(Comparator
+                        .comparing(this::kickoffDateTimeOf, Comparator.nullsLast(LocalDateTime::compareTo))
+                        .thenComparing(Matchs::getId, Comparator.nullsLast(Integer::compareTo)))
+                .limit(8)
+                .toList();
+
+        for (Matchs match : relevantMatches) {
+            try {
+                Equipe homeTeam = match.getEquipeDomicileId() == null ? null : loadedEquipeById.get(match.getEquipeDomicileId());
+                Equipe awayTeam = match.getEquipeExterieurId() == null ? null : loadedEquipeById.get(match.getEquipeExterieurId());
+                apiFootballInsightsService.refreshFixtureSnapshot(match, homeTeam, awayTeam);
+            } catch (Exception ignored) {
+                // Keep list refresh resilient if the live summary API is unavailable.
+            }
+        }
+    }
+
+    private boolean shouldSyncLiveSummary(Matchs match) {
+        if (match == null) {
+            return false;
+        }
+
+        if (selectedCompetitionCode != null && !Objects.equals(selectedCompetitionCode, emptyToNull(match.getCompetitionCode()))) {
+            return false;
+        }
+
+        LocalDateTime kickoff = kickoffDateTimeOf(match);
+        LocalDateTime now = LocalDateTime.now();
+        String normalizedStatus = normalizeMatchStatus(match.getStatut());
+        if (STATUS_EN_DIRECT.equals(normalizedStatus)) {
+            return true;
+        }
+        if (kickoff == null) {
+            return false;
+        }
+        return !kickoff.isBefore(now.minusHours(4)) && !kickoff.isAfter(now.plusMinutes(20));
+    }
+
+    private LocalDateTime kickoffDateTimeOf(Matchs match) {
+        if (match == null || match.getDateMatch() == null) {
+            return null;
+        }
+        return match.getHeureDebut() == null
+                ? match.getDateMatch().atStartOfDay()
+                : match.getDateMatch().atTime(match.getHeureDebut());
     }
 
     private void applyFilters() {
@@ -639,7 +747,7 @@ public class MatchListController implements AssistantContextProvider {
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(!matchesOnly, matchesOnly);
             syncMetaLabel.setText("Synchronise : " + summaryMessage);
-            refreshDataAsync(null, "status-success", summaryMessage);
+            refreshDataAsync(null, "status-success", summaryMessage, false);
         });
 
         syncTask.setOnFailed(event -> {
@@ -762,7 +870,7 @@ public class MatchListController implements AssistantContextProvider {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
-        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -787,7 +895,7 @@ public class MatchListController implements AssistantContextProvider {
         if (normalized == null || normalized.contains("prog")) {
             return "fixture-status-scheduled";
         }
-        if (normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -797,6 +905,29 @@ public class MatchListController implements AssistantContextProvider {
             return "fixture-status-cancelled";
         }
         return "fixture-status-scheduled";
+    }
+
+    private boolean isLiveStatusText(String normalized) {
+        if (normalized == null) {
+            return false;
+        }
+        return normalized.contains("direct")
+                || normalized.contains("cours")
+                || normalized.contains("live")
+                || normalized.contains("mi-temps")
+                || normalized.contains("mi temps")
+                || normalized.contains("1re mi")
+                || normalized.contains("premiere mi")
+                || normalized.contains("2e mi")
+                || normalized.contains("deuxieme mi")
+                || normalized.contains("half")
+                || normalized.contains("1h")
+                || normalized.contains("2h")
+                || normalized.contains("prolong")
+                || normalized.contains("extra time")
+                || normalized.contains("tirs au but")
+                || normalized.contains("penalties")
+                || normalized.contains("shootout");
     }
 
     private String buildMatchLabel(Matchs match) {

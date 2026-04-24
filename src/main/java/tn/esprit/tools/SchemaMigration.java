@@ -57,6 +57,7 @@ public final class SchemaMigration {
 
         ensureAnnonceSchema(connection);
         ensureUserSchema(connection);
+        ensureMatchLiveSchema(connection);
     }
 
     private static void backfillEquipeCompetitionCodes(Statement statement) throws SQLException {
@@ -274,6 +275,86 @@ public final class SchemaMigration {
                     "CREATE INDEX idx_user_email ON `user` (email)");
             addIndexIfMissing(metaData, catalog, statement, "user", "idx_user_status",
                     "CREATE INDEX idx_user_status ON `user` (statut)");
+        }
+    }
+
+    private static void ensureMatchLiveSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            if (!tableExists(metaData, catalog, "match_follow_target")) {
+                statement.executeUpdate("""
+                        CREATE TABLE match_follow_target (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            target_type VARCHAR(16) NOT NULL,
+                            team_id INT NULL,
+                            competition_code VARCHAR(16) NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "user_id", "INT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "target_type", "VARCHAR(16) NOT NULL DEFAULT 'TEAM'");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "team_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "competition_code", "VARCHAR(16) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "created_at", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_user",
+                    "CREATE INDEX idx_match_follow_target_user ON match_follow_target (user_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_team",
+                    "CREATE INDEX idx_match_follow_target_team ON match_follow_target (team_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_competition",
+                    "CREATE INDEX idx_match_follow_target_competition ON match_follow_target (competition_code)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_team",
+                    "CREATE UNIQUE INDEX uq_match_follow_target_team ON match_follow_target (user_id, target_type, team_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_competition",
+                    "CREATE UNIQUE INDEX uq_match_follow_target_competition ON match_follow_target (user_id, target_type, competition_code)");
+
+            if (!tableExists(metaData, catalog, "notification")) {
+                statement.executeUpdate("""
+                        CREATE TABLE notification (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            title VARCHAR(255) NULL,
+                            message TEXT NOT NULL,
+                            type VARCHAR(32) NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                            user_id INT NOT NULL,
+                            match_id INT NULL,
+                            dedupe_key VARCHAR(255) NULL,
+                            competition_code VARCHAR(16) NULL,
+                            home_team_name VARCHAR(255) NULL,
+                            away_team_name VARCHAR(255) NULL,
+                            home_team_logo VARCHAR(255) NULL,
+                            away_team_logo VARCHAR(255) NULL,
+                            actor_name VARCHAR(255) NULL,
+                            minute_label VARCHAR(32) NULL,
+                            accent_tone VARCHAR(32) NULL
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "notification", "title", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "type", "VARCHAR(32) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "match_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "dedupe_key", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "competition_code", "VARCHAR(16) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "home_team_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "away_team_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "home_team_logo", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "away_team_logo", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "actor_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "minute_label", "VARCHAR(32) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "accent_tone", "VARCHAR(32) NULL");
+
+            addIndexIfMissing(metaData, catalog, statement, "notification", "idx_notification_user_created",
+                    "CREATE INDEX idx_notification_user_created ON notification (user_id, created_at)");
+            addIndexIfMissing(metaData, catalog, statement, "notification", "idx_notification_match",
+                    "CREATE INDEX idx_notification_match ON notification (match_id)");
+            addIndexIfMissing(metaData, catalog, statement, "notification", "uq_notification_dedupe",
+                    "CREATE UNIQUE INDEX uq_notification_dedupe ON notification (user_id, dedupe_key)");
         }
     }
 

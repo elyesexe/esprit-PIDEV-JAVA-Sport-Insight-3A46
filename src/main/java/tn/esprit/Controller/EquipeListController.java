@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -23,19 +24,24 @@ import javafx.scene.layout.VBox;
 import tn.esprit.entities.Equipe;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
+import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -99,6 +105,7 @@ public class EquipeListController {
 
     private EquipeService equipeService;
     private FootballDataSyncService footballDataSyncService;
+    private MatchFollowTargetService matchFollowTargetService;
     private String competitionFilterCode;
     private String lastAutoSyncedCompetitionCode;
     private boolean sortDescending;
@@ -106,6 +113,7 @@ public class EquipeListController {
     private boolean loadingData;
     private boolean syncingData;
     private SidebarModuleGroup sidebarModuleGroup;
+    private Set<Integer> followedTeamIds = Set.of();
 
     @FXML
     public void initialize() {
@@ -119,6 +127,15 @@ public class EquipeListController {
 
         try {
             equipeService = new EquipeService();
+            if (AuthSession.isAuthenticated()) {
+                try {
+                    matchFollowTargetService = new MatchFollowTargetService();
+                    refreshFollowedTeams();
+                } catch (SQLException ignored) {
+                    matchFollowTargetService = null;
+                    followedTeamIds = Set.of();
+                }
+            }
             serviceReady = true;
             refreshTableAsync("Chargement des equipes...");
         } catch (SQLException e) {
@@ -456,8 +473,12 @@ public class EquipeListController {
                 HBox cardContent = new HBox(16, logoPane, textBox);
                 cardContent.setAlignment(Pos.CENTER_LEFT);
 
-                StackPane cardButton = new StackPane(cardContent);
+                Button favouriteButton = createFavouriteButton(equipe);
+
+                StackPane cardButton = new StackPane(cardContent, favouriteButton);
                 cardButton.getStyleClass().addAll("team-list-card", "team-list-card-clickable");
+                StackPane.setAlignment(favouriteButton, Pos.TOP_LEFT);
+                StackPane.setMargin(favouriteButton, new Insets(12, 0, 0, 12));
                 cardButton.setOnMouseClicked(event -> openEquipeDetail(equipe));
 
                 setText(null);
@@ -490,6 +511,72 @@ public class EquipeListController {
         logoPane.setMaxSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
         logoPane.getStyleClass().add("card-logo-shell");
         return logoPane;
+    }
+
+    private Button createFavouriteButton(Equipe equipe) {
+        Button favouriteButton = new Button();
+        favouriteButton.getStyleClass().add("favorite-star-button");
+        favouriteButton.setFocusTraversable(false);
+        updateFavouriteButton(favouriteButton, equipe != null && equipe.getId() != null && followedTeamIds.contains(equipe.getId()));
+        favouriteButton.setOnAction(event -> {
+            event.consume();
+            toggleFavouriteTeam(equipe, favouriteButton);
+        });
+        return favouriteButton;
+    }
+
+    private void toggleFavouriteTeam(Equipe equipe, Button favouriteButton) {
+        Integer userId = currentUserId();
+        if (equipe == null || equipe.getId() == null) {
+            showStatus("status-warning", "Cette equipe ne peut pas etre suivie.");
+            return;
+        }
+        if (userId == null) {
+            showStatus("status-warning", "Connectez-vous pour suivre une equipe.");
+            return;
+        }
+        if (matchFollowTargetService == null) {
+            showStatus("status-warning", "Les favorites sont temporairement indisponibles.");
+            return;
+        }
+
+        try {
+            boolean followed = followedTeamIds.contains(equipe.getId());
+            Set<Integer> nextFollowedTeamIds = new LinkedHashSet<>(followedTeamIds);
+            if (followed) {
+                if (matchFollowTargetService.removeTeamFavorite(userId, equipe.getId())) {
+                    nextFollowedTeamIds.remove(equipe.getId());
+                    showStatus("status-muted", emptyIfNull(equipe.getNom()) + " retiree des favorites.");
+                }
+            } else if (matchFollowTargetService.addTeamFavorite(userId, equipe.getId())) {
+                nextFollowedTeamIds.add(equipe.getId());
+                showStatus("status-success", emptyIfNull(equipe.getNom()) + " ajoutee aux favorites.");
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+
+            followedTeamIds = Set.copyOf(nextFollowedTeamIds);
+            updateFavouriteButton(favouriteButton, followedTeamIds.contains(equipe.getId()));
+            equipeListView.refresh();
+        } catch (SQLException e) {
+            showStatus("status-error", "Impossible de mettre a jour les favorites.");
+        }
+    }
+
+    private void updateFavouriteButton(Button favouriteButton, boolean followed) {
+        favouriteButton.setText(followed ? "★" : "☆");
+        favouriteButton.getStyleClass().remove("favorite-star-button-active");
+        if (followed) {
+            favouriteButton.getStyleClass().add("favorite-star-button-active");
+        }
+    }
+
+    private void refreshFollowedTeams() throws SQLException {
+        Integer userId = currentUserId();
+        if (matchFollowTargetService == null || userId == null) {
+            followedTeamIds = Set.of();
+            return;
+        }
+        followedTeamIds = Set.copyOf(matchFollowTargetService.getFollowedTeamIds(userId));
     }
 
     private void openEquipeDetail(Equipe equipe) {
@@ -584,6 +671,10 @@ public class EquipeListController {
 
     private String emptyToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private Integer currentUserId() {
+        return AuthSession.getCurrentUser() == null ? null : AuthSession.getCurrentUser().getId();
     }
 
     private static ThreadFactory daemonFactory(String threadName) {

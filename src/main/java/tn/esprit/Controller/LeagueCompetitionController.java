@@ -1,6 +1,7 @@
 package tn.esprit.Controller;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
@@ -10,14 +11,22 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.security.AuthSession;
+import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.football.FootballDataCompetitions;
+
+import java.sql.SQLException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class LeagueCompetitionController {
     private static final double COMPETITION_CARD_WIDTH = 220;
@@ -48,11 +57,21 @@ public class LeagueCompetitionController {
     private FlowPane competitionCardsPane;
 
     private SidebarModuleGroup sidebarModuleGroup;
+    private MatchFollowTargetService matchFollowTargetService;
+    private Set<String> followedCompetitionCodes = Set.of();
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
+        try {
+            if (AuthSession.isAuthenticated()) {
+                matchFollowTargetService = new MatchFollowTargetService();
+                refreshFollowedCompetitions();
+            }
+        } catch (SQLException ignored) {
+            followedCompetitionCodes = Set.of();
+        }
         populateCompetitionCards();
     }
 
@@ -112,7 +131,7 @@ public class LeagueCompetitionController {
         }
     }
 
-    private Button createCompetitionCard(String competitionCode) {
+    private StackPane createCompetitionCard(String competitionCode) {
         String competitionLabel = FootballDataCompetitions.labelOf(competitionCode);
 
         ImageView imageView = new ImageView();
@@ -153,7 +172,73 @@ public class LeagueCompetitionController {
         cardButton.setMinSize(COMPETITION_CARD_WIDTH, COMPETITION_CARD_HEIGHT);
         cardButton.setMaxSize(COMPETITION_CARD_WIDTH, COMPETITION_CARD_HEIGHT);
         cardButton.setOnAction(event -> openCompetition(cardButton, competitionCode));
-        return cardButton;
+
+        Button favouriteButton = createFavouriteButton(competitionCode);
+
+        StackPane shell = new StackPane(cardButton, favouriteButton);
+        shell.getStyleClass().add("competition-card-shell");
+        StackPane.setAlignment(favouriteButton, Pos.TOP_LEFT);
+        StackPane.setMargin(favouriteButton, new Insets(14, 0, 0, 14));
+        return shell;
+    }
+
+    private Button createFavouriteButton(String competitionCode) {
+        Button favouriteButton = new Button();
+        favouriteButton.getStyleClass().add("favorite-star-button");
+        favouriteButton.setFocusTraversable(false);
+        updateFavouriteButton(favouriteButton, followedCompetitionCodes.contains(FootballDataCompetitions.normalizeCode(competitionCode)));
+        favouriteButton.setOnAction(event -> {
+            event.consume();
+            toggleFavouriteCompetition(competitionCode, favouriteButton);
+        });
+        return favouriteButton;
+    }
+
+    private void toggleFavouriteCompetition(String competitionCode, Button favouriteButton) {
+        Integer userId = currentUserId();
+        String normalizedCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        if (userId == null || normalizedCode == null || matchFollowTargetService == null) {
+            return;
+        }
+
+        try {
+            boolean followed = followedCompetitionCodes.contains(normalizedCode);
+            Set<String> nextCodes = new LinkedHashSet<>(followedCompetitionCodes);
+            if (followed) {
+                if (matchFollowTargetService.removeCompetitionFavorite(userId, normalizedCode)) {
+                    nextCodes.remove(normalizedCode);
+                }
+            } else if (matchFollowTargetService.addCompetitionFavorite(userId, normalizedCode)) {
+                nextCodes.add(normalizedCode);
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+
+            followedCompetitionCodes = Set.copyOf(nextCodes);
+            updateFavouriteButton(favouriteButton, followedCompetitionCodes.contains(normalizedCode));
+        } catch (SQLException ignored) {
+            // Keep league navigation responsive even if favourites storage is unavailable.
+        }
+    }
+
+    private void updateFavouriteButton(Button favouriteButton, boolean followed) {
+        favouriteButton.setText(followed ? "★" : "☆");
+        favouriteButton.getStyleClass().remove("favorite-star-button-active");
+        if (followed) {
+            favouriteButton.getStyleClass().add("favorite-star-button-active");
+        }
+    }
+
+    private void refreshFollowedCompetitions() throws SQLException {
+        Integer userId = currentUserId();
+        if (matchFollowTargetService == null || userId == null) {
+            followedCompetitionCodes = Set.of();
+            return;
+        }
+        followedCompetitionCodes = Set.copyOf(matchFollowTargetService.getFollowedCompetitionCodes(userId));
+    }
+
+    private Integer currentUserId() {
+        return AuthSession.getCurrentUser() == null ? null : AuthSession.getCurrentUser().getId();
     }
 
     private void openCompetition(Button source, String competitionCode) {

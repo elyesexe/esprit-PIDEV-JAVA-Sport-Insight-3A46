@@ -9,8 +9,10 @@ import tn.esprit.tools.MyConnection;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.time.Duration;
@@ -222,6 +224,71 @@ public class ApiFootballInsightsService {
 
     public ApiFootballMatchDetails readCachedMatchDetails(Matchs match) {
         return readMatchDetailsFromCache(match);
+    }
+
+    public ApiFootballFixtureSnapshot refreshFixtureSnapshot(Matchs match, Equipe homeTeam, Equipe awayTeam)
+            throws SQLException, IOException, InterruptedException {
+        Objects.requireNonNull(match, "match");
+
+        if (apiClient == null) {
+            return buildStoredFixtureSnapshot(match);
+        }
+
+        String competitionCode = FootballDataCompetitions.normalizeCode(match.getCompetitionCode());
+        if (!ApiFootballCompetitionMappings.supportsCompetition(competitionCode)) {
+            return buildStoredFixtureSnapshot(match);
+        }
+
+        int seasonYear = ApiFootballCompetitionMappings.resolveSeasonYear(competitionCode, referenceDateOf(match));
+        Integer homeApiFootballId = ensureTeamApiFootballId(homeTeam, competitionCode, seasonYear);
+        Integer awayApiFootballId = ensureTeamApiFootballId(awayTeam, competitionCode, seasonYear);
+        long fixtureId = resolveFixtureId(match, competitionCode, seasonYear, homeTeam, awayTeam, homeApiFootballId, awayApiFootballId);
+
+        JsonNode payload = requireApiClient().fetchFixture(fixtureId);
+        ApiFootballFixtureSnapshot snapshot = parseFixtureSnapshot(payload.path("response"), fixtureId, match);
+        if (snapshot == null) {
+            return buildStoredFixtureSnapshot(match);
+        }
+
+        persistFixtureSnapshot(match, snapshot);
+        return snapshot;
+    }
+
+    public List<ApiFootballMatchIncident> refreshMatchIncidents(Matchs match, Equipe homeTeam, Equipe awayTeam)
+            throws SQLException, IOException, InterruptedException {
+        Objects.requireNonNull(match, "match");
+
+        ApiFootballMatchDetails cached = readMatchDetailsFromCache(match);
+        List<ApiFootballMatchIncident> cachedIncidents = cached == null || cached.incidents() == null ? List.of() : cached.incidents();
+        if (apiClient == null) {
+            return cachedIncidents;
+        }
+
+        String competitionCode = FootballDataCompetitions.normalizeCode(match.getCompetitionCode());
+        if (!ApiFootballCompetitionMappings.supportsCompetition(competitionCode)) {
+            return cachedIncidents;
+        }
+
+        int seasonYear = ApiFootballCompetitionMappings.resolveSeasonYear(competitionCode, referenceDateOf(match));
+        Integer homeApiFootballId = ensureTeamApiFootballId(homeTeam, competitionCode, seasonYear);
+        Integer awayApiFootballId = ensureTeamApiFootballId(awayTeam, competitionCode, seasonYear);
+        long fixtureId = resolveFixtureId(match, competitionCode, seasonYear, homeTeam, awayTeam, homeApiFootballId, awayApiFootballId);
+
+        JsonNode incidentsPayload = requireApiClient().fetchFixtureEvents(fixtureId);
+        List<ApiFootballMatchIncident> incidents = parseApiFootballIncidents(
+                incidentsPayload,
+                homeApiFootballId == null ? null : homeApiFootballId.longValue(),
+                awayApiFootballId == null ? null : awayApiFootballId.longValue(),
+                homeTeam == null ? null : homeTeam.getNom(),
+                awayTeam == null ? null : awayTeam.getNom()
+        );
+
+        if (incidents.isEmpty()) {
+            return cachedIncidents;
+        }
+
+        persistMatchIncidents(match, fixtureId, incidents);
+        return incidents;
     }
 
     public String formatStartingLineup(ApiFootballLineupSide lineup) {
@@ -1952,6 +2019,211 @@ public class ApiFootballInsightsService {
         }
     }
 
+    private ApiFootballFixtureSnapshot buildStoredFixtureSnapshot(Matchs match) {
+        if (match == null) {
+            return null;
+        }
+
+        String matchStatus = normalizeStoredMatchStatus(match.getStatut());
+        String displayStatus = normalizeNullable(match.getStatut());
+        return new ApiFootballFixtureSnapshot(
+                match.getApiFootballId(),
+                matchStatus,
+                displayStatus == null ? matchStatus : displayStatus,
+                null,
+                displayStatus,
+                null,
+                null,
+                null,
+                match.getScoreEquipeDomicile(),
+                match.getScoreEquipeExterieur(),
+                toLocalDateTime(match)
+        );
+    }
+
+    private ApiFootballFixtureSnapshot parseFixtureSnapshot(JsonNode responseNode, long fallbackFixtureId, Matchs match) {
+        if (!responseNode.isArray() || responseNode.isEmpty()) {
+            return null;
+        }
+
+        JsonNode fixtureWrapper = responseNode.get(0);
+        JsonNode fixtureNode = fixtureWrapper.path("fixture");
+        JsonNode statusNode = fixtureNode.path("status");
+        String shortCode = normalizeNullable(statusNode.path("short").asText(null));
+        String longStatus = normalizeNullable(statusNode.path("long").asText(null));
+        Integer elapsed = nullableInt(statusNode.path("elapsed"));
+        Integer addedTime = nullableInt(statusNode.path("extra"));
+        Integer normalizedElapsed = normalizeIncidentMinute(elapsed);
+        Integer normalizedAddedTime = normalizeIncidentAddedTime(elapsed, addedTime);
+        String minuteLabel = buildMinuteLabel(normalizedElapsed, normalizedAddedTime);
+        String matchStatus = mapFixtureMatchStatus(shortCode, longStatus);
+        String displayStatus = buildFixtureDisplayStatus(matchStatus, shortCode, longStatus, minuteLabel);
+
+        Long fixtureId = nullableLong(fixtureNode.path("id"));
+        if (fixtureId == null && fallbackFixtureId > 0) {
+            fixtureId = fallbackFixtureId;
+        }
+        if (fixtureId == null && match != null) {
+            fixtureId = match.getApiFootballId();
+        }
+
+        Integer homeScore = firstNonNull(
+                nullableInt(fixtureWrapper.path("goals").path("home")),
+                nullableInt(fixtureWrapper.path("score").path("fulltime").path("home"))
+        );
+        Integer awayScore = firstNonNull(
+                nullableInt(fixtureWrapper.path("goals").path("away")),
+                nullableInt(fixtureWrapper.path("score").path("fulltime").path("away"))
+        );
+        LocalDateTime kickoffAt = parseFixtureDateTime(fixtureNode.path("date").asText(null));
+
+        return new ApiFootballFixtureSnapshot(
+                fixtureId,
+                matchStatus,
+                displayStatus,
+                shortCode,
+                longStatus,
+                minuteLabel,
+                normalizedElapsed,
+                normalizedAddedTime,
+                homeScore,
+                awayScore,
+                kickoffAt == null && match != null ? toLocalDateTime(match) : kickoffAt
+        );
+    }
+
+    private void persistFixtureSnapshot(Matchs match, ApiFootballFixtureSnapshot snapshot) throws SQLException {
+        if (match == null || match.getId() == null || snapshot == null) {
+            return;
+        }
+
+        LocalDateTime kickoffAt = snapshot.kickoffAt() == null ? toLocalDateTime(match) : snapshot.kickoffAt();
+        LocalDate updatedDate = kickoffAt == null ? match.getDateMatch() : kickoffAt.toLocalDate();
+        LocalTime updatedTime = kickoffAt == null ? match.getHeureDebut() : kickoffAt.toLocalTime().withSecond(0).withNano(0);
+        Integer homeScore = snapshot.homeScore() == null ? match.getScoreEquipeDomicile() : snapshot.homeScore();
+        Integer awayScore = snapshot.awayScore() == null ? match.getScoreEquipeExterieur() : snapshot.awayScore();
+        String status = firstNonBlank(snapshot.effectiveStatusLabel(),
+                firstNonBlank(snapshot.matchStatus(), normalizeStoredMatchStatus(match.getStatut())));
+
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE matchs SET api_football_id = ?, date_match = ?, heure_debut = ?, statut = ?, score_equipe_domicile = ?, score_equipe_exterieur = ? WHERE id = ?")) {
+            setNullableLong(statement, 1, snapshot.fixtureId());
+            statement.setDate(2, updatedDate == null ? null : Date.valueOf(updatedDate));
+            statement.setTime(3, updatedTime == null ? null : Time.valueOf(updatedTime));
+            statement.setString(4, status);
+            setNullableInt(statement, 5, homeScore);
+            setNullableInt(statement, 6, awayScore);
+            statement.setInt(7, match.getId());
+            statement.executeUpdate();
+        }
+
+        match.setApiFootballId(snapshot.fixtureId());
+        match.setDateMatch(updatedDate);
+        match.setHeureDebut(updatedTime);
+        match.setStatut(status);
+        match.setScoreEquipeDomicile(homeScore);
+        match.setScoreEquipeExterieur(awayScore);
+    }
+
+    private void persistMatchIncidents(Matchs match, Long fixtureId, List<ApiFootballMatchIncident> incidents) throws SQLException, IOException {
+        if (match == null || match.getId() == null || incidents == null || incidents.isEmpty()) {
+            return;
+        }
+
+        String incidentsJson = objectMapper.writeValueAsString(incidents);
+        LocalDateTime syncedAt = LocalDateTime.now();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE matchs SET api_football_id = ?, api_football_incidents_json = ?, api_football_synced_at = ? WHERE id = ?")) {
+            setNullableLong(statement, 1, fixtureId);
+            statement.setString(2, incidentsJson);
+            statement.setTimestamp(3, Timestamp.valueOf(syncedAt));
+            statement.setInt(4, match.getId());
+            statement.executeUpdate();
+        }
+
+        match.setApiFootballId(fixtureId);
+        match.setApiFootballIncidentsJson(incidentsJson);
+        match.setApiFootballSyncedAt(syncedAt);
+    }
+
+    private String normalizeStoredMatchStatus(String rawStatus) {
+        String normalized = normalizeNullable(rawStatus);
+        if (normalized == null) {
+            return "Programme";
+        }
+
+        String lower = normalized.toLowerCase(Locale.ROOT);
+        if (lower.contains("direct") || lower.contains("cours") || lower.contains("live") || lower.contains("mi-temps")) {
+            return "En direct";
+        }
+        if (lower.contains("fini") || lower.contains("term")) {
+            return "Fini";
+        }
+        if (lower.contains("report") || lower.contains("postpon") || lower.contains("suspend")) {
+            return "Reporte";
+        }
+        if (lower.contains("annul") || lower.contains("cancel") || lower.contains("abandon") || lower.contains("forfait")) {
+            return "Annule";
+        }
+        return "Programme";
+    }
+
+    private String mapFixtureMatchStatus(String shortCode, String longStatus) {
+        String normalizedShort = normalizeNullable(shortCode);
+        if (normalizedShort == null) {
+            return normalizeStoredMatchStatus(longStatus);
+        }
+
+        return switch (normalizedShort.toUpperCase(Locale.ROOT)) {
+            case "FT", "AET", "PEN" -> "Fini";
+            case "NS", "TBD" -> "Programme";
+            case "PST", "SUSP", "INT" -> "Reporte";
+            case "CANC", "ABD", "AWD", "WO" -> "Annule";
+            default -> isLiveFixtureCode(normalizedShort) ? "En direct" : normalizeStoredMatchStatus(longStatus);
+        };
+    }
+
+    private String buildFixtureDisplayStatus(String matchStatus, String shortCode, String longStatus, String minuteLabel) {
+        String normalizedShort = normalizeNullable(shortCode);
+        if (normalizedShort == null) {
+            return firstNonBlank(longStatus, firstNonBlank(matchStatus, "Programme"));
+        }
+
+        return switch (normalizedShort.toUpperCase(Locale.ROOT)) {
+            case "NS", "TBD" -> "Programme";
+            case "1H" -> minuteLabel == null ? "1re mi-temps" : "1re mi-temps " + minuteLabel;
+            case "HT" -> "Mi-temps";
+            case "2H" -> minuteLabel == null ? "2e mi-temps" : "2e mi-temps " + minuteLabel;
+            case "ET" -> minuteLabel == null ? "Prolongations" : "Prolongations " + minuteLabel;
+            case "BT" -> "Pause prolongations";
+            case "P" -> minuteLabel == null ? "Tirs au but" : "Tirs au but " + minuteLabel;
+            case "FT" -> "Fini";
+            case "AET" -> "Fini (apres prolongations)";
+            case "PEN" -> "Fini (tab)";
+            case "PST" -> "Reporte";
+            case "SUSP", "INT" -> "Suspendu";
+            case "CANC" -> "Annule";
+            case "ABD" -> "Abandonne";
+            case "AWD" -> "Match perdu";
+            case "WO" -> "Forfait";
+            default -> isLiveFixtureCode(normalizedShort) && minuteLabel != null
+                    ? "En direct " + minuteLabel
+                    : firstNonBlank(longStatus, firstNonBlank(matchStatus, "Programme"));
+        };
+    }
+
+    private boolean isLiveFixtureCode(String shortCode) {
+        String normalized = normalizeNullable(shortCode);
+        if (normalized == null) {
+            return false;
+        }
+
+        return switch (normalized.toUpperCase(Locale.ROOT)) {
+            case "1H", "HT", "2H", "ET", "BT", "P", "LIVE" -> true;
+            default -> false;
+        };
+    }
+
     private boolean isCacheFresh(Matchs match, ApiFootballMatchDetails cached) {
         if (match == null || cached == null || match.getApiFootballSyncedAt() == null) {
             return false;
@@ -2801,6 +3073,14 @@ public class ApiFootballInsightsService {
             statement.setNull(index, java.sql.Types.BIGINT);
         } else {
             statement.setLong(index, value);
+        }
+    }
+
+    private void setNullableInt(PreparedStatement statement, int index, Integer value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, java.sql.Types.INTEGER);
+        } else {
+            statement.setInt(index, value);
         }
     }
 

@@ -17,6 +17,7 @@ The admin workspace recently received a large UI and workflow refresh. The bigge
 - table-based update flows for teams, players, and matches instead of form-only editing
 - aligned styling for buttons, tables, inputs, combo boxes, calendars, and status pills
 - cleaner Git hygiene with generated build output ignored from version control
+- finished-match highlight playback using the official YouTube Data API and an embedded Chromium player
 
 ## Project Vision
 
@@ -134,6 +135,7 @@ Main capabilities:
 - link home and away teams
 - track scores and statuses
 - sync matches from external football competitions
+- search and watch finished-match highlights directly inside the app
 
 Managed information includes:
 
@@ -326,6 +328,27 @@ Main related classes:
 - `ApiFootballScorerEntry`
 - `ApiFootballConfig`
 
+### YouTube highlights integration
+
+The match detail screen includes an in-app highlight viewer for finished matches. It uses only the official YouTube Data API v3:
+
+- searches only when the match status is finished
+- queries YouTube with `videoEmbeddable=true`
+- verifies each result with `videos.list` and `status.embeddable == true`
+- lists playable highlight candidates in the JavaFX UI
+- opens playback through embedded Chromium/JCEF instead of JavaFX WebView
+- uses a local loopback player page to provide a proper HTTP origin/referrer for YouTube iframe playback
+- automatically falls back to the full YouTube watch player inside the same app window if YouTube rejects an iframe with Error 153
+
+This avoids ScoreBat, scraping, paid highlight APIs, and external browser handoffs while keeping playback inside Sport Insight.
+
+Main related classes:
+
+- `YouTubeService`
+- `YouTubeVideo`
+- `ChromiumBrowserView`
+- `MatchDetailController`
+
 ### Wikidata integration
 
 Wikidata is used to enrich player information, especially media assets.
@@ -349,6 +372,8 @@ This enrichment improves the realism and presentation quality of player profiles
 - jBCrypt
 - PDFBox
 - WebP ImageIO
+- JCEF / embedded Chromium
+- JavaFX Web and Media
 - JUnit 5
 
 ## Architecture Overview
@@ -429,11 +454,13 @@ Sport Insight can use multiple football APIs in parallel:
 - `football-data.org` for fixtures, teams, players, standings, and scorer leaderboards
 - `TheSportsDB` for free match stats and starting lineups
 - `API-Football` as an optional richer-match-data provider when available
+- `YouTube Data API v3` for finished-match highlights
 
 You can configure them with environment variables or local properties files:
 
 - `FOOTBALL_DATA_API_KEY`
 - `API_FOOTBALL_KEY`
+- `YOUTUBE_API_KEY`
 - `football-data.local.properties`
 - `api-football.local.properties`
 

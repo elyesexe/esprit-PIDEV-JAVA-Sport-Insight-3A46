@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -11,6 +12,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
@@ -245,6 +247,54 @@
                                                        styleClass="form-text-field"/>
                                     </VBox>
                                 </HBox>
+
+                                <VBox spacing="14" styleClass="favorite-manager-card">
+                                    <VBox spacing="4">
+                                        <Label text="Live match alerts" styleClass="section-title"/>
+                                        <Label fx:id="favouritesSummaryLabel"
+                                               text="Follow teams and leagues to receive live kickoff and incident popups."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+
+                                    <HBox spacing="12" alignment="BOTTOM_LEFT">
+                                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                            <Label text="Follow a league" styleClass="field-label"/>
+                                            <ComboBox fx:id="favouriteLeagueComboBox"
+                                                      promptText="Select a competition"
+                                                      maxWidth="Infinity"
+                                                      styleClass="glass-combo"/>
+                                        </VBox>
+                                        <Button fx:id="addFavouriteLeagueButton"
+                                                onAction="#handleAddFavouriteLeague"
+                                                text="Add league"
+                                                styleClass="ghost-button"/>
+                                    </HBox>
+
+                                    <FlowPane fx:id="favouriteLeagueChipPane"
+                                              hgap="8"
+                                              vgap="8"
+                                              prefWrapLength="640"/>
+
+                                    <HBox spacing="12" alignment="BOTTOM_LEFT">
+                                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                            <Label text="Follow a team" styleClass="field-label"/>
+                                            <ComboBox fx:id="favouriteTeamComboBox"
+                                                      promptText="Select a team"
+                                                      maxWidth="Infinity"
+                                                      styleClass="glass-combo"/>
+                                        </VBox>
+                                        <Button fx:id="addFavouriteTeamButton"
+                                                onAction="#handleAddFavouriteTeam"
+                                                text="Add team"
+                                                styleClass="ghost-button"/>
+                                    </HBox>
+
+                                    <FlowPane fx:id="favouriteTeamChipPane"
+                                              hgap="8"
+                                              vgap="8"
+                                              prefWrapLength="640"/>
+                                </VBox>
 
                                 <Button fx:id="saveButton"
                                         onAction="#handleSaveProfile"

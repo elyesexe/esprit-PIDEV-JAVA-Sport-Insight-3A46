@@ -118,6 +118,7 @@ public final class SceneNavigator {
                 ThemeManager.registerScene(existingScene);
             }
             stage.setTitle(title);
+            LiveMatchNotificationRuntime.getInstance().bindStage(stage, fxmlPath, publicView);
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Navigation");

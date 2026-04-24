@@ -21,6 +21,8 @@ football-data.local.properties
 api-football.local.properties
 verify-cp.txt
 runtime.classpath
+jcef-bundle/
+jcef-cache/
 
 # Java / Maven local metadata
 hs_err_pid*

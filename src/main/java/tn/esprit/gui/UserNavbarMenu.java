@@ -68,6 +68,8 @@ public final class UserNavbarMenu {
         ensureSponsorNavButton(navbarRoot);
         ensureTrainingNavButton(navbarRoot);
 
+        NavbarNotificationCenter notificationCenter = new NavbarNotificationCenter();
+        Button alertsButton = notificationCenter.getButton();
         Button settingsButton = createSettingsButton();
         Button profileAvatarButton = createProfileAvatarButton();
         ContextMenu settingsMenu = createSettingsMenu(settingsButton);
@@ -97,7 +99,7 @@ public final class UserNavbarMenu {
             return;
         }
 
-        HBox actionsBox = new HBox(10, settingsButton, profileAvatarButton);
+        HBox actionsBox = new HBox(10, alertsButton, settingsButton, profileAvatarButton);
         actionsBox.setAlignment(Pos.CENTER_RIGHT);
         actionsBox.getStyleClass().add("navbar-user-actions");
         targetPane.getChildren().add(actionsBox);
