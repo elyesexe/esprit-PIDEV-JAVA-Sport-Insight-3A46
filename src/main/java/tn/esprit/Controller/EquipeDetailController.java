@@ -238,7 +238,7 @@ public class EquipeDetailController implements AssistantContextProvider {
             competitionBadgeLabel.setText(competitionLabel);
             detailTitleLabel.setText(emptyToFallback(equipe.getNom(), "Equipe"));
             detailSubtitleLabel.setText(buildSubtitle(competitionLabel, equipe));
-            detailIdValueLabel.setText(equipe.getId() == null ? "Nouveau" : "#" + equipe.getId());
+            detailIdValueLabel.setText("Equipe");
             detailCoachValueLabel.setText(emptyToFallback(equipe.getCoach(), "Non renseigne"));
             detailCompetitionValueLabel.setText(competitionLabel);
             detailPlayerCountValueLabel.setText(String.valueOf(squad.size()));

@@ -187,8 +187,8 @@
                                     <Label fx:id="detailTypeValueLabel" text="Non renseigne" styleClass="flashscore-fact-value"/>
                                 </VBox>
                                 <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
-                                    <Label text="Reference" styleClass="flashscore-fact-caption"/>
-                                    <Label fx:id="detailIdValueLabel" text="-" styleClass="flashscore-fact-value"/>
+                                    <Label text="Fiche" styleClass="flashscore-fact-caption"/>
+                                    <Label fx:id="detailIdValueLabel" text="Match" styleClass="flashscore-fact-value"/>
                                 </VBox>
                                 <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
                                     <Label text="Statut" styleClass="flashscore-fact-caption"/>

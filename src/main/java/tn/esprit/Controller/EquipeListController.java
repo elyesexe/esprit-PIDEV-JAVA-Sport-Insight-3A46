@@ -247,7 +247,7 @@ public class EquipeListController {
     }
 
     private void configureToolbar() {
-        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
+        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach"));
         sortChoiceBox.setValue("Nom");
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
@@ -424,9 +424,7 @@ public class EquipeListController {
     private Comparator<Equipe> buildComparator() {
         Comparator<Equipe> comparator;
         String selectedSort = sortChoiceBox.getValue();
-        if ("Id".equals(selectedSort)) {
-            comparator = Comparator.comparing(Equipe::getId, Comparator.nullsLast(Integer::compareTo));
-        } else if ("Coach".equals(selectedSort)) {
+        if ("Coach".equals(selectedSort)) {
             comparator = Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
         } else {
             comparator = Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
@@ -460,7 +458,7 @@ public class EquipeListController {
                 competitionLabel.getStyleClass().add("team-card-competition-badge");
 
                 String logoState = emptyToNull(equipe.getImage()) == null ? "Sans logo" : "Logo disponible";
-                Label metaLabel = new Label("#" + equipe.getId() + "  |  " + logoState);
+                Label metaLabel = new Label(logoState);
                 metaLabel.getStyleClass().add("card-meta");
 
                 Label ctaLabel = new Label("Ouvrir la fiche");

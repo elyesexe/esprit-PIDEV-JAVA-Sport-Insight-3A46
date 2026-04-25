@@ -441,13 +441,10 @@ public class MatchListController implements AssistantContextProvider {
         Label dateLabel = new Label(formatDate(match.getDateMatch()) + "  |  " + formatTime(match.getHeureDebut()));
         dateLabel.getStyleClass().add("fixture-date");
 
-        Label idLabel = new Label(resolveMatchReference(match));
-        idLabel.getStyleClass().add("fixture-id");
-
         Region headSpacer = new Region();
         HBox.setHgrow(headSpacer, Priority.ALWAYS);
 
-        HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
+        HBox head = new HBox(10, statusChip, headSpacer, dateLabel);
         head.getChildren().add(0, buildFavoriteButton(match));
         head.setAlignment(Pos.CENTER_LEFT);
         head.getStyleClass().add("fixture-card-head");
@@ -963,11 +960,7 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private String resolveMatchReference(Matchs match) {
-        if (match == null) {
-            return "-";
-        }
-        String reference = emptyToNull(match.getIdMatch());
-        return reference == null ? (match.getId() == null ? "-" : "#" + match.getId()) : reference;
+        return "";
     }
 
     private String resolveMatchLocation(Matchs match) {

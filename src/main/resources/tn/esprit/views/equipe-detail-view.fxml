@@ -134,8 +134,8 @@
 
                                 <HBox spacing="10">
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                        <Label text="ID" styleClass="stat-caption"/>
-                                        <Label fx:id="detailIdValueLabel" text="-" styleClass="stat-value"/>
+                                        <Label text="Fiche" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="Equipe" styleClass="stat-value"/>
                                     </VBox>
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
                                         <Label text="Coach" styleClass="stat-caption"/>

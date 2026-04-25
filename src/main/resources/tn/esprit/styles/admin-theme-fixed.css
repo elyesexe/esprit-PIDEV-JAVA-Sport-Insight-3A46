@@ -2166,3 +2166,53 @@
     -fx-padding: 7 10 7 10;
     -fx-background-insets: 0;
 }
+
+.table-row-delete-icon-button {
+    -fx-padding: 0;
+    -fx-min-width: 56px;
+    -fx-pref-width: 56px;
+    -fx-max-width: 56px;
+    -fx-min-height: 56px;
+    -fx-pref-height: 56px;
+    -fx-max-height: 56px;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.38), 14, 0.22, 0, 4);
+}
+
+.admin-page-root .table-row-delete-icon-button,
+.admin-dark .table-row-delete-icon-button,
+.admin-workspace-root.admin-dark .table-row-delete-icon-button,
+.theme-dark.admin-dark .admin-workspace-root .table-row-delete-icon-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.admin-page-root .table-row-delete-icon-button:hover,
+.admin-dark .table-row-delete-icon-button:hover,
+.admin-workspace-root.admin-dark .table-row-delete-icon-button:hover,
+.theme-dark.admin-dark .admin-workspace-root .table-row-delete-icon-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(255, 228, 230, 0.38);
+}
+
+.admin-two-axis-table .scroll-bar:horizontal,
+.admin-two-axis-table .scroll-bar:vertical {
+    -fx-background-color: rgba(24, 24, 27, 0.94);
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+}
+
+.admin-two-axis-table .scroll-bar .track {
+    -fx-background-color: rgba(15, 23, 42, 0.78);
+    -fx-background-radius: 999;
+}
+
+.admin-two-axis-table .scroll-bar .thumb {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #d8a4ff 0%, #7dd3fc 100%);
+    -fx-background-radius: 999;
+}
+
+.admin-two-axis-table .scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0c8ff 0%, #a5f3fc 100%);
+}

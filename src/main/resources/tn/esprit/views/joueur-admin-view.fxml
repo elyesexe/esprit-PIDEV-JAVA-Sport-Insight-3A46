@@ -223,7 +223,7 @@
                                            prefHeight="540"
                                            styleClass="data-table">
                                     <columns>
-                                        <TableColumn fx:id="joueurIdColumn" text="ID" prefWidth="72"/>
+                                        <TableColumn fx:id="joueurIdColumn" text="" prefWidth="72" visible="false"/>
                                         <TableColumn fx:id="joueurNomColumn" text="Nom" prefWidth="140"/>
                                         <TableColumn fx:id="joueurPrenomColumn" text="Prenom" prefWidth="140"/>
                                         <TableColumn fx:id="joueurEquipeColumn" text="Equipe" prefWidth="170"/>
@@ -278,8 +278,8 @@
 
                                 <HBox spacing="10">
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                        <Label text="ID" styleClass="stat-caption"/>
-                                        <Label fx:id="detailIdValueLabel" text="Nouveau" styleClass="stat-value"/>
+                                        <Label text="Fiche" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="Creation" styleClass="stat-value"/>
                                     </VBox>
 
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">

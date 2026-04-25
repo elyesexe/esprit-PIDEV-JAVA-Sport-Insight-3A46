@@ -1042,7 +1042,7 @@ public class MatchDetailController implements AssistantContextProvider {
             detailLieuValueLabel.setText(emptyToFallback(match.getLieu(), "Non renseigne"));
             detailTypeValueLabel.setText(emptyToFallback(match.getType(), "Non renseigne"));
             detailStatutValueLabel.setText(resolveStatus(match));
-            detailIdValueLabel.setText(match.getIdMatch() == null ? "#" + match.getId() : match.getIdMatch());
+            detailIdValueLabel.setText("Match");
             detailCompetitionValueLabel.setText(competitionLabel == null ? "Non renseignee" : competitionLabel);
             detailHomeNameLabel.setText(homeTeam == null ? "Equipe domicile" : emptyToFallback(homeTeam.getNom(), "Equipe domicile"));
             detailAwayNameLabel.setText(awayTeam == null ? "Equipe exterieur" : emptyToFallback(awayTeam.getNom(), "Equipe exterieur"));

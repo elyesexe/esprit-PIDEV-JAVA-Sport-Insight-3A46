@@ -337,7 +337,7 @@ public class AdminDashboardController {
                         "Joueur",
                         buildPlayerName(joueur),
                         equipeNames.getOrDefault(joueur.getEquipeId(), "Sans equipe"),
-                        joueur.getNumero() > 0 ? "#" + joueur.getNumero() : "-"
+                        joueur.getNumero() > 0 ? "Numero " + joueur.getNumero() : "-"
                 )));
                 matchs.stream().limit(2).forEach(match -> operationRows.add(new OperationRow(
                         "Match",

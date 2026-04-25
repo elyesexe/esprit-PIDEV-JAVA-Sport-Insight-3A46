@@ -21,6 +21,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -39,6 +40,8 @@ import javafx.stage.FileChooser;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.AdminTableButtons;
+import tn.esprit.gui.AdminTableScrollSupport;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -617,6 +620,7 @@ public class MatchController {
     private void configureMatchList() {
         if (matchTableView != null) {
             matchReferenceColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchReference(cell.getValue())));
+            matchTableView.getColumns().remove(matchReferenceColumn);
             matchDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDate(cell.getValue().getDateMatch())));
             matchTimeColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatTime(cell.getValue().getHeureDebut())));
             matchHomeColumn.setCellValueFactory(cell -> new SimpleStringProperty(getEquipeName(cell.getValue().getEquipeDomicileId())));
@@ -631,6 +635,16 @@ public class MatchController {
             matchTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
             matchTableView.setTableMenuButtonVisible(true);
             matchTableView.setPlaceholder(new Label(""));
+            AdminTableScrollSupport.enable(matchTableView);
+            matchTableView.setRowFactory(tableView -> {
+                TableRow<Matchs> row = new TableRow<>();
+                row.setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 2 && !row.isEmpty()) {
+                        startInlineMatchEdit(row.getItem());
+                    }
+                });
+                return row;
+            });
             matchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                     handleSelectedMatchChange(newValue));
             configureEditableTableColumns();
@@ -752,27 +766,16 @@ public class MatchController {
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setResizable(false);
-        actionsColumn.setMinWidth(190);
-        actionsColumn.setPrefWidth(190);
-        actionsColumn.setMaxWidth(190);
+        actionsColumn.setMinWidth(84);
+        actionsColumn.setPrefWidth(84);
+        actionsColumn.setMaxWidth(84);
         actionsColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button editButton = new Button("Modifier");
-            private final Button deleteRowButton = new Button("Supprimer");
-            private final HBox actionsBox = new HBox(8, editButton, deleteRowButton);
+            private final Button deleteRowButton = AdminTableButtons.createTrashButton();
+            private final HBox actionsBox = new HBox(deleteRowButton);
 
             {
                 actionsBox.getStyleClass().add("table-inline-actions");
-                editButton.getStyleClass().add("soft-button");
-                editButton.getStyleClass().add("table-row-action-button");
-                deleteRowButton.getStyleClass().add("danger-button");
-                deleteRowButton.getStyleClass().add("table-row-danger-button");
-                editButton.setPrefWidth(84);
-                deleteRowButton.setPrefWidth(100);
 
-                editButton.setOnAction(event -> {
-                    Matchs match = getTableRow() == null ? null : getTableRow().getItem();
-                    startInlineMatchEdit(match);
-                });
                 deleteRowButton.setOnAction(event -> {
                     Matchs match = getTableRow() == null ? null : getTableRow().getItem();
                     deleteMatchFromTable(match);
@@ -936,10 +939,7 @@ public class MatchController {
         Region headSpacer = new Region();
         HBox.setHgrow(headSpacer, Priority.ALWAYS);
 
-        Label idLabel = new Label(match.getIdMatch() == null ? "#" + match.getId() : match.getIdMatch());
-        idLabel.getStyleClass().add("fixture-id");
-
-        HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
+        HBox head = new HBox(10, statusChip, headSpacer, dateLabel);
         head.setAlignment(Pos.CENTER_LEFT);
         head.getStyleClass().add("fixture-card-head");
 
@@ -1695,7 +1695,7 @@ public class MatchController {
             detailLieuValueLabel.setText("Non renseigne");
             detailTypeValueLabel.setText("Non renseigne");
             detailStatutValueLabel.setText("Programme");
-            detailIdValueLabel.setText("Nouveau");
+            detailIdValueLabel.setText("Creation");
             detailHomeNameLabel.setText("Equipe domicile");
             detailAwayNameLabel.setText("Equipe exterieur");
             updateDetailLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, null, "D");
@@ -1721,7 +1721,7 @@ public class MatchController {
         detailLieuValueLabel.setText(resolveFieldValue(lieuField.getText(), effectiveMatch == null ? null : effectiveMatch.getLieu(), "Non renseigne"));
         detailTypeValueLabel.setText(resolveFieldValue(typeField.getText(), effectiveMatch == null ? null : effectiveMatch.getType(), "Non renseigne"));
         detailStatutValueLabel.setText(status);
-        detailIdValueLabel.setText(selectedMatch == null ? "Nouveau" : (effectiveMatch.getIdMatch() == null ? "#" + effectiveMatch.getId() : effectiveMatch.getIdMatch()));
+        detailIdValueLabel.setText(selectedMatch == null ? "Creation" : "Selection");
         detailHomeNameLabel.setText(homeTeam == null ? "Equipe domicile" : emptyIfNull(homeTeam.getNom()));
         detailAwayNameLabel.setText(awayTeam == null ? "Equipe exterieur" : emptyIfNull(awayTeam.getNom()));
         updateDetailLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, homeTeam, "D");
@@ -1895,14 +1895,7 @@ public class MatchController {
     }
 
     private String resolveMatchReference(Matchs match) {
-        if (match == null) {
-            return "-";
-        }
-        String reference = emptyToNull(match.getIdMatch());
-        if (reference != null) {
-            return reference;
-        }
-        return match.getId() == null ? "-" : "#" + match.getId();
+        return "";
     }
 
     private String resolveMatchLocation(Matchs match) {

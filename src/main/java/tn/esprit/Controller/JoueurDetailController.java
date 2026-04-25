@@ -267,7 +267,7 @@ public class JoueurDetailController implements AssistantContextProvider {
 
             detailNameLabel.setText(buildFullName(joueur));
             detailSubtitleLabel.setText(buildSubtitle(equipeName, joueur.getDateNaissance(), position, nationalite));
-            detailIdValueLabel.setText(joueur.getId() == null ? "-" : "#" + joueur.getId());
+            detailIdValueLabel.setText("Joueur");
             detailEquipeValueLabel.setText(equipeName);
             detailNumeroValueLabel.setText(joueur.getNumero() > 0 ? "#" + joueur.getNumero() : "Non defini");
             detailDateNaissanceValueLabel.setText(formatDate(joueur.getDateNaissance()));

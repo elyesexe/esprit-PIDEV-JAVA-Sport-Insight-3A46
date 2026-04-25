@@ -17,6 +17,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -34,6 +35,8 @@ import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.AdminTableButtons;
+import tn.esprit.gui.AdminTableScrollSupport;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -481,7 +484,7 @@ public class EquipeController implements AssistantContextProvider {
     }
 
     private void configureToolbar() {
-        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
+        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach"));
         sortChoiceBox.setValue("Nom");
         configureCompetitionFilterBar();
 
@@ -539,6 +542,7 @@ public class EquipeController implements AssistantContextProvider {
 
     private void configureTableView() {
         idColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
+        equipeTableView.getColumns().remove(idColumn);
         nomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
         coachColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getCoach(), "Non renseigne")));
         competitionColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveCompetitionLabel(cell.getValue())));
@@ -549,6 +553,16 @@ public class EquipeController implements AssistantContextProvider {
         equipeTableView.setEditable(true);
         equipeTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         equipeTableView.setTableMenuButtonVisible(true);
+        AdminTableScrollSupport.enable(equipeTableView);
+        equipeTableView.setRowFactory(tableView -> {
+            TableRow<Equipe> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    startInlineEquipeEdit(row.getItem());
+                }
+            });
+            return row;
+        });
         equipeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 clearFormFieldsOnly();
@@ -601,27 +615,16 @@ public class EquipeController implements AssistantContextProvider {
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setResizable(false);
-        actionsColumn.setMinWidth(190);
-        actionsColumn.setPrefWidth(190);
-        actionsColumn.setMaxWidth(190);
+        actionsColumn.setMinWidth(84);
+        actionsColumn.setPrefWidth(84);
+        actionsColumn.setMaxWidth(84);
         actionsColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button editButton = new Button("Modifier");
-            private final Button deleteRowButton = new Button("Supprimer");
-            private final HBox actionsBox = new HBox(8, editButton, deleteRowButton);
+            private final Button deleteRowButton = AdminTableButtons.createTrashButton();
+            private final HBox actionsBox = new HBox(deleteRowButton);
 
             {
                 actionsBox.getStyleClass().add("table-inline-actions");
-                editButton.getStyleClass().add("soft-button");
-                editButton.getStyleClass().add("table-row-action-button");
-                deleteRowButton.getStyleClass().add("danger-button");
-                deleteRowButton.getStyleClass().add("table-row-danger-button");
-                editButton.setPrefWidth(84);
-                deleteRowButton.setPrefWidth(100);
 
-                editButton.setOnAction(event -> {
-                    Equipe equipe = getTableRow() == null ? null : getTableRow().getItem();
-                    startInlineEquipeEdit(equipe);
-                });
                 deleteRowButton.setOnAction(event -> {
                     Equipe equipe = getTableRow() == null ? null : getTableRow().getItem();
                     deleteEquipeFromTable(equipe);
@@ -963,9 +966,7 @@ public class EquipeController implements AssistantContextProvider {
         Comparator<Equipe> comparator;
         String selectedSort = sortChoiceBox.getValue();
 
-        if ("Id".equals(selectedSort)) {
-            comparator = Comparator.comparing(Equipe::getId, Comparator.nullsLast(Integer::compareTo));
-        } else if ("Coach".equals(selectedSort)) {
+        if ("Coach".equals(selectedSort)) {
             comparator = Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
         } else {
             comparator = Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
@@ -1067,7 +1068,7 @@ public class EquipeController implements AssistantContextProvider {
             detailBadgeLabel.setText(hasDraftContent() ? "Brouillon" : "Apercu");
         } else {
             selectionStateLabel.setText("Selection : " + emptyIfNull(selectedEquipe.getNom()));
-            formHintLabel.setText("Utilisez les boutons Modifier/Supprimer dans la ligne du tableau. Le formulaire reste reserve a l'ajout.");
+            formHintLabel.setText("Double-cliquez la ligne pour modifier. Utilisez l'icone corbeille pour supprimer.");
             detailBadgeLabel.setText("Edition en ligne");
         }
     }
@@ -1081,7 +1082,7 @@ public class EquipeController implements AssistantContextProvider {
         if (selectedEquipe == null && !hasDraftContent()) {
             detailNameLabel.setText("Aucune equipe selectionnee");
             detailSubtitleLabel.setText("Selectionnez une ligne du tableau ou creez une nouvelle fiche pour afficher le detail.");
-            detailIdValueLabel.setText("Nouveau");
+            detailIdValueLabel.setText("Creation");
             detailCoachValueLabel.setText("Non renseigne");
             detailStatusValueLabel.setText("Sans logo");
             updateDetailLogo(null, "SI");
@@ -1098,7 +1099,7 @@ public class EquipeController implements AssistantContextProvider {
                         ? "Coach non renseigne. Le nom seul suffit pour enregistrer la fiche."
                         : "Coach principal : " + effectiveCoach
         );
-        detailIdValueLabel.setText(selectedEquipe == null ? "Nouveau" : "#" + selectedEquipe.getId());
+        detailIdValueLabel.setText(selectedEquipe == null ? "Creation" : "Selection");
         detailCoachValueLabel.setText(effectiveCoach == null ? "Non renseigne" : effectiveCoach);
         detailStatusValueLabel.setText(effectiveImage == null ? "Sans logo" : "Logo pret");
         updateDetailLogo(effectiveImage, effectiveName);

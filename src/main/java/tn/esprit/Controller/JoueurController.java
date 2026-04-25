@@ -26,6 +26,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -45,6 +46,8 @@ import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.AdminTableButtons;
+import tn.esprit.gui.AdminTableScrollSupport;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -551,6 +554,7 @@ public class JoueurController implements AssistantContextProvider {
     private void configurePlayerList() {
         if (joueurTableView != null) {
             joueurIdColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
+            joueurTableView.getColumns().remove(joueurIdColumn);
             joueurNomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
             joueurPrenomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getPrenom())));
             joueurEquipeColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveEquipeLabel(cell.getValue())));
@@ -564,6 +568,16 @@ public class JoueurController implements AssistantContextProvider {
             joueurTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
             joueurTableView.setTableMenuButtonVisible(true);
             joueurTableView.setPlaceholder(new Label(""));
+            AdminTableScrollSupport.enable(joueurTableView);
+            joueurTableView.setRowFactory(tableView -> {
+                TableRow<Joueur> row = new TableRow<>();
+                row.setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 2 && !row.isEmpty()) {
+                        startInlineJoueurEdit(row.getItem());
+                    }
+                });
+                return row;
+            });
             joueurTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                     handleSelectedJoueurChange(newValue));
             configureEditableTableColumns();
@@ -664,27 +678,16 @@ public class JoueurController implements AssistantContextProvider {
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setResizable(false);
-        actionsColumn.setMinWidth(190);
-        actionsColumn.setPrefWidth(190);
-        actionsColumn.setMaxWidth(190);
+        actionsColumn.setMinWidth(84);
+        actionsColumn.setPrefWidth(84);
+        actionsColumn.setMaxWidth(84);
         actionsColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button editButton = new Button("Modifier");
-            private final Button deleteRowButton = new Button("Supprimer");
-            private final HBox actionsBox = new HBox(8, editButton, deleteRowButton);
+            private final Button deleteRowButton = AdminTableButtons.createTrashButton();
+            private final HBox actionsBox = new HBox(deleteRowButton);
 
             {
                 actionsBox.getStyleClass().add("table-inline-actions");
-                editButton.getStyleClass().add("soft-button");
-                editButton.getStyleClass().add("table-row-action-button");
-                deleteRowButton.getStyleClass().add("danger-button");
-                deleteRowButton.getStyleClass().add("table-row-danger-button");
-                editButton.setPrefWidth(84);
-                deleteRowButton.setPrefWidth(100);
 
-                editButton.setOnAction(event -> {
-                    Joueur joueur = getTableRow() == null ? null : getTableRow().getItem();
-                    startInlineJoueurEdit(joueur);
-                });
                 deleteRowButton.setOnAction(event -> {
                     Joueur joueur = getTableRow() == null ? null : getTableRow().getItem();
                     deleteJoueurFromTable(joueur);
@@ -1352,7 +1355,7 @@ public class JoueurController implements AssistantContextProvider {
         detailBadgeLabel.setText(editing ? "Edition en ligne" : drafting ? "Creation" : "Apercu");
         selectionStateLabel.setText(editing ? "Selection active" : "Mode creation");
         formHintLabel.setText(editing
-                ? "Les modifications se font directement dans le tableau via les boutons de la ligne."
+                ? "Double-cliquez la ligne pour modifier. Utilisez l'icone corbeille pour supprimer."
                 : "Composez une nouvelle fiche joueur et visualisez-la a droite.");
 
         String positionValue = selectedJoueur == null ? null : emptyToNull(selectedJoueur.getPosition());
@@ -1360,7 +1363,7 @@ public class JoueurController implements AssistantContextProvider {
 
         detailNameLabel.setText(fullName == null ? "Aucun joueur selectionne" : fullName);
         detailSubtitleLabel.setText(buildDetailSubtitle(equipeName, dateNaissance, numeroValue, drafting, positionValue, nationaliteValue));
-        detailIdValueLabel.setText(editing && selectedJoueur.getId() != null ? "#" + selectedJoueur.getId() : "Nouveau");
+        detailIdValueLabel.setText(editing ? "Selection" : "Creation");
         detailEquipeValueLabel.setText(equipeName == null ? "Aucune" : equipeName);
         detailNumeroValueLabel.setText(hasDefinedNumber(numeroValue) ? "#" + numeroValue : "Non defini");
 
