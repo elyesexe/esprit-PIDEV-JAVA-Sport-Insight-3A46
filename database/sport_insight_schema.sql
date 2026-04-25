@@ -15,6 +15,8 @@ DROP TABLE IF EXISTS `evaluation`;
 DROP TABLE IF EXISTS `entrainement`;
 DROP TABLE IF EXISTS `order`;
 DROP TABLE IF EXISTS `product`;
+DROP TABLE IF EXISTS `notification`;
+DROP TABLE IF EXISTS `match_follow_target`;
 DROP TABLE IF EXISTS `matchs`;
 DROP TABLE IF EXISTS `joueur`;
 DROP TABLE IF EXISTS `sponsor`;
@@ -275,6 +277,48 @@ CREATE TABLE `contrat_sponsor` (
     CONSTRAINT `fk_contrat_sponsor_equipe`
         FOREIGN KEY (`equipe_id`) REFERENCES `equipe` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `match_follow_target` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `target_type` VARCHAR(16) NOT NULL,
+    `team_id` INT NULL,
+    `match_id` INT NULL,
+    `competition_code` VARCHAR(16) NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_match_follow_target_user` (`user_id`),
+    KEY `idx_match_follow_target_team` (`team_id`),
+    KEY `idx_match_follow_target_match` (`match_id`),
+    KEY `idx_match_follow_target_competition` (`competition_code`),
+    UNIQUE KEY `uq_match_follow_target_team` (`user_id`, `target_type`, `team_id`),
+    UNIQUE KEY `uq_match_follow_target_match` (`user_id`, `target_type`, `match_id`),
+    UNIQUE KEY `uq_match_follow_target_competition` (`user_id`, `target_type`, `competition_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `notification` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(255) NULL,
+    `message` TEXT NOT NULL,
+    `type` VARCHAR(32) NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
+    `user_id` INT NOT NULL,
+    `match_id` INT NULL,
+    `dedupe_key` VARCHAR(255) NULL,
+    `competition_code` VARCHAR(16) NULL,
+    `home_team_name` VARCHAR(255) NULL,
+    `away_team_name` VARCHAR(255) NULL,
+    `home_team_logo` VARCHAR(255) NULL,
+    `away_team_logo` VARCHAR(255) NULL,
+    `actor_name` VARCHAR(255) NULL,
+    `minute_label` VARCHAR(32) NULL,
+    `accent_tone` VARCHAR(32) NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_notification_user_created` (`user_id`, `created_at`),
+    KEY `idx_notification_match` (`match_id`),
+    UNIQUE KEY `uq_notification_dedupe` (`user_id`, `dedupe_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

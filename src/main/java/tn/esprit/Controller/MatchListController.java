@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -16,6 +17,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -26,27 +28,34 @@ import javafx.scene.layout.VBox;
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
+import tn.esprit.entities.User;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.EquipeUiSupport;
+import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
+import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -66,6 +75,7 @@ public class MatchListController implements AssistantContextProvider {
     private static final String STATUS_FINI = "Fini";
     private static final String STATUS_REPORTE = "Reporte";
     private static final String STATUS_ANNULE = "Annule";
+    private static final int BACKGROUND_REFRESH_SECONDS = 90;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("match-list-db-worker"));
 
@@ -120,13 +130,16 @@ public class MatchListController implements AssistantContextProvider {
 
     private final ObservableList<Matchs> matchs = FXCollections.observableArrayList();
     private final FilteredList<Matchs> filteredMatchs = new FilteredList<>(matchs, match -> true);
+    private final SortedList<Matchs> sortedMatchs = new SortedList<>(filteredMatchs);
     private final AtomicLong refreshSequence = new AtomicLong();
 
     private MatchsService matchsService;
     private EquipeService equipeService;
     private FootballDataSyncService footballDataSyncService;
     private ApiFootballInsightsService apiFootballInsightsService;
+    private MatchFollowTargetService matchFollowTargetService;
     private Map<Integer, Equipe> equipeById = Map.of();
+    private Set<Integer> favoriteMatchIds = Set.of();
     private String selectedCompetitionCode;
     private boolean serviceReady;
     private boolean loadingData;
@@ -151,6 +164,7 @@ public class MatchListController implements AssistantContextProvider {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
             apiFootballInsightsService = new ApiFootballInsightsService();
+            matchFollowTargetService = new MatchFollowTargetService();
             serviceReady = true;
             refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.", false);
         } catch (Exception e) {
@@ -203,7 +217,7 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     public List<Matchs> getFilteredMatchsSnapshot() {
-        return List.copyOf(filteredMatchs);
+        return List.copyOf(sortedMatchs);
     }
 
     public List<Equipe> getKnownTeamsSnapshot() {
@@ -249,8 +263,11 @@ public class MatchListController implements AssistantContextProvider {
 
     private void startLiveRefresh() {
         if (liveRefreshTimeline == null) {
-            liveRefreshTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(30), event -> {
+            liveRefreshTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(BACKGROUND_REFRESH_SECONDS), event -> {
                 if (!serviceReady || loadingData || syncingData) {
+                    return;
+                }
+                if (STATUS_FINI.equals(selectedStatusFilter())) {
                     return;
                 }
                 refreshDataAsync(null, null, null, true);
@@ -394,7 +411,8 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private void configureMatchList() {
-        matchListView.setItems(filteredMatchs);
+        sortedMatchs.setComparator(displayComparatorFor(selectedStatusFilter()));
+        matchListView.setItems(sortedMatchs);
         matchListView.setPlaceholder(new Label(""));
         matchListView.setCellFactory(listView -> new ListCell<>() {
             @Override
@@ -430,6 +448,7 @@ public class MatchListController implements AssistantContextProvider {
         HBox.setHgrow(headSpacer, Priority.ALWAYS);
 
         HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
+        head.getChildren().add(0, buildFavoriteButton(match));
         head.setAlignment(Pos.CENTER_LEFT);
         head.getStyleClass().add("fixture-card-head");
 
@@ -478,6 +497,65 @@ public class MatchListController implements AssistantContextProvider {
         card.getStyleClass().addAll("fixture-card", "fixture-card-clickable");
         card.setMaxWidth(Double.MAX_VALUE);
         return card;
+    }
+
+    private Button buildFavoriteButton(Matchs match) {
+        boolean favorite = match != null && match.getId() != null && favoriteMatchIds.contains(match.getId());
+        Button favoriteButton = new Button(favorite ? "★" : "☆");
+        favoriteButton.getStyleClass().add("fixture-favorite-button");
+        if (favorite) {
+            favoriteButton.getStyleClass().add("fixture-favorite-button-active");
+        }
+        favoriteButton.setFocusTraversable(false);
+        favoriteButton.setTooltip(new Tooltip(favorite ? "Remove from favorite matches" : "Add to favorite matches"));
+        favoriteButton.setOnMouseClicked(event -> event.consume());
+        favoriteButton.setOnAction(event -> {
+            event.consume();
+            toggleMatchFavorite(match);
+        });
+        return favoriteButton;
+    }
+
+    private void toggleMatchFavorite(Matchs match) {
+        if (match == null || match.getId() == null) {
+            showErrorStatus("Ce match ne peut pas encore etre ajoute aux favoris.");
+            return;
+        }
+
+        User currentUser = AuthSession.getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null) {
+            showErrorStatus("Connectez-vous pour ajouter un match aux favoris.");
+            return;
+        }
+
+        try {
+            ensureMatchFollowTargetService();
+            boolean favorite = favoriteMatchIds.contains(match.getId())
+                    || matchFollowTargetService.isMatchFavorite(currentUser.getId(), match.getId());
+            Set<Integer> updatedFavorites = new LinkedHashSet<>(favoriteMatchIds);
+
+            if (favorite) {
+                matchFollowTargetService.removeMatchFavorite(currentUser.getId(), match.getId());
+                updatedFavorites.remove(match.getId());
+                showMutedStatus(buildMatchLabel(match) + " retire des matchs favoris.");
+            } else {
+                matchFollowTargetService.addMatchFavorite(currentUser.getId(), match.getId());
+                updatedFavorites.add(match.getId());
+                showMutedStatus(buildMatchLabel(match) + " ajoute aux matchs favoris.");
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+
+            favoriteMatchIds = Set.copyOf(updatedFavorites);
+            matchListView.refresh();
+        } catch (SQLException e) {
+            showErrorStatus("Impossible de mettre a jour les matchs favoris.");
+        }
+    }
+
+    private void ensureMatchFollowTargetService() throws SQLException {
+        if (matchFollowTargetService == null) {
+            matchFollowTargetService = new MatchFollowTargetService();
+        }
     }
 
     private VBox buildTeamPreview(Equipe equipe, String fallbackRole) {
@@ -532,9 +610,11 @@ public class MatchListController implements AssistantContextProvider {
             showMutedStatus(loadingMessage);
         }
 
+        String statusFilterAtStart = selectedStatusFilter();
         Task<RefreshPayload> loadTask = new Task<>() {
             @Override
             protected RefreshPayload call() throws Exception {
+                boolean refreshLiveSummaries = !STATUS_FINI.equals(statusFilterAtStart);
                 List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
                 loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
                 Map<Integer, Equipe> loadedEquipeById = loadedEquipes.stream()
@@ -542,14 +622,12 @@ public class MatchListController implements AssistantContextProvider {
                         .collect(Collectors.toMap(Equipe::getId, equipe -> equipe, (left, right) -> left));
 
                 List<Matchs> loadedMatchs = new ArrayList<>(matchsService.getAll());
-                refreshRelevantLiveSummaries(loadedMatchs, loadedEquipeById);
-                loadedMatchs = new ArrayList<>(matchsService.getAll());
-                loadedMatchs.sort(Comparator
-                        .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
-                        .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
-                        .reversed());
+                if (refreshLiveSummaries) {
+                    refreshRelevantLiveSummaries(loadedMatchs, loadedEquipeById);
+                    loadedMatchs = new ArrayList<>(matchsService.getAll());
+                }
 
-                return new RefreshPayload(loadedEquipes, loadedMatchs);
+                return new RefreshPayload(loadedEquipes, loadedMatchs, loadFavoriteMatchIds());
             }
         };
 
@@ -562,9 +640,9 @@ public class MatchListController implements AssistantContextProvider {
             equipeById = payload.loadedEquipes.stream()
                     .filter(equipe -> equipe.getId() != null)
                     .collect(Collectors.toMap(Equipe::getId, equipe -> equipe, (left, right) -> left));
+            favoriteMatchIds = payload.favoriteMatchIds == null ? Set.of() : payload.favoriteMatchIds;
 
             matchs.setAll(payload.loadedMatchs);
-            EquipeUiSupport.clearImageCache();
             applyFilters();
 
             loadingData = false;
@@ -590,6 +668,15 @@ public class MatchListController implements AssistantContextProvider {
         });
 
         DB_EXECUTOR.execute(loadTask);
+    }
+
+    private Set<Integer> loadFavoriteMatchIds() throws SQLException {
+        User currentUser = AuthSession.getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null) {
+            return Set.of();
+        }
+        ensureMatchFollowTargetService();
+        return matchFollowTargetService.getFollowedMatchIds(currentUser.getId());
     }
 
     private void refreshRelevantLiveSummaries(List<Matchs> loadedMatchs, Map<Integer, Equipe> loadedEquipeById) {
@@ -656,9 +743,42 @@ public class MatchListController implements AssistantContextProvider {
                         && (statusFilter == null || Objects.equals(statusFilter, normalizeMatchStatus(match.getStatut())))
                         && (competitionCode == null || Objects.equals(competitionCode, emptyToNull(match.getCompetitionCode())))
         );
+        sortedMatchs.setComparator(displayComparatorFor(statusFilter));
 
         updateCounters();
         updateEmptyState();
+    }
+
+    private Comparator<Matchs> displayComparatorFor(String statusFilter) {
+        boolean newestFirst = STATUS_FINI.equals(statusFilter);
+        return (left, right) -> compareByKickoff(left, right, newestFirst);
+    }
+
+    private int compareByKickoff(Matchs left, Matchs right, boolean newestFirst) {
+        LocalDateTime leftKickoff = kickoffDateTimeOf(left);
+        LocalDateTime rightKickoff = kickoffDateTimeOf(right);
+
+        int result;
+        if (leftKickoff == null && rightKickoff == null) {
+            result = 0;
+        } else if (leftKickoff == null) {
+            result = 1;
+        } else if (rightKickoff == null) {
+            result = -1;
+        } else {
+            result = leftKickoff.compareTo(rightKickoff);
+        }
+
+        if (newestFirst) {
+            result = -result;
+        }
+        if (result != 0) {
+            return result;
+        }
+
+        Integer leftId = left == null ? null : left.getId();
+        Integer rightId = right == null ? null : right.getId();
+        return Comparator.nullsLast(Integer::compareTo).compare(leftId, rightId);
     }
 
     private boolean matchesQuery(Matchs match, String query) {
@@ -747,6 +867,9 @@ public class MatchListController implements AssistantContextProvider {
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(!matchesOnly, matchesOnly);
             syncMetaLabel.setText("Synchronise : " + summaryMessage);
+            if (!matchesOnly) {
+                EquipeUiSupport.clearImageCache();
+            }
             refreshDataAsync(null, "status-success", summaryMessage, false);
         });
 
@@ -1017,7 +1140,7 @@ public class MatchListController implements AssistantContextProvider {
         alert.showAndWait();
     }
 
-    private record RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs) {
+    private record RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs, Set<Integer> favoriteMatchIds) {
     }
 }
 

@@ -18,13 +18,13 @@ import tn.esprit.services.football.ApiFootballMatchIncident;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +38,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class LiveMatchNotificationRuntime {
     private static final LiveMatchNotificationRuntime INSTANCE = new LiveMatchNotificationRuntime();
-    private static final int MAX_POLLED_MATCHES = 10;
+    private static final int MAX_POLLED_MATCHES = 80;
+    private static final int MATCH_REMINDER_MINUTES = 60;
+    private static final int DIRECT_MATCH_CATCH_UP_HOURS = 48;
     private static final DateTimeFormatter KICKOFF_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final ScheduledExecutorService scheduler =
@@ -123,17 +125,19 @@ public final class LiveMatchNotificationRuntime {
         ensureServices();
 
         Set<Integer> followedTeamIds = followTargetService.getFollowedTeamIds(currentUser.getId());
+        Set<Integer> followedMatchIds = followTargetService.getFollowedMatchIds(currentUser.getId());
         Set<String> followedCompetitions = followTargetService.getFollowedCompetitionCodes(currentUser.getId());
-        if (followedTeamIds.isEmpty() && followedCompetitions.isEmpty()) {
+        if (followedTeamIds.isEmpty() && followedMatchIds.isEmpty() && followedCompetitions.isEmpty()) {
             return;
         }
 
         LocalDateTime now = LocalDateTime.now();
         List<Matchs> candidates = matchsService.getAll().stream()
-                .filter(match -> matchesFollowTargets(match, followedTeamIds, followedCompetitions))
-                .filter(match -> isMonitoringCandidate(match, now))
+                .filter(match -> matchesFollowTargets(match, followedMatchIds, followedTeamIds, followedCompetitions))
+                .filter(match -> isMonitoringCandidate(match, now, isDirectMatchFavorite(match, followedMatchIds)))
                 .sorted(Comparator
-                        .comparing(this::kickoffOf, Comparator.nullsLast(LocalDateTime::compareTo))
+                        .comparingInt((Matchs match) -> isLiveStatus(match.getStatut()) ? 0 : 1)
+                        .thenComparingLong(match -> kickoffDistanceMinutes(match, now))
                         .thenComparing(Matchs::getId, Comparator.nullsLast(Integer::compareTo)))
                 .limit(MAX_POLLED_MATCHES)
                 .toList();
@@ -144,22 +148,24 @@ public final class LiveMatchNotificationRuntime {
 
         Map<Integer, Equipe> teamsById = loadTeamsById(candidates);
         for (Matchs match : candidates) {
-            evaluateMatch(currentUser, now, match, teamsById.get(match.getEquipeDomicileId()), teamsById.get(match.getEquipeExterieurId()));
+            evaluateMatch(
+                    currentUser,
+                    now,
+                    match,
+                    teamsById.get(match.getEquipeDomicileId()),
+                    teamsById.get(match.getEquipeExterieurId()),
+                    isDirectMatchFavorite(match, followedMatchIds)
+            );
         }
     }
 
-    private void evaluateMatch(User currentUser, LocalDateTime now, Matchs match, Equipe homeTeam, Equipe awayTeam) {
+    private void evaluateMatch(User currentUser, LocalDateTime now, Matchs match, Equipe homeTeam, Equipe awayTeam, boolean directMatchFavorite) {
         if (match == null || currentUser == null || currentUser.getId() == null) {
             return;
         }
 
-        String previousStatus = safeStatus(match.getStatut());
         Integer previousHomeScore = match.getScoreEquipeDomicile();
         Integer previousAwayScore = match.getScoreEquipeExterieur();
-        ApiFootballMatchDetails cachedBefore = apiFootballInsightsService.readCachedMatchDetails(match);
-        List<ApiFootballMatchIncident> previousIncidents = cachedBefore == null || cachedBefore.incidents() == null
-                ? List.of()
-                : cachedBefore.incidents();
 
         ApiFootballFixtureSnapshot snapshot;
         try {
@@ -168,22 +174,83 @@ public final class LiveMatchNotificationRuntime {
             snapshot = null;
         }
 
-        if (shouldEmitKickoffAlert(match, snapshot, now)) {
+        if (shouldEmitReminderAlert(match, snapshot, now, directMatchFavorite)) {
+            emitNotification(buildReminderNotification(currentUser, match, homeTeam, awayTeam, snapshot));
+        }
+
+        if (shouldEmitKickoffAlert(match, snapshot, now, directMatchFavorite)) {
             emitNotification(buildKickoffNotification(currentUser, match, homeTeam, awayTeam, snapshot));
         }
 
-        if (shouldFetchLiveIncidents(match, snapshot, now)) {
-            List<ApiFootballMatchIncident> liveIncidents;
-            try {
-                liveIncidents = apiFootballInsightsService.refreshMatchIncidents(match, homeTeam, awayTeam);
-            } catch (Exception e) {
-                liveIncidents = previousIncidents;
-            }
-            emitIncidentNotifications(currentUser, match, homeTeam, awayTeam, snapshot, previousIncidents, liveIncidents);
+        if (shouldEmitHalfTimeAlert(match, snapshot, now, directMatchFavorite)) {
+            emitNotification(buildHalfTimeNotification(currentUser, match, homeTeam, awayTeam, snapshot));
         }
 
-        if (shouldEmitFinalAlert(previousStatus, previousHomeScore, previousAwayScore, snapshot, now, match)) {
+        if (shouldEmitSecondHalfAlert(match, snapshot, now, directMatchFavorite)) {
+            emitNotification(buildSecondHalfNotification(currentUser, match, homeTeam, awayTeam, snapshot));
+        }
+
+        List<ApiFootballMatchIncident> liveIncidents = List.of();
+        if (shouldFetchLiveIncidents(match, snapshot, now, directMatchFavorite)) {
+            liveIncidents = loadLiveIncidents(match, homeTeam, awayTeam);
+            emitIncidentNotifications(currentUser, match, homeTeam, awayTeam, snapshot, liveIncidents);
+        }
+
+        if (!hasGoalIncident(liveIncidents)) {
+            emitScoreFallbackGoalNotifications(currentUser, match, homeTeam, awayTeam, snapshot, previousHomeScore, previousAwayScore);
+        }
+
+        if (shouldEmitFinalAlert(snapshot, now, match, directMatchFavorite)) {
             emitNotification(buildFinalNotification(currentUser, match, homeTeam, awayTeam, snapshot));
+        }
+    }
+
+    private List<ApiFootballMatchIncident> loadLiveIncidents(Matchs match, Equipe homeTeam, Equipe awayTeam) {
+        List<ApiFootballMatchIncident> incidents;
+        try {
+            incidents = apiFootballInsightsService.refreshMatchIncidents(match, homeTeam, awayTeam);
+        } catch (Exception e) {
+            ApiFootballMatchDetails cached = apiFootballInsightsService.readCachedMatchDetails(match);
+            incidents = cached == null || cached.incidents() == null ? List.of() : cached.incidents();
+        }
+
+        if (hasAlertworthyIncident(incidents)) {
+            return incidents;
+        }
+
+        try {
+            ApiFootballMatchDetails details = apiFootballInsightsService.loadMatchDetails(match, homeTeam, awayTeam);
+            if (details != null && hasAlertworthyIncident(details.incidents())) {
+                return details.incidents();
+            }
+        } catch (Exception e) {
+            System.err.println("Live match detail incident fallback failed: " + e.getMessage());
+        }
+        return incidents == null ? List.of() : incidents;
+    }
+
+    private void emitScoreFallbackGoalNotifications(
+            User currentUser,
+            Matchs match,
+            Equipe homeTeam,
+            Equipe awayTeam,
+            ApiFootballFixtureSnapshot snapshot,
+            Integer previousHomeScore,
+            Integer previousAwayScore
+    ) {
+        int homeScore = normalizedScore(snapshot == null ? null : snapshot.homeScore(), match == null ? null : match.getScoreEquipeDomicile());
+        int awayScore = normalizedScore(snapshot == null ? null : snapshot.awayScore(), match == null ? null : match.getScoreEquipeExterieur());
+        int previousHome = previousHomeScore == null ? 0 : Math.max(0, previousHomeScore);
+        int previousAway = previousAwayScore == null ? 0 : Math.max(0, previousAwayScore);
+
+        int firstHomeGoal = previousHome < homeScore ? previousHome + 1 : 1;
+        for (int goalNumber = firstHomeGoal; goalNumber <= homeScore; goalNumber++) {
+            emitNotification(buildScoreFallbackGoalNotification(currentUser, match, homeTeam, awayTeam, snapshot, true, goalNumber));
+        }
+
+        int firstAwayGoal = previousAway < awayScore ? previousAway + 1 : 1;
+        for (int goalNumber = firstAwayGoal; goalNumber <= awayScore; goalNumber++) {
+            emitNotification(buildScoreFallbackGoalNotification(currentUser, match, homeTeam, awayTeam, snapshot, false, goalNumber));
         }
     }
 
@@ -193,19 +260,10 @@ public final class LiveMatchNotificationRuntime {
             Equipe homeTeam,
             Equipe awayTeam,
             ApiFootballFixtureSnapshot snapshot,
-            List<ApiFootballMatchIncident> previousIncidents,
             List<ApiFootballMatchIncident> currentIncidents
     ) {
         if (currentIncidents == null || currentIncidents.isEmpty()) {
             return;
-        }
-
-        Set<String> previousKeys = new HashSet<>();
-        for (ApiFootballMatchIncident incident : previousIncidents) {
-            String key = buildIncidentKey(incident);
-            if (key != null) {
-                previousKeys.add(key);
-            }
         }
 
         for (ApiFootballMatchIncident incident : currentIncidents) {
@@ -214,7 +272,7 @@ public final class LiveMatchNotificationRuntime {
             }
 
             String incidentKey = buildIncidentKey(incident);
-            if (incidentKey == null || previousKeys.contains(incidentKey)) {
+            if (incidentKey == null) {
                 continue;
             }
 
@@ -261,6 +319,45 @@ public final class LiveMatchNotificationRuntime {
         return notification;
     }
 
+    private Notification buildReminderNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam, ApiFootballFixtureSnapshot snapshot) {
+        String fixtureLabel = buildFixtureLabel(homeTeam, awayTeam);
+        String kickoffTime = snapshot != null && snapshot.kickoffAt() != null
+                ? snapshot.kickoffAt().toLocalTime().format(KICKOFF_TIME_FORMATTER)
+                : kickoffOf(match) == null ? "" : kickoffOf(match).toLocalTime().format(KICKOFF_TIME_FORMATTER);
+        Notification notification = buildBaseNotification(user, match, homeTeam, awayTeam);
+        notification.setType("Match Reminder");
+        notification.setTitle("Reminder | " + fixtureLabel);
+        notification.setMessage(fixtureLabel
+                + (kickoffTime.isBlank() ? " starts soon." : " starts at " + kickoffTime + ".")
+                + " You asked to be reminded one hour before kickoff.");
+        notification.setMinuteLabel("T-" + MATCH_REMINDER_MINUTES);
+        notification.setDedupeKey("match-reminder-" + MATCH_REMINDER_MINUTES + ":" + match.getId());
+        notification.setAccentTone("warning");
+        return notification;
+    }
+
+    private Notification buildHalfTimeNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam, ApiFootballFixtureSnapshot snapshot) {
+        Notification notification = buildBaseNotification(user, match, homeTeam, awayTeam);
+        notification.setType("Half Time");
+        notification.setTitle("Half Time | " + buildResultLabel(snapshot, match));
+        notification.setMessage("First half ended for " + buildFixtureLabel(homeTeam, awayTeam) + ".");
+        notification.setMinuteLabel("HT");
+        notification.setDedupeKey("match-half-time:" + match.getId());
+        notification.setAccentTone("info");
+        return notification;
+    }
+
+    private Notification buildSecondHalfNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam, ApiFootballFixtureSnapshot snapshot) {
+        Notification notification = buildBaseNotification(user, match, homeTeam, awayTeam);
+        notification.setType("Second Half");
+        notification.setTitle("Second Half | " + buildFixtureLabel(homeTeam, awayTeam));
+        notification.setMessage("Second half started for " + buildFixtureLabel(homeTeam, awayTeam) + ".");
+        notification.setMinuteLabel(snapshot != null && snapshot.minuteLabel() != null ? snapshot.minuteLabel() : "2H");
+        notification.setDedupeKey("match-second-half:" + match.getId());
+        notification.setAccentTone("info");
+        return notification;
+    }
+
     private Notification buildFinalNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam, ApiFootballFixtureSnapshot snapshot) {
         Notification notification = buildBaseNotification(user, match, homeTeam, awayTeam);
         notification.setType("Full Time");
@@ -288,6 +385,10 @@ public final class LiveMatchNotificationRuntime {
 
         String scoreLabel = buildResultLabel(snapshot, match);
         if (incident.isGoal()) {
+            String scoreDedupeKey = buildGoalScoreDedupeKey(match, incident.homeSide(), scoreNumberForIncidentSide(incident));
+            if (scoreDedupeKey != null) {
+                notification.setDedupeKey(scoreDedupeKey);
+            }
             notification.setType("Goal");
             notification.setTitle("Goal | " + scoreLabel);
             notification.setMessage(resolveIncidentActor(incident) + " scored for "
@@ -324,6 +425,30 @@ public final class LiveMatchNotificationRuntime {
         return notification;
     }
 
+    private Notification buildScoreFallbackGoalNotification(
+            User user,
+            Matchs match,
+            Equipe homeTeam,
+            Equipe awayTeam,
+            ApiFootballFixtureSnapshot snapshot,
+            boolean homeSide,
+            int goalNumber
+    ) {
+        Notification notification = buildBaseNotification(user, match, homeTeam, awayTeam);
+        String scoringTeam = homeSide
+                ? empty(homeTeam == null ? null : homeTeam.getNom(), "Home")
+                : empty(awayTeam == null ? null : awayTeam.getNom(), "Away");
+        notification.setType("Goal");
+        notification.setTitle("Goal | " + buildResultLabel(snapshot, match));
+        notification.setMessage(scoringTeam + " scored in " + buildFixtureLabel(homeTeam, awayTeam)
+                + ". Score is now " + buildResultLabel(snapshot, match) + ".");
+        notification.setMinuteLabel(snapshot == null || snapshot.minuteLabel() == null ? null : snapshot.minuteLabel());
+        notification.setActorName(scoringTeam);
+        notification.setDedupeKey(buildGoalScoreDedupeKey(match, homeSide, goalNumber));
+        notification.setAccentTone("goal");
+        return notification;
+    }
+
     private Notification buildBaseNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam) {
         Notification notification = new Notification();
         notification.setCreatedAt(LocalDateTime.now());
@@ -338,7 +463,19 @@ public final class LiveMatchNotificationRuntime {
         return notification;
     }
 
-    private boolean shouldEmitKickoffAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now) {
+    private boolean shouldEmitReminderAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
+        if (!directMatchFavorite || now == null || snapshot != null && snapshot.isFinished()) {
+            return false;
+        }
+        LocalDateTime kickoff = snapshot != null && snapshot.kickoffAt() != null ? snapshot.kickoffAt() : kickoffOf(match);
+        if (kickoff == null) {
+            return false;
+        }
+        LocalDateTime reminderTime = kickoff.minusMinutes(MATCH_REMINDER_MINUTES);
+        return !now.isBefore(reminderTime) && now.isBefore(kickoff.plusMinutes(10));
+    }
+
+    private boolean shouldEmitKickoffAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
         LocalDateTime kickoff = snapshot != null && snapshot.kickoffAt() != null ? snapshot.kickoffAt() : kickoffOf(match);
         if (kickoff == null) {
             return false;
@@ -346,48 +483,64 @@ public final class LiveMatchNotificationRuntime {
         if (snapshot != null && snapshot.isLive()) {
             return true;
         }
-        return !now.isBefore(kickoff) && now.isBefore(kickoff.plusMinutes(2));
+        int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 4;
+        return !now.isBefore(kickoff) && now.isBefore(kickoff.plusHours(catchUpHours));
     }
 
-    private boolean shouldEmitFinalAlert(
-            String previousStatus,
-            Integer previousHomeScore,
-            Integer previousAwayScore,
-            ApiFootballFixtureSnapshot snapshot,
-            LocalDateTime now,
-            Matchs match
-    ) {
+    private boolean shouldEmitHalfTimeAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
+        if (!hasReachedHalfTime(snapshot)) {
+            return false;
+        }
+        return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
+    }
+
+    private boolean shouldEmitSecondHalfAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
+        if (!hasStartedSecondHalf(snapshot)) {
+            return false;
+        }
+        return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
+    }
+
+    private boolean shouldEmitFinalAlert(ApiFootballFixtureSnapshot snapshot, LocalDateTime now, Matchs match, boolean directMatchFavorite) {
         if (snapshot == null || !snapshot.isFinished()) {
             return false;
         }
 
-        LocalDateTime kickoff = snapshot.kickoffAt() == null ? kickoffOf(match) : snapshot.kickoffAt();
-        if (kickoff != null && now.isAfter(kickoff.plusHours(6))) {
-            return false;
-        }
-
-        if (!isFinishedStatus(previousStatus)) {
-            return true;
-        }
-        return previousHomeScore == null || previousAwayScore == null;
+        return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
     }
 
-    private boolean shouldFetchLiveIncidents(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now) {
+    private boolean isWithinMatchCatchUp(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
+        if (now == null) {
+            return false;
+        }
+        LocalDateTime kickoff = snapshot.kickoffAt() == null ? kickoffOf(match) : snapshot.kickoffAt();
+        int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 6;
+        if (kickoff == null) {
+            return true;
+        }
+        return !now.isAfter(kickoff.plusHours(catchUpHours));
+    }
+
+    private boolean shouldFetchLiveIncidents(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
+        int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 4;
         if (snapshot != null && snapshot.isLive()) {
             return true;
         }
         if (snapshot != null && snapshot.isFinished()) {
             LocalDateTime kickoff = snapshot.kickoffAt() == null ? kickoffOf(match) : snapshot.kickoffAt();
-            return kickoff != null && now.isBefore(kickoff.plusHours(4));
+            return kickoff != null && now.isBefore(kickoff.plusHours(catchUpHours));
         }
 
         LocalDateTime kickoff = kickoffOf(match);
-        return kickoff != null && !now.isBefore(kickoff.minusMinutes(1)) && now.isBefore(kickoff.plusHours(4));
+        return kickoff != null && !now.isBefore(kickoff.minusMinutes(1)) && now.isBefore(kickoff.plusHours(catchUpHours));
     }
 
-    private boolean matchesFollowTargets(Matchs match, Set<Integer> followedTeamIds, Set<String> followedCompetitions) {
+    private boolean matchesFollowTargets(Matchs match, Set<Integer> followedMatchIds, Set<Integer> followedTeamIds, Set<String> followedCompetitions) {
         if (match == null) {
             return false;
+        }
+        if (isDirectMatchFavorite(match, followedMatchIds)) {
+            return true;
         }
         if (match.getEquipeDomicileId() != null && followedTeamIds.contains(match.getEquipeDomicileId())) {
             return true;
@@ -399,7 +552,7 @@ public final class LiveMatchNotificationRuntime {
         return competitionCode != null && followedCompetitions.contains(competitionCode);
     }
 
-    private boolean isMonitoringCandidate(Matchs match, LocalDateTime now) {
+    private boolean isMonitoringCandidate(Matchs match, LocalDateTime now, boolean directMatchFavorite) {
         if (match == null) {
             return false;
         }
@@ -413,11 +566,17 @@ public final class LiveMatchNotificationRuntime {
             return false;
         }
 
+        int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 4;
+        int futureMinutes = directMatchFavorite ? MATCH_REMINDER_MINUTES + 5 : 20;
         if (isFinishedStatus(match.getStatut())) {
-            return now.isBefore(kickoff.plusHours(4));
+            return now.isBefore(kickoff.plusHours(catchUpHours));
         }
 
-        return !kickoff.isBefore(now.minusHours(4)) && !kickoff.isAfter(now.plusMinutes(20));
+        return !kickoff.isBefore(now.minusHours(catchUpHours)) && !kickoff.isAfter(now.plusMinutes(futureMinutes));
+    }
+
+    private boolean isDirectMatchFavorite(Matchs match, Set<Integer> followedMatchIds) {
+        return match != null && match.getId() != null && followedMatchIds != null && followedMatchIds.contains(match.getId());
     }
 
     private Map<Integer, Equipe> loadTeamsById(List<Matchs> matches) throws SQLException {
@@ -466,11 +625,89 @@ public final class LiveMatchNotificationRuntime {
     }
 
     private boolean isFinishedStatus(String status) {
-        return safeStatus(status).contains("fini");
+        String normalized = safeStatus(status);
+        return normalized.contains("fini")
+                || normalized.contains("finished")
+                || normalized.contains("full time")
+                || normalized.contains("termine")
+                || normalized.contains("ended")
+                || normalized.contains("complete");
+    }
+
+    private boolean hasReachedHalfTime(ApiFootballFixtureSnapshot snapshot) {
+        if (snapshot == null) {
+            return false;
+        }
+        String code = safeStatus(snapshot.statusShort()).toUpperCase(Locale.ROOT);
+        if (Set.of("HT", "2H", "ET", "BT", "P", "FT", "AET", "PEN").contains(code)) {
+            return true;
+        }
+        String label = safeStatus(snapshot.effectiveStatusLabel());
+        return label.contains("mi-temps")
+                || label.contains("mi temps")
+                || label.contains("half time")
+                || label.contains("halftime")
+                || label.contains("2e mi")
+                || label.contains("second half")
+                || snapshot.isFinished();
+    }
+
+    private boolean hasStartedSecondHalf(ApiFootballFixtureSnapshot snapshot) {
+        if (snapshot == null) {
+            return false;
+        }
+        String code = safeStatus(snapshot.statusShort()).toUpperCase(Locale.ROOT);
+        if (Set.of("2H", "ET", "BT", "P", "FT", "AET", "PEN").contains(code)) {
+            return true;
+        }
+        String label = safeStatus(snapshot.effectiveStatusLabel());
+        return label.contains("2e mi")
+                || label.contains("deuxieme mi")
+                || label.contains("second half")
+                || label.contains("prolong")
+                || label.contains("extra time")
+                || label.contains("tirs au but")
+                || label.contains("penalties")
+                || snapshot.isFinished();
     }
 
     private boolean isAlertworthyIncident(ApiFootballMatchIncident incident) {
         return incident != null && (incident.isGoal() || incident.isCard() || incident.isSubstitution());
+    }
+
+    private boolean hasAlertworthyIncident(List<ApiFootballMatchIncident> incidents) {
+        return incidents != null && incidents.stream().anyMatch(this::isAlertworthyIncident);
+    }
+
+    private boolean hasGoalIncident(List<ApiFootballMatchIncident> incidents) {
+        return incidents != null && incidents.stream().anyMatch(ApiFootballMatchIncident::isGoal);
+    }
+
+    private int normalizedScore(Integer primaryScore, Integer fallbackScore) {
+        Integer score = primaryScore == null ? fallbackScore : primaryScore;
+        return score == null ? 0 : Math.max(0, score);
+    }
+
+    private Integer scoreNumberForIncidentSide(ApiFootballMatchIncident incident) {
+        if (incident == null) {
+            return null;
+        }
+        return incident.homeSide() ? incident.homeScore() : incident.awayScore();
+    }
+
+    private String buildGoalScoreDedupeKey(Matchs match, boolean homeSide, Integer goalNumber) {
+        if (match == null || match.getId() == null || goalNumber == null || goalNumber <= 0) {
+            return null;
+        }
+        return "match-goal-score:" + match.getId() + ":" + (homeSide ? "H" : "A") + ":" + goalNumber;
+    }
+
+    private long kickoffDistanceMinutes(Matchs match, LocalDateTime now) {
+        LocalDateTime kickoff = kickoffOf(match);
+        if (kickoff == null || now == null) {
+            return Long.MAX_VALUE;
+        }
+        return Math.abs(Duration.between(now, kickoff).toMinutes());
     }
 
     private String buildIncidentKey(ApiFootballMatchIncident incident) {

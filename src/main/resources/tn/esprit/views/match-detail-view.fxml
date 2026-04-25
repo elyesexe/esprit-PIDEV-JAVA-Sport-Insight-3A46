@@ -198,6 +198,10 @@
 
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="match-follow-toolbar">
                                 <Label text="Live alerts" styleClass="flashscore-inline-badge"/>
+                                <Button fx:id="followMatchButton"
+                                        onAction="#handleToggleFollowMatch"
+                                        text="Follow match"
+                                        styleClass="soft-button"/>
                                 <Button fx:id="followHomeTeamButton"
                                         onAction="#handleToggleFollowHomeTeam"
                                         text="Follow home team"

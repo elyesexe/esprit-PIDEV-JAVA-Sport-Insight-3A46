@@ -205,6 +205,8 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Button followCompetitionButton;
     @FXML
+    private Button followMatchButton;
+    @FXML
     private VBox summarySection;
     @FXML
     private VBox statsSection;
@@ -402,6 +404,35 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     @FXML
+    private void handleToggleFollowMatch() {
+        if (match == null || match.getId() == null || matchFollowTargetService == null) {
+            showApiFootballStatus("Ce match ne peut pas encore etre suivi.", "status-warning");
+            return;
+        }
+
+        UserSessionTarget userTarget = resolveCurrentUserTarget();
+        if (userTarget == null) {
+            showApiFootballStatus("Connectez-vous pour suivre ce match.", "status-warning");
+            return;
+        }
+
+        try {
+            boolean alreadyFollowing = matchFollowTargetService.isMatchFavorite(userTarget.userId(), match.getId());
+            if (alreadyFollowing) {
+                matchFollowTargetService.removeMatchFavorite(userTarget.userId(), match.getId());
+                showApiFootballStatus("Match retire des alertes live.", "status-muted");
+            } else {
+                matchFollowTargetService.addMatchFavorite(userTarget.userId(), match.getId());
+                showApiFootballStatus("Match ajoute aux alertes live.", "status-success");
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+            refreshFollowButtons();
+        } catch (SQLException e) {
+            showApiFootballStatus("Impossible de mettre a jour les alertes live.", "status-warning");
+        }
+    }
+
+    @FXML
     private void handleToggleFollowHomeTeam() {
         toggleTeamFollow(homeTeam);
     }
@@ -508,9 +539,33 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     private void refreshFollowButtons() {
+        updateMatchFollowButton();
         updateTeamFollowButton(followHomeTeamButton, homeTeam);
         updateTeamFollowButton(followAwayTeamButton, awayTeam);
         updateCompetitionFollowButton();
+    }
+
+    private void updateMatchFollowButton() {
+        if (followMatchButton == null) {
+            return;
+        }
+
+        UserSessionTarget userTarget = resolveCurrentUserTarget();
+        boolean enabled = userTarget != null && match != null && match.getId() != null && matchFollowTargetService != null;
+        followMatchButton.setDisable(!enabled);
+        if (!enabled) {
+            followMatchButton.setText("Follow match");
+            return;
+        }
+
+        try {
+            boolean following = matchFollowTargetService.isMatchFavorite(userTarget.userId(), match.getId());
+            followMatchButton.setText(following ? "Following match" : "Follow match");
+            followMatchButton.getStyleClass().removeAll("ghost-button", "soft-button", "primary-button");
+            followMatchButton.getStyleClass().add(following ? "primary-button" : "soft-button");
+        } catch (SQLException e) {
+            followMatchButton.setText("Follow match");
+        }
     }
 
     private void updateTeamFollowButton(Button button, Equipe team) {

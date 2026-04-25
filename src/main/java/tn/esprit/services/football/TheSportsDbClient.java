@@ -48,6 +48,10 @@ public class TheSportsDbClient {
         return getJson("/searchevents.php", Map.of("e", eventQuery));
     }
 
+    public JsonNode searchPlayers(String playerQuery) throws IOException, InterruptedException {
+        return getJson("/searchplayers.php", Map.of("p", playerQuery));
+    }
+
     public JsonNode searchEvents(String eventQuery, LocalDate date) throws IOException, InterruptedException {
         Map<String, String> query = new LinkedHashMap<>();
         query.put("e", eventQuery);

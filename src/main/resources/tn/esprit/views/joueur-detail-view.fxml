@@ -177,6 +177,45 @@
                             </HBox>
                         </VBox>
                     </VBox>
+
+                    <VBox spacing="16" styleClass="panel-card">
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Statistiques de saison" styleClass="section-title"/>
+                                <Label text="Matchs joues, buts, passes et cartons selon les donnees disponibles."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Label fx:id="detailStatsStatusLabel" text="Chargement..." styleClass="toolbar-chip-soft status-muted"/>
+                        </HBox>
+
+                        <HBox spacing="10">
+                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                <Label text="Matchs" styleClass="stat-caption"/>
+                                <Label fx:id="detailAppearancesValueLabel" text="-" styleClass="stat-value"/>
+                            </VBox>
+                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                <Label text="Buts" styleClass="stat-caption"/>
+                                <Label fx:id="detailGoalsValueLabel" text="-" styleClass="stat-value"/>
+                            </VBox>
+                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                <Label text="Assists" styleClass="stat-caption"/>
+                                <Label fx:id="detailAssistsValueLabel" text="-" styleClass="stat-value"/>
+                            </VBox>
+                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                <Label text="Jaunes" styleClass="stat-caption"/>
+                                <Label fx:id="detailYellowCardsValueLabel" text="-" styleClass="stat-value"/>
+                            </VBox>
+                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                <Label text="Rouges" styleClass="stat-caption"/>
+                                <Label fx:id="detailRedCardsValueLabel" text="-" styleClass="stat-value"/>
+                            </VBox>
+                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+                                <Label text="Minutes" styleClass="stat-caption"/>
+                                <Label fx:id="detailMinutesValueLabel" text="-" styleClass="stat-value"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
                 </VBox>
                 </StackPane>
             </content>

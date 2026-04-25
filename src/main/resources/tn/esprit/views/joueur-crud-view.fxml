@@ -2,15 +2,13 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -18,7 +16,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="tn.esprit.Controller.JoueurListController"
+            fx:controller="tn.esprit.Controller.JoueurCompetitionController"
             styleClass="page-root">
     <top>
         <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
@@ -83,8 +81,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-                                    <Label text="â˜€" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="â˜¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                    <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -110,94 +108,35 @@
                     <StackPane styleClass="hero-shell">
                         <Region styleClass="hero-photo"/>
                         <Region styleClass="hero-overlay"/>
-
-                        <VBox spacing="12" styleClass="hero-content">
-                            <Label text="Squad" styleClass="hero-eyebrow"/>
-                            <Label text="Parcourez les joueurs" styleClass="hero-title"/>
-                            <Label text="Retrouvez les profils par nom ou par equipe, puis ouvrez chaque joueur sur une page detail dediee."
+                        <VBox spacing="14" styleClass="hero-content">
+                            <Label text="Joueurs" styleClass="hero-eyebrow"/>
+                            <Label text="Choisissez un championnat" styleClass="hero-title"/>
+                            <Label text="Commencez par une ligue du top 5, puis selectionnez une equipe pour ouvrir uniquement son effectif."
                                    wrapText="true"
                                    styleClass="hero-text"/>
-
                             <HBox spacing="10">
-                                <Label fx:id="resultCountLabel" text="0 joueur(s)" styleClass="toolbar-chip-soft"/>
-                                <Label fx:id="selectionStateLabel" text="Cliquez sur une carte pour ouvrir la fiche" styleClass="toolbar-chip"/>
+                                <Label text="5 competitions" styleClass="toolbar-chip"/>
+                                <Label text="Ligue, equipe, joueurs, detail" styleClass="toolbar-chip-soft"/>
                             </HBox>
                         </VBox>
                     </StackPane>
 
-                    <VBox spacing="16" styleClass="panel-card toolbar-panel">
-                        <HBox spacing="16" alignment="CENTER_LEFT">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Joueurs" styleClass="section-title"/>
-                                <Label text="Vue publique en lecture seule : liste, filtres et fiche detail sur une autre page."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
+                    <VBox spacing="16" styleClass="panel-card">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4">
+                                <Label text="Top 5 leagues" styleClass="section-title"/>
+                                <Label text="Cliquez sur une carte pour choisir une equipe de ce championnat." styleClass="section-subtitle"/>
                             </VBox>
-                            <Label fx:id="teamCountLabel" text="0 equipe(s)" styleClass="toolbar-chip-soft"/>
-                            <Label fx:id="statusLabel" text="Pret" styleClass="status-pill status-muted"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Navigation joueurs" styleClass="toolbar-chip-soft"/>
                         </HBox>
 
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                                <Label text="Recherche" styleClass="field-label"/>
-                                <TextField fx:id="searchField"
-                                           promptText="Rechercher par nom, prenom ou equipe"
-                                           styleClass="form-text-field"/>
-                            </VBox>
-
-                            <VBox spacing="6">
-                                <Label text="Equipe" styleClass="field-label"/>
-                                <ComboBox fx:id="equipeFilterComboBox"
-                                          prefWidth="190"
-                                          promptText="Toutes les equipes"
-                                          styleClass="glass-combo"/>
-                            </VBox>
-
-                            <VBox spacing="6">
-                                <Label text="Actions" styleClass="field-label"/>
-                                <HBox spacing="10">
-                                    <Button fx:id="refreshButton"
-                                            onAction="#handleRefresh"
-                                            text="Actualiser"
-                                            styleClass="primary-button"/>
-                                    <Button onAction="#handleResetFilters"
-                                            text="Reinitialiser"
-                                            styleClass="ghost-button"/>
-                                </HBox>
-                            </VBox>
-                        </HBox>
-                    </VBox>
-
-                    <VBox spacing="14" styleClass="panel-card results-panel">
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Cartes des joueurs" styleClass="section-title"/>
-                                <Label text="Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <Label fx:id="resultsMetaLabel" text="0 carte(s)" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <StackPane VBox.vgrow="ALWAYS">
-                            <ListView fx:id="joueurListView"
-                                      prefHeight="560"
-                                      styleClass="player-list-view"/>
-
-                            <VBox fx:id="emptyStateBox"
+                        <FlowPane fx:id="competitionCardsPane"
                                   alignment="CENTER"
-                                  managed="false"
-                                  maxWidth="340"
-                                  spacing="12"
-                                  visible="false"
-                                  styleClass="empty-state-box">
-                                <Label text="+" styleClass="empty-icon"/>
-                                <Label text="Aucun joueur trouve" styleClass="empty-title"/>
-                                <Label text="Essayez un autre nom ou reinitialisez le filtre pour revoir l'effectif complet."
-                                       wrapText="true"
-                                       styleClass="empty-text"/>
-                            </VBox>
-                        </StackPane>
+                                  hgap="18"
+                                  vgap="18"
+                                  prefWrapLength="760"
+                                  styleClass="competition-cards-pane"/>
                     </VBox>
                 </VBox>
                 </StackPane>
@@ -205,5 +144,3 @@
         </ScrollPane>
     </center>
 </BorderPane>
-
-

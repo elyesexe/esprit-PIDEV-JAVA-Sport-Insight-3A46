@@ -289,6 +289,7 @@ public final class SchemaMigration {
                             user_id INT NOT NULL,
                             target_type VARCHAR(16) NOT NULL,
                             team_id INT NULL,
+                            match_id INT NULL,
                             competition_code VARCHAR(16) NULL,
                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
                         )
@@ -298,6 +299,7 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "user_id", "INT NOT NULL");
             addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "target_type", "VARCHAR(16) NOT NULL DEFAULT 'TEAM'");
             addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "team_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "match_id", "INT NULL");
             addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "competition_code", "VARCHAR(16) NULL");
             addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "created_at", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
 
@@ -305,10 +307,14 @@ public final class SchemaMigration {
                     "CREATE INDEX idx_match_follow_target_user ON match_follow_target (user_id)");
             addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_team",
                     "CREATE INDEX idx_match_follow_target_team ON match_follow_target (team_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_match",
+                    "CREATE INDEX idx_match_follow_target_match ON match_follow_target (match_id)");
             addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_competition",
                     "CREATE INDEX idx_match_follow_target_competition ON match_follow_target (competition_code)");
             addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_team",
                     "CREATE UNIQUE INDEX uq_match_follow_target_team ON match_follow_target (user_id, target_type, team_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_match",
+                    "CREATE UNIQUE INDEX uq_match_follow_target_match ON match_follow_target (user_id, target_type, match_id)");
             addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_competition",
                     "CREATE UNIQUE INDEX uq_match_follow_target_competition ON match_follow_target (user_id, target_type, competition_code)");
 

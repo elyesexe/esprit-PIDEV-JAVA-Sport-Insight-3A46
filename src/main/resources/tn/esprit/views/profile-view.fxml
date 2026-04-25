@@ -294,6 +294,27 @@
                                               hgap="8"
                                               vgap="8"
                                               prefWrapLength="640"/>
+
+                                    <VBox spacing="10" styleClass="favorite-match-section">
+                                        <VBox spacing="4">
+                                            <Label text="Favorite matches" styleClass="field-label"/>
+                                            <Label text="Exact match alerts stay active for post-match catch-up notifications when you open the app later."
+                                                   wrapText="true"
+                                                   styleClass="profile-note"/>
+                                        </VBox>
+
+                                        <FlowPane fx:id="favouriteMatchChipPane"
+                                                  hgap="8"
+                                                  vgap="8"
+                                                  prefWrapLength="640"/>
+
+                                        <VBox spacing="8">
+                                            <Label text="Suggested upcoming matches" styleClass="field-label"/>
+                                            <VBox fx:id="matchSuggestionContainer"
+                                                  spacing="8"
+                                                  fillWidth="true"/>
+                                        </VBox>
+                                    </VBox>
                                 </VBox>
 
                                 <Button fx:id="saveButton"

@@ -1,25 +1,27 @@
 package tn.esprit.Controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -29,6 +31,8 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+import tn.esprit.services.PlayerPortraitService;
+import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -37,13 +41,24 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class JoueurListController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final double CARD_IMAGE_SIZE = 82;
+    private static final double PLAYER_CARD_WIDTH = 232;
+    private static final double PLAYER_CARD_HEIGHT = 244;
+    private static final double CARD_IMAGE_SIZE = 96;
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("joueur-list-db-worker"));
+    private static final ExecutorService PORTRAIT_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("joueur-list-portrait-worker"));
 
     @FXML
     private HBox navbarRoot;
@@ -68,6 +83,18 @@ public class JoueurListController {
     @FXML
     private Label resultCountLabel;
     @FXML
+    private Label pageTitleLabel;
+    @FXML
+    private Label pageSubtitleLabel;
+    @FXML
+    private Label toolbarTitleLabel;
+    @FXML
+    private Label toolbarSubtitleLabel;
+    @FXML
+    private Label cardsTitleLabel;
+    @FXML
+    private Label cardsSubtitleLabel;
+    @FXML
     private Label selectionStateLabel;
     @FXML
     private Label resultsMetaLabel;
@@ -80,7 +107,7 @@ public class JoueurListController {
     @FXML
     private ComboBox<Equipe> equipeFilterComboBox;
     @FXML
-    private ListView<Joueur> joueurListView;
+    private FlowPane joueurCardsPane;
     @FXML
     private VBox emptyStateBox;
     @FXML
@@ -90,10 +117,17 @@ public class JoueurListController {
     private final ObservableList<Equipe> equipes = FXCollections.observableArrayList();
     private final FilteredList<Joueur> filteredJoueurs = new FilteredList<>(joueurs, joueur -> true);
     private final Map<Integer, Equipe> equipeById = new HashMap<>();
+    private final AtomicLong refreshSequence = new AtomicLong();
+    private final PlayerPortraitService playerPortraitService = new PlayerPortraitService();
 
     private JoueurService joueurService;
     private EquipeService equipeService;
     private boolean serviceReady;
+    private boolean loadingData;
+    private boolean dataLoaded;
+    private Integer contextTeamId;
+    private String contextCompetitionCode;
+    private Equipe contextTeam;
     private SidebarModuleGroup sidebarModuleGroup;
 
     @FXML
@@ -112,13 +146,25 @@ public class JoueurListController {
             equipeService = new EquipeService();
             serviceReady = true;
             updateActionAvailability();
-            refreshData();
-            showSuccessStatus("Effectif charge.");
+            Platform.runLater(() -> {
+                refreshDataAsync("Chargement de l'effectif...");
+            });
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
             showErrorStatus("Connexion base impossible.");
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de charger les joueurs.\n" + e.getMessage());
+        }
+    }
+
+    public void setTeamContext(Equipe equipe, String competitionCode) {
+        contextTeam = equipe;
+        contextTeamId = equipe == null ? null : equipe.getId();
+        contextCompetitionCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        updatePageTexts();
+        updateActionAvailability();
+        if (dataLoaded) {
+            refreshDataAsync("Chargement de l'effectif...");
         }
     }
 
@@ -152,21 +198,43 @@ public class JoueurListController {
 
     @FXML
     private void handleOpenJoueurs() {
-        showMutedStatus("Vous etes deja dans le module Joueurs.");
+        SceneNavigator.switchScene(joueursNavButton, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Competitions");
     }
 
     @FXML
     private void handleRefresh() {
-        refreshData();
-        showMutedStatus("Liste des joueurs actualisee.");
+        refreshDataAsync("Actualisation des joueurs...");
     }
 
     @FXML
     private void handleResetFilters() {
         searchField.clear();
-        equipeFilterComboBox.getSelectionModel().clearSelection();
+        if (contextTeamId == null) {
+            equipeFilterComboBox.getSelectionModel().clearSelection();
+        } else {
+            selectEquipeInFilter(contextTeamId);
+        }
         applyFilters();
         showMutedStatus("Filtres reinitialises.");
+    }
+
+    @FXML
+    private void handleBack() {
+        if (contextCompetitionCode != null) {
+            SceneNavigator.switchScene(
+                    joueurCardsPane,
+                    "/tn/esprit/views/joueur-teams-view.fxml",
+                    "/tn/esprit/styles/joueur-theme.css",
+                    FootballDataCompetitions.labelOf(contextCompetitionCode) + " | Equipes des joueurs",
+                    controller -> {
+                        if (controller instanceof JoueurTeamController joueurTeamController) {
+                            joueurTeamController.setCompetitionFilter(contextCompetitionCode);
+                        }
+                    }
+            );
+            return;
+        }
+        SceneNavigator.switchScene(joueurCardsPane, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Competitions");
     }
 
 
@@ -214,44 +282,23 @@ public class JoueurListController {
     }
 
     private void configurePlayerList() {
-        joueurListView.setItems(filteredJoueurs);
-        joueurListView.setPlaceholder(new Label(""));
-        joueurListView.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(Joueur item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-
-                VBox card = buildPlayerCard(item);
-                card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
-                card.setOnMouseClicked(event -> openJoueurDetail(item));
-                setText(null);
-                setGraphic(card);
-            }
-        });
+        joueurCardsPane.getChildren().clear();
     }
 
-    private VBox buildPlayerCard(Joueur joueur) {
-        HBox root = new HBox(16);
-        root.setAlignment(Pos.CENTER_LEFT);
-        root.getStyleClass().addAll("player-list-card", "team-list-card-clickable");
-
+    private Button buildPlayerCard(Joueur joueur) {
         StackPane avatarShell = new StackPane();
         avatarShell.getStyleClass().add("player-avatar-shell");
-        avatarShell.setMinSize(CARD_IMAGE_SIZE, CARD_IMAGE_SIZE);
-        avatarShell.setPrefSize(CARD_IMAGE_SIZE, CARD_IMAGE_SIZE);
-        avatarShell.setMaxSize(CARD_IMAGE_SIZE, CARD_IMAGE_SIZE);
+        avatarShell.setMinSize(CARD_IMAGE_SIZE + 24, CARD_IMAGE_SIZE + 24);
+        avatarShell.setPrefSize(CARD_IMAGE_SIZE + 24, CARD_IMAGE_SIZE + 24);
+        avatarShell.setMaxSize(CARD_IMAGE_SIZE + 24, CARD_IMAGE_SIZE + 24);
 
         Image image = JoueurUiSupport.loadJoueurImage(joueur.getImage());
         if (image != null) {
             ImageView avatarView = new ImageView(image);
-            avatarView.setFitWidth(CARD_IMAGE_SIZE - 12);
-            avatarView.setFitHeight(CARD_IMAGE_SIZE - 12);
-            avatarView.setPreserveRatio(true);
+            avatarView.setFitWidth(CARD_IMAGE_SIZE);
+            avatarView.setFitHeight(CARD_IMAGE_SIZE);
+            avatarView.setPreserveRatio(false);
+            avatarView.setClip(new Circle(CARD_IMAGE_SIZE / 2, CARD_IMAGE_SIZE / 2, CARD_IMAGE_SIZE / 2));
             avatarShell.getChildren().add(avatarView);
         } else {
             Label fallback = new Label(buildInitials(joueur));
@@ -259,77 +306,198 @@ public class JoueurListController {
             avatarShell.getChildren().add(fallback);
         }
 
-        VBox content = new VBox(7);
-        HBox.setHgrow(content, Priority.ALWAYS);
-
-        HBox titleRow = new HBox(10);
-        titleRow.setAlignment(Pos.CENTER_LEFT);
-
         Label titleLabel = new Label(buildFullName(joueur));
         titleLabel.getStyleClass().add("player-card-title");
-        titleLabel.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+        titleLabel.setWrapText(true);
+        titleLabel.setMaxWidth(PLAYER_CARD_WIDTH - 36);
 
-        Label numberLabel = new Label(buildPlayerBadge(joueur));
-        numberLabel.getStyleClass().add("player-number-badge");
+        Label positionPill = new Label(emptyToFallback(joueur.getPosition(), "Poste N/A"));
+        positionPill.getStyleClass().add("player-number-badge");
+        positionPill.setMaxWidth(92);
 
-        titleRow.getChildren().addAll(titleLabel, numberLabel);
+        Label nationalityPill = new Label(emptyToFallback(joueur.getNationalite(), "Nationalite N/A"));
+        nationalityPill.getStyleClass().add("player-card-meta-pill");
+        nationalityPill.setMaxWidth(92);
 
-        Label teamLabel = new Label(buildPlayerSecondaryLine(joueur));
-        teamLabel.getStyleClass().add("player-card-team");
+        HBox metaRow = new HBox(8, positionPill, nationalityPill);
+        metaRow.setAlignment(Pos.CENTER);
 
-        HBox metaRow = new HBox(8);
-        metaRow.setAlignment(Pos.CENTER_LEFT);
+        VBox content = new VBox(14, avatarShell, titleLabel, metaRow);
+        content.setAlignment(Pos.CENTER);
 
-        Label birthLabel = new Label(buildPlayerBirthLine(joueur));
-        birthLabel.getStyleClass().add("player-card-meta");
-
-        Label infoPill = new Label(buildPlayerMetaPill(joueur));
-        infoPill.getStyleClass().add("player-card-meta-pill");
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        metaRow.getChildren().addAll(birthLabel, spacer, infoPill);
-        content.getChildren().addAll(titleRow, teamLabel, metaRow);
-
-        root.getChildren().addAll(avatarShell, content);
-        root.setMaxWidth(Double.MAX_VALUE);
-
-        VBox wrapper = new VBox(root);
-        wrapper.setFillWidth(true);
-        wrapper.setMaxWidth(Double.MAX_VALUE);
-        return wrapper;
+        Button cardButton = new Button();
+        cardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        cardButton.setGraphic(content);
+        cardButton.getStyleClass().addAll("competition-card-button", "player-grid-card");
+        cardButton.setPrefSize(PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT);
+        cardButton.setMinSize(PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT);
+        cardButton.setMaxSize(PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT);
+        cardButton.setOnAction(event -> openJoueurDetail(joueur));
+        return cardButton;
     }
 
     private void refreshData() {
+        refreshDataAsync("Chargement de l'effectif...");
+    }
+
+    private void refreshDataAsync(String loadingMessage) {
         if (joueurService == null || equipeService == null) {
             return;
         }
 
-        try {
-            loadEquipes();
+        Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
+        Integer teamId = contextTeamId;
+        Equipe teamContext = contextTeam;
+        long requestId = refreshSequence.incrementAndGet();
+        loadingData = true;
+        updateActionAvailability();
+        if (loadingMessage != null) {
+            showMutedStatus(loadingMessage);
+        }
 
-            List<Joueur> loadedJoueurs = new ArrayList<>(joueurService.getAll());
+        Task<PlayerData> loadTask = new Task<>() {
+            @Override
+            protected PlayerData call() throws Exception {
+                EquipeService backgroundEquipeService = new EquipeService();
+                JoueurService backgroundJoueurService = new JoueurService();
+
+                List<Equipe> loadedEquipes;
+                Equipe resolvedContextTeam = teamContext;
+                if (teamId == null) {
+                    loadedEquipes = new ArrayList<>(backgroundEquipeService.getAll());
+                } else {
+                    if (resolvedContextTeam == null) {
+                        resolvedContextTeam = backgroundEquipeService.getById(teamId);
+                    }
+                    loadedEquipes = resolvedContextTeam == null ? new ArrayList<>() : new ArrayList<>(List.of(resolvedContextTeam));
+                }
+                loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+                List<Joueur> loadedJoueurs = teamId == null
+                        ? new ArrayList<>(backgroundJoueurService.getAll())
+                        : new ArrayList<>(backgroundJoueurService.getByEquipeId(teamId));
+                return new PlayerData(loadedEquipes, loadedJoueurs, resolvedContextTeam);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            PlayerData data = loadTask.getValue();
+            contextTeam = data.contextTeam();
+            equipeById.clear();
+            for (Equipe equipe : data.equipes()) {
+                if (equipe.getId() != null) {
+                    equipeById.put(equipe.getId(), equipe);
+                }
+            }
+            equipes.setAll(data.equipes());
+            selectEquipeInFilter(teamId == null ? selectedFilterEquipeId : teamId);
+
+            List<Joueur> loadedJoueurs = new ArrayList<>(data.joueurs());
             loadedJoueurs.sort(Comparator
                     .comparing(this::getEquipeNameForSort, String.CASE_INSENSITIVE_ORDER)
                     .thenComparing(Joueur::getNumero)
                     .thenComparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                     .thenComparing(Joueur::getPrenom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
 
-            JoueurUiSupport.clearImageCache();
             joueurs.setAll(loadedJoueurs);
+            dataLoaded = true;
+            loadingData = false;
             applyFilters();
-        } catch (SQLException e) {
+            updatePageTexts();
+            updateActionAvailability();
+            showSuccessStatus("Effectif charge.");
+            importMissingPortraitsAsync(loadedJoueurs, new HashMap<>(equipeById), requestId);
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            loadingData = false;
+            updateActionAvailability();
             showErrorStatus("Erreur pendant le chargement.");
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n" + e.getMessage());
+            Throwable throwable = loadTask.getException();
+            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n"
+                    + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+        });
+
+        DB_EXECUTOR.execute(loadTask);
+    }
+
+    private void importMissingPortraitsAsync(List<Joueur> loadedJoueurs, Map<Integer, Equipe> teamsById, long requestId) {
+        List<Joueur> targets = loadedJoueurs.stream()
+                .filter(playerPortraitService::shouldRefreshPortrait)
+                .limit(60)
+                .toList();
+        if (targets.isEmpty()) {
+            return;
+        }
+
+        Equipe fallbackTeam = contextTeam;
+        PORTRAIT_EXECUTOR.execute(() -> {
+            Map<Integer, String> importedPortraits = new LinkedHashMap<>();
+            try {
+                JoueurService backgroundJoueurService = new JoueurService();
+                PlayerPortraitService backgroundPortraitService = new PlayerPortraitService();
+                for (Joueur target : targets) {
+                    if (requestId != refreshSequence.get()) {
+                        return;
+                    }
+                    if (target.getId() == null) {
+                        continue;
+                    }
+                    Equipe team = target.getEquipeId() == null ? fallbackTeam : teamsById.get(target.getEquipeId());
+                    String portrait = backgroundPortraitService.resolvePortrait(target, team);
+                    if (portrait == null || portrait.isBlank() || Objects.equals(portrait.trim(), target.getImage())) {
+                        continue;
+                    }
+
+                    backgroundJoueurService.updateImage(target.getId(), portrait.trim());
+                    importedPortraits.put(target.getId(), portrait.trim());
+                }
+            } catch (Exception e) {
+                System.err.println("Player portrait background import failed: " + e.getMessage());
+            }
+
+            int imported = importedPortraits.size();
+            if (imported > 0 && requestId == refreshSequence.get()) {
+                Platform.runLater(() -> {
+                    importedPortraits.forEach(this::updateLoadedJoueurImage);
+                    JoueurUiSupport.clearImageCache();
+                    applyFilters();
+                    showMutedStatus(imported + " photo(s) joueur importee(s).");
+                });
+            }
+        });
+    }
+
+    private void updateLoadedJoueurImage(Integer joueurId, String imagePath) {
+        if (joueurId == null || imagePath == null || imagePath.isBlank()) {
+            return;
+        }
+        for (Joueur current : joueurs) {
+            if (Objects.equals(current.getId(), joueurId)) {
+                current.setImage(imagePath);
+                return;
+            }
         }
     }
 
     private void loadEquipes() throws SQLException {
         Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
 
-        List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
+        List<Equipe> loadedEquipes;
+        if (contextTeamId == null) {
+            loadedEquipes = new ArrayList<>(equipeService.getAll());
+        } else {
+            Equipe team = contextTeam != null ? contextTeam : equipeService.getById(contextTeamId);
+            loadedEquipes = team == null ? new ArrayList<>() : new ArrayList<>(List.of(team));
+            contextTeam = team;
+        }
         loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
 
         equipeById.clear();
@@ -340,12 +508,12 @@ public class JoueurListController {
         }
 
         equipes.setAll(loadedEquipes);
-        selectEquipeInFilter(selectedFilterEquipeId);
+        selectEquipeInFilter(contextTeamId == null ? selectedFilterEquipeId : contextTeamId);
     }
 
     private void applyFilters() {
         String query = normalize(searchField.getText());
-        Integer filterEquipeId = getSelectedFilterEquipeId();
+        Integer filterEquipeId = contextTeamId == null ? getSelectedFilterEquipeId() : contextTeamId;
 
         filteredJoueurs.setPredicate(joueur -> {
             boolean matchesQuery = query == null
@@ -360,6 +528,9 @@ public class JoueurListController {
             return matchesQuery && matchesEquipe;
         });
 
+        joueurCardsPane.getChildren().setAll(filteredJoueurs.stream()
+                .map(this::buildPlayerCard)
+                .toList());
         updateCounters();
         updateEmptyState();
     }
@@ -394,24 +565,24 @@ public class JoueurListController {
         }
 
         SceneNavigator.switchScene(
-                joueurListView,
+                joueurCardsPane,
                 "/tn/esprit/views/joueur-detail-view.fxml",
                 "/tn/esprit/styles/joueur-theme.css",
                 "Fiche joueur",
                 controller -> {
                     if (controller instanceof JoueurDetailController joueurDetailController) {
-                        joueurDetailController.setJoueurContext(joueur);
+                        joueurDetailController.setJoueurContext(joueur, contextTeam, contextCompetitionCode);
                     }
                 }
         );
     }
 
     private void updateActionAvailability() {
-        boolean disabled = !serviceReady;
+        boolean disabled = !serviceReady || loadingData;
         refreshButton.setDisable(disabled);
         searchField.setDisable(disabled);
-        equipeFilterComboBox.setDisable(disabled);
-        joueurListView.setDisable(disabled);
+        equipeFilterComboBox.setDisable(disabled || contextTeamId != null);
+        joueurCardsPane.setDisable(disabled);
     }
 
     private Integer getSelectedFilterEquipeId() {
@@ -483,6 +654,33 @@ public class JoueurListController {
         return parts.isEmpty() ? "Profil sans equipe" : String.join(" | ", parts);
     }
 
+    private void updatePageTexts() {
+        String teamName = contextTeam == null ? null : emptyToNull(contextTeam.getNom());
+        String competitionLabel = FootballDataCompetitions.labelOf(contextCompetitionCode);
+        if (teamName == null) {
+            setTextIfPresent(pageTitleLabel, "Parcourez les joueurs");
+            setTextIfPresent(pageSubtitleLabel, "Retrouvez les profils par nom ou par equipe, puis ouvrez chaque joueur sur une page detail dediee.");
+            setTextIfPresent(toolbarTitleLabel, "Joueurs");
+            setTextIfPresent(toolbarSubtitleLabel, "Vue publique en lecture seule : liste, filtres et fiche detail sur une autre page.");
+            setTextIfPresent(cardsTitleLabel, "Cartes des joueurs");
+            setTextIfPresent(cardsSubtitleLabel, "Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici.");
+            return;
+        }
+
+        setTextIfPresent(pageTitleLabel, teamName);
+        setTextIfPresent(pageSubtitleLabel, "Effectif " + teamName + " | " + competitionLabel + ". Cliquez sur un joueur pour ouvrir sa fiche et ses statistiques de saison.");
+        setTextIfPresent(toolbarTitleLabel, "Joueurs de " + teamName);
+        setTextIfPresent(toolbarSubtitleLabel, "Liste limitee a l'equipe selectionnee pour garder la page rapide et lisible.");
+        setTextIfPresent(cardsTitleLabel, "Effectif");
+        setTextIfPresent(cardsSubtitleLabel, "Chaque carte ouvre la fiche detaillee du joueur avec ses informations et statistiques disponibles.");
+    }
+
+    private void setTextIfPresent(Label label, String text) {
+        if (label != null) {
+            label.setText(text);
+        }
+    }
+
     private String buildPlayerBirthLine(Joueur joueur) {
         return joueur.getDateNaissance() == null
                 ? "Date de naissance indisponible"
@@ -544,6 +742,10 @@ public class JoueurListController {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
+    private String emptyToFallback(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
     private String normalize(String value) {
         if (value == null) {
             return null;
@@ -565,6 +767,17 @@ public class JoueurListController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
+    }
+
+    private record PlayerData(List<Equipe> equipes, List<Joueur> joueurs, Equipe contextTeam) {
     }
 }
 

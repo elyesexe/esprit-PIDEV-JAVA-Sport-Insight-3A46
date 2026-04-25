@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
 import tn.esprit.tools.MyConnection;
 
@@ -220,6 +221,110 @@ public class ApiFootballInsightsService {
         }
         TEAM_SCORERS_CACHE.put(cacheKey, new CacheEntry<>(ranked, Instant.now()));
         return ranked;
+    }
+
+    public Optional<ApiFootballPlayerSeasonStats> loadPlayerSeasonStats(Joueur joueur, Equipe equipe)
+            throws SQLException, IOException, InterruptedException {
+        if (joueur == null || equipe == null) {
+            return Optional.empty();
+        }
+
+        String competitionCode = FootballDataCompetitions.normalizeCode(equipe.getCompetitionCode());
+        if (ApiFootballCompetitionMappings.supportsCompetition(competitionCode) && apiClient != null) {
+            try {
+                Optional<ApiFootballPlayerSeasonStats> apiFootballStats = loadPlayerSeasonStatsFromApiFootball(joueur, equipe, competitionCode);
+                if (apiFootballStats.isPresent()) {
+                    return apiFootballStats;
+                }
+            } catch (IOException e) {
+                // Keep the player page useful when API-Football is missing this player or temporarily unavailable.
+            }
+        }
+
+        return loadPlayerSeasonStatsFromFootballData(joueur, equipe, competitionCode);
+    }
+
+    private Optional<ApiFootballPlayerSeasonStats> loadPlayerSeasonStatsFromApiFootball(Joueur joueur, Equipe equipe, String competitionCode)
+            throws SQLException, IOException, InterruptedException {
+        int seasonYear = ApiFootballCompetitionMappings.resolveSeasonYear(competitionCode, LocalDate.now());
+        Integer teamApiFootballId = ensureTeamApiFootballId(equipe, competitionCode, seasonYear);
+        if (teamApiFootballId == null) {
+            return Optional.empty();
+        }
+
+        int leagueId = ApiFootballCompetitionMappings.leagueIdOf(competitionCode);
+        int page = 1;
+        while (true) {
+            JsonNode payload = requireApiClient().fetchTeamPlayers(teamApiFootballId, leagueId, seasonYear, page);
+            JsonNode responseNode = payload.path("response");
+            if (!responseNode.isArray() || responseNode.isEmpty()) {
+                break;
+            }
+
+            for (JsonNode playerNode : responseNode) {
+                if (!matchesPlayer(joueur, playerNode.path("player"))) {
+                    continue;
+                }
+
+                JsonNode statisticsNode = findRelevantStatistics(playerNode.path("statistics"), leagueId, teamApiFootballId);
+                if (statisticsNode == null) {
+                    return Optional.of(new ApiFootballPlayerSeasonStats(
+                            normalizeNullable(playerNode.path("player").path("name").asText(null)),
+                            equipe.getNom(),
+                            ApiFootballCompetitionMappings.labelOf(competitionCode),
+                            seasonYear,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            normalizeNullable(playerNode.path("player").path("photo").asText(null))
+                    ));
+                }
+                return Optional.of(parsePlayerSeasonStats(playerNode, statisticsNode, competitionCode, seasonYear));
+            }
+
+            int currentPage = payload.path("paging").path("current").asInt(page);
+            int totalPages = payload.path("paging").path("total").asInt(currentPage);
+            if (currentPage >= totalPages) {
+                break;
+            }
+            page++;
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<ApiFootballPlayerSeasonStats> loadPlayerSeasonStatsFromFootballData(Joueur joueur, Equipe equipe, String competitionCode)
+            throws IOException, InterruptedException {
+        if (footballDataApiClient == null || competitionCode == null || competitionCode.isBlank()) {
+            return Optional.empty();
+        }
+
+        List<FootballDataScorerSnapshot> snapshots = loadFootballDataScorerSnapshots(competitionCode, 100);
+        for (FootballDataScorerSnapshot snapshot : snapshots) {
+            if (!matchesFootballDataTeam(equipe, snapshot) || !matchesFootballDataPlayer(joueur, snapshot)) {
+                continue;
+            }
+            Integer seasonYear = ApiFootballCompetitionMappings.supportsCompetition(competitionCode)
+                    ? ApiFootballCompetitionMappings.resolveSeasonYear(competitionCode, LocalDate.now())
+                    : null;
+            return Optional.of(new ApiFootballPlayerSeasonStats(
+                    snapshot.playerName(),
+                    snapshot.teamName(),
+                    FootballDataCompetitions.labelOf(competitionCode),
+                    seasonYear,
+                    snapshot.appearances(),
+                    snapshot.goals(),
+                    snapshot.assists(),
+                    null,
+                    null,
+                    null,
+                    null
+            ));
+        }
+        return Optional.empty();
     }
 
     public ApiFootballMatchDetails readCachedMatchDetails(Matchs match) {
@@ -1936,6 +2041,93 @@ public class ApiFootballInsightsService {
                 nullableInt(statisticsNode.path("games").path("appearences")),
                 nullableInt(statisticsNode.path("games").path("minutes"))
         );
+    }
+
+    private ApiFootballPlayerSeasonStats parsePlayerSeasonStats(
+            JsonNode playerNode,
+            JsonNode statisticsNode,
+            String competitionCode,
+            int seasonYear
+    ) {
+        Integer redCards = sumNullable(
+                nullableInt(statisticsNode.path("cards").path("red")),
+                nullableInt(statisticsNode.path("cards").path("yellowred"))
+        );
+        return new ApiFootballPlayerSeasonStats(
+                normalizeNullable(playerNode.path("player").path("name").asText(null)),
+                normalizeNullable(statisticsNode.path("team").path("name").asText(null)),
+                ApiFootballCompetitionMappings.labelOf(competitionCode),
+                seasonYear,
+                nullableInt(statisticsNode.path("games").path("appearences")),
+                nullableInt(statisticsNode.path("goals").path("total")),
+                nullableInt(statisticsNode.path("goals").path("assists")),
+                nullableInt(statisticsNode.path("cards").path("yellow")),
+                redCards,
+                nullableInt(statisticsNode.path("games").path("minutes")),
+                normalizeNullable(playerNode.path("player").path("photo").asText(null))
+        );
+    }
+
+    private boolean matchesPlayer(Joueur joueur, JsonNode apiPlayerNode) {
+        if (joueur == null || apiPlayerNode == null || apiPlayerNode.isMissingNode()) {
+            return false;
+        }
+
+        Long localExternalId = joueur.getExternalApiId();
+        long apiPlayerId = apiPlayerNode.path("id").asLong(0);
+        if (localExternalId != null && apiPlayerId > 0 && localExternalId == apiPlayerId) {
+            return true;
+        }
+
+        String localName = normalizePlayerName(buildLocalPlayerName(joueur));
+        String apiName = normalizePlayerName(apiPlayerNode.path("name").asText(null));
+        if (localName == null || apiName == null) {
+            return false;
+        }
+
+        return localName.equals(apiName)
+                || apiName.contains(localName)
+                || localName.contains(apiName)
+                || similarity(localName, apiName) >= 0.9;
+    }
+
+    private String buildLocalPlayerName(Joueur joueur) {
+        String prenom = normalizeNullable(joueur.getPrenom());
+        String nom = normalizeNullable(joueur.getNom());
+        if (prenom == null) {
+            return nom;
+        }
+        if (nom == null) {
+            return prenom;
+        }
+        return prenom + " " + nom;
+    }
+
+    private boolean matchesFootballDataPlayer(Joueur joueur, FootballDataScorerSnapshot snapshot) {
+        if (joueur == null || snapshot == null) {
+            return false;
+        }
+
+        String localName = normalizePlayerName(buildLocalPlayerName(joueur));
+        String snapshotName = normalizePlayerName(snapshot.playerName());
+        if (localName == null || snapshotName == null) {
+            return false;
+        }
+
+        return localName.equals(snapshotName)
+                || localName.contains(snapshotName)
+                || snapshotName.contains(localName)
+                || similarity(localName, snapshotName) >= 0.9;
+    }
+
+    private Integer sumNullable(Integer first, Integer second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        return first + second;
     }
 
     private JsonNode findRelevantStatistics(JsonNode statisticsNode, int leagueId, int teamId) {
