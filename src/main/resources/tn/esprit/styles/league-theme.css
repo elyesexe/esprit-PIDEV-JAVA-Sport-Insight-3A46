@@ -14,33 +14,55 @@
     -fx-background-radius: 30;
 }
 
+.standings-hero-shell {
+    -fx-min-height: 206;
+}
+
+.standings-hero-shell .hero-content {
+    -fx-padding: 24 28 26 28;
+    -fx-max-width: 700;
+}
+
+.standings-hero-shell .hero-title {
+    -fx-font-size: 34px;
+}
+
+.standings-hero-shell .hero-text {
+    -fx-font-size: 14px;
+}
+
 .standings-panel-card {
-    -fx-padding: 20 22 18 22;
+    -fx-padding: 18 18 18 18;
+    -fx-spacing: 14;
 }
 
 .standings-header-grid {
-    -fx-padding: 4 12 4 12;
+    -fx-padding: 10 14 10 14;
     -fx-hgap: 12;
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(31, 41, 55, 0.96) 0%, rgba(22, 101, 52, 0.9) 100%);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(21, 128, 61, 0.18);
-    -fx-border-radius: 20;
-    -fx-min-height: 48;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #071923 0%, #0d2531 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(94, 234, 212, 0.12);
+    -fx-border-radius: 16;
+    -fx-min-height: 44;
     -fx-alignment: center-left;
 }
 
 .standings-header-pill,
 .standings-header-stat,
 .standings-header-main,
-.standings-header-points {
+.standings-header-points,
+.standings-header-form {
+    -fx-font-family: "Bahnschrift SemiCondensed";
     -fx-font-size: 12px;
     -fx-font-weight: 800;
-    -fx-text-fill: #cbd5e1;
+    -fx-text-fill: #dbe7ee;
+    -fx-letter-spacing: 0.6px;
 }
 
 .standings-header-pill,
 .standings-header-stat,
-.standings-header-points {
+.standings-header-points,
+.standings-header-form {
     -fx-alignment: center;
     -fx-max-width: infinity;
 }
@@ -50,36 +72,38 @@
 }
 
 .standings-header-points {
-    -fx-text-fill: #86efac;
+    -fx-text-fill: #7ef7b0;
 }
 
 .standings-list-view {
     -fx-background-color: transparent;
     -fx-control-inner-background: transparent;
-    -fx-padding: 2 2 2 2;
+    -fx-padding: 0;
+    -fx-fixed-cell-size: -1;
 }
 
-.standings-list-view .viewport {
+.standings-list-view .viewport,
+.standings-list-view .virtual-flow,
+.standings-list-view .clipped-container {
     -fx-background-color: transparent;
 }
 
 .standings-list-view .list-cell {
     -fx-background-color: transparent;
-    -fx-padding: 0 0 10 0;
+    -fx-padding: 0 0 8 0;
 }
 
 .standings-row-shell {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(203, 213, 225, 0.95);
-    -fx-border-radius: 20;
-    -fx-padding: 12 14 12 14;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.10), 16, 0.16, 0, 7);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 19, 28, 0.98) 0%, rgba(9, 24, 35, 0.98) 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(111, 146, 166, 0.26);
+    -fx-border-radius: 16;
+    -fx-padding: 10 14 10 14;
 }
 
 .standings-list-view .list-cell:filled:hover .standings-row-shell {
-    -fx-border-color: rgba(52, 211, 153, 0.46);
-    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.18), 26, 0.18, 0, 10);
+    -fx-border-color: rgba(94, 234, 212, 0.36);
+    -fx-effect: dropshadow(gaussian, rgba(15, 118, 110, 0.18), 18, 0.16, 0, 4);
 }
 
 .standings-list-view .list-cell:filled:selected,
@@ -89,7 +113,7 @@
 
 .standings-list-view .list-cell:filled:selected .standings-row-shell,
 .standings-list-view .list-cell:filled:selected:focused .standings-row-shell {
-    -fx-border-color: rgba(110, 231, 183, 0.62);
+    -fx-border-color: rgba(110, 231, 183, 0.48);
 }
 
 .standings-row-grid {
@@ -97,86 +121,126 @@
 }
 
 .standings-position-badge {
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
     -fx-border-width: 1;
     -fx-alignment: center;
 }
 
 .standings-position-label {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-font-weight: 800;
     -fx-text-fill: #f8fafc;
 }
 
 .position-zone-champions {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #16a34a 0%, #22c55e 100%);
-    -fx-border-color: rgba(134, 239, 172, 0.78);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0a6ad8 0%, #2ea2ff 100%);
+    -fx-border-color: rgba(147, 197, 253, 0.62);
 }
 
 .position-zone-europe {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f59e0b 0%, #f97316 100%);
-    -fx-border-color: rgba(253, 186, 116, 0.72);
+    -fx-border-color: rgba(253, 186, 116, 0.62);
 }
 
 .position-zone-relegation {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #ef4444 100%);
-    -fx-border-color: rgba(252, 165, 165, 0.72);
+    -fx-border-color: rgba(252, 165, 165, 0.62);
 }
 
 .position-zone-neutral {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #334155 0%, #475569 100%);
-    -fx-border-color: rgba(148, 163, 184, 0.58);
+    -fx-border-color: rgba(148, 163, 184, 0.44);
 }
 
 .standings-team-crest-shell {
-    -fx-background-color: rgba(248, 250, 252, 0.96);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(203, 213, 225, 0.88);
-    -fx-border-radius: 18;
-    -fx-padding: 6;
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 12;
+    -fx-padding: 4;
 }
 
 .standings-team-fallback {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 14px;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: #f8fafc;
 }
 
 .standings-team-name {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 20px;
+    -fx-font-size: 16px;
     -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: #f8fafc;
 }
 
 .standings-team-meta {
     -fx-font-size: 11px;
     -fx-font-weight: 700;
-    -fx-text-fill: #64748b;
+    -fx-text-fill: #7f95a4;
 }
 
 .standings-stat-value,
 .standings-points-value {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 17px;
+    -fx-font-size: 16px;
     -fx-font-weight: 700;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: #e5eef5;
     -fx-alignment: center;
     -fx-max-width: infinity;
 }
 
 .standings-points-value {
-    -fx-text-fill: #86efac;
+    -fx-text-fill: #7ef7b0;
+}
+
+.standings-form-pane {
+    -fx-alignment: center-right;
+}
+
+.standings-form-chip {
+    -fx-min-width: 24;
+    -fx-pref-width: 24;
+    -fx-max-width: 24;
+    -fx-min-height: 24;
+    -fx-pref-height: 24;
+    -fx-max-height: 24;
+    -fx-alignment: center;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: white;
+}
+
+.form-win {
+    -fx-background-color: #0bb34b;
+    -fx-border-color: rgba(187, 247, 208, 0.18);
+}
+
+.form-draw {
+    -fx-background-color: #e8a40c;
+    -fx-border-color: rgba(253, 230, 138, 0.18);
+}
+
+.form-loss {
+    -fx-background-color: #e11d2e;
+    -fx-border-color: rgba(254, 202, 202, 0.18);
+}
+
+.form-empty {
+    -fx-background-color: #5b6b76;
+    -fx-border-color: rgba(203, 213, 225, 0.18);
 }
 
 .top-scorer-row {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(203, 213, 225, 0.95);
-    -fx-border-radius: 20;
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(203, 213, 225, 0.78);
+    -fx-border-radius: 18;
     -fx-padding: 12 14 12 14;
 }
 
@@ -213,14 +277,73 @@
     -fx-text-fill: #475569;
 }
 
+.theme-light .standings-panel-card {
+    -fx-background-color: rgba(255, 255, 255, 0.84);
+}
+
+.theme-light .standings-hero-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(7, 25, 35, 0.96) 0%, rgba(13, 109, 91, 0.92) 100%);
+    -fx-border-color: rgba(94, 234, 212, 0.12);
+}
+
+.theme-light .standings-row-shell {
+    -fx-border-color: rgba(71, 85, 105, 0.18);
+}
+
+.theme-dark .standings-panel-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 17, 26, 0.92) 0%, rgba(10, 22, 33, 0.92) 100%);
+    -fx-border-color: rgba(94, 234, 212, 0.08);
+}
+
+.theme-dark .standings-hero-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(3, 11, 19, 0.98) 0%, rgba(8, 78, 67, 0.94) 100%);
+    -fx-border-color: rgba(94, 234, 212, 0.14);
+}
+
 .theme-dark .standings-header-grid {
-    -fx-background-color: rgba(2, 6, 23, 0.94);
-    -fx-border-color: rgba(71, 85, 105, 0.88);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #06151d 0%, #0b202a 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+}
+
+.theme-dark .standings-header-pill,
+.theme-dark .standings-header-stat,
+.theme-dark .standings-header-main,
+.theme-dark .standings-header-form {
+    -fx-text-fill: #dce7ee;
+}
+
+.theme-dark .standings-header-points {
+    -fx-text-fill: #86efac;
 }
 
 .theme-dark .standings-row-shell {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
-    -fx-border-color: rgba(71, 85, 105, 0.92);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(4, 13, 20, 0.98) 0%, rgba(7, 18, 27, 0.98) 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.34);
+}
+
+.theme-dark .standings-team-crest-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(148, 163, 184, 0.16);
+}
+
+.theme-dark .standings-team-fallback {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .standings-team-name {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .standings-team-meta {
+    -fx-text-fill: #7f95a4;
+}
+
+.theme-dark .standings-stat-value {
+    -fx-text-fill: #dde7ee;
+}
+
+.theme-dark .standings-points-value {
+    -fx-text-fill: #86efac;
 }
 
 .theme-dark .top-scorer-row {

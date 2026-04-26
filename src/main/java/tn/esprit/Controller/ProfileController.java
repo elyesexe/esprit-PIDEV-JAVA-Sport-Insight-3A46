@@ -1,41 +1,63 @@
 package tn.esprit.Controller;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Matchs;
 import tn.esprit.entities.User;
+import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
+import tn.esprit.services.EquipeService;
+import tn.esprit.services.MatchFollowTargetService;
+import tn.esprit.services.MatchsService;
 import tn.esprit.services.UserService;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class ProfileController {
     private static final DateTimeFormatter MEMBER_SINCE_FORMATTER =
             DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter MATCH_KICKOFF_FORMATTER =
+            DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm", Locale.ENGLISH);
+    private static final int MAX_MATCH_SUGGESTIONS = 6;
 
     @FXML
     private HBox navbarRoot;
@@ -97,10 +119,33 @@ public class ProfileController {
     private PasswordField confirmPasswordField;
     @FXML
     private Button saveButton;
+    @FXML
+    private ComboBox<String> favouriteLeagueComboBox;
+    @FXML
+    private Button addFavouriteLeagueButton;
+    @FXML
+    private FlowPane favouriteLeagueChipPane;
+    @FXML
+    private ComboBox<EquipeSelectionItem> favouriteTeamComboBox;
+    @FXML
+    private Button addFavouriteTeamButton;
+    @FXML
+    private FlowPane favouriteTeamChipPane;
+    @FXML
+    private FlowPane favouriteMatchChipPane;
+    @FXML
+    private VBox matchSuggestionContainer;
+    @FXML
+    private Label favouritesSummaryLabel;
 
     private SidebarModuleGroup sidebarModuleGroup;
     private UserService userService;
+    private MatchFollowTargetService matchFollowTargetService;
+    private EquipeService equipeService;
+    private MatchsService matchsService;
     private User currentUser;
+    private final ObservableList<EquipeSelectionItem> teamOptions = FXCollections.observableArrayList();
+    private final Map<Integer, EquipeSelectionItem> teamOptionsById = new LinkedHashMap<>();
 
     @FXML
     public void initialize() {
@@ -133,20 +178,28 @@ public class ProfileController {
         currentUser = AuthSession.getCurrentUser();
         if (currentUser == null) {
             saveButton.setDisable(true);
+            configureFavouriteControlsDisabled();
             showStatus("Your session expired. Please sign in again.", "status-error");
             return;
         }
 
         try {
             userService = new UserService();
+            matchFollowTargetService = new MatchFollowTargetService();
+            equipeService = new EquipeService();
+            matchsService = new MatchsService();
+            configureFavouriteControls();
+            loadFavouriteTeamOptions();
             User freshUser = userService.getById(currentUser.getId());
             if (freshUser != null) {
                 currentUser = freshUser;
                 AuthSession.login(freshUser);
             }
             populateProfile(currentUser);
+            refreshFavouriteChips();
         } catch (Exception ex) {
             saveButton.setDisable(true);
+            configureFavouriteControlsDisabled();
             populateProfile(currentUser);
             showStatus("The profile service is unavailable right now.", "status-error");
         }
@@ -350,6 +403,63 @@ public class ProfileController {
         }
     }
 
+    @FXML
+    private void handleAddFavouriteLeague() {
+        hideStatus();
+
+        if (currentUser == null || currentUser.getId() == null || matchFollowTargetService == null) {
+            showStatus("Live alert preferences are not available right now.", "status-error");
+            return;
+        }
+
+        String selectedLabel = favouriteLeagueComboBox == null ? null : favouriteLeagueComboBox.getValue();
+        String competitionCode = resolveCompetitionCode(selectedLabel);
+        if (competitionCode == null) {
+            showStatus("Choose a league before adding it to your alerts.", "status-error");
+            return;
+        }
+
+        try {
+            boolean added = matchFollowTargetService.addCompetitionFavorite(currentUser.getId(), competitionCode);
+            refreshFavouriteChips();
+            LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            showStatus(added
+                    ? selectedLabel + " was added to your live alerts."
+                    : selectedLabel + " is already in your live alerts.",
+                    added ? "status-success" : "status-muted");
+        } catch (Exception e) {
+            showStatus("The league could not be added. " + e.getMessage(), "status-error");
+        }
+    }
+
+    @FXML
+    private void handleAddFavouriteTeam() {
+        hideStatus();
+
+        if (currentUser == null || currentUser.getId() == null || matchFollowTargetService == null) {
+            showStatus("Live alert preferences are not available right now.", "status-error");
+            return;
+        }
+
+        EquipeSelectionItem selectedTeam = favouriteTeamComboBox == null ? null : favouriteTeamComboBox.getValue();
+        if (selectedTeam == null || selectedTeam.teamId() == null) {
+            showStatus("Choose a team before adding it to your alerts.", "status-error");
+            return;
+        }
+
+        try {
+            boolean added = matchFollowTargetService.addTeamFavorite(currentUser.getId(), selectedTeam.teamId());
+            refreshFavouriteChips();
+            LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            showStatus(added
+                    ? selectedTeam.label() + " was added to your live alerts."
+                    : selectedTeam.label() + " is already in your live alerts.",
+                    added ? "status-success" : "status-muted");
+        } catch (Exception e) {
+            showStatus("The team could not be added. " + e.getMessage(), "status-error");
+        }
+    }
+
     private void configureSidebar() {
         sidebarModuleGroup = new SidebarModuleGroup(
                 matchsNavButton,
@@ -359,6 +469,399 @@ public class ProfileController {
                 joueursNavButton
         );
         sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.NONE);
+    }
+
+    private void configureFavouriteControls() {
+        if (favouriteLeagueComboBox != null) {
+            favouriteLeagueComboBox.setItems(FXCollections.observableArrayList(
+                    tn.esprit.services.football.FootballDataCompetitions.DEFAULT_CODES.stream()
+                            .map(tn.esprit.services.football.FootballDataCompetitions::labelOf)
+                            .toList()
+            ));
+        }
+
+        if (favouriteTeamComboBox != null) {
+            favouriteTeamComboBox.setItems(teamOptions);
+            favouriteTeamComboBox.setCellFactory(listView -> new ListCell<>() {
+                @Override
+                protected void updateItem(EquipeSelectionItem item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.displayLabel());
+                }
+            });
+            favouriteTeamComboBox.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(EquipeSelectionItem item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.displayLabel());
+                }
+            });
+        }
+
+        if (favouritesSummaryLabel != null) {
+            favouritesSummaryLabel.setText("Follow teams and leagues to receive live kickoff and incident popups.");
+        }
+    }
+
+    private void configureFavouriteControlsDisabled() {
+        if (favouriteLeagueComboBox != null) {
+            favouriteLeagueComboBox.setDisable(true);
+        }
+        if (addFavouriteLeagueButton != null) {
+            addFavouriteLeagueButton.setDisable(true);
+        }
+        if (favouriteTeamComboBox != null) {
+            favouriteTeamComboBox.setDisable(true);
+        }
+        if (addFavouriteTeamButton != null) {
+            addFavouriteTeamButton.setDisable(true);
+        }
+        if (favouriteMatchChipPane != null) {
+            favouriteMatchChipPane.getChildren().setAll(buildEmptyFavouriteChip("No followed matches yet."));
+        }
+        if (matchSuggestionContainer != null) {
+            matchSuggestionContainer.getChildren().setAll(buildSuggestionEmptyLabel("Match suggestions are unavailable right now."));
+        }
+        if (favouritesSummaryLabel != null) {
+            favouritesSummaryLabel.setText("Live alert preferences are unavailable until the profile services are ready.");
+        }
+    }
+
+    private void loadFavouriteTeamOptions() throws Exception {
+        if (equipeService == null) {
+            return;
+        }
+
+        teamOptions.clear();
+        teamOptionsById.clear();
+        equipeService.getAll().stream()
+                .filter(team -> team.getId() != null && team.getNom() != null && !team.getNom().isBlank())
+                .sorted((left, right) -> left.getNom().compareToIgnoreCase(right.getNom()))
+                .forEach(team -> {
+                    EquipeSelectionItem item = new EquipeSelectionItem(
+                            team.getId(),
+                            team.getNom().trim(),
+                            tn.esprit.services.football.FootballDataCompetitions.labelOf(team.getCompetitionCode())
+                    );
+                    teamOptions.add(item);
+                    teamOptionsById.put(item.teamId(), item);
+                });
+    }
+
+    private void refreshFavouriteChips() throws Exception {
+        if (currentUser == null || currentUser.getId() == null || matchFollowTargetService == null) {
+            configureFavouriteControlsDisabled();
+            return;
+        }
+
+        Set<String> competitionCodes = matchFollowTargetService.getFollowedCompetitionCodes(currentUser.getId());
+        Set<Integer> teamIds = matchFollowTargetService.getFollowedTeamIds(currentUser.getId());
+        Set<Integer> matchIds = matchFollowTargetService.getFollowedMatchIds(currentUser.getId());
+
+        renderFavouriteLeagueChips(competitionCodes);
+        renderFavouriteTeamChips(teamIds);
+        renderFavouriteMatchChips(matchIds);
+        renderSuggestedMatchCards(teamIds, competitionCodes, matchIds);
+        updateFavouriteSummary();
+    }
+
+    private void renderFavouriteLeagueChips(java.util.Set<String> competitionCodes) {
+        if (favouriteLeagueChipPane == null) {
+            return;
+        }
+
+        favouriteLeagueChipPane.getChildren().clear();
+        if (competitionCodes == null || competitionCodes.isEmpty()) {
+            favouriteLeagueChipPane.getChildren().add(buildEmptyFavouriteChip("No followed leagues yet."));
+            return;
+        }
+
+        for (String competitionCode : competitionCodes) {
+            String label = tn.esprit.services.football.FootballDataCompetitions.labelOf(competitionCode);
+            favouriteLeagueChipPane.getChildren().add(buildFavouriteChip(label, () -> removeFavouriteLeague(competitionCode, label)));
+        }
+    }
+
+    private void renderFavouriteTeamChips(java.util.Set<Integer> teamIds) {
+        if (favouriteTeamChipPane == null) {
+            return;
+        }
+
+        favouriteTeamChipPane.getChildren().clear();
+        if (teamIds == null || teamIds.isEmpty()) {
+            favouriteTeamChipPane.getChildren().add(buildEmptyFavouriteChip("No followed teams yet."));
+            return;
+        }
+
+        for (Integer teamId : teamIds) {
+            EquipeSelectionItem item = teamOptionsById.get(teamId);
+            String label = item == null ? "Team #" + teamId : item.label();
+            favouriteTeamChipPane.getChildren().add(buildFavouriteChip(label, () -> removeFavouriteTeam(teamId, label)));
+        }
+    }
+
+    private void renderFavouriteMatchChips(Set<Integer> matchIds) throws Exception {
+        if (favouriteMatchChipPane == null) {
+            return;
+        }
+
+        favouriteMatchChipPane.getChildren().clear();
+        if (matchIds == null || matchIds.isEmpty()) {
+            favouriteMatchChipPane.getChildren().add(buildEmptyFavouriteChip("No followed matches yet."));
+            return;
+        }
+
+        Map<Integer, Matchs> matchesById = loadMatchesById();
+        for (Integer matchId : matchIds) {
+            Matchs match = matchesById.get(matchId);
+            String label = match == null ? "Match #" + matchId : labelForMatch(match);
+            favouriteMatchChipPane.getChildren().add(buildFavouriteChip(label, () -> removeFavouriteMatch(matchId, label)));
+        }
+    }
+
+    private void renderSuggestedMatchCards(Set<Integer> teamIds, Set<String> competitionCodes, Set<Integer> followedMatchIds) throws Exception {
+        if (matchSuggestionContainer == null) {
+            return;
+        }
+
+        matchSuggestionContainer.getChildren().clear();
+        if ((teamIds == null || teamIds.isEmpty()) && (competitionCodes == null || competitionCodes.isEmpty())) {
+            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel("Follow a team or league to see upcoming match suggestions."));
+            return;
+        }
+        if (matchsService == null) {
+            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel("Upcoming match suggestions are unavailable right now."));
+            return;
+        }
+
+        List<Matchs> suggestions = matchsService.getAll().stream()
+                .filter(match -> match != null && match.getId() != null)
+                .filter(match -> followedMatchIds == null || !followedMatchIds.contains(match.getId()))
+                .filter(this::isUpcomingMatch)
+                .filter(match -> isSuggestedByFavorites(match, teamIds, competitionCodes))
+                .sorted(Comparator
+                        .comparing(this::kickoffOf, Comparator.nullsLast(LocalDateTime::compareTo))
+                        .thenComparing(Matchs::getId, Comparator.nullsLast(Integer::compareTo)))
+                .limit(MAX_MATCH_SUGGESTIONS)
+                .toList();
+
+        if (suggestions.isEmpty()) {
+            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel("No upcoming suggestions match your followed teams or leagues."));
+            return;
+        }
+
+        for (Matchs suggestion : suggestions) {
+            matchSuggestionContainer.getChildren().add(buildSuggestedMatchRow(suggestion));
+        }
+    }
+
+    private VBox buildFavouriteChip(String label, Runnable removeAction) {
+        Label textLabel = new Label(label);
+        textLabel.getStyleClass().add("favorite-chip-label");
+
+        Button removeButton = new Button("Remove");
+        removeButton.getStyleClass().add("favorite-chip-remove");
+        removeButton.setOnAction(event -> removeAction.run());
+
+        HBox row = new HBox(8, textLabel, removeButton);
+        row.getStyleClass().add("favorite-chip");
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        VBox wrapper = new VBox(row);
+        return wrapper;
+    }
+
+    private Label buildEmptyFavouriteChip(String text) {
+        Label emptyChip = new Label(text);
+        emptyChip.getStyleClass().add("favorite-empty-chip");
+        return emptyChip;
+    }
+
+    private Label buildSuggestionEmptyLabel(String text) {
+        Label emptyLabel = new Label(text);
+        emptyLabel.setWrapText(true);
+        emptyLabel.getStyleClass().add("match-suggestion-empty");
+        return emptyLabel;
+    }
+
+    private HBox buildSuggestedMatchRow(Matchs match) {
+        String label = labelForMatch(match);
+
+        Label titleLabel = new Label(teamLabel(match.getEquipeDomicileId(), "Home") + " vs " + teamLabel(match.getEquipeExterieurId(), "Away"));
+        titleLabel.getStyleClass().add("match-suggestion-title");
+        titleLabel.setWrapText(true);
+
+        Label metaLabel = new Label(formatKickoff(match) + " | " + tn.esprit.services.football.FootballDataCompetitions.labelOf(match.getCompetitionCode()));
+        metaLabel.getStyleClass().add("match-suggestion-meta");
+        metaLabel.setWrapText(true);
+
+        VBox textBox = new VBox(3, titleLabel, metaLabel);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        Button addButton = new Button("Notify me");
+        addButton.getStyleClass().add("favorite-chip-remove");
+        addButton.setOnAction(event -> addSuggestedMatch(match.getId(), label));
+
+        HBox row = new HBox(10, textBox, addButton);
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.getStyleClass().add("match-suggestion-row");
+        return row;
+    }
+
+    private void removeFavouriteLeague(String competitionCode, String label) {
+        try {
+            boolean removed = matchFollowTargetService.removeCompetitionFavorite(currentUser.getId(), competitionCode);
+            refreshFavouriteChips();
+            showStatus(removed
+                    ? label + " was removed from your live alerts."
+                    : label + " was not in your live alerts.",
+                    removed ? "status-success" : "status-muted");
+        } catch (Exception e) {
+            showStatus("The league could not be removed. " + e.getMessage(), "status-error");
+        }
+    }
+
+    private void removeFavouriteTeam(Integer teamId, String label) {
+        try {
+            boolean removed = matchFollowTargetService.removeTeamFavorite(currentUser.getId(), teamId);
+            refreshFavouriteChips();
+            showStatus(removed
+                    ? label + " was removed from your live alerts."
+                    : label + " was not in your live alerts.",
+                    removed ? "status-success" : "status-muted");
+        } catch (Exception e) {
+            showStatus("The team could not be removed. " + e.getMessage(), "status-error");
+        }
+    }
+
+    private void removeFavouriteMatch(Integer matchId, String label) {
+        try {
+            boolean removed = matchFollowTargetService.removeMatchFavorite(currentUser.getId(), matchId);
+            refreshFavouriteChips();
+            showStatus(removed
+                    ? label + " was removed from your match alerts."
+                    : label + " was not in your match alerts.",
+                    removed ? "status-success" : "status-muted");
+        } catch (Exception e) {
+            showStatus("The match could not be removed. " + e.getMessage(), "status-error");
+        }
+    }
+
+    private void addSuggestedMatch(Integer matchId, String label) {
+        try {
+            boolean added = matchFollowTargetService.addMatchFavorite(currentUser.getId(), matchId);
+            refreshFavouriteChips();
+            LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            showStatus(added
+                    ? label + " was added to your match alerts."
+                    : label + " is already in your match alerts.",
+                    added ? "status-success" : "status-muted");
+        } catch (Exception e) {
+            showStatus("The match could not be added. " + e.getMessage(), "status-error");
+        }
+    }
+
+    private void updateFavouriteSummary() {
+        if (favouritesSummaryLabel == null) {
+            return;
+        }
+
+        int leagueCount = favouriteLeagueChipPane == null ? 0 : (int) favouriteLeagueChipPane.getChildren().stream()
+                .filter(node -> node instanceof VBox)
+                .count();
+        int teamCount = favouriteTeamChipPane == null ? 0 : (int) favouriteTeamChipPane.getChildren().stream()
+                .filter(node -> node instanceof VBox)
+                .count();
+        int matchCount = favouriteMatchChipPane == null ? 0 : (int) favouriteMatchChipPane.getChildren().stream()
+                .filter(node -> node instanceof VBox)
+                .count();
+        favouritesSummaryLabel.setText("You are following " + leagueCount + " league(s), " + teamCount
+                + " team(s), and " + matchCount + " match(es) for live kickoff, score, card, and substitution alerts.");
+    }
+
+    private String resolveCompetitionCode(String label) {
+        if (label == null || label.isBlank()) {
+            return null;
+        }
+        for (String competitionCode : tn.esprit.services.football.FootballDataCompetitions.DEFAULT_CODES) {
+            if (label.equalsIgnoreCase(tn.esprit.services.football.FootballDataCompetitions.labelOf(competitionCode))) {
+                return competitionCode;
+            }
+        }
+        return null;
+    }
+
+    private Map<Integer, Matchs> loadMatchesById() throws Exception {
+        Map<Integer, Matchs> matchesById = new LinkedHashMap<>();
+        if (matchsService == null) {
+            return matchesById;
+        }
+        for (Matchs match : matchsService.getAll()) {
+            if (match != null && match.getId() != null) {
+                matchesById.put(match.getId(), match);
+            }
+        }
+        return matchesById;
+    }
+
+    private boolean isUpcomingMatch(Matchs match) {
+        LocalDateTime kickoff = kickoffOf(match);
+        return kickoff != null
+                && !kickoff.isBefore(LocalDateTime.now())
+                && !isFinishedStatus(match.getStatut());
+    }
+
+    private boolean isSuggestedByFavorites(Matchs match, Set<Integer> teamIds, Set<String> competitionCodes) {
+        if (match == null) {
+            return false;
+        }
+        if (teamIds != null) {
+            if (match.getEquipeDomicileId() != null && teamIds.contains(match.getEquipeDomicileId())) {
+                return true;
+            }
+            if (match.getEquipeExterieurId() != null && teamIds.contains(match.getEquipeExterieurId())) {
+                return true;
+            }
+        }
+
+        String competitionCode = tn.esprit.services.football.FootballDataCompetitions.normalizeCode(match.getCompetitionCode());
+        return competitionCode != null && competitionCodes != null && competitionCodes.contains(competitionCode);
+    }
+
+    private LocalDateTime kickoffOf(Matchs match) {
+        if (match == null || match.getDateMatch() == null) {
+            return null;
+        }
+        LocalTime time = match.getHeureDebut() == null ? LocalTime.MIDNIGHT : match.getHeureDebut();
+        return match.getDateMatch().atTime(time);
+    }
+
+    private String labelForMatch(Matchs match) {
+        if (match == null) {
+            return "Match";
+        }
+        return teamLabel(match.getEquipeDomicileId(), "Home")
+                + " vs "
+                + teamLabel(match.getEquipeExterieurId(), "Away")
+                + " | "
+                + formatKickoff(match);
+    }
+
+    private String teamLabel(Integer teamId, String fallback) {
+        if (teamId == null) {
+            return fallback;
+        }
+        EquipeSelectionItem item = teamOptionsById.get(teamId);
+        return item == null ? fallback + " #" + teamId : item.label();
+    }
+
+    private String formatKickoff(Matchs match) {
+        LocalDateTime kickoff = kickoffOf(match);
+        return kickoff == null ? "Date TBC" : MATCH_KICKOFF_FORMATTER.format(kickoff);
+    }
+
+    private boolean isFinishedStatus(String status) {
+        return status != null && status.toLowerCase(Locale.ROOT).contains("fini");
     }
 
     private void populateProfile(User user) {
@@ -532,5 +1035,13 @@ public class ProfileController {
 
     private String clean(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private record EquipeSelectionItem(Integer teamId, String label, String competitionLabel) {
+        private String displayLabel() {
+            return competitionLabel == null || competitionLabel.isBlank()
+                    ? label
+                    : label + "  |  " + competitionLabel;
+        }
     }
 }

@@ -48,6 +48,10 @@ public class SofaScoreClient {
         return getJson("/event/" + eventId + "/statistics");
     }
 
+    public JsonNode fetchEventIncidents(long eventId) throws IOException, InterruptedException {
+        return getJson("/event/" + eventId + "/incidents");
+    }
+
     private JsonNode getJson(String path) throws IOException, InterruptedException {
         CacheEntry<JsonNode> cached = responseCache.get(path);
         if (cached != null && Duration.between(cached.storedAt(), Instant.now()).compareTo(CACHE_TTL) < 0) {

@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Control;
 import javafx.stage.Stage;
+import tn.esprit.assistant.AssistantOverlay;
+import tn.esprit.assistant.AssistantService;
 import tn.esprit.security.AuthSession;
 
 import java.net.URL;
@@ -20,6 +22,9 @@ public final class SceneNavigator {
     private static final String HOME_VIEW = "/tn/esprit/views/home-view.fxml";
     private static final String HOME_CSS = "/tn/esprit/styles/home-theme.css";
     private static final String HOME_TITLE = "Sport Insight | Accueil";
+    private static final String ASSISTANT_CSS = "/tn/esprit/styles/assistant-theme.css";
+    private static final String POPUP_DARK_CSS = "popup-dark.css";
+    private static final String POPUP_LIGHT_CSS = "popup-light.css";
 
     private static final Set<String> PUBLIC_VIEWS = Set.of(LOGIN_VIEW, SIGNUP_VIEW);
     private static final Set<String> ADMIN_VIEWS = Set.of(
@@ -88,16 +93,32 @@ public final class SceneNavigator {
                 controllerConfigurer.accept(loader.getController());
             }
             AuthSession.configureLoadedController(loader.getController());
-            Scene scene = new Scene(root, width, height);
-
-            URL stylesheet = SceneNavigator.class.getResource(cssPath);
-            if (stylesheet != null) {
-                scene.getStylesheets().add(stylesheet.toExternalForm());
+            boolean publicView = PUBLIC_VIEWS.contains(fxmlPath);
+            if (publicView) {
+                AssistantService.getInstance().setWakeWordListener(null);
+                AssistantService.getInstance().setPanelOpen(false);
             }
+            Parent sceneRoot = publicView
+                    ? root
+                    : AssistantOverlay.wrap(root, stage, fxmlPath, title, loader.getController());
+            URL stylesheet = SceneNavigator.class.getResource(cssPath);
+            URL assistantStylesheet = SceneNavigator.class.getResource(ASSISTANT_CSS);
+            String pageStylesheet = stylesheet == null ? null : stylesheet.toExternalForm();
+            String assistantStylesheetUrl = publicView || assistantStylesheet == null ? null : assistantStylesheet.toExternalForm();
 
-            ThemeManager.registerScene(scene);
-            stage.setScene(scene);
+            Scene existingScene = stage.getScene();
+            if (existingScene == null) {
+                Scene scene = new Scene(sceneRoot, width, height);
+                configureSceneStylesheets(scene, pageStylesheet, assistantStylesheetUrl);
+                ThemeManager.registerScene(scene);
+                stage.setScene(scene);
+            } else {
+                existingScene.setRoot(sceneRoot);
+                configureSceneStylesheets(existingScene, pageStylesheet, assistantStylesheetUrl);
+                ThemeManager.registerScene(existingScene);
+            }
             stage.setTitle(title);
+            LiveMatchNotificationRuntime.getInstance().bindStage(stage, fxmlPath, publicView);
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Navigation");
@@ -105,6 +126,30 @@ public final class SceneNavigator {
             alert.setContentText("Impossible d'ouvrir la page demandee.\n" + e.getMessage());
             alert.showAndWait();
         }
+    }
+
+    private static void configureSceneStylesheets(Scene scene, String pageStylesheet, String assistantStylesheet) {
+        if (scene == null) {
+            return;
+        }
+
+        scene.getStylesheets().removeIf(SceneNavigator::isNavigationManagedStylesheet);
+        if (pageStylesheet != null && !scene.getStylesheets().contains(pageStylesheet)) {
+            scene.getStylesheets().add(pageStylesheet);
+        }
+        if (assistantStylesheet != null && !scene.getStylesheets().contains(assistantStylesheet)) {
+            scene.getStylesheets().add(assistantStylesheet);
+        }
+    }
+
+    private static boolean isNavigationManagedStylesheet(String stylesheet) {
+        if (stylesheet == null) {
+            return false;
+        }
+        if (!stylesheet.contains("/tn/esprit/styles/")) {
+            return false;
+        }
+        return !stylesheet.endsWith(POPUP_DARK_CSS) && !stylesheet.endsWith(POPUP_LIGHT_CSS);
     }
 
     private static boolean ensureAccess(Stage stage, String fxmlPath, Node source) {

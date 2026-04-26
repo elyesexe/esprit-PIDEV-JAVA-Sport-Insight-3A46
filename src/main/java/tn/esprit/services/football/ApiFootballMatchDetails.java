@@ -7,7 +7,8 @@ public record ApiFootballMatchDetails(
         String syncedAtIso,
         ApiFootballLineupSide homeLineup,
         ApiFootballLineupSide awayLineup,
-        List<ApiFootballStatisticRow> statistics
+        List<ApiFootballStatisticRow> statistics,
+        List<ApiFootballMatchIncident> incidents
 ) {
     public boolean hasLineups() {
         return (homeLineup != null && homeLineup.hasStartingPlayers())
@@ -16,5 +17,9 @@ public record ApiFootballMatchDetails(
 
     public boolean hasStatistics() {
         return statistics != null && !statistics.isEmpty();
+    }
+
+    public boolean hasIncidents() {
+        return incidents != null && !incidents.isEmpty();
     }
 }

@@ -1,0 +1,454 @@
+/* ================================================
+   Sport Insight — JavaFX Dark Theme
+   Cohesive deep navy with electric accent palette
+   ================================================ */
+
+/* ── Root & Backgrounds ────────────────────────── */
+.main-scroll-pane {
+    -fx-background-color: #080e1a;
+    -fx-background: #080e1a;
+}
+
+.main-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.root-pane {
+    -fx-background-color: #080e1a;
+}
+
+/* ── Toolbar / Header Card ─────────────────────── */
+.toolbar-card {
+    -fx-background-color: #0d1526;
+    -fx-background-radius: 16px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+}
+
+.header-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.header-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7a9cc0;
+}
+
+.header-chip {
+    -fx-background-color: #1a3a6e;
+    -fx-background-radius: 12px;
+    -fx-padding: 8px 14px;
+    -fx-border-color: #2a5298;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.header-chip-value {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #60a5fa;
+}
+
+.header-chip-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7a9cc0;
+}
+
+/* ── Navigation Buttons ────────────────────────── */
+.back-button {
+    -fx-background-color: #1a3a6e;
+    -fx-text-fill: #93c5fd;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 10px 16px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-border-color: #2a5298;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.back-button:hover {
+    -fx-background-color: #2a5298;
+    -fx-text-fill: #bfdbfe;
+}
+
+/* ── Cards ─────────────────────────────────────── */
+.compact-card,
+.summary-card,
+.input-card,
+.nutrition-card,
+.history-card {
+    -fx-background-color: #0d1526;
+    -fx-background-radius: 14px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+}
+
+.input-card {
+    -fx-border-color: #14532d;
+}
+
+.nutrition-card {
+    -fx-border-color: #1e4d7a;
+}
+
+/* ── Typography ────────────────────────────────── */
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.label-text,
+.label-small,
+.progress-text,
+.separator-text {
+    -fx-text-fill: #7a9cc0;
+    -fx-font-size: 12px;
+}
+
+/* ── Calorie Display ───────────────────────────── */
+.calories-consumed {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f87171;
+}
+
+.calories-target {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #60a5fa;
+}
+
+/* ── Progress Bar ──────────────────────────────── */
+.compact-progress {
+    -fx-background-color: #1a2a42;
+    -fx-background-radius: 999px;
+}
+
+.compact-progress > .bar {
+    -fx-background-color: #3b82f6;
+    -fx-background-radius: 999px;
+    -fx-background-insets: 0;
+    -fx-padding: 4px;
+}
+
+/* ── Form Controls ─────────────────────────────── */
+.compact-picker,
+.compact-combo,
+.compact-textarea {
+    -fx-background-color: #060c18;
+    -fx-border-color: #1e3a5f;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 9px 11px;
+    -fx-font-size: 12px;
+    -fx-text-fill: #e8f0fe;
+}
+
+.compact-textarea .content {
+    -fx-background-color: transparent;
+}
+
+.compact-textarea:focused,
+.compact-picker:focused,
+.compact-combo:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 1.5px;
+}
+
+.compact-combo .list-cell {
+    -fx-text-fill: #e8f0fe;
+    -fx-background-color: #0d1526;
+}
+
+/* ── Action Buttons ────────────────────────────── */
+.action-button {
+    -fx-background-color: #1d4ed8;
+    -fx-text-fill: #e8f0fe;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 10px 18px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.action-button:hover {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.save-button {
+    -fx-background-color: #b45309;
+    -fx-text-fill: #fef3c7;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 10px 18px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-border-color: #d97706;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.save-button:hover {
+    -fx-background-color: #d97706;
+    -fx-text-fill: white;
+}
+
+.save-button:disabled {
+    -fx-background-color: #1a2a42;
+    -fx-border-color: #1e3a5f;
+    -fx-text-fill: #3d5a80;
+    -fx-opacity: 0.7;
+}
+
+/* ── Nutrient Boxes ────────────────────────────── */
+.nutrient-box {
+    -fx-background-radius: 12px;
+    -fx-padding: 12px;
+    -fx-min-width: 140px;
+    -fx-min-height: 86px;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.calories-box {
+    -fx-background-color: #2d1a1a;
+    -fx-border-color: #7f1d1d;
+}
+
+.protein-box {
+    -fx-background-color: #0c2233;
+    -fx-border-color: #075985;
+}
+
+.carbs-box {
+    -fx-background-color: #2a0f2a;
+    -fx-border-color: #701a75;
+}
+
+.fat-box {
+    -fx-background-color: #2a1a06;
+    -fx-border-color: #78350f;
+}
+
+.fiber-box {
+    -fx-background-color: #0e1f3a;
+    -fx-border-color: #1e3a5f;
+}
+
+/* ── Nutrient Text ─────────────────────────────── */
+.nutrient-emoji {
+    -fx-font-size: 18px;
+}
+
+.nutrient-value {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.nutrient-value-large {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.nutrient-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7a9cc0;
+    -fx-font-weight: 600;
+}
+
+/* ── History Section ───────────────────────────── */
+.history-emoji {
+    -fx-font-size: 22px;
+}
+
+.history-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.history-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7a9cc0;
+}
+
+.history-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.history-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ── Food Log Card ─────────────────────────────── */
+.food-log-card {
+    -fx-background-color: #0d1526;
+    -fx-background-radius: 14px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1px 1px 3px 1px;
+    -fx-border-radius: 14px;
+    -fx-padding: 16px;
+}
+
+.food-log-header {
+    -fx-padding: 0 0 2px 0;
+}
+
+.food-log-meal-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.food-log-delete-button {
+    -fx-background-color: #2d1a1a;
+    -fx-text-fill: #f87171;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-border-color: #7f1d1d;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.food-log-delete-button:hover {
+    -fx-background-color: #7f1d1d;
+    -fx-text-fill: #fecaca;
+}
+
+.food-log-date-pill {
+    -fx-background-color: #1a2a42;
+    -fx-background-radius: 999px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1px;
+    -fx-border-radius: 999px;
+    -fx-padding: 5px 11px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #7a9cc0;
+}
+
+.food-log-calories-banner {
+    -fx-background-color: #1a3a6e;
+    -fx-background-radius: 12px;
+    -fx-padding: 10px 14px;
+    -fx-border-color: #2a5298;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.food-log-calories-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #7a9cc0;
+}
+
+.food-log-calories-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #60a5fa;
+}
+
+.food-log-description-box {
+    -fx-background-color: #060c18;
+    -fx-background-radius: 10px;
+    -fx-padding: 10px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.food-log-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #c7d9f0;
+    -fx-font-weight: 500;
+}
+
+.food-log-nutrient-box {
+    -fx-background-radius: 10px;
+    -fx-min-width: 110px;
+    -fx-pref-width: 120px;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.food-log-nutrient-value {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e8f0fe;
+}
+
+.food-log-nutrient-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #7a9cc0;
+}
+
+/* ── Empty State ───────────────────────────────── */
+.empty-log-state {
+    -fx-background-color: #0d1526;
+    -fx-background-radius: 14px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1px;
+    -fx-border-dashes: 6 4;
+    -fx-border-radius: 14px;
+    -fx-padding: 20px;
+}
+
+.empty-log-emoji {
+    -fx-font-size: 30px;
+}
+
+.empty-log-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #7a9cc0;
+}
+
+.empty-log-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #3d5a80;
+    -fx-text-alignment: center;
+}
+
+/* ── Scroll Bars ───────────────────────────────── */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: #1a2a42;
+    -fx-background-radius: 999px;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #2a5298;
+    -fx-background-radius: 999px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #3b82f6;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}

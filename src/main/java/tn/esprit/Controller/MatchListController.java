@@ -1,8 +1,12 @@
 package tn.esprit.Controller;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -12,8 +16,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -21,37 +27,52 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
+import tn.esprit.entities.User;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.EquipeUiSupport;
+import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
+import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.MatchsService;
+import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class MatchListController {
+public class MatchListController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
-    private static final double CARD_LOGO_SIZE = 68;
+    private static final int MAX_CATALOG_COLUMNS = 3;
+    private static final double CATALOG_CARD_WIDTH = 380;
+    private static final double CATALOG_CARD_GAP = 20;
+    private static final double CATALOG_LOGO_SIZE = 70;
+    private static final double CATALOG_TEAM_WIDTH = 120;
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
     private static final Map<String, String> COMPETITION_CODES_BY_LABEL = COMPETITION_LABELS.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
@@ -61,6 +82,7 @@ public class MatchListController {
     private static final String STATUS_FINI = "Fini";
     private static final String STATUS_REPORTE = "Reporte";
     private static final String STATUS_ANNULE = "Annule";
+    private static final int BACKGROUND_REFRESH_SECONDS = 90;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("match-list-db-worker"));
 
@@ -101,7 +123,7 @@ public class MatchListController {
     @FXML
     private Label syncMetaLabel;
     @FXML
-    private ListView<Matchs> matchListView;
+    private ListView<List<Matchs>> matchListView;
     @FXML
     private VBox emptyStateBox;
     @FXML
@@ -115,17 +137,24 @@ public class MatchListController {
 
     private final ObservableList<Matchs> matchs = FXCollections.observableArrayList();
     private final FilteredList<Matchs> filteredMatchs = new FilteredList<>(matchs, match -> true);
+    private final SortedList<Matchs> sortedMatchs = new SortedList<>(filteredMatchs);
+    private final ObservableList<List<Matchs>> catalogRows = FXCollections.observableArrayList();
     private final AtomicLong refreshSequence = new AtomicLong();
+    private int catalogColumnCount = MAX_CATALOG_COLUMNS;
 
     private MatchsService matchsService;
     private EquipeService equipeService;
     private FootballDataSyncService footballDataSyncService;
+    private ApiFootballInsightsService apiFootballInsightsService;
+    private MatchFollowTargetService matchFollowTargetService;
     private Map<Integer, Equipe> equipeById = Map.of();
+    private Set<Integer> favoriteMatchIds = Set.of();
     private String selectedCompetitionCode;
     private boolean serviceReady;
     private boolean loadingData;
     private boolean syncingData;
     private SidebarModuleGroup sidebarModuleGroup;
+    private Timeline liveRefreshTimeline;
 
     @FXML
     public void initialize() {
@@ -138,12 +167,15 @@ public class MatchListController {
         configureMatchList();
         updateSelectionState();
         updateActionAvailability();
+        configureLiveRefreshLifecycle();
 
         try {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
+            apiFootballInsightsService = new ApiFootballInsightsService();
+            matchFollowTargetService = new MatchFollowTargetService();
             serviceReady = true;
-            refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.");
+            refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.", false);
         } catch (Exception e) {
             serviceReady = false;
             updateActionAvailability();
@@ -172,6 +204,116 @@ public class MatchListController {
         } else {
             updateCounters();
         }
+    }
+
+    public String getSelectedCompetitionCode() {
+        return selectedCompetitionCode;
+    }
+
+    public void applyAssistantSearch(String query) {
+        if (searchField == null) {
+            return;
+        }
+        searchField.setText(query == null ? "" : query.trim());
+        applyFilters();
+        showMutedStatus((query == null || query.isBlank())
+                ? "Recherche assistant reinitialisee."
+                : "Recherche assistant appliquee : " + query.trim());
+    }
+
+    public void openMatchDetailFromAssistant(Matchs match) {
+        openMatchDetail(match);
+    }
+
+    public List<Matchs> getFilteredMatchsSnapshot() {
+        return List.copyOf(sortedMatchs);
+    }
+
+    public List<Equipe> getKnownTeamsSnapshot() {
+        return List.copyOf(equipeById.values());
+    }
+
+    public String getAssistantCompetitionLabel() {
+        return selectedCompetitionCode == null ? "All competitions" : resolveCompetitionLabel(selectedCompetitionCode);
+    }
+
+    public String getAssistantMatchLabel(Matchs match) {
+        return buildMatchLabel(match);
+    }
+
+    public String getAssistantTeamName(Integer equipeId) {
+        return getEquipeName(equipeId);
+    }
+
+    public String getAssistantFixtureSchedule(Matchs match) {
+        if (match == null) {
+            return "Unknown schedule";
+        }
+        return formatDate(match.getDateMatch()) + " at " + formatTime(match.getHeureDebut());
+    }
+
+    public String getAssistantStatus(Matchs match) {
+        return resolveStatus(match);
+    }
+
+    private void configureLiveRefreshLifecycle() {
+        if (navbarRoot == null) {
+            return;
+        }
+
+        navbarRoot.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                stopLiveRefresh();
+                return;
+            }
+            startLiveRefresh();
+        });
+    }
+
+    private void startLiveRefresh() {
+        if (liveRefreshTimeline == null) {
+            liveRefreshTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(BACKGROUND_REFRESH_SECONDS), event -> {
+                if (!serviceReady || loadingData || syncingData) {
+                    return;
+                }
+                if (STATUS_FINI.equals(selectedStatusFilter())) {
+                    return;
+                }
+                refreshDataAsync(null, null, null, true);
+            }));
+            liveRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        }
+
+        if (liveRefreshTimeline.getStatus() != javafx.animation.Animation.Status.RUNNING) {
+            liveRefreshTimeline.play();
+        }
+    }
+
+    private void stopLiveRefresh() {
+        if (liveRefreshTimeline != null) {
+            liveRefreshTimeline.stop();
+        }
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        List<Matchs> visibleMatchs = getFilteredMatchsSnapshot();
+        String header = "Matches page for " + getAssistantCompetitionLabel() + ". Visible fixtures: " + visibleMatchs.size() + ".";
+        if (visibleMatchs.isEmpty()) {
+            return header + " No fixtures are currently visible.";
+        }
+
+        List<Matchs> upcoming = visibleMatchs.stream()
+                .sorted(Comparator
+                        .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
+                        .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo)))
+                .limit(3)
+                .toList();
+
+        String fixtures = upcoming.stream()
+                .map(match -> getAssistantMatchLabel(match) + " on " + getAssistantFixtureSchedule(match) + " [" + getAssistantStatus(match) + "]")
+                .collect(Collectors.joining(" | "));
+        return header + " Next visible fixtures: " + fixtures + ".";
     }
 
     @FXML
@@ -209,7 +351,7 @@ public class MatchListController {
 
     @FXML
     private void handleRefresh() {
-        refreshDataAsync("Actualisation des matchs...", "status-success", "Liste des matchs actualisee.");
+        refreshDataAsync("Actualisation des matchs...", "status-success", "Liste des matchs actualisee.", false);
     }
 
     @FXML
@@ -257,6 +399,7 @@ public class MatchListController {
         statusFilterComboBox.setItems(FXCollections.observableArrayList(
                 STATUS_FILTER_ALL,
                 STATUS_PROGRAMME,
+                STATUS_EN_DIRECT,
                 STATUS_FINI
         ));
         statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
@@ -277,99 +420,214 @@ public class MatchListController {
     }
 
     private void configureMatchList() {
-        matchListView.setItems(filteredMatchs);
+        sortedMatchs.setComparator(displayComparatorFor(selectedStatusFilter()));
+        matchListView.setItems(catalogRows);
         matchListView.setPlaceholder(new Label(""));
+        if (!matchListView.getStyleClass().contains("match-catalog-list-view")) {
+            matchListView.getStyleClass().add("match-catalog-list-view");
+        }
+        matchListView.widthProperty().addListener((observable, oldValue, newValue) ->
+                updateCatalogColumnCount(newValue.doubleValue()));
         matchListView.setCellFactory(listView -> new ListCell<>() {
             @Override
-            protected void updateItem(Matchs item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(List<Matchs> rowMatches, boolean empty) {
+                super.updateItem(rowMatches, empty);
+                if (empty || rowMatches == null || rowMatches.isEmpty()) {
                     setText(null);
                     setGraphic(null);
                     return;
                 }
 
-                VBox card = buildMatchCard(item);
-                card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
-                card.setOnMouseClicked(event -> openMatchDetail(item));
+                HBox row = buildCatalogRow(rowMatches);
                 setText(null);
-                setGraphic(card);
+                setGraphic(row);
             }
         });
+        rebuildCatalogRows();
     }
 
     private VBox buildMatchCard(Matchs match) {
-        Label statusChip = new Label(resolveStatus(match));
-        statusChip.getStyleClass().add("fixture-status");
-        applyFixtureStatusStyle(statusChip, match.getStatut());
-
-        Label dateLabel = new Label(formatDate(match.getDateMatch()) + "  |  " + formatTime(match.getHeureDebut()));
-        dateLabel.getStyleClass().add("fixture-date");
-
-        Label idLabel = new Label(resolveMatchReference(match));
-        idLabel.getStyleClass().add("fixture-id");
-
-        Region headSpacer = new Region();
-        HBox.setHgrow(headSpacer, Priority.ALWAYS);
-
-        HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
-        head.setAlignment(Pos.CENTER_LEFT);
-        head.getStyleClass().add("fixture-card-head");
-
         Equipe homeTeam = getEquipe(match.getEquipeDomicileId());
         Equipe awayTeam = getEquipe(match.getEquipeExterieurId());
 
-        VBox homeBox = buildTeamPreview(homeTeam, "Domicile");
-        VBox awayBox = buildTeamPreview(awayTeam, "Exterieur");
+        Button favoriteButton = buildFavoriteButton(match);
+        StackPane.setAlignment(favoriteButton, Pos.TOP_LEFT);
 
-        Label scoreLabel = new Label(buildScore(match));
-        scoreLabel.getStyleClass().add("fixture-score-value");
+        Label statusBadge = buildCatalogStatusBadge(match);
+        StackPane.setAlignment(statusBadge, Pos.TOP_RIGHT);
+
+        StackPane head = new StackPane(statusBadge, favoriteButton);
+        head.setMaxWidth(Double.MAX_VALUE);
+        head.getStyleClass().add("fixture-catalog-head");
 
         Label versusLabel = new Label("VS");
-        versusLabel.getStyleClass().add("fixture-score-caption");
+        versusLabel.setAlignment(Pos.CENTER);
+        versusLabel.setMinSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        versusLabel.setPrefSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        versusLabel.setMaxSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        versusLabel.setTextOverrun(OverrunStyle.CLIP);
+        versusLabel.getStyleClass().add("fixture-catalog-vs");
 
-        VBox scoreBox = new VBox(2, scoreLabel, versusLabel);
-        scoreBox.setAlignment(Pos.CENTER);
-        scoreBox.getStyleClass().add("fixture-score-shell");
-
-        HBox teamsRow = new HBox(16, homeBox, scoreBox, awayBox);
+        HBox teamsRow = new HBox(16,
+                buildCatalogTeam(homeTeam, "Domicile"),
+                versusLabel,
+                buildCatalogTeam(awayTeam, "Exterieur"));
         teamsRow.setAlignment(Pos.CENTER);
-        teamsRow.getStyleClass().add("fixture-teams-row");
-        HBox.setHgrow(homeBox, Priority.ALWAYS);
-        HBox.setHgrow(awayBox, Priority.ALWAYS);
+        teamsRow.getStyleClass().add("fixture-catalog-teams");
 
-        Label competitionChip = new Label(resolveCompetitionTag(match));
-        competitionChip.getStyleClass().add("fixture-meta-chip");
-
-        Label locationChip = new Label(resolveMatchLocation(match));
-        locationChip.getStyleClass().add("fixture-meta-chip");
-
-        Label typeChip = new Label(resolveMatchType(match));
-        typeChip.getStyleClass().add("fixture-meta-chip");
-
-        Label detailChip = new Label("Voir la fiche");
-        detailChip.getStyleClass().add("fixture-link-chip");
-
-        Region metaSpacer = new Region();
-        HBox.setHgrow(metaSpacer, Priority.ALWAYS);
-
-        HBox metaRow = new HBox(10, competitionChip, locationChip, typeChip, metaSpacer, detailChip);
-        metaRow.setAlignment(Pos.CENTER_LEFT);
-        metaRow.getStyleClass().add("fixture-meta-row");
-
-        VBox card = new VBox(14, head, teamsRow, metaRow);
-        card.getStyleClass().addAll("fixture-card", "fixture-card-clickable");
-        card.setMaxWidth(Double.MAX_VALUE);
+        VBox card = new VBox(18, head, teamsRow);
+        card.getStyleClass().addAll("fixture-card", "fixture-catalog-card", "fixture-card-clickable");
+        card.setMinWidth(CATALOG_CARD_WIDTH);
+        card.setPrefWidth(CATALOG_CARD_WIDTH);
+        card.setMaxWidth(CATALOG_CARD_WIDTH);
+        card.setOnMouseClicked(event -> openMatchDetail(match));
+        Tooltip.install(card, new Tooltip(buildMatchLabel(match)));
         return card;
     }
 
-    private VBox buildTeamPreview(Equipe equipe, String fallbackRole) {
-        String teamName = equipe == null ? "Equipe " + fallbackRole.toLowerCase() : emptyIfNull(equipe.getNom());
+    private Label buildCatalogStatusBadge(Matchs match) {
+        String normalizedStatus = normalizeMatchStatus(match == null ? null : match.getStatut());
+        Label badge = new Label();
+        badge.getStyleClass().add("fixture-catalog-status-badge");
 
+        if (STATUS_FINI.equals(normalizedStatus)) {
+            badge.setText("Finished");
+            badge.getStyleClass().add("fixture-catalog-status-finished");
+            return badge;
+        }
+        if (STATUS_EN_DIRECT.equals(normalizedStatus)) {
+            badge.setText("Live");
+            badge.getStyleClass().add("fixture-catalog-status-live");
+            animateLiveBadge(badge);
+            return badge;
+        }
+        if (STATUS_REPORTE.equals(normalizedStatus) || STATUS_ANNULE.equals(normalizedStatus)) {
+            badge.setText(resolveStatus(match));
+            badge.getStyleClass().add("fixture-catalog-status-muted");
+            return badge;
+        }
+
+        badge.setText(formatDate(match == null ? null : match.getDateMatch()) + " | "
+                + formatTime(match == null ? null : match.getHeureDebut()));
+        badge.getStyleClass().add("fixture-catalog-date");
+        return badge;
+    }
+
+    private void animateLiveBadge(Label badge) {
+        FadeTransition pulse = new FadeTransition(Duration.millis(760), badge);
+        pulse.setFromValue(1.0);
+        pulse.setToValue(0.58);
+        pulse.setAutoReverse(true);
+        pulse.setCycleCount(Timeline.INDEFINITE);
+        pulse.play();
+    }
+
+    private HBox buildCatalogRow(List<Matchs> rowMatches) {
+        HBox row = new HBox(CATALOG_CARD_GAP);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("match-catalog-row");
+        rowMatches.forEach(match -> row.getChildren().add(buildMatchCard(match)));
+        return row;
+    }
+
+    private void updateCatalogColumnCount(double availableWidth) {
+        if (availableWidth <= 0) {
+            return;
+        }
+        int computedColumns = Math.max(1, Math.min(MAX_CATALOG_COLUMNS,
+                (int) Math.floor((availableWidth + CATALOG_CARD_GAP) / (CATALOG_CARD_WIDTH + CATALOG_CARD_GAP))));
+        if (computedColumns != catalogColumnCount) {
+            catalogColumnCount = computedColumns;
+            rebuildCatalogRows();
+        }
+    }
+
+    private void rebuildCatalogRows() {
+        if (matchListView == null) {
+            return;
+        }
+        List<List<Matchs>> rows = new ArrayList<>();
+        List<Matchs> currentRow = new ArrayList<>(catalogColumnCount);
+        for (Matchs match : sortedMatchs) {
+            currentRow.add(match);
+            if (currentRow.size() == catalogColumnCount) {
+                rows.add(List.copyOf(currentRow));
+                currentRow.clear();
+            }
+        }
+        if (!currentRow.isEmpty()) {
+            rows.add(List.copyOf(currentRow));
+        }
+        catalogRows.setAll(rows);
+    }
+
+    private Button buildFavoriteButton(Matchs match) {
+        boolean favorite = match != null && match.getId() != null && favoriteMatchIds.contains(match.getId());
+        Button favoriteButton = new Button(favorite ? "\u2605" : "\u2606");
+        favoriteButton.getStyleClass().add("fixture-favorite-button");
+        if (favorite) {
+            favoriteButton.getStyleClass().add("fixture-favorite-button-active");
+        }
+        favoriteButton.setFocusTraversable(false);
+        favoriteButton.setTooltip(new Tooltip(favorite ? "Remove from favorite matches" : "Add to favorite matches"));
+        favoriteButton.setOnMouseClicked(event -> event.consume());
+        favoriteButton.setOnAction(event -> {
+            event.consume();
+            toggleMatchFavorite(match);
+        });
+        return favoriteButton;
+    }
+
+    private void toggleMatchFavorite(Matchs match) {
+        if (match == null || match.getId() == null) {
+            showErrorStatus("Ce match ne peut pas encore etre ajoute aux favoris.");
+            return;
+        }
+
+        User currentUser = AuthSession.getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null) {
+            showErrorStatus("Connectez-vous pour ajouter un match aux favoris.");
+            return;
+        }
+
+        try {
+            ensureMatchFollowTargetService();
+            boolean favorite = favoriteMatchIds.contains(match.getId())
+                    || matchFollowTargetService.isMatchFavorite(currentUser.getId(), match.getId());
+            Set<Integer> updatedFavorites = new LinkedHashSet<>(favoriteMatchIds);
+
+            if (favorite) {
+                matchFollowTargetService.removeMatchFavorite(currentUser.getId(), match.getId());
+                updatedFavorites.remove(match.getId());
+                showMutedStatus(buildMatchLabel(match) + " retire des matchs favoris.");
+            } else {
+                matchFollowTargetService.addMatchFavorite(currentUser.getId(), match.getId());
+                updatedFavorites.add(match.getId());
+                showMutedStatus(buildMatchLabel(match) + " ajoute aux matchs favoris.");
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            }
+
+            favoriteMatchIds = Set.copyOf(updatedFavorites);
+            rebuildCatalogRows();
+            matchListView.refresh();
+        } catch (SQLException e) {
+            showErrorStatus("Impossible de mettre a jour les matchs favoris.");
+        }
+    }
+
+    private void ensureMatchFollowTargetService() throws SQLException {
+        if (matchFollowTargetService == null) {
+            matchFollowTargetService = new MatchFollowTargetService();
+        }
+    }
+
+    private StackPane buildCatalogLogo(Equipe equipe, String fallbackText) {
+        String teamName = equipe == null ? fallbackText : emptyIfNull(equipe.getNom());
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(CARD_LOGO_SIZE);
-        imageView.setFitHeight(CARD_LOGO_SIZE);
+        imageView.setFitWidth(CATALOG_LOGO_SIZE);
+        imageView.setFitHeight(CATALOG_LOGO_SIZE);
         imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
 
         Image image = equipe == null ? null : EquipeUiSupport.loadEquipeImage(equipe.getImage());
         boolean hasImage = image != null;
@@ -378,54 +636,67 @@ public class MatchListController {
         imageView.setVisible(hasImage);
 
         Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(teamName, "SI"));
-        fallbackLabel.getStyleClass().add("fixture-team-fallback");
+        fallbackLabel.getStyleClass().add("fixture-catalog-fallback");
         fallbackLabel.setManaged(!hasImage);
         fallbackLabel.setVisible(!hasImage);
 
         StackPane logoPane = new StackPane(imageView, fallbackLabel);
-        logoPane.setMinSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
-        logoPane.setPrefSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
-        logoPane.setMaxSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
-        logoPane.getStyleClass().add("fixture-team-logo-shell");
-
-        Label nameLabel = new Label(teamName);
-        nameLabel.setWrapText(true);
-        nameLabel.getStyleClass().add("fixture-team-name");
-
-        Label roleLabel = new Label(fallbackRole);
-        roleLabel.getStyleClass().add("fixture-team-role");
-
-        VBox box = new VBox(10, logoPane, nameLabel, roleLabel);
-        box.setAlignment(Pos.CENTER);
-        box.getStyleClass().add("fixture-team-box");
-        return box;
+        logoPane.setMinSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        logoPane.setPrefSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        logoPane.setMaxSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        logoPane.getStyleClass().add("fixture-catalog-logo-shell");
+        return logoPane;
     }
 
-    private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage) {
+    private VBox buildCatalogTeam(Equipe equipe, String fallbackRole) {
+        String teamName = equipe == null ? "Equipe " + fallbackRole.toLowerCase() : emptyIfNull(equipe.getNom());
+
+        Label nameLabel = new Label(teamName);
+        nameLabel.setAlignment(Pos.CENTER);
+        nameLabel.setMaxWidth(CATALOG_TEAM_WIDTH);
+        nameLabel.setPrefWidth(CATALOG_TEAM_WIDTH);
+        nameLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
+        nameLabel.setTooltip(new Tooltip(teamName));
+        nameLabel.getStyleClass().add("fixture-catalog-team-name");
+
+        VBox teamBox = new VBox(8, buildCatalogLogo(equipe, fallbackRole), nameLabel);
+        teamBox.setAlignment(Pos.CENTER);
+        teamBox.getStyleClass().add("fixture-catalog-team");
+        return teamBox;
+    }
+
+    private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage, boolean backgroundRefresh) {
         if (matchsService == null || equipeService == null) {
             return;
         }
 
         long requestId = refreshSequence.incrementAndGet();
-        loadingData = true;
-        updateActionAvailability();
+        loadingData = !backgroundRefresh;
+        if (!backgroundRefresh) {
+            updateActionAvailability();
+        }
         if (loadingMessage != null) {
             showMutedStatus(loadingMessage);
         }
 
+        String statusFilterAtStart = selectedStatusFilter();
         Task<RefreshPayload> loadTask = new Task<>() {
             @Override
             protected RefreshPayload call() throws Exception {
+                boolean refreshLiveSummaries = !STATUS_FINI.equals(statusFilterAtStart);
                 List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
                 loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                Map<Integer, Equipe> loadedEquipeById = loadedEquipes.stream()
+                        .filter(equipe -> equipe.getId() != null)
+                        .collect(Collectors.toMap(Equipe::getId, equipe -> equipe, (left, right) -> left));
 
                 List<Matchs> loadedMatchs = new ArrayList<>(matchsService.getAll());
-                loadedMatchs.sort(Comparator
-                        .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
-                        .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
-                        .reversed());
+                if (refreshLiveSummaries) {
+                    refreshRelevantLiveSummaries(loadedMatchs, loadedEquipeById);
+                    loadedMatchs = new ArrayList<>(matchsService.getAll());
+                }
 
-                return new RefreshPayload(loadedEquipes, loadedMatchs);
+                return new RefreshPayload(loadedEquipes, loadedMatchs, loadFavoriteMatchIds());
             }
         };
 
@@ -438,9 +709,9 @@ public class MatchListController {
             equipeById = payload.loadedEquipes.stream()
                     .filter(equipe -> equipe.getId() != null)
                     .collect(Collectors.toMap(Equipe::getId, equipe -> equipe, (left, right) -> left));
+            favoriteMatchIds = payload.favoriteMatchIds == null ? Set.of() : payload.favoriteMatchIds;
 
             matchs.setAll(payload.loadedMatchs);
-            EquipeUiSupport.clearImageCache();
             applyFilters();
 
             loadingData = false;
@@ -457,13 +728,78 @@ public class MatchListController {
 
             loadingData = false;
             updateActionAvailability();
-            showErrorStatus("Erreur pendant le chargement.");
-            Throwable throwable = loadTask.getException();
-            showAlert(Alert.AlertType.ERROR, "Chargement",
-                    "Erreur lors du chargement des matchs.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            if (!backgroundRefresh) {
+                showErrorStatus("Erreur pendant le chargement.");
+                Throwable throwable = loadTask.getException();
+                showAlert(Alert.AlertType.ERROR, "Chargement",
+                        "Erreur lors du chargement des matchs.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            }
         });
 
         DB_EXECUTOR.execute(loadTask);
+    }
+
+    private Set<Integer> loadFavoriteMatchIds() throws SQLException {
+        User currentUser = AuthSession.getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null) {
+            return Set.of();
+        }
+        ensureMatchFollowTargetService();
+        return matchFollowTargetService.getFollowedMatchIds(currentUser.getId());
+    }
+
+    private void refreshRelevantLiveSummaries(List<Matchs> loadedMatchs, Map<Integer, Equipe> loadedEquipeById) {
+        if (apiFootballInsightsService == null || loadedMatchs == null || loadedMatchs.isEmpty()) {
+            return;
+        }
+
+        List<Matchs> relevantMatches = loadedMatchs.stream()
+                .filter(this::shouldSyncLiveSummary)
+                .sorted(Comparator
+                        .comparing(this::kickoffDateTimeOf, Comparator.nullsLast(LocalDateTime::compareTo))
+                        .thenComparing(Matchs::getId, Comparator.nullsLast(Integer::compareTo)))
+                .limit(8)
+                .toList();
+
+        for (Matchs match : relevantMatches) {
+            try {
+                Equipe homeTeam = match.getEquipeDomicileId() == null ? null : loadedEquipeById.get(match.getEquipeDomicileId());
+                Equipe awayTeam = match.getEquipeExterieurId() == null ? null : loadedEquipeById.get(match.getEquipeExterieurId());
+                apiFootballInsightsService.refreshFixtureSnapshot(match, homeTeam, awayTeam);
+            } catch (Exception ignored) {
+                // Keep list refresh resilient if the live summary API is unavailable.
+            }
+        }
+    }
+
+    private boolean shouldSyncLiveSummary(Matchs match) {
+        if (match == null) {
+            return false;
+        }
+
+        if (selectedCompetitionCode != null && !Objects.equals(selectedCompetitionCode, emptyToNull(match.getCompetitionCode()))) {
+            return false;
+        }
+
+        LocalDateTime kickoff = kickoffDateTimeOf(match);
+        LocalDateTime now = LocalDateTime.now();
+        String normalizedStatus = normalizeMatchStatus(match.getStatut());
+        if (STATUS_EN_DIRECT.equals(normalizedStatus)) {
+            return true;
+        }
+        if (kickoff == null) {
+            return false;
+        }
+        return !kickoff.isBefore(now.minusHours(4)) && !kickoff.isAfter(now.plusMinutes(20));
+    }
+
+    private LocalDateTime kickoffDateTimeOf(Matchs match) {
+        if (match == null || match.getDateMatch() == null) {
+            return null;
+        }
+        return match.getHeureDebut() == null
+                ? match.getDateMatch().atStartOfDay()
+                : match.getDateMatch().atTime(match.getHeureDebut());
     }
 
     private void applyFilters() {
@@ -476,9 +812,43 @@ public class MatchListController {
                         && (statusFilter == null || Objects.equals(statusFilter, normalizeMatchStatus(match.getStatut())))
                         && (competitionCode == null || Objects.equals(competitionCode, emptyToNull(match.getCompetitionCode())))
         );
+        sortedMatchs.setComparator(displayComparatorFor(statusFilter));
 
+        rebuildCatalogRows();
         updateCounters();
         updateEmptyState();
+    }
+
+    private Comparator<Matchs> displayComparatorFor(String statusFilter) {
+        boolean newestFirst = STATUS_FINI.equals(statusFilter);
+        return (left, right) -> compareByKickoff(left, right, newestFirst);
+    }
+
+    private int compareByKickoff(Matchs left, Matchs right, boolean newestFirst) {
+        LocalDateTime leftKickoff = kickoffDateTimeOf(left);
+        LocalDateTime rightKickoff = kickoffDateTimeOf(right);
+
+        int result;
+        if (leftKickoff == null && rightKickoff == null) {
+            result = 0;
+        } else if (leftKickoff == null) {
+            result = 1;
+        } else if (rightKickoff == null) {
+            result = -1;
+        } else {
+            result = leftKickoff.compareTo(rightKickoff);
+        }
+
+        if (newestFirst) {
+            result = -result;
+        }
+        if (result != 0) {
+            return result;
+        }
+
+        Integer leftId = left == null ? null : left.getId();
+        Integer rightId = right == null ? null : right.getId();
+        return Comparator.nullsLast(Integer::compareTo).compare(leftId, rightId);
     }
 
     private boolean matchesQuery(Matchs match, String query) {
@@ -567,7 +937,10 @@ public class MatchListController {
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(!matchesOnly, matchesOnly);
             syncMetaLabel.setText("Synchronise : " + summaryMessage);
-            refreshDataAsync(null, "status-success", summaryMessage);
+            if (!matchesOnly) {
+                EquipeUiSupport.clearImageCache();
+            }
+            refreshDataAsync(null, "status-success", summaryMessage, false);
         });
 
         syncTask.setOnFailed(event -> {
@@ -660,11 +1033,7 @@ public class MatchListController {
     }
 
     private String resolveMatchReference(Matchs match) {
-        if (match == null) {
-            return "-";
-        }
-        String reference = emptyToNull(match.getIdMatch());
-        return reference == null ? (match.getId() == null ? "-" : "#" + match.getId()) : reference;
+        return "";
     }
 
     private String resolveMatchLocation(Matchs match) {
@@ -690,7 +1059,7 @@ public class MatchListController {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
-        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -715,7 +1084,7 @@ public class MatchListController {
         if (normalized == null || normalized.contains("prog")) {
             return "fixture-status-scheduled";
         }
-        if (normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -725,6 +1094,29 @@ public class MatchListController {
             return "fixture-status-cancelled";
         }
         return "fixture-status-scheduled";
+    }
+
+    private boolean isLiveStatusText(String normalized) {
+        if (normalized == null) {
+            return false;
+        }
+        return normalized.contains("direct")
+                || normalized.contains("cours")
+                || normalized.contains("live")
+                || normalized.contains("mi-temps")
+                || normalized.contains("mi temps")
+                || normalized.contains("1re mi")
+                || normalized.contains("premiere mi")
+                || normalized.contains("2e mi")
+                || normalized.contains("deuxieme mi")
+                || normalized.contains("half")
+                || normalized.contains("1h")
+                || normalized.contains("2h")
+                || normalized.contains("prolong")
+                || normalized.contains("extra time")
+                || normalized.contains("tirs au but")
+                || normalized.contains("penalties")
+                || normalized.contains("shootout");
     }
 
     private String buildMatchLabel(Matchs match) {
@@ -814,7 +1206,7 @@ public class MatchListController {
         alert.showAndWait();
     }
 
-    private record RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs) {
+    private record RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs, Set<Integer> favoriteMatchIds) {
     }
 }
 

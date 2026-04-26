@@ -5,7 +5,9 @@ public record ApiFootballLineupPlayer(
         String shirtNumber,
         String position,
         String grid,
-        String photoUrl
+        String photoUrl,
+        Long playerId,
+        Double rating
 ) {
     public boolean hasPhoto() {
         return photoUrl != null && !photoUrl.isBlank();
@@ -17,5 +19,9 @@ public record ApiFootballLineupPlayer(
 
     public boolean hasGrid() {
         return grid != null && !grid.isBlank();
+    }
+
+    public boolean hasRating() {
+        return rating != null;
     }
 }

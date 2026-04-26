@@ -1,0 +1,197 @@
+@import "equipe-theme.css";
+
+.notification-page-shell {
+    -fx-spacing: 18;
+}
+
+.notification-hero-shell {
+    -fx-min-height: 218;
+}
+
+.notification-hero-photo {
+    -fx-background-image: url("../images/match-hero.webp");
+    -fx-background-size: cover;
+    -fx-background-position: 50% 50%;
+    -fx-background-radius: 30;
+}
+
+.notification-list-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 0;
+    -fx-fixed-cell-size: -1;
+}
+
+.notification-list-view .viewport,
+.notification-list-view .virtual-flow,
+.notification-list-view .clipped-container {
+    -fx-background-color: transparent;
+}
+
+.notification-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 10 0;
+}
+
+.notification-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.1), 24, 0.18, 0, 10);
+    -fx-cursor: hand;
+}
+
+.notification-card-unread {
+    -fx-border-color: rgba(16, 185, 129, 0.38);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 28, 0.2, 0, 10);
+}
+
+.notification-card:hover {
+    -fx-border-color: rgba(16, 185, 129, 0.34);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 1) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.notification-meta-chip {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #334155;
+}
+
+.notification-meta-chip-unread {
+    -fx-background-color: rgba(16, 185, 129, 0.14);
+    -fx-border-color: rgba(16, 185, 129, 0.28);
+    -fx-text-fill: #047857;
+}
+
+.notification-meta-chip-read {
+    -fx-background-color: rgba(226, 232, 240, 0.74);
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-text-fill: #64748b;
+}
+
+.notification-time-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.notification-teams-row {
+    -fx-background-color: rgba(248, 250, 252, 0.94);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(226, 232, 240, 0.92);
+    -fx-border-radius: 20;
+    -fx-padding: 12 14 12 14;
+}
+
+.notification-logo-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 999;
+    -fx-alignment: center;
+}
+
+.notification-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.notification-team-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.notification-score-label {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.notification-score-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.notification-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.notification-message {
+    -fx-font-size: 13px;
+    -fx-line-spacing: 1px;
+    -fx-text-fill: #475569;
+}
+
+.notification-actions-row {
+    -fx-padding: 4 0 0 0;
+}
+
+.theme-dark .notification-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.96) 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.42);
+}
+
+.theme-dark .notification-card-unread {
+    -fx-border-color: rgba(52, 211, 153, 0.5);
+    -fx-effect: dropshadow(gaussian, rgba(6, 95, 70, 0.28), 30, 0.22, 0, 10);
+}
+
+.theme-dark .notification-card:hover {
+    -fx-border-color: rgba(52, 211, 153, 0.56);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(4, 120, 87, 0.24) 0%, rgba(15, 23, 42, 0.98) 100%);
+}
+
+.theme-dark .notification-meta-chip {
+    -fx-background-color: rgba(30, 41, 59, 0.86);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .notification-meta-chip-unread {
+    -fx-background-color: rgba(6, 95, 70, 0.56);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+    -fx-text-fill: #bbf7d0;
+}
+
+.theme-dark .notification-meta-chip-read {
+    -fx-background-color: rgba(51, 65, 85, 0.72);
+    -fx-border-color: rgba(100, 116, 139, 0.34);
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .notification-time-label,
+.theme-dark .notification-score-caption,
+.theme-dark .notification-message {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .notification-teams-row {
+    -fx-background-color: rgba(11, 18, 32, 0.94);
+    -fx-border-color: rgba(71, 85, 105, 0.42);
+}
+
+.theme-dark .notification-logo-shell {
+    -fx-background-color: rgba(30, 41, 59, 0.94);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+}
+
+.theme-dark .notification-logo-fallback,
+.theme-dark .notification-team-name,
+.theme-dark .notification-score-label,
+.theme-dark .notification-title {
+    -fx-text-fill: #e2e8f0;
+}

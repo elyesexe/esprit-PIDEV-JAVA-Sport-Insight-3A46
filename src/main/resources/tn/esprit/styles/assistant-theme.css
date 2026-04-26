@@ -1,0 +1,343 @@
+.assistant-overlay-root {
+    -fx-pick-on-bounds: false;
+}
+
+.assistant-dock {
+    -fx-pick-on-bounds: false;
+}
+
+.assistant-panel {
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.34), 36, 0.28, 0, 16);
+}
+
+.assistant-header {
+    -fx-padding: 0 0 2 0;
+}
+
+.assistant-header-top {
+    -fx-padding: 0 0 2 0;
+}
+
+.assistant-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+.assistant-subtitle {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.assistant-title-box {
+    -fx-padding: 0;
+}
+
+.assistant-brand-icon {
+    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.24), 18, 0.3, 0, 0);
+}
+
+.assistant-screen-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.assistant-chip-row {
+    -fx-padding: 0;
+}
+
+.assistant-status {
+    -fx-font-size: 11px;
+    -fx-line-spacing: 2px;
+}
+
+.assistant-chip {
+    -fx-background-radius: 999;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: 700;
+}
+
+.assistant-quick-actions {
+    -fx-padding: 2 0 2 0;
+}
+
+.assistant-quick-action-button,
+.assistant-close-button,
+.assistant-toggle-button,
+.assistant-mic-button,
+.assistant-send-button {
+    -fx-background-radius: 999;
+    -fx-padding: 8 13 8 13;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.assistant-quick-action-button,
+.assistant-close-button,
+.assistant-toggle-button,
+.assistant-mic-button,
+.assistant-send-button,
+.assistant-launcher {
+    -fx-cursor: hand;
+}
+
+.assistant-scroll,
+.assistant-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.assistant-messages {
+    -fx-padding: 4 2 6 2;
+}
+
+.assistant-message-row {
+    -fx-padding: 0;
+}
+
+.assistant-message-bubble {
+    -fx-background-radius: 17;
+    -fx-padding: 9 12 9 12;
+    -fx-font-size: 12px;
+    -fx-line-spacing: 3px;
+}
+
+.assistant-composer {
+    -fx-background-radius: 17;
+    -fx-border-radius: 17;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 10;
+    -fx-font-size: 12px;
+    -fx-highlight-text-fill: white;
+    -fx-display-caret: true;
+}
+
+.assistant-composer .content,
+.assistant-composer .scroll-pane,
+.assistant-composer .scroll-pane > .viewport {
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+}
+
+.assistant-composer .text {
+    -fx-font-smoothing-type: lcd;
+}
+
+.assistant-composer-box {
+    -fx-padding: 6 0 0 0;
+}
+
+.assistant-launcher {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.assistant-launcher-orb {
+    -fx-background-color:
+        radial-gradient(center 35% 30%, radius 65%, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.04) 35%, rgba(3, 7, 18, 0.0) 62%),
+        linear-gradient(from 18% 12% to 82% 88%, rgba(52, 211, 153, 0.18) 0%, rgba(14, 165, 233, 0.20) 48%, rgba(10, 15, 31, 0.92) 100%);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(103, 232, 249, 0.36);
+    -fx-border-width: 1.15;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(8, 145, 178, 0.24), 16, 0.24, 0, 5);
+}
+
+.assistant-launcher:hover .assistant-launcher-orb,
+.assistant-launcher-open .assistant-launcher-orb {
+    -fx-border-color: rgba(125, 211, 252, 0.58);
+    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.34), 22, 0.3, 0, 7);
+}
+
+.assistant-launcher-image {
+    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.22), 14, 0.24, 0, 0);
+}
+
+.assistant-launcher-listening .assistant-launcher-orb {
+    -fx-background-color:
+        radial-gradient(center 35% 30%, radius 70%, rgba(186, 230, 253, 0.40) 0%, rgba(186, 230, 253, 0.10) 34%, rgba(3, 7, 18, 0.0) 60%),
+        linear-gradient(from 18% 12% to 82% 88%, rgba(52, 211, 153, 0.24) 0%, rgba(34, 211, 238, 0.28) 46%, rgba(10, 15, 31, 0.92) 100%);
+    -fx-border-color: rgba(165, 243, 252, 0.88);
+    -fx-effect:
+        dropshadow(gaussian, rgba(34, 211, 238, 0.46), 24, 0.34, 0, 0),
+        dropshadow(gaussian, rgba(34, 197, 94, 0.18), 34, 0.14, 0, 0);
+}
+
+.assistant-launcher-listening .assistant-launcher-image {
+    -fx-effect:
+        dropshadow(gaussian, rgba(186, 230, 253, 0.62), 16, 0.3, 0, 0),
+        dropshadow(gaussian, rgba(34, 211, 238, 0.40), 22, 0.32, 0, 0);
+}
+
+.assistant-launcher-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 30px;
+    -fx-font-weight: 800;
+}
+
+.assistant-panel .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.assistant-panel .scroll-bar:vertical .thumb {
+    -fx-background-radius: 999;
+}
+
+.theme-light .assistant-panel,
+.theme-light.assistant-panel {
+    -fx-background-color:
+        radial-gradient(center 18% 10%, radius 48%, rgba(56, 189, 248, 0.14) 0%, rgba(56, 189, 248, 0.0) 52%),
+        linear-gradient(from 0% 0% to 100% 100%, rgba(248, 250, 252, 0.98) 0%, rgba(236, 254, 255, 0.95) 50%, rgba(236, 253, 245, 0.97) 100%);
+    -fx-border-color: rgba(15, 23, 42, 0.09);
+}
+
+.theme-light .assistant-title,
+.theme-light .assistant-screen-label {
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-subtitle {
+    -fx-text-fill: #0891b2;
+}
+
+.theme-light .assistant-status {
+    -fx-text-fill: #475569;
+}
+
+.theme-light .assistant-chip {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-quick-action-button,
+.theme-light .assistant-close-button,
+.theme-light .assistant-toggle-button,
+.theme-light .assistant-mic-button {
+    -fx-background-color: rgba(15, 23, 42, 0.07);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-send-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #0ea5e9 100%);
+    -fx-text-fill: white;
+}
+
+.theme-light .assistant-launcher-fallback {
+    -fx-text-fill: #ecfeff;
+}
+
+.theme-light .assistant-message-assistant {
+    -fx-background-color: rgba(15, 23, 42, 0.055);
+    -fx-text-fill: #0f172a;
+}
+
+.theme-light .assistant-message-user {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #0ea5e9 100%);
+    -fx-text-fill: white;
+}
+
+.theme-light .assistant-composer {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(14, 116, 144, 0.16);
+    -fx-control-inner-background: rgba(255, 255, 255, 0.96);
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #64748b;
+    -fx-highlight-fill: #06b6d4;
+}
+
+.theme-light .assistant-composer .content,
+.theme-light .assistant-composer .scroll-pane,
+.theme-light .assistant-composer .scroll-pane > .viewport {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+}
+
+.theme-light .assistant-composer .text {
+    -fx-fill: #0f172a;
+}
+
+.theme-light .assistant-panel .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(14, 165, 233, 0.28);
+}
+
+.theme-dark .assistant-panel,
+.theme-dark.assistant-panel {
+    -fx-background-color:
+        radial-gradient(center 18% 10%, radius 46%, rgba(34, 211, 238, 0.18) 0%, rgba(34, 211, 238, 0.0) 52%),
+        linear-gradient(from 0% 0% to 100% 100%, rgba(5, 12, 27, 0.98) 0%, rgba(8, 27, 46, 0.95) 42%, rgba(7, 58, 52, 0.93) 100%);
+    -fx-border-color: rgba(125, 211, 252, 0.22);
+}
+
+.theme-dark .assistant-title,
+.theme-dark .assistant-screen-label {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .assistant-subtitle {
+    -fx-text-fill: #67e8f9;
+}
+
+.theme-dark .assistant-status {
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .assistant-chip {
+    -fx-background-color: rgba(125, 211, 252, 0.12);
+    -fx-text-fill: #e0f2fe;
+}
+
+.theme-dark .assistant-quick-action-button,
+.theme-dark .assistant-close-button,
+.theme-dark .assistant-toggle-button,
+.theme-dark .assistant-mic-button {
+    -fx-background-color: rgba(148, 163, 184, 0.12);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .assistant-send-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #22c55e 0%, #06b6d4 100%);
+    -fx-text-fill: #052e16;
+}
+
+.theme-dark .assistant-launcher-fallback {
+    -fx-text-fill: #ecfeff;
+}
+
+.theme-dark .assistant-message-assistant {
+    -fx-background-color: rgba(125, 211, 252, 0.12);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .assistant-message-user {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #22c55e 0%, #06b6d4 100%);
+    -fx-text-fill: #052e16;
+}
+
+.theme-dark .assistant-composer {
+    -fx-background-color: rgba(2, 6, 23, 0.78);
+    -fx-border-color: rgba(103, 232, 249, 0.18);
+    -fx-control-inner-background: rgba(8, 15, 31, 0.96);
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #cbd5e1;
+    -fx-highlight-fill: #22d3ee;
+}
+
+.theme-dark .assistant-composer .content,
+.theme-dark .assistant-composer .scroll-pane,
+.theme-dark .assistant-composer .scroll-pane > .viewport {
+    -fx-background-color: rgba(8, 15, 31, 0.96);
+}
+
+.theme-dark .assistant-composer .text {
+    -fx-fill: #f8fafc;
+}
+
+.theme-dark .assistant-panel .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(34, 211, 238, 0.34);
+}

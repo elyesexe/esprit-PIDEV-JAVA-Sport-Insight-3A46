@@ -196,6 +196,84 @@ class MatchsServiceTest {
         assertFalse(existeEncore);
     }
 
+    @Test
+    @Order(4)
+    void findsNextFixturesAndLastResultsForTeam() throws SQLException {
+        TeamPair teams = createTeamPair("DETAIL_MATCHES", "PL");
+        LocalDate today = LocalDate.now();
+
+        matchsService.add(buildMatch(
+                testIdMatch("NEXT_2"),
+                teams.home().getId(),
+                teams.away().getId(),
+                today.plusDays(2),
+                LocalTime.of(20, 0),
+                "Future 2",
+                "Championnat",
+                "Programme",
+                "",
+                "",
+                null,
+                null,
+                "PL"
+        ));
+        matchsService.add(buildMatch(
+                testIdMatch("NEXT_1"),
+                teams.away().getId(),
+                teams.home().getId(),
+                today.plusDays(1),
+                LocalTime.of(18, 0),
+                "Future 1",
+                "Championnat",
+                "Programme",
+                "",
+                "",
+                null,
+                null,
+                "PL"
+        ));
+        matchsService.add(buildMatch(
+                testIdMatch("WIN"),
+                teams.home().getId(),
+                teams.away().getId(),
+                today.minusDays(1),
+                LocalTime.of(20, 0),
+                "Past Win",
+                "Championnat",
+                "Fini",
+                "",
+                "",
+                2,
+                0,
+                "PL"
+        ));
+        matchsService.add(buildMatch(
+                testIdMatch("DRAW"),
+                teams.away().getId(),
+                teams.home().getId(),
+                today.minusDays(2),
+                LocalTime.of(20, 0),
+                "Past Draw",
+                "Championnat",
+                "Fini",
+                "",
+                "",
+                1,
+                1,
+                "PL"
+        ));
+
+        List<Matchs> nextMatches = matchsService.findNextMatchesForTeam(teams.home().getId(), 5);
+        List<Matchs> lastResults = matchsService.findLastResultsForTeam(teams.home().getId(), 5);
+
+        assertTrue(nextMatches.size() >= 2);
+        assertEquals(testIdMatch("NEXT_1"), nextMatches.get(0).getIdMatch());
+        assertEquals(testIdMatch("NEXT_2"), nextMatches.get(1).getIdMatch());
+        assertTrue(lastResults.size() >= 2);
+        assertEquals(testIdMatch("WIN"), lastResults.get(0).getIdMatch());
+        assertEquals(testIdMatch("DRAW"), lastResults.get(1).getIdMatch());
+    }
+
     private Matchs buildMatch(
             String idMatch,
             Integer equipeDomicileId,

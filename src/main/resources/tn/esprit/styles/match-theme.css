@@ -151,6 +151,10 @@
     -fx-padding: 0 0 14 0;
 }
 
+.match-catalog-list-view .list-cell {
+    -fx-padding: 0 0 16 0;
+}
+
 .match-list-view .list-cell:filled:selected,
 .match-list-view .list-cell:filled:selected:focused {
     -fx-background-color: transparent;
@@ -169,6 +173,106 @@
     -fx-cursor: hand;
 }
 
+.match-catalog-row {
+    -fx-padding: 0;
+}
+
+.fixture-catalog-card {
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-padding: 14 16 18 16;
+    -fx-min-height: 198;
+    -fx-pref-height: 198;
+    -fx-max-height: 198;
+}
+
+.fixture-catalog-head {
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-max-height: 34;
+}
+
+.fixture-catalog-status-badge {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 6 9 6 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.fixture-catalog-date {
+    -fx-background-color: rgba(241, 245, 249, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-text-fill: #475569;
+}
+
+.fixture-catalog-status-finished {
+    -fx-background-color: rgba(148, 163, 184, 0.18);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-text-fill: #475569;
+}
+
+.fixture-catalog-status-muted {
+    -fx-background-color: rgba(245, 158, 11, 0.14);
+    -fx-border-color: rgba(245, 158, 11, 0.26);
+    -fx-text-fill: #b45309;
+}
+
+.fixture-catalog-status-live {
+    -fx-background-color: rgba(220, 38, 38, 0.96);
+    -fx-border-color: rgba(254, 202, 202, 0.58);
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.45), 14, 0.2, 0, 0);
+}
+
+.fixture-catalog-teams {
+    -fx-padding: 2 0 0 0;
+}
+
+.fixture-catalog-team {
+    -fx-min-width: 120;
+    -fx-pref-width: 120;
+    -fx-max-width: 120;
+}
+
+.fixture-catalog-logo-shell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
+
+.fixture-catalog-team-name {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+    -fx-alignment: center;
+}
+
+.fixture-catalog-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #94a3b8;
+}
+
+.fixture-catalog-vs {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-min-width: 70;
+    -fx-pref-width: 70;
+    -fx-max-width: 70;
+    -fx-min-height: 70;
+    -fx-pref-height: 70;
+    -fx-max-height: 70;
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
 .match-list-view .list-cell:filled:hover .fixture-card {
     -fx-background-color: rgba(255, 255, 255, 0.98);
     -fx-border-color: rgba(52, 211, 153, 0.34);
@@ -184,6 +288,36 @@
 
 .fixture-card-head {
     -fx-padding: 0 0 4 0;
+}
+
+.fixture-favorite-button {
+    -fx-min-width: 34;
+    -fx-pref-width: 34;
+    -fx-max-width: 34;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-max-height: 34;
+    -fx-background-color: rgba(255, 255, 255, 0.86);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-border-radius: 999;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.fixture-favorite-button:hover {
+    -fx-background-color: rgba(254, 243, 199, 0.96);
+    -fx-border-color: rgba(245, 158, 11, 0.42);
+    -fx-text-fill: #d97706;
+}
+
+.fixture-favorite-button-active {
+    -fx-background-color: rgba(254, 243, 199, 0.98);
+    -fx-border-color: rgba(245, 158, 11, 0.48);
+    -fx-text-fill: #f59e0b;
 }
 
 .fixture-status {
@@ -517,6 +651,11 @@
     -fx-border-color: rgba(148, 163, 184, 0.3);
 }
 
+.theme-dark .fixture-catalog-card {
+    -fx-background-color: rgba(15, 23, 42, 0.78);
+    -fx-border-color: rgba(52, 211, 153, 0.24);
+}
+
 .theme-dark .match-list-view .list-cell:filled:hover .fixture-card {
     -fx-background-color: rgba(15, 23, 42, 0.84);
     -fx-border-color: rgba(52, 211, 153, 0.42);
@@ -526,6 +665,48 @@
 .theme-dark .fixture-id,
 .theme-dark .fixture-team-role {
     -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-catalog-date {
+    -fx-background-color: rgba(30, 41, 59, 0.86);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .fixture-catalog-status-finished {
+    -fx-background-color: rgba(71, 85, 105, 0.62);
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .fixture-catalog-status-muted {
+    -fx-background-color: rgba(120, 53, 15, 0.52);
+    -fx-border-color: rgba(251, 191, 36, 0.32);
+    -fx-text-fill: #fde68a;
+}
+
+.theme-dark .fixture-catalog-status-live {
+    -fx-background-color: #dc2626;
+    -fx-border-color: rgba(254, 202, 202, 0.7);
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .fixture-favorite-button {
+    -fx-background-color: rgba(15, 23, 42, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-favorite-button:hover {
+    -fx-background-color: rgba(120, 53, 15, 0.34);
+    -fx-border-color: rgba(251, 191, 36, 0.44);
+    -fx-text-fill: #fbbf24;
+}
+
+.theme-dark .fixture-favorite-button-active {
+    -fx-background-color: rgba(120, 53, 15, 0.42);
+    -fx-border-color: rgba(251, 191, 36, 0.52);
+    -fx-text-fill: #fbbf24;
 }
 
 .theme-dark .fixture-team-logo-shell,
@@ -538,14 +719,22 @@
 }
 
 .theme-dark .fixture-team-fallback,
+.theme-dark .fixture-catalog-fallback,
 .theme-dark .match-detail-logo-fallback {
     -fx-text-fill: #94a3b8;
 }
 
 .theme-dark .fixture-team-name,
+.theme-dark .fixture-catalog-team-name,
 .theme-dark .match-detail-team-name,
 .theme-dark .fixture-score-value,
 .theme-dark .match-detail-score {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .fixture-catalog-vs {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
     -fx-text-fill: #e2e8f0;
 }
 
@@ -599,7 +788,8 @@
 
 .flashscore-score-card,
 .flashscore-lineup-card,
-.flashscore-stats-card {
+.flashscore-stats-card,
+.flashscore-videos-card {
     -fx-background-color: #ffffff;
     -fx-background-radius: 18;
     -fx-border-color: #d7dde5;
@@ -681,6 +871,19 @@
     -fx-text-fill: #111827;
 }
 
+.flashscore-live-phase {
+    -fx-font-size: 15px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #f43f5e;
+    -fx-letter-spacing: 0.7px;
+}
+
+.flashscore-live-minute {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 20px;
+    -fx-text-fill: #fb7185;
+}
+
 .flashscore-venue-label {
     -fx-font-size: 13px;
     -fx-text-fill: #6b7280;
@@ -690,6 +893,10 @@
 
 .flashscore-facts-row {
     -fx-padding: 2 0 0 0;
+}
+
+.match-follow-toolbar {
+    -fx-padding: 4 0 0 0;
 }
 
 .flashscore-fact-chip {
@@ -976,7 +1183,8 @@
 
 .theme-dark .flashscore-score-card,
 .theme-dark .flashscore-lineup-card,
-.theme-dark .flashscore-stats-card {
+.theme-dark .flashscore-stats-card,
+.theme-dark .flashscore-videos-card {
     -fx-background-color: rgba(15, 23, 42, 0.84);
     -fx-border-color: rgba(148, 163, 184, 0.32);
 }
@@ -985,6 +1193,8 @@
 .theme-dark .flashscore-team-name,
 .theme-dark .flashscore-kickoff-time,
 .theme-dark .flashscore-main-score,
+.theme-dark .flashscore-live-phase,
+.theme-dark .flashscore-live-minute,
 .theme-dark .flashscore-fact-value,
 .theme-dark .bench-title,
 .theme-dark .stats-team-header,
@@ -1047,7 +1257,8 @@
 
 .flashscore-score-card,
 .flashscore-lineup-card,
-.flashscore-stats-card {
+.flashscore-stats-card,
+.flashscore-videos-card {
     -fx-background-radius: 18;
     -fx-border-radius: 18;
     -fx-padding: 16 18 18 18;
@@ -1175,50 +1386,77 @@
 .pitch-player-photo-shell {
     -fx-alignment: bottom-center;
     -fx-background-color: transparent;
-    -fx-min-width: 54;
-    -fx-pref-width: 54;
-    -fx-max-width: 54;
-    -fx-min-height: 54;
-    -fx-pref-height: 54;
-    -fx-max-height: 54;
+    -fx-min-width: 50;
+    -fx-pref-width: 50;
+    -fx-max-width: 50;
+    -fx-min-height: 50;
+    -fx-pref-height: 50;
+    -fx-max-height: 50;
 }
 
 .pitch-player-photo-fallback {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e2e8f0 0%, #cbd5e1 100%);
     -fx-background-radius: 999;
     -fx-alignment: center;
-    -fx-min-width: 44;
-    -fx-pref-width: 44;
-    -fx-max-width: 44;
-    -fx-min-height: 44;
-    -fx-pref-height: 44;
-    -fx-max-height: 44;
-    -fx-font-size: 14px;
+    -fx-min-width: 38;
+    -fx-pref-width: 38;
+    -fx-max-width: 38;
+    -fx-min-height: 38;
+    -fx-pref-height: 38;
+    -fx-max-height: 38;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-text-fill: #1f2937;
 }
 
 .pitch-player-pill-row {
-    -fx-alignment: center;
+    -fx-alignment: center-left;
+    -fx-padding: 0;
 }
 
 .pitch-player-number-badge {
-    -fx-background-color: #ff8a1a;
-    -fx-background-radius: 999;
-    -fx-padding: 3 7 3 7;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
     -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #ffffff;
+    -fx-font-weight: 900;
+    -fx-text-fill: rgba(226, 232, 240, 0.92);
+    -fx-alignment: center;
 }
 
-.pitch-player-name-pill {
-    -fx-background-color: rgba(8, 23, 38, 0.94);
-    -fx-background-radius: 999;
-    -fx-padding: 3 9 3 9;
-    -fx-font-size: 11px;
-    -fx-font-weight: 800;
+.pitch-player-identity-pill {
+    -fx-background-color: rgba(6, 18, 31, 0.96);
+    -fx-background-radius: 8;
+    -fx-padding: 3 8 3 8;
+    -fx-alignment: center-left;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 8, 0.18, 0, 2);
+}
+
+.pitch-player-name-text {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
     -fx-text-fill: #f8fafc;
-    -fx-text-overrun: ellipsis;
+    -fx-alignment: center-left;
+}
+
+.player-mvp-badge {
+    -fx-background-color: rgba(37, 99, 235, 0.96);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(147, 197, 253, 0.92);
+    -fx-border-radius: 999;
+    -fx-padding: 0;
+    -fx-min-width: 14;
+    -fx-pref-width: 14;
+    -fx-max-width: 14;
+    -fx-min-height: 14;
+    -fx-pref-height: 14;
+    -fx-max-height: 14;
+    -fx-alignment: center;
+    -fx-font-size: 8px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #eff6ff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 8, 0.15, 0, 1);
 }
 
 .pitch-marking-penalty,
@@ -1405,6 +1643,11 @@
     -fx-background-color: rgba(2, 6, 23, 0.96);
 }
 
+.theme-dark .player-mvp-badge {
+    -fx-border-color: rgba(255, 255, 255, 0.72);
+    -fx-text-fill: #111827;
+}
+
 .theme-dark .bench-player-name {
     -fx-text-fill: #e5edf8;
 }
@@ -1412,4 +1655,641 @@
 .theme-dark .bench-player-number {
     -fx-background-color: rgba(224, 231, 255, 0.96);
     -fx-text-fill: #312e81;
+}
+
+.detail-tabs-row {
+    -fx-padding: 0 2 2 2;
+}
+
+.detail-tab-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-border-color: transparent;
+    -fx-border-radius: 999;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+    -fx-cursor: hand;
+}
+
+.detail-tab-button:hover {
+    -fx-background-color: rgba(15, 23, 42, 0.05);
+    -fx-text-fill: #0f172a;
+}
+
+.detail-tab-button-active {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-border-color: rgba(239, 68, 68, 0.4);
+    -fx-text-fill: #0f172a;
+}
+
+.flashscore-summary-card {
+    -fx-spacing: 12;
+}
+
+.match-video-status {
+    -fx-text-fill: #475569;
+}
+
+.match-video-player-card,
+.match-video-source-column {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 16;
+    -fx-padding: 14;
+}
+
+.match-video-sources-row {
+    -fx-alignment: top-center;
+}
+
+.match-video-source-column {
+    -fx-padding: 12;
+    -fx-min-height: 126;
+    -fx-pref-height: 156;
+    -fx-max-height: 180;
+}
+
+.match-video-source-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.match-video-source-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.match-video-source-scroll .scroll-bar:vertical {
+    -fx-opacity: 0.35;
+}
+
+.match-video-player-shell {
+    -fx-min-height: 420;
+    -fx-pref-height: 420;
+    -fx-background-color:
+        radial-gradient(center 50% 20%, radius 85%, rgba(37, 99, 235, 0.18) 0%, rgba(15, 23, 42, 0.0) 58%),
+        linear-gradient(from 0% 0% to 0% 100%, #0f172a 0%, #020617 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 16;
+}
+
+.match-video-empty-state {
+    -fx-padding: 24;
+    -fx-max-width: 520;
+}
+
+.match-video-empty-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 20px;
+    -fx-text-fill: #f8fafc;
+}
+
+.match-video-empty-body {
+    -fx-font-size: 13px;
+    -fx-text-fill: rgba(226, 232, 240, 0.82);
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.match-video-player-title,
+.match-video-column-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 16px;
+    -fx-text-fill: #111827;
+}
+
+.match-video-player-meta,
+.match-video-empty-column {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.match-video-option {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #dbe3ed;
+    -fx-border-radius: 14;
+    -fx-padding: 8 10 8 10;
+    -fx-min-height: 68;
+    -fx-pref-height: 74;
+    -fx-cursor: hand;
+}
+
+.match-video-option:hover {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(59, 130, 246, 0.34);
+}
+
+.match-video-option-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(239, 246, 255, 0.98) 0%, rgba(236, 253, 245, 0.96) 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.42);
+}
+
+.match-video-thumb-shell {
+    -fx-min-width: 76;
+    -fx-pref-width: 76;
+    -fx-max-width: 76;
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+    -fx-max-height: 44;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f172a 0%, #1e293b 100%);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 12;
+    -fx-alignment: center;
+    -fx-padding: 6;
+}
+
+.match-video-thumb-fallback {
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #f8fafc;
+}
+
+.match-video-option-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.match-video-option-meta {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+.match-video-kind-badge {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 5 9 5 9;
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
+}
+
+.match-video-kind-live {
+    -fx-background-color: rgba(239, 68, 68, 0.12);
+    -fx-border-color: rgba(239, 68, 68, 0.26);
+    -fx-text-fill: #dc2626;
+}
+
+.match-video-kind-highlight {
+    -fx-background-color: rgba(37, 99, 235, 0.12);
+    -fx-border-color: rgba(37, 99, 235, 0.24);
+    -fx-text-fill: #1d4ed8;
+}
+
+.summary-teams-header,
+.stats-teams-header {
+    -fx-padding: 2 2 6 2;
+}
+
+.summary-team-header,
+.stats-team-header {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.summary-center-header,
+.stats-center-header {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #6b7280;
+}
+
+.timeline-row {
+    -fx-alignment: center;
+}
+
+.timeline-event-box {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 16;
+    -fx-border-color: #dbe3ed;
+    -fx-border-radius: 16;
+    -fx-padding: 10 12 10 12;
+    -fx-min-height: 64;
+    -fx-max-width: 420;
+}
+
+.timeline-event-home {
+    -fx-alignment: center-left;
+}
+
+.timeline-event-away {
+    -fx-alignment: center-right;
+}
+
+.timeline-minute-chip {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.timeline-event-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.timeline-event-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+}
+
+.timeline-event-badge {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+}
+
+.timeline-badge-goal {
+    -fx-background-color: #16a34a;
+}
+
+.timeline-badge-yellow {
+    -fx-background-color: #eab308;
+    -fx-text-fill: #1f2937;
+}
+
+.timeline-badge-red {
+    -fx-background-color: #dc2626;
+}
+
+.timeline-badge-sub {
+    -fx-background-color: #2563eb;
+}
+
+.timeline-badge-neutral {
+    -fx-background-color: #64748b;
+}
+
+.timeline-score-chip {
+    -fx-background-color: rgba(15, 23, 42, 0.08);
+    -fx-background-radius: 999;
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.player-rating-badge {
+    -fx-background-radius: 999;
+    -fx-padding: 2 6 2 6;
+    -fx-font-size: 9px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+}
+
+.player-rating-elite {
+    -fx-background-color: #16a34a;
+}
+
+.player-rating-good {
+    -fx-background-color: #65a30d;
+}
+
+.player-rating-mid {
+    -fx-background-color: #f59e0b;
+}
+
+.player-rating-low {
+    -fx-background-color: #dc2626;
+}
+
+.player-rating-neutral {
+    -fx-background-color: #64748b;
+}
+
+.bench-rating-badge {
+    -fx-padding: 4 8 4 8;
+}
+
+.player-event-pill-row {
+    -fx-padding: 0;
+    -fx-alignment: center-left;
+}
+
+.player-event-pill {
+    -fx-background-radius: 999;
+    -fx-padding: 0;
+    -fx-min-width: 12;
+    -fx-pref-width: 12;
+    -fx-max-width: 12;
+    -fx-min-height: 12;
+    -fx-pref-height: 12;
+    -fx-max-height: 12;
+    -fx-font-size: 7px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+}
+
+.player-event-pill-goal {
+    -fx-background-color: #16a34a;
+}
+
+.player-event-pill-assist {
+    -fx-background-color: #2563eb;
+}
+
+.player-event-pill-yellow {
+    -fx-background-color: #eab308;
+    -fx-text-fill: #1f2937;
+}
+
+.player-event-pill-red {
+    -fx-background-color: #dc2626;
+}
+
+.theme-dark .detail-tab-button {
+    -fx-text-fill: #93a4b8;
+}
+
+.theme-dark .detail-tab-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .detail-tab-button-active {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-border-color: rgba(248, 113, 113, 0.42);
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .flashscore-summary-card {
+    -fx-background-color: rgba(9, 17, 30, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.theme-dark .summary-team-header,
+.theme-dark .stats-team-header,
+.theme-dark .timeline-event-title,
+.theme-dark .timeline-score-chip,
+.theme-dark .match-video-player-title,
+.theme-dark .match-video-column-title,
+.theme-dark .match-video-option-title {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .summary-center-header,
+.theme-dark .stats-center-header,
+.theme-dark .timeline-event-meta,
+.theme-dark .match-video-status,
+.theme-dark .match-video-player-meta,
+.theme-dark .match-video-empty-column,
+.theme-dark .match-video-option-meta {
+    -fx-text-fill: #93a4b8;
+}
+
+.theme-dark .timeline-event-box,
+.theme-dark .match-video-player-card,
+.theme-dark .match-video-source-column,
+.theme-dark .match-video-option {
+    -fx-background-color: rgba(15, 23, 42, 0.86);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark .timeline-minute-chip,
+.theme-dark .timeline-score-chip {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark .match-video-option:hover {
+    -fx-background-color: rgba(15, 23, 42, 0.92);
+    -fx-border-color: rgba(96, 165, 250, 0.38);
+}
+
+.theme-dark .match-video-option-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 64, 175, 0.26) 0%, rgba(6, 95, 70, 0.22) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+}
+
+.theme-dark .match-video-thumb-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark .match-video-kind-live {
+    -fx-background-color: rgba(248, 113, 113, 0.18);
+    -fx-border-color: rgba(248, 113, 113, 0.32);
+    -fx-text-fill: #fca5a5;
+}
+
+.theme-dark .match-video-kind-highlight {
+    -fx-background-color: rgba(96, 165, 250, 0.16);
+    -fx-border-color: rgba(96, 165, 250, 0.28);
+    -fx-text-fill: #bfdbfe;
+}
+
+/* Compact match detail overrides */
+.flashscore-score-card,
+.flashscore-summary-card,
+.flashscore-lineup-card,
+.flashscore-stats-card,
+.flashscore-videos-card {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 12 14 14 14;
+}
+
+.flashscore-title-block {
+    -fx-padding: 0 0 2 0;
+}
+
+.flashscore-scoreboard {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 10 12 10 12;
+}
+
+.flashscore-team-column {
+    -fx-padding: 0 4 0 4;
+}
+
+.flashscore-logo-shell,
+.theme-dark .flashscore-logo-shell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
+
+.match-detail-logo-fallback {
+    -fx-font-size: 42px;
+}
+
+.flashscore-team-name {
+    -fx-font-size: 20px;
+}
+
+.flashscore-center-column {
+    -fx-min-width: 190;
+    -fx-padding: 0 8 0 8;
+}
+
+.flashscore-main-score {
+    -fx-font-size: 36px;
+}
+
+.flashscore-fact-chip,
+.flashscore-stat-card {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 8 10 8 10;
+}
+
+.flashscore-inline-badge,
+.detail-tab-button {
+    -fx-padding: 6 10 6 10;
+}
+
+.match-follow-toolbar,
+.detail-tabs-row,
+.flashscore-facts-row {
+    -fx-padding: 0;
+}
+
+/* Readable compact timeline panel */
+.flashscore-team-name {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-weight: 900;
+}
+
+.flashscore-main-score {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-weight: 900;
+}
+
+.flashscore-summary-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(45, 212, 191, 0.92) 0%, rgba(94, 234, 212, 0.72) 100%);
+    -fx-border-color: rgba(13, 148, 136, 0.46);
+}
+
+.flashscore-summary-card .flashscore-section-title,
+.flashscore-summary-card .summary-team-header,
+.flashscore-summary-card .timeline-event-title,
+.flashscore-summary-card .timeline-score-chip {
+    -fx-text-fill: #042f2e;
+}
+
+.flashscore-summary-card .summary-center-header,
+.flashscore-summary-card .timeline-event-meta,
+.flashscore-summary-card .section-subtitle {
+    -fx-text-fill: #115e59;
+}
+
+.flashscore-summary-card .flashscore-inline-badge,
+.flashscore-summary-card .timeline-minute-chip,
+.flashscore-summary-card .timeline-score-chip {
+    -fx-background-color: rgba(240, 253, 250, 0.86);
+    -fx-border-color: rgba(13, 148, 136, 0.28);
+}
+
+.flashscore-summary-card .flashscore-inline-badge {
+    -fx-text-fill: #0f766e;
+}
+
+.timeline-row {
+    -fx-padding: 0;
+}
+
+.timeline-event-box {
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(13, 148, 136, 0.24);
+    -fx-border-radius: 12;
+    -fx-padding: 6 8 6 8;
+    -fx-min-height: 42;
+    -fx-max-width: 380;
+}
+
+.timeline-minute-chip {
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 12px;
+    -fx-text-fill: #042f2e;
+}
+
+.timeline-event-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.timeline-event-meta {
+    -fx-font-size: 11px;
+}
+
+.timeline-event-badge {
+    -fx-padding: 3 7 3 7;
+    -fx-font-size: 10px;
+}
+
+.timeline-score-chip {
+    -fx-padding: 3 7 3 7;
+    -fx-font-size: 11px;
+}
+
+.theme-dark .flashscore-summary-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 47, 73, 0.96) 0%, rgba(15, 23, 42, 0.96) 100%);
+    -fx-border-color: rgba(56, 189, 248, 0.34);
+}
+
+.theme-dark .flashscore-summary-card .flashscore-section-title,
+.theme-dark .flashscore-summary-card .summary-team-header,
+.theme-dark .flashscore-summary-card .timeline-event-title,
+.theme-dark .flashscore-summary-card .timeline-minute-chip,
+.theme-dark .flashscore-summary-card .timeline-score-chip {
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .flashscore-summary-card .summary-center-header,
+.theme-dark .flashscore-summary-card .timeline-event-meta,
+.theme-dark .flashscore-summary-card .section-subtitle {
+    -fx-text-fill: #bae6fd;
+}
+
+.theme-dark .flashscore-summary-card .flashscore-inline-badge,
+.theme-dark .flashscore-summary-card .timeline-minute-chip,
+.theme-dark .flashscore-summary-card .timeline-score-chip {
+    -fx-background-color: rgba(14, 116, 144, 0.42);
+    -fx-border-color: rgba(125, 211, 252, 0.34);
+}
+
+.theme-dark .flashscore-summary-card .flashscore-inline-badge {
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .flashscore-summary-card .timeline-event-box {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(125, 211, 252, 0.28);
+}
+
+/* Final timeline minute contrast guard for both theme roots. */
+.timeline-minute-chip,
+.theme-light .timeline-minute-chip,
+.theme-light.timeline-minute-chip,
+.flashscore-summary-card .timeline-minute-chip {
+    -fx-text-fill: #042f2e;
+    -fx-font-weight: 800;
+}
+
+.theme-dark .timeline-minute-chip,
+.theme-dark.timeline-minute-chip,
+.theme-dark .flashscore-summary-card .timeline-minute-chip,
+.theme-dark.flashscore-summary-card .timeline-minute-chip {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 900;
 }

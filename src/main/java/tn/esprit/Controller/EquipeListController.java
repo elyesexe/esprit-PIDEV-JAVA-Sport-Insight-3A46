@@ -8,16 +8,13 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.entities.Equipe;
@@ -42,7 +39,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class EquipeListController {
-    private static final double CARD_LOGO_SIZE = 82;
+    private static final double CARD_LOGO_SIZE = 96;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-list-db-worker"));
 
@@ -89,7 +86,7 @@ public class EquipeListController {
     @FXML
     private Button addButton;
     @FXML
-    private ListView<Equipe> equipeListView;
+    private FlowPane equipeCatalogPane;
     @FXML
     private VBox emptyStateBox;
 
@@ -112,7 +109,7 @@ public class EquipeListController {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
         configureToolbar();
-        configureListView();
+        configureCatalogPane();
         updateCompetitionTexts();
         updateSortOrderButtonText();
         updateToolbarState();
@@ -230,15 +227,19 @@ public class EquipeListController {
     }
 
     private void configureToolbar() {
-        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
+        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach"));
         sortChoiceBox.setValue("Nom");
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
     }
 
-    private void configureListView() {
-        equipeListView.setItems(displayedEquipes);
-        equipeListView.setCellFactory(listView -> createEquipeCell());
+    private void configureCatalogPane() {
+        if (equipeCatalogPane == null) {
+            return;
+        }
+        equipeCatalogPane.setHgap(18);
+        equipeCatalogPane.setVgap(18);
+        equipeCatalogPane.setAlignment(Pos.CENTER);
     }
 
     private void refreshTableAsync(String loadingMessage) {
@@ -375,6 +376,7 @@ public class EquipeListController {
 
         filtered.sort(buildComparator());
         displayedEquipes.setAll(filtered);
+        renderEquipeCatalog(filtered);
 
         boolean isEmpty = filtered.isEmpty();
         emptyStateBox.setManaged(isEmpty);
@@ -407,9 +409,7 @@ public class EquipeListController {
     private Comparator<Equipe> buildComparator() {
         Comparator<Equipe> comparator;
         String selectedSort = sortChoiceBox.getValue();
-        if ("Id".equals(selectedSort)) {
-            comparator = Comparator.comparing(Equipe::getId, Comparator.nullsLast(Integer::compareTo));
-        } else if ("Coach".equals(selectedSort)) {
+        if ("Coach".equals(selectedSort)) {
             comparator = Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
         } else {
             comparator = Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
@@ -417,54 +417,35 @@ public class EquipeListController {
         return sortDescending ? comparator.reversed() : comparator;
     }
 
-    private ListCell<Equipe> createEquipeCell() {
-        return new ListCell<>() {
-            @Override
-            protected void updateItem(Equipe equipe, boolean empty) {
-                super.updateItem(equipe, empty);
-                if (empty || equipe == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
+    private void renderEquipeCatalog(List<Equipe> equipes) {
+        if (equipeCatalogPane == null) {
+            return;
+        }
+        equipeCatalogPane.getChildren().clear();
+        if (equipes == null || equipes.isEmpty()) {
+            return;
+        }
 
-                StackPane logoPane = createLogoPane(equipe);
+        for (Equipe equipe : equipes) {
+            equipeCatalogPane.getChildren().add(createEquipeCatalogCard(equipe));
+        }
+    }
 
-                Label nameLabel = new Label(emptyIfNull(equipe.getNom()));
-                nameLabel.getStyleClass().add("card-title");
-                nameLabel.setWrapText(true);
+    private StackPane createEquipeCatalogCard(Equipe equipe) {
+        StackPane logoPane = createLogoPane(equipe);
 
-                String coach = emptyToNull(equipe.getCoach());
-                Label coachLabel = new Label(coach == null ? "Coach non renseigne" : "Coach : " + coach);
-                coachLabel.getStyleClass().add(coach == null ? "card-subtitle-muted" : "card-subtitle");
-                coachLabel.setWrapText(true);
+        Label nameLabel = new Label(emptyIfNull(equipe.getNom()));
+        nameLabel.getStyleClass().add("team-catalog-title");
+        nameLabel.setWrapText(true);
+        nameLabel.setAlignment(Pos.CENTER);
 
-                Label competitionLabel = new Label(resolveCompetitionLabel(equipe.getCompetitionCode()));
-                competitionLabel.getStyleClass().add("team-card-competition-badge");
+        VBox cardContent = new VBox(16, logoPane, nameLabel);
+        cardContent.setAlignment(Pos.CENTER);
 
-                String logoState = emptyToNull(equipe.getImage()) == null ? "Sans logo" : "Logo disponible";
-                Label metaLabel = new Label("#" + equipe.getId() + "  |  " + logoState);
-                metaLabel.getStyleClass().add("card-meta");
-
-                Label ctaLabel = new Label("Ouvrir la fiche");
-                ctaLabel.getStyleClass().add("card-link");
-
-                VBox textBox = new VBox(6, competitionLabel, nameLabel, coachLabel, metaLabel, ctaLabel);
-                textBox.setAlignment(Pos.CENTER_LEFT);
-                HBox.setHgrow(textBox, Priority.ALWAYS);
-
-                HBox cardContent = new HBox(16, logoPane, textBox);
-                cardContent.setAlignment(Pos.CENTER_LEFT);
-
-                StackPane cardButton = new StackPane(cardContent);
-                cardButton.getStyleClass().addAll("team-list-card", "team-list-card-clickable");
-                cardButton.setOnMouseClicked(event -> openEquipeDetail(equipe));
-
-                setText(null);
-                setGraphic(cardButton);
-                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            }
-        };
+        StackPane card = new StackPane(cardContent);
+        card.getStyleClass().addAll("team-catalog-card", "team-list-card-clickable");
+        card.setOnMouseClicked(event -> openEquipeDetail(equipe));
+        return card;
     }
 
     private StackPane createLogoPane(Equipe equipe) {
@@ -494,7 +475,7 @@ public class EquipeListController {
 
     private void openEquipeDetail(Equipe equipe) {
         SceneNavigator.switchScene(
-                equipeListView,
+                equipeCatalogPane,
                 "/tn/esprit/views/equipe-detail-view.fxml",
                 "/tn/esprit/styles/equipe-theme.css",
                 emptyIfNull(equipe.getNom()) + " | Equipe",
@@ -580,10 +561,6 @@ public class EquipeListController {
 
     private String emptyIfNull(String value) {
         return value == null ? "" : value;
-    }
-
-    private String emptyToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private static ThreadFactory daemonFactory(String threadName) {

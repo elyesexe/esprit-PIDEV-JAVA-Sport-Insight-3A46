@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -52,10 +53,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class ProductController {
     private static final int LOW_STOCK_THRESHOLD = 5;
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("product-db"));
 
     @FXML private BorderPane pageRoot;
     @FXML private ScrollPane pageScroll;
@@ -132,7 +139,9 @@ public class ProductController {
     private ProductPdfExportService productPdfExportService;
     private Product selectedProduct;
     private boolean serviceReady;
+    private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -155,7 +164,7 @@ public class ProductController {
             productPdfExportService = new ProductPdfExportService();
             serviceReady = true;
             setStatus("Module produits pret.", "status-success");
-            refreshProducts(null, null, null);
+            refreshProducts(null, "Chargement des produits...", "status-muted");
         } catch (SQLException exception) {
             serviceReady = false;
             setStatus("Module produits indisponible.", "status-error");
@@ -164,6 +173,7 @@ public class ProductController {
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         Platform.runLater(this::applyWorkspaceSurface);
         if (productTableView != null) {
             productTableView.refresh();
@@ -174,6 +184,7 @@ public class ProductController {
         if (categoryDistributionChart != null) {
             categoryDistributionChart.applyCss();
         }
+        updateCharts();
         Platform.runLater(() -> applyPieChartTheme(categoryDistributionChart, darkMode));
     }
 
@@ -466,12 +477,33 @@ public class ProductController {
             return;
         }
 
-        try {
-            List<Product> foundProducts = productService.findProducts(
-                    searchField == null ? null : searchField.getText(),
-                    sortByComboBox.getValue(),
-                    sortDirectionComboBox.getValue()
-            );
+        long requestId = refreshSequence.incrementAndGet();
+        String search = searchField == null ? null : searchField.getText();
+        ProductRepository.ProductSortField sortField =
+                sortByComboBox == null || sortByComboBox.getValue() == null
+                        ? ProductRepository.ProductSortField.NAME
+                        : sortByComboBox.getValue();
+        ProductRepository.SortDirection sortDirection =
+                sortDirectionComboBox == null || sortDirectionComboBox.getValue() == null
+                        ? ProductRepository.SortDirection.ASC
+                        : sortDirectionComboBox.getValue();
+
+        setStatus(successMessage == null ? "Chargement des produits..." : successMessage,
+                statusStyle == null ? "status-muted" : statusStyle);
+
+        Task<List<Product>> loadTask = new Task<>() {
+            @Override
+            protected List<Product> call() throws Exception {
+                return productService.findProducts(search, sortField, sortDirection);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+
+            List<Product> foundProducts = loadTask.getValue();
             products.setAll(foundProducts);
             updateMetrics();
             updateCharts();
@@ -492,10 +524,22 @@ public class ProductController {
             } else {
                 setStatus(products.size() + " produit(s) charges.", "status-muted");
             }
-        } catch (SQLException exception) {
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
             setStatus("Chargement impossible.", "status-error");
-            showAlert(Alert.AlertType.ERROR, "Produit", resolveSqlMessage(exception));
-        }
+            Throwable exception = loadTask.getException();
+            if (exception instanceof SQLException sqlException) {
+                showAlert(Alert.AlertType.ERROR, "Produit", resolveSqlMessage(sqlException));
+            } else if (exception != null) {
+                showAlert(Alert.AlertType.ERROR, "Produit", resolvePersistenceMessage(new Exception(exception)));
+            }
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void populateForm(Product product) {
@@ -634,9 +678,15 @@ public class ProductController {
             XYChart.Data<String, Number> outData = new XYChart.Data<>("Out", outOfStock);
             series.getData().addAll(healthyData, lowData, outData);
             stockStatusChart.getData().setAll(series);
-            applyBarColor(healthyData, "#22c55e");
-            applyBarColor(lowData, "#f59e0b");
-            applyBarColor(outData, "#ef4444");
+            if (isDarkModeEnabled()) {
+                applyBarColor(healthyData, "#9d71ff");
+                applyBarColor(lowData, "#57d5ff");
+                applyBarColor(outData, "#ff63d0");
+            } else {
+                applyBarColor(healthyData, "#22c55e");
+                applyBarColor(lowData, "#f59e0b");
+                applyBarColor(outData, "#ef4444");
+            }
         }
 
         Map<String, Long> categories = products.stream()
@@ -1034,10 +1084,10 @@ public class ProductController {
         if (chart == null) {
             return;
         }
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
 
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node ->
@@ -1053,10 +1103,18 @@ public class ProductController {
     }
 
     private boolean isDarkModeEnabled() {
-        return themeToggleButton != null && themeToggleButton.isSelected();
+        return darkMode || (themeToggleButton != null && themeToggleButton.isSelected());
     }
 
     private Node resolveNavigationSource(Node preferred, Node fallback) {
         return preferred != null ? preferred : fallback;
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }

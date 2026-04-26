@@ -2,10 +2,12 @@ package tn.esprit.Controller;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
@@ -41,12 +43,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AdminUserModerationController {
     private static final String DARK_TABLE_CLASS = "admin-dashboard-force-dark";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final String SORT_A_TO_Z = "A-Z";
     private static final String SORT_Z_TO_A = "Z-A";
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("admin-users-db"));
 
     @FXML
     private Label statusLabel;
@@ -120,6 +128,8 @@ public class AdminUserModerationController {
     private UserService userService;
     private UserPdfExportService userPdfExportService;
     private User selectedUser;
+    private boolean darkMode;
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -131,7 +141,7 @@ public class AdminUserModerationController {
         try {
             userService = new UserService();
             userPdfExportService = new UserPdfExportService();
-            refreshUsers(null);
+            refreshUsersAsync(null, "Loading user moderation data...", "status-muted");
         } catch (IllegalStateException ex) {
             saveButton.setDisable(true);
             deleteButton.setDisable(true);
@@ -140,21 +150,33 @@ public class AdminUserModerationController {
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         if (userTableView == null) {
-            return;
-        }
-        if (darkMode) {
-            if (!userTableView.getStyleClass().contains(DARK_TABLE_CLASS)) {
-                userTableView.getStyleClass().add(DARK_TABLE_CLASS);
+            if (accountStatusPieChart != null) {
+                Platform.runLater(this::applyPieChartTheme);
             }
-            return;
+        } else {
+            if (darkMode) {
+                if (!userTableView.getStyleClass().contains(DARK_TABLE_CLASS)) {
+                    userTableView.getStyleClass().add(DARK_TABLE_CLASS);
+                }
+            } else {
+                userTableView.getStyleClass().remove(DARK_TABLE_CLASS);
+            }
         }
-        userTableView.getStyleClass().remove(DARK_TABLE_CLASS);
+        if (accountStatusBarChart != null) {
+            accountStatusBarChart.applyCss();
+        }
+        if (accountStatusPieChart != null) {
+            accountStatusPieChart.applyCss();
+            Platform.runLater(this::applyPieChartTheme);
+        }
+        Platform.runLater(this::updateCharts);
     }
 
     @FXML
     private void handleRefresh() {
-        refreshUsers(selectedUser == null ? null : selectedUser.getId());
+        refreshUsersAsync(selectedUser == null ? null : selectedUser.getId(), "Refreshing user moderation data...", "status-muted");
     }
 
     @FXML
@@ -271,8 +293,7 @@ public class AdminUserModerationController {
             }
 
             userService.update(selectedUser);
-            refreshUsers(selectedUser.getId());
-            showStatus("User profile updated successfully.", "status-success");
+            refreshUsersAsync(selectedUser.getId(), "User profile updated successfully.", "status-success");
         } catch (SQLException | IllegalArgumentException ex) {
             showValidation("The user could not be updated. " + ex.getMessage());
         }
@@ -311,8 +332,7 @@ public class AdminUserModerationController {
         try {
             userService.delete(selectedUser.getId());
             clearForm();
-            refreshUsers(null);
-            showStatus("User deleted successfully.", "status-success");
+            refreshUsersAsync(null, "User deleted successfully.", "status-success");
         } catch (SQLException ex) {
             showValidation("The user could not be deleted. " + ex.getMessage());
         }
@@ -381,26 +401,48 @@ public class AdminUserModerationController {
         }
     }
 
-    private void refreshUsers(Integer preferredUserId) {
+    private void refreshUsersAsync(Integer preferredUserId, String successMessage, String styleClass) {
         if (userService == null) {
             return;
         }
 
-        try {
-            users.setAll(userService.getAll().stream()
-                    .sorted(Comparator
-                            .comparing(User::getDateInscription, Comparator.nullsLast(Comparator.reverseOrder()))
-                            .thenComparing(User::getId, Comparator.nullsLast(Comparator.reverseOrder())))
-                    .toList());
+        long requestId = refreshSequence.incrementAndGet();
+        showStatus(successMessage == null ? "Loading user moderation data..." : successMessage,
+                styleClass == null ? "status-muted" : styleClass);
+
+        Task<List<User>> loadTask = new Task<>() {
+            @Override
+            protected List<User> call() throws Exception {
+                return userService.getAll().stream()
+                        .sorted(Comparator
+                                .comparing(User::getDateInscription, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .thenComparing(User::getId, Comparator.nullsLast(Comparator.reverseOrder())))
+                        .toList();
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            users.setAll(loadTask.getValue());
             applyFilter();
             updateMetrics();
             if (preferredUserId != null) {
                 selectUserById(preferredUserId);
             }
-            showStatus("User moderation data loaded.", "status-muted");
-        } catch (SQLException ex) {
+            showStatus(successMessage == null ? "User moderation data loaded." : successMessage,
+                    styleClass == null ? "status-muted" : styleClass);
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
             showStatus("User moderation data could not be loaded.", "status-error");
-        }
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void applyFilter() {
@@ -444,9 +486,15 @@ public class AdminUserModerationController {
             series.getData().add(new XYChart.Data<>("Blocked", blockedCount));
             series.getData().add(new XYChart.Data<>("Other", otherCount));
             accountStatusBarChart.getData().setAll(series);
-            applyBarColor(series.getData().get(0), "#22c55e");
-            applyBarColor(series.getData().get(1), "#ef4444");
-            applyBarColor(series.getData().get(2), "#f59e0b");
+            if (darkMode) {
+                applyBarColor(series.getData().get(0), "#9d71ff");
+                applyBarColor(series.getData().get(1), "#ff63d0");
+                applyBarColor(series.getData().get(2), "#57d5ff");
+            } else {
+                applyBarColor(series.getData().get(0), "#22c55e");
+                applyBarColor(series.getData().get(1), "#ef4444");
+                applyBarColor(series.getData().get(2), "#f59e0b");
+            }
         }
 
         if (accountStatusPieChart != null) {
@@ -464,6 +512,7 @@ public class AdminUserModerationController {
                 chartData.add(new PieChart.Data("No users", 1));
             }
             accountStatusPieChart.setData(chartData);
+            Platform.runLater(this::applyPieChartTheme);
         }
 
         if (chartSummaryLabel != null) {
@@ -622,11 +671,40 @@ public class AdminUserModerationController {
         }
     }
 
+    private void applyPieChartTheme() {
+        if (accountStatusPieChart == null) {
+            return;
+        }
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
+        accountStatusPieChart.applyCss();
+        accountStatusPieChart.lookupAll(".chart-pie-label").forEach(node ->
+                node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
+        accountStatusPieChart.lookupAll(".chart-pie-label-line").forEach(node ->
+                node.setStyle("-fx-stroke: " + lineColor + ";"));
+        accountStatusPieChart.lookupAll(".chart-legend").forEach(node ->
+                node.setStyle("-fx-background-color: " + legendBackground + "; -fx-background-radius: 12;"));
+        accountStatusPieChart.lookupAll(".chart-legend-item").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+        accountStatusPieChart.lookupAll(".chart-legend-item .label").forEach(node ->
+                node.setStyle("-fx-text-fill: " + legendColor + ";"));
+    }
+
     private String emptyIfNull(String value) {
         return emptyIfNull(value, "");
     }
 
     private String emptyIfNull(String value, String fallback) {
         return value == null ? fallback : value;
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }

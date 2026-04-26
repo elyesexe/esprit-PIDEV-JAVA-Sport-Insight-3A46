@@ -1,8 +1,23 @@
 # Sport Insight
 
-Sport Insight is a JavaFX desktop platform dedicated to football management, analysis, and user experience. The project brings together administration, sports data management, public-facing interfaces, and connected services inside one modern application backed by Java, JDBC, and MySQL.
+Sport Insight is a JavaFX desktop platform dedicated to football management, analysis, and user experience. It brings together administration, sports data management, public-facing interfaces, and connected services inside one modern application backed by Java, JDBC, and MySQL.
 
-The main idea behind Sport Insight is simple: create a single environment where teams, players, matches, training sessions, announcements, sponsors, products, and users can be managed through rich graphical interfaces while also benefiting from live football data and visual dashboards.
+The goal of Sport Insight is to provide a single environment where teams, players, matches, training sessions, announcements, sponsors, products, orders, and users can be managed through rich graphical interfaces while also benefiting from live football data and operational dashboards.
+
+## Recent Major Updates
+
+The admin workspace recently received a large UI and workflow refresh. The biggest changes are:
+
+- unified violet dark mode across the admin interface
+- stronger black text for better readability in admin light mode
+- a simplified admin dashboard focused on KPI cards and operational tables
+- animated collapsible admin sidebar
+- dashboard startup fix so dark mode opens directly in violet without a white flash
+- inline row actions for `Equipe`, `Joueur`, and `Matchs`
+- table-based update flows for teams, players, and matches instead of form-only editing
+- aligned styling for buttons, tables, inputs, combo boxes, calendars, and status pills
+- cleaner Git hygiene with generated build output ignored from version control
+- finished-match highlight playback using the official YouTube Data API and an embedded Chromium player
 
 ## Project Vision
 
@@ -19,12 +34,12 @@ The application focuses on usability, structured data, and a polished JavaFX exp
 
 ## Authors
 
-- Elyes Chaouch — Director, Match management
-- Amine Bouchnak — Product management
-- Sirine Saidaoui — User management
-- Tesnim Fekih — Training management
-- Sayda Guennichi — Announcement management
-- Rym Hamouda — Sponsoring management
+- Elyes Chaouch - Director, Match management
+- Amine Bouchnak - Product management
+- Sirine Saidaoui - User management
+- Tesnim Fekih - Training management
+- Sayda Guennichi - Announcement management
+- Rym Hamouda - Sponsoring management
 
 ## Functional Scope
 
@@ -45,13 +60,14 @@ Sport Insight covers several business areas inside the same application:
 
 ### 1. Administration
 
-The admin area centralizes the supervision of the platform. It includes:
+The admin area centralizes supervision of the platform. It includes:
 
-- an admin shell with side navigation
-- a dashboard with KPIs and charts
+- an admin shell with side navigation and animated collapse/expand behavior
+- a dashboard with KPI cards and operational summary tables
 - quick access to the main data modules
 - moderation tools for users
-- a visual overview of teams, players, matches, announcements, and training sessions
+- a consistent violet dark-mode design language across admin pages
+- dedicated admin light-mode readability improvements
 
 ### 2. Teams
 
@@ -119,6 +135,7 @@ Main capabilities:
 - link home and away teams
 - track scores and statuses
 - sync matches from external football competitions
+- search and watch finished-match highlights directly inside the app
 
 Managed information includes:
 
@@ -210,6 +227,8 @@ Sport Insight includes strong CRUD coverage across the project. The platform man
 
 This CRUD logic is implemented through service classes, JavaFX controllers, and dedicated FXML views.
 
+Recent admin workflow updates also introduced inline row actions and direct table editing for selected modules, especially `Equipe`, `Joueur`, and `Matchs`.
+
 ## Interfaces and Screens
 
 The project is interface-driven and built around JavaFX views. Important screens include:
@@ -246,20 +265,27 @@ Notable FXML files:
 - `store-view.fxml`
 - `league-table-view.fxml`
 
+Recent admin UX improvements include:
+
+- collapsible sidebar animation
+- dashboard KPI cards for quick reading
+- row-level update and delete buttons inside selected tables
+- unified admin violet dark mode
+- clearer light-mode text contrast
+
 ## Dashboard and Statistics
 
 Sport Insight includes visual dashboards to make data easier to understand.
 
-Current dashboard direction includes:
+The current admin dashboard direction is intentionally more operational than decorative. It now focuses on:
 
 - administrative KPI cards
 - operational summary tables
-- team statistics charts
-- player distribution charts
-- match status charts
-- recent activity views
+- counts for users, matches, announcements, training sessions, teams, and players
+- recent activity surfaces for fast admin review
+- a cleaner home page without graphic charts on the admin dashboard itself
 
-These elements help transform raw data into quick decisions for administrators.
+Detailed charts and module-specific statistics remain available inside the dedicated admin pages for teams, players, matches, sponsors, products, orders, and users.
 
 ## External APIs and Data Enrichment
 
@@ -302,6 +328,27 @@ Main related classes:
 - `ApiFootballScorerEntry`
 - `ApiFootballConfig`
 
+### YouTube highlights integration
+
+The match detail screen includes an in-app highlight viewer for finished matches. It uses only the official YouTube Data API v3:
+
+- searches only when the match status is finished
+- queries YouTube with `videoEmbeddable=true`
+- verifies each result with `videos.list` and `status.embeddable == true`
+- lists playable highlight candidates in the JavaFX UI
+- opens playback through embedded Chromium/JCEF instead of JavaFX WebView
+- uses a local loopback player page to provide a proper HTTP origin/referrer for YouTube iframe playback
+- automatically falls back to the full YouTube watch player inside the same app window if YouTube rejects an iframe with Error 153
+
+This avoids ScoreBat, scraping, paid highlight APIs, and external browser handoffs while keeping playback inside Sport Insight.
+
+Main related classes:
+
+- `YouTubeService`
+- `YouTubeVideo`
+- `ChromiumBrowserView`
+- `MatchDetailController`
+
 ### Wikidata integration
 
 Wikidata is used to enrich player information, especially media assets.
@@ -325,6 +372,8 @@ This enrichment improves the realism and presentation quality of player profiles
 - jBCrypt
 - PDFBox
 - WebP ImageIO
+- JCEF / embedded Chromium
+- JavaFX Web and Media
 - JUnit 5
 
 ## Architecture Overview
@@ -386,26 +435,6 @@ Contains technical helpers for:
 - external API configuration
 - utility support
 
-## API Keys
-
-Sport Insight can use two football APIs in parallel:
-
-- `football-data.org` for fixtures, teams, players, standings, and scorer leaderboards
-- `TheSportsDB` for free match stats and starting lineups
-- `API-Football` as an optional richer-match-data provider when available
-
-You can configure them with environment variables or local properties files:
-
-- `FOOTBALL_DATA_API_KEY`
-- `API_FOOTBALL_KEY`
-- `football-data.local.properties`
-- `api-football.local.properties`
-
-Example files:
-
-- `football-data.local.properties.example`
-- `api-football.local.properties.example`
-
 ### `src/main/resources/tn/esprit/views`
 
 Contains all FXML interfaces.
@@ -417,6 +446,28 @@ Contains the visual identity of the application, including module-specific theme
 ### `src/main/resources/tn/esprit/images`
 
 Contains visual assets used across interfaces.
+
+## API Keys
+
+Sport Insight can use multiple football APIs in parallel:
+
+- `football-data.org` for fixtures, teams, players, standings, and scorer leaderboards
+- `TheSportsDB` for free match stats and starting lineups
+- `API-Football` as an optional richer-match-data provider when available
+- `YouTube Data API v3` for finished-match highlights
+
+You can configure them with environment variables or local properties files:
+
+- `FOOTBALL_DATA_API_KEY`
+- `API_FOOTBALL_KEY`
+- `YOUTUBE_API_KEY`
+- `football-data.local.properties`
+- `api-football.local.properties`
+
+Example files:
+
+- `football-data.local.properties.example`
+- `api-football.local.properties.example`
 
 ## Database
 
@@ -466,8 +517,10 @@ The project emphasizes:
 - reusable layouts
 - dashboard visibility
 - modern football-oriented styling
-- dark mode support in admin areas
+- unified violet dark mode support in admin areas
+- improved light mode readability for admin interfaces
 - detailed screens for teams, players, and matches
+- inline editing flows for selected admin tables
 
 The goal is not only to store sports data, but to make that data meaningful, accessible, and attractive through a complete interface experience.
 

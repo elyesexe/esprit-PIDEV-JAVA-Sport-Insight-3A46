@@ -106,7 +106,7 @@
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
 
-                    <StackPane styleClass="hero-shell">
+                    <StackPane styleClass="hero-shell standings-hero-shell">
                         <StackPane styleClass="league-table-hero-photo"/>
                         <StackPane styleClass="hero-overlay"/>
                         <VBox spacing="14" styleClass="hero-content">
@@ -138,7 +138,7 @@
 
                     <VBox spacing="16" styleClass="panel-card standings-panel-card">
                         <VBox spacing="4">
-                            <Label text="Classement" styleClass="section-title"/>
+                            <Label text="Standings" styleClass="section-title"/>
                             <Label fx:id="sectionSubtitleLabel"
                                    text="Position, matchs joues, bilan, buts, difference et points."
                                    styleClass="section-subtitle"/>

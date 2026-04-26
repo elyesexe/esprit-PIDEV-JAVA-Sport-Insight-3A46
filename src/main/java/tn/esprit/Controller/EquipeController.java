@@ -15,11 +15,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -27,10 +30,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.AdminTableButtons;
+import tn.esprit.gui.AdminTableScrollSupport;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -58,9 +64,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-public class EquipeController {
+public class EquipeController implements AssistantContextProvider {
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
     private static final String ALL_COMPETITIONS_LABEL = "Toutes competitions";
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
@@ -180,11 +187,13 @@ public class EquipeController {
     private boolean serviceReady;
     private boolean loadingData;
     private boolean mutatingData;
+    private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
     private String selectedCompetitionCode;
     private final Map<String, Button> competitionFilterButtons = new java.util.LinkedHashMap<>();
     private List<Matchs> teamStatsMatchs = List.of();
     private List<Joueur> teamStatsJoueurs = List.of();
+    private TableColumn<Equipe, Void> actionsColumn;
 
     @FXML
     public void initialize() {
@@ -193,6 +202,7 @@ public class EquipeController {
         configureToolbar();
         configureFieldRestrictions();
         configureTableView();
+        configureCreateOnlyForm();
         bindFormPreview();
         configureStatsSection();
         updateSortOrderButtonText();
@@ -213,6 +223,45 @@ public class EquipeController {
             showStatus("status-error", "Connexion a la base impossible.");
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de charger les equipes.\n" + e.getMessage());
         }
+    }
+
+    public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
+        if (teamRateChart != null) {
+            teamRateChart.applyCss();
+        }
+        Platform.runLater(() -> updateTeamRateChart(resolveTeamStatsSelection()));
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        Equipe selectedEquipe = equipeTableView == null ? null : equipeTableView.getSelectionModel().getSelectedItem();
+        String competitionFilter = selectedCompetitionCode == null ? "All competitions" : FootballDataCompetitions.labelOf(selectedCompetitionCode);
+        String selectedTeamName = selectedEquipe == null ? null : emptyToNull(selectedEquipe.getNom());
+
+        return """
+                Current team management screen.
+                Visible teams: %s. Results meta: %s.
+                Search query: %s. Competition filter: %s.
+                Selection state: %s.
+                Selected or preview team: %s.
+                Team detail subtitle: %s.
+                Coach: %s. Status: %s.
+                Team statistics summary: %s.
+                Toolbar status: %s.
+                """.formatted(
+                emptyIfNull(resultCountLabel == null ? null : resultCountLabel.getText()),
+                emptyIfNull(resultsMetaLabel == null ? null : resultsMetaLabel.getText()),
+                emptyIfNull(searchField == null ? null : searchField.getText()),
+                emptyIfNull(competitionFilter),
+                emptyIfNull(selectionStateLabel == null ? null : selectionStateLabel.getText()),
+                emptyIfNull(selectedTeamName != null ? selectedTeamName : detailNameLabel == null ? null : detailNameLabel.getText()),
+                emptyIfNull(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText()),
+                emptyIfNull(detailCoachValueLabel == null ? null : detailCoachValueLabel.getText()),
+                emptyIfNull(detailStatusValueLabel == null ? null : detailStatusValueLabel.getText()),
+                emptyIfNull(teamStatsSummaryLabel == null ? null : teamStatsSummaryLabel.getText()),
+                emptyIfNull(statusLabel == null ? null : statusLabel.getText())
+        );
     }
 
     @FXML
@@ -354,6 +403,11 @@ public class EquipeController {
 
     @FXML
     private void handleBrowseImage() {
+        if (equipeTableView != null && equipeTableView.getSelectionModel().getSelectedItem() != null) {
+            showStatus("status-muted", "Le formulaire sert uniquement a l'ajout. Modifiez l'equipe depuis le tableau.");
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir un logo");
         fileChooser.getExtensionFilters().add(
@@ -430,7 +484,7 @@ public class EquipeController {
     }
 
     private void configureToolbar() {
-        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
+        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach"));
         sortChoiceBox.setValue("Nom");
         configureCompetitionFilterBar();
 
@@ -488,6 +542,7 @@ public class EquipeController {
 
     private void configureTableView() {
         idColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
+        equipeTableView.getColumns().remove(idColumn);
         nomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
         coachColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getCoach(), "Non renseigne")));
         competitionColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveCompetitionLabel(cell.getValue())));
@@ -495,10 +550,22 @@ public class EquipeController {
         logoColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveLogoState(cell.getValue())));
 
         equipeTableView.setItems(displayedEquipes);
-        equipeTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        equipeTableView.setEditable(true);
+        equipeTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        equipeTableView.setTableMenuButtonVisible(true);
+        AdminTableScrollSupport.enable(equipeTableView);
+        equipeTableView.setRowFactory(tableView -> {
+            TableRow<Equipe> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    startInlineEquipeEdit(row.getItem());
+                }
+            });
+            return row;
+        });
         equipeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                populateForm(newValue);
+                clearFormFieldsOnly();
             } else if (!hasDraftContent()) {
                 clearFormFieldsOnly();
             }
@@ -508,6 +575,198 @@ public class EquipeController {
             updateDetailCard();
             updateActionAvailability();
         });
+
+        configureEditableTableColumns();
+        ensureActionsColumn();
+        configureReadableTableLayout();
+    }
+
+    private void configureCreateOnlyForm() {
+        if (updateButton != null) {
+            updateButton.setManaged(false);
+            updateButton.setVisible(false);
+        }
+        if (deleteButton != null) {
+            deleteButton.setManaged(false);
+            deleteButton.setVisible(false);
+        }
+    }
+
+    private void configureEditableTableColumns() {
+        nomColumn.setEditable(true);
+        nomColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nomColumn.setOnEditCommit(event ->
+                handleInlineEquipeEdit(event.getRowValue(), equipe -> equipe.setNom(emptyToNull(event.getNewValue()))));
+
+        coachColumn.setEditable(true);
+        coachColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        coachColumn.setOnEditCommit(event -> {
+            String value = emptyToNull(event.getNewValue());
+            handleInlineEquipeEdit(event.getRowValue(), equipe -> equipe.setCoach(value));
+        });
+    }
+
+    private void ensureActionsColumn() {
+        if (actionsColumn != null) {
+            return;
+        }
+
+        actionsColumn = new TableColumn<>("Actions");
+        actionsColumn.setSortable(false);
+        actionsColumn.setReorderable(false);
+        actionsColumn.setResizable(false);
+        actionsColumn.setMinWidth(84);
+        actionsColumn.setPrefWidth(84);
+        actionsColumn.setMaxWidth(84);
+        actionsColumn.setCellFactory(column -> new TableCell<>() {
+            private final Button deleteRowButton = AdminTableButtons.createTrashButton();
+            private final HBox actionsBox = new HBox(deleteRowButton);
+
+            {
+                actionsBox.getStyleClass().add("table-inline-actions");
+
+                deleteRowButton.setOnAction(event -> {
+                    Equipe equipe = getTableRow() == null ? null : getTableRow().getItem();
+                    deleteEquipeFromTable(equipe);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                boolean rowEmpty = empty || getTableRow() == null || getTableRow().getItem() == null;
+                setGraphic(rowEmpty ? null : actionsBox);
+                setText(null);
+            }
+        });
+        equipeTableView.getColumns().add(actionsColumn);
+    }
+
+    private void configureReadableTableLayout() {
+        idColumn.setPrefWidth(80);
+        nomColumn.setPrefWidth(280);
+        coachColumn.setPrefWidth(220);
+        competitionColumn.setPrefWidth(190);
+        sourceColumn.setPrefWidth(150);
+        logoColumn.setPrefWidth(100);
+    }
+
+    private void startInlineEquipeEdit(Equipe equipe) {
+        if (equipe == null || equipeTableView == null) {
+            return;
+        }
+
+        clearValidation();
+        clearFormFieldsOnly();
+        equipeTableView.getSelectionModel().select(equipe);
+        int rowIndex = displayedEquipes.indexOf(equipe);
+        if (rowIndex >= 0) {
+            equipeTableView.scrollTo(rowIndex);
+            equipeTableView.edit(rowIndex, nomColumn);
+        }
+        showStatus("status-muted", "Modifiez directement la ligne puis validez avec Entree.");
+    }
+
+    private void handleInlineEquipeEdit(Equipe original, Consumer<Equipe> updater) {
+        clearValidation();
+
+        if (original == null || original.getId() == null || equipeService == null) {
+            equipeTableView.refresh();
+            return;
+        }
+
+        Equipe candidate = copyEquipe(original);
+        updater.accept(candidate);
+
+        String validationMessage = validateInlineEquipe(candidate);
+        if (validationMessage != null) {
+            equipeTableView.refresh();
+            showValidation(validationMessage);
+            return;
+        }
+
+        runMutation(
+                () -> equipeService.update(candidate),
+                original.getId(),
+                false,
+                "Equipe modifiee depuis le tableau.",
+                "Modification",
+                "Erreur lors de la modification :",
+                "Erreur lors de la mise a jour en ligne."
+        );
+    }
+
+    private void deleteEquipeFromTable(Equipe equipe) {
+        clearValidation();
+
+        if (equipe == null || equipe.getId() == null || equipeService == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Suppression");
+        alert.setHeaderText("Supprimer l'equipe \"" + emptyIfNull(equipe.getNom()) + "\" ?");
+        alert.setContentText("Cette action est definitive et ne pourra pas etre annulee.");
+
+        Optional<ButtonType> confirmation = alert.showAndWait();
+        if (confirmation.isEmpty() || confirmation.get() != ButtonType.OK) {
+            return;
+        }
+
+        runMutation(
+                () -> equipeService.delete(equipe.getId()),
+                null,
+                true,
+                "Equipe supprimee avec succes.",
+                "Suppression",
+                "Erreur lors de la suppression :",
+                "Erreur lors de la suppression de l'equipe."
+        );
+    }
+
+    private Equipe copyEquipe(Equipe source) {
+        Equipe copy = new Equipe(
+                source.getId(),
+                source.getNom(),
+                source.getCoach(),
+                source.getAdresse(),
+                source.getTelephone(),
+                source.getEmail(),
+                source.getImage()
+        );
+        copy.setExternalApiId(source.getExternalApiId());
+        copy.setExternalSource(source.getExternalSource());
+        copy.setCompetitionCode(source.getCompetitionCode());
+        copy.setApiFootballId(source.getApiFootballId());
+        return copy;
+    }
+
+    private String validateInlineEquipe(Equipe equipe) {
+        String nom = emptyToNull(equipe == null ? null : equipe.getNom());
+        String coach = emptyToNull(equipe == null ? null : equipe.getCoach());
+        String image = emptyToNull(equipe == null ? null : equipe.getImage());
+
+        if (nom == null) {
+            return "Le nom de l'equipe est obligatoire.";
+        }
+
+        if (!TEAM_NAME_PATTERN.matcher(nom).matches()) {
+            return "Le nom de l'equipe doit contenir entre 2 et 100 caracteres valides.";
+        }
+
+        if (coach != null && !COACH_NAME_PATTERN.matcher(coach).matches()) {
+            return "Le nom du coach doit contenir entre 2 et 100 lettres maximum.";
+        }
+
+        if (isDuplicateTeamName(nom, equipe.getId())) {
+            return "Une equipe avec ce nom existe deja.";
+        }
+
+        if (image != null && !isValidImageReference(image)) {
+            return "Le logo doit pointer vers une image valide (.png, .jpg, .jpeg, .gif, .bmp, .webp).";
+        }
+
+        return null;
     }
 
     private void bindFormPreview() {
@@ -685,7 +944,9 @@ public class EquipeController {
             series.getData().add(new XYChart.Data<>("Defaites", roundRate(losses, total)));
         }
         teamRateChart.getData().add(series);
-        applyBarColors(series, List.of("#16a34a", "#f59e0b", "#dc2626"));
+        applyBarColors(series, darkMode
+                ? List.of("#9d71ff", "#57d5ff", "#ff63d0")
+                : List.of("#16a34a", "#f59e0b", "#dc2626"));
 
         if (teamStatsSummaryLabel != null) {
             long pendingMatches = teamMatches.size() - completedMatches.size();
@@ -705,9 +966,7 @@ public class EquipeController {
         Comparator<Equipe> comparator;
         String selectedSort = sortChoiceBox.getValue();
 
-        if ("Id".equals(selectedSort)) {
-            comparator = Comparator.comparing(Equipe::getId, Comparator.nullsLast(Integer::compareTo));
-        } else if ("Coach".equals(selectedSort)) {
+        if ("Coach".equals(selectedSort)) {
             comparator = Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
         } else {
             comparator = Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
@@ -809,8 +1068,8 @@ public class EquipeController {
             detailBadgeLabel.setText(hasDraftContent() ? "Brouillon" : "Apercu");
         } else {
             selectionStateLabel.setText("Selection : " + emptyIfNull(selectedEquipe.getNom()));
-            formHintLabel.setText("Modification en cours de la fiche #" + selectedEquipe.getId() + ".");
-            detailBadgeLabel.setText("Equipe selectionnee");
+            formHintLabel.setText("Double-cliquez la ligne pour modifier. Utilisez l'icone corbeille pour supprimer.");
+            detailBadgeLabel.setText("Edition en ligne");
         }
     }
 
@@ -823,7 +1082,7 @@ public class EquipeController {
         if (selectedEquipe == null && !hasDraftContent()) {
             detailNameLabel.setText("Aucune equipe selectionnee");
             detailSubtitleLabel.setText("Selectionnez une ligne du tableau ou creez une nouvelle fiche pour afficher le detail.");
-            detailIdValueLabel.setText("Nouveau");
+            detailIdValueLabel.setText("Creation");
             detailCoachValueLabel.setText("Non renseigne");
             detailStatusValueLabel.setText("Sans logo");
             updateDetailLogo(null, "SI");
@@ -840,7 +1099,7 @@ public class EquipeController {
                         ? "Coach non renseigne. Le nom seul suffit pour enregistrer la fiche."
                         : "Coach principal : " + effectiveCoach
         );
-        detailIdValueLabel.setText(selectedEquipe == null ? "Nouveau" : "#" + selectedEquipe.getId());
+        detailIdValueLabel.setText(selectedEquipe == null ? "Creation" : "Selection");
         detailCoachValueLabel.setText(effectiveCoach == null ? "Non renseigne" : effectiveCoach);
         detailStatusValueLabel.setText(effectiveImage == null ? "Sans logo" : "Logo pret");
         updateDetailLogo(effectiveImage, effectiveName);
@@ -861,10 +1120,11 @@ public class EquipeController {
     private void updateActionAvailability() {
         boolean hasSelection = equipeTableView.getSelectionModel().getSelectedItem() != null;
         boolean busy = loadingData || mutatingData;
+        boolean createMode = serviceReady && !busy && !hasSelection;
 
-        addButton.setDisable(!serviceReady || busy);
-        updateButton.setDisable(!serviceReady || !hasSelection || busy);
-        deleteButton.setDisable(!serviceReady || !hasSelection || busy);
+        addButton.setDisable(!createMode);
+        updateButton.setDisable(true);
+        deleteButton.setDisable(true);
         refreshButton.setDisable(!serviceReady || busy);
         clearButton.setDisable(!serviceReady || busy);
         searchField.setDisable(!serviceReady || busy);
@@ -872,6 +1132,9 @@ public class EquipeController {
         sortOrderButton.setDisable(!serviceReady || busy);
         competitionFilterButtons.values().forEach(button -> button.setDisable(!serviceReady || busy));
         equipeTableView.setDisable(!serviceReady || busy);
+        nomField.setDisable(!createMode);
+        coachField.setDisable(!createMode);
+        imageField.setDisable(!createMode);
     }
 
     private void updateCompetitionFilterButtonState() {

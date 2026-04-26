@@ -52,8 +52,16 @@ public class ApiFootballClient {
         return getJson("/fixtures/lineups", Map.of("fixture", String.valueOf(fixtureId)));
     }
 
+    public JsonNode fetchFixture(long fixtureId) throws IOException, InterruptedException {
+        return getJson("/fixtures", Map.of("id", String.valueOf(fixtureId)));
+    }
+
     public JsonNode fetchFixtureStatistics(long fixtureId) throws IOException, InterruptedException {
         return getJson("/fixtures/statistics", Map.of("fixture", String.valueOf(fixtureId)));
+    }
+
+    public JsonNode fetchFixtureEvents(long fixtureId) throws IOException, InterruptedException {
+        return getJson("/fixtures/events", Map.of("fixture", String.valueOf(fixtureId)));
     }
 
     public JsonNode fetchTopScorers(int leagueId, int season) throws IOException, InterruptedException {

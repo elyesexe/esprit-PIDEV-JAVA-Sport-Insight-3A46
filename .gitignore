@@ -1,7 +1,11 @@
 .idea/
+.vscode/
+.settings/
+out/
 target/
 *.class
 *.log
+*.iml
 
 # Local test helpers
 Check*.java
@@ -9,7 +13,19 @@ Check*.java
 # OS files
 Thumbs.db
 Desktop.ini
+.DS_Store
 
-# Local asset workspace
+# Local asset workspace and generated verification helpers
 image/
 football-data.local.properties
+api-football.local.properties
+evaluation-mail.local.properties
+nutrition-api.local.properties
+verify-cp.txt
+runtime.classpath
+jcef-bundle/
+jcef-cache/
+
+# Java / Maven local metadata
+hs_err_pid*
+replay_pid*

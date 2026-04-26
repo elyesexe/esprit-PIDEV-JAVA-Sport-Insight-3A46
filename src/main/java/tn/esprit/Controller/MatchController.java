@@ -19,12 +19,15 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.Node;
@@ -37,6 +40,8 @@ import javafx.stage.FileChooser;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.AdminTableButtons;
+import tn.esprit.gui.AdminTableScrollSupport;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -72,6 +77,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -253,6 +259,7 @@ public class MatchController {
     private boolean equipesLoaded;
     private boolean syncingData;
     private SidebarModuleGroup sidebarModuleGroup;
+    private TableColumn<Matchs, Void> actionsColumn;
 
     @FXML
     public void initialize() {
@@ -267,6 +274,7 @@ public class MatchController {
         configureStatusChoices();
         configureFormatters();
         configureMatchList();
+        configureCreateOnlyForm();
         bindFormState();
         updateActionAvailability();
         updateCounters(null);
@@ -612,6 +620,7 @@ public class MatchController {
     private void configureMatchList() {
         if (matchTableView != null) {
             matchReferenceColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchReference(cell.getValue())));
+            matchTableView.getColumns().remove(matchReferenceColumn);
             matchDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDate(cell.getValue().getDateMatch())));
             matchTimeColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatTime(cell.getValue().getHeureDebut())));
             matchHomeColumn.setCellValueFactory(cell -> new SimpleStringProperty(getEquipeName(cell.getValue().getEquipeDomicileId())));
@@ -622,10 +631,25 @@ public class MatchController {
             matchLocationColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchLocation(cell.getValue())));
 
             matchTableView.setItems(filteredMatchs);
-            matchTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            matchTableView.setEditable(true);
+            matchTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+            matchTableView.setTableMenuButtonVisible(true);
             matchTableView.setPlaceholder(new Label(""));
+            AdminTableScrollSupport.enable(matchTableView);
+            matchTableView.setRowFactory(tableView -> {
+                TableRow<Matchs> row = new TableRow<>();
+                row.setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 2 && !row.isEmpty()) {
+                        startInlineMatchEdit(row.getItem());
+                    }
+                });
+                return row;
+            });
             matchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                     handleSelectedMatchChange(newValue));
+            configureEditableTableColumns();
+            ensureActionsColumn();
+            configureReadableTableLayout();
         }
 
         if (matchListView != null) {
@@ -651,10 +675,140 @@ public class MatchController {
         }
     }
 
+    private void configureCreateOnlyForm() {
+        if (updateButton != null) {
+            updateButton.setManaged(false);
+            updateButton.setVisible(false);
+        }
+        if (deleteButton != null) {
+            deleteButton.setManaged(false);
+            deleteButton.setVisible(false);
+        }
+    }
+
+    private void configureEditableTableColumns() {
+        matchDateColumn.setEditable(true);
+        matchDateColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchDateColumn.setOnEditCommit(event -> {
+            LocalDate parsedDate = parseInlineMatchDate(event.getNewValue());
+            if (parsedDate == null) {
+                matchTableView.refresh();
+                showValidation("La date doit etre au format dd/MM/yyyy.");
+                return;
+            }
+            handleInlineMatchEdit(event.getRowValue(), match -> match.setDateMatch(parsedDate));
+        });
+
+        matchTimeColumn.setEditable(true);
+        matchTimeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchTimeColumn.setOnEditCommit(event -> {
+            LocalTime parsedTime = parseInlineMatchTime(event.getNewValue());
+            if (parsedTime == null) {
+                matchTableView.refresh();
+                showValidation("L'heure doit etre au format HH:mm.");
+                return;
+            }
+            handleInlineMatchEdit(event.getRowValue(), match -> match.setHeureDebut(parsedTime));
+        });
+
+        matchHomeColumn.setEditable(true);
+        matchHomeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchHomeColumn.setOnEditCommit(event -> {
+            Equipe equipe = findEquipeByName(event.getNewValue());
+            if (equipe == null || equipe.getId() == null) {
+                matchTableView.refresh();
+                showValidation("Saisissez une equipe domicile existante.");
+                return;
+            }
+            handleInlineMatchEdit(event.getRowValue(), match -> match.setEquipeDomicileId(equipe.getId()));
+        });
+
+        matchAwayColumn.setEditable(true);
+        matchAwayColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchAwayColumn.setOnEditCommit(event -> {
+            Equipe equipe = findEquipeByName(event.getNewValue());
+            if (equipe == null || equipe.getId() == null) {
+                matchTableView.refresh();
+                showValidation("Saisissez une equipe exterieur existante.");
+                return;
+            }
+            handleInlineMatchEdit(event.getRowValue(), match -> match.setEquipeExterieurId(equipe.getId()));
+        });
+
+        matchScoreColumn.setEditable(true);
+        matchScoreColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchScoreColumn.setOnEditCommit(event -> handleInlineMatchScoreEdit(event.getRowValue(), event.getNewValue()));
+
+        matchStatusColumn.setEditable(true);
+        matchStatusColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchStatusColumn.setOnEditCommit(event -> {
+            String normalizedStatus = normalizeMatchStatus(event.getNewValue());
+            if (normalizedStatus == null) {
+                matchTableView.refresh();
+                showValidation("Utilisez un statut valide : Programme, En direct, Fini, Reporte ou Annule.");
+                return;
+            }
+            handleInlineMatchEdit(event.getRowValue(), match -> match.setStatut(normalizedStatus));
+        });
+
+        matchLocationColumn.setEditable(true);
+        matchLocationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        matchLocationColumn.setOnEditCommit(event ->
+                handleInlineMatchEdit(event.getRowValue(), match -> match.setLieu(emptyToNull(event.getNewValue()))));
+    }
+
+    private void ensureActionsColumn() {
+        if (actionsColumn != null || matchTableView == null) {
+            return;
+        }
+
+        actionsColumn = new TableColumn<>("Actions");
+        actionsColumn.setSortable(false);
+        actionsColumn.setReorderable(false);
+        actionsColumn.setResizable(false);
+        actionsColumn.setMinWidth(84);
+        actionsColumn.setPrefWidth(84);
+        actionsColumn.setMaxWidth(84);
+        actionsColumn.setCellFactory(column -> new TableCell<>() {
+            private final Button deleteRowButton = AdminTableButtons.createTrashButton();
+            private final HBox actionsBox = new HBox(deleteRowButton);
+
+            {
+                actionsBox.getStyleClass().add("table-inline-actions");
+
+                deleteRowButton.setOnAction(event -> {
+                    Matchs match = getTableRow() == null ? null : getTableRow().getItem();
+                    deleteMatchFromTable(match);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                boolean rowEmpty = empty || getTableRow() == null || getTableRow().getItem() == null;
+                setGraphic(rowEmpty ? null : actionsBox);
+                setText(null);
+            }
+        });
+        matchTableView.getColumns().add(actionsColumn);
+    }
+
+    private void configureReadableTableLayout() {
+        matchReferenceColumn.setPrefWidth(145);
+        matchDateColumn.setPrefWidth(115);
+        matchTimeColumn.setPrefWidth(95);
+        matchHomeColumn.setPrefWidth(235);
+        matchAwayColumn.setPrefWidth(235);
+        matchScoreColumn.setPrefWidth(105);
+        matchStatusColumn.setPrefWidth(125);
+        matchCompetitionColumn.setPrefWidth(200);
+        matchLocationColumn.setPrefWidth(155);
+    }
+
     private void handleSelectedMatchChange(Matchs newValue) {
         selectedMatch = newValue;
         if (newValue != null) {
-            populateForm(newValue);
+            clearFormFieldsOnly();
         } else if (!hasDraftContent()) {
             clearFormFieldsOnly();
         }
@@ -663,6 +817,115 @@ public class MatchController {
         updateActionAvailability();
         updateSelectionState();
         updateDetailPanel();
+    }
+
+    private void startInlineMatchEdit(Matchs match) {
+        if (match == null || matchTableView == null) {
+            return;
+        }
+
+        clearValidation();
+        clearFormFieldsOnly();
+        matchTableView.getSelectionModel().select(match);
+        int rowIndex = filteredMatchs.indexOf(match);
+        if (rowIndex >= 0) {
+            matchTableView.scrollTo(rowIndex);
+            matchTableView.edit(rowIndex, matchDateColumn);
+        }
+        showMutedStatus("Modifiez directement la ligne puis validez avec Entree.");
+    }
+
+    private void handleInlineMatchEdit(Matchs original, Consumer<Matchs> updater) {
+        clearValidation();
+
+        if (original == null || original.getId() == null || matchsService == null) {
+            if (matchTableView != null) {
+                matchTableView.refresh();
+            }
+            return;
+        }
+
+        Matchs candidate = copyMatch(original);
+        updater.accept(candidate);
+
+        String validationMessage = validateInlineMatch(candidate);
+        if (validationMessage != null) {
+            if (matchTableView != null) {
+                matchTableView.refresh();
+            }
+            showValidation(validationMessage);
+            return;
+        }
+
+        runMutation(
+                () -> matchsService.update(candidate),
+                original.getId(),
+                false,
+                false,
+                "Match modifie depuis le tableau.",
+                "Modification",
+                "Erreur pendant la modification.",
+                "Erreur lors de la mise a jour du match."
+        );
+    }
+
+    private void handleInlineMatchScoreEdit(Matchs original, String rawValue) {
+        clearValidation();
+
+        if (original == null || original.getId() == null) {
+            if (matchTableView != null) {
+                matchTableView.refresh();
+            }
+            return;
+        }
+
+        int[] parsedScores = parseInlineScore(rawValue);
+        if (parsedScores == null) {
+            if (matchTableView != null) {
+                matchTableView.refresh();
+            }
+            showValidation("Le score doit etre au format 2:1, 2-1, ou vide.");
+            return;
+        }
+
+        handleInlineMatchEdit(original, match -> {
+            if (parsedScores.length == 0) {
+                match.setScoreEquipeDomicile(null);
+                match.setScoreEquipeExterieur(null);
+                return;
+            }
+            match.setScoreEquipeDomicile(parsedScores[0]);
+            match.setScoreEquipeExterieur(parsedScores[1]);
+        });
+    }
+
+    private void deleteMatchFromTable(Matchs match) {
+        clearValidation();
+
+        if (match == null || match.getId() == null || matchsService == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Suppression");
+        alert.setHeaderText("Supprimer le match \"" + buildMatchLabel(match) + "\" ?");
+        alert.setContentText("Cette action est definitive.");
+
+        Optional<ButtonType> confirmation = alert.showAndWait();
+        if (confirmation.isEmpty() || confirmation.get() != ButtonType.OK) {
+            return;
+        }
+
+        runMutation(
+                () -> matchsService.delete(match.getId()),
+                null,
+                true,
+                false,
+                "Match supprime avec succes.",
+                "Suppression",
+                "Erreur pendant la suppression.",
+                "Erreur lors de la suppression du match."
+        );
     }
 
     private VBox buildMatchCard(Matchs match) {
@@ -676,10 +939,7 @@ public class MatchController {
         Region headSpacer = new Region();
         HBox.setHgrow(headSpacer, Priority.ALWAYS);
 
-        Label idLabel = new Label(match.getIdMatch() == null ? "#" + match.getId() : match.getIdMatch());
-        idLabel.getStyleClass().add("fixture-id");
-
-        HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
+        HBox head = new HBox(10, statusChip, headSpacer, dateLabel);
         head.setAlignment(Pos.CENTER_LEFT);
         head.getStyleClass().add("fixture-card-head");
 
@@ -1028,6 +1288,164 @@ public class MatchController {
         selectEquipe(equipeExterieurComboBox, selectedExterieurId);
     }
 
+    private Matchs copyMatch(Matchs source) {
+        Matchs copy = new Matchs(
+                source.getId(),
+                source.getIdMatch(),
+                source.getDateMatch(),
+                source.getHeureDebut(),
+                source.getLieu(),
+                source.getType(),
+                normalizeMatchStatus(source.getStatut()),
+                source.getLineupDomicile(),
+                source.getLineupExterieur(),
+                source.getScoreEquipeDomicile(),
+                source.getScoreEquipeExterieur(),
+                source.getEquipeDomicileId(),
+                source.getEquipeExterieurId()
+        );
+        copy.setExternalApiId(source.getExternalApiId());
+        copy.setExternalSource(source.getExternalSource());
+        copy.setCompetitionCode(source.getCompetitionCode());
+        copy.setApiFootballId(source.getApiFootballId());
+        copy.setApiFootballStatsJson(source.getApiFootballStatsJson());
+        copy.setApiFootballLineupJson(source.getApiFootballLineupJson());
+        copy.setApiFootballIncidentsJson(source.getApiFootballIncidentsJson());
+        copy.setApiFootballSyncedAt(source.getApiFootballSyncedAt());
+        return copy;
+    }
+
+    private String validateInlineMatch(Matchs match) {
+        LocalDate dateMatch = match == null ? null : match.getDateMatch();
+        LocalTime heureDebut = match == null ? null : match.getHeureDebut();
+        String lieu = emptyToNull(match == null ? null : match.getLieu());
+        String type = emptyToNull(match == null ? null : match.getType());
+        String statut = normalizeMatchStatus(match == null ? null : match.getStatut());
+        Integer equipeDomicileId = match == null ? null : match.getEquipeDomicileId();
+        Integer equipeExterieurId = match == null ? null : match.getEquipeExterieurId();
+        Integer scoreDomicile = match == null ? null : match.getScoreEquipeDomicile();
+        Integer scoreExterieur = match == null ? null : match.getScoreEquipeExterieur();
+
+        if (dateMatch == null) {
+            return "La date du match est obligatoire.";
+        }
+        if (dateMatch.isBefore(EARLIEST_MATCH_DATE)) {
+            return "La date du match semble invalide.";
+        }
+        if (dateMatch.isAfter(LocalDate.now().plusYears(10))) {
+            return "La date du match est trop lointaine.";
+        }
+        if (heureDebut == null) {
+            return "L'heure de debut est obligatoire.";
+        }
+        if (lieu == null) {
+            return "Le lieu est obligatoire.";
+        }
+        if (!LOCATION_PATTERN.matcher(lieu).matches()) {
+            return "Le lieu doit contenir entre 2 et 120 caracteres valides.";
+        }
+        if (type != null && !TYPE_PATTERN.matcher(type).matches()) {
+            return "Le type du match doit contenir entre 3 et 80 caracteres valides.";
+        }
+        if (statut == null) {
+            return "Choisissez un statut valide.";
+        }
+        if (equipeDomicileId == null || !equipeById.containsKey(equipeDomicileId)) {
+            return "L'equipe domicile est obligatoire.";
+        }
+        if (equipeExterieurId == null || !equipeById.containsKey(equipeExterieurId)) {
+            return "L'equipe exterieur est obligatoire.";
+        }
+        if (Objects.equals(equipeDomicileId, equipeExterieurId)) {
+            return "Les equipes domicile et exterieur doivent etre differentes.";
+        }
+        if (isDuplicateMatch(dateMatch, heureDebut, equipeDomicileId, equipeExterieurId, match.getId())) {
+            return "Un match avec les memes equipes, a la meme date et a la meme heure, existe deja.";
+        }
+        if ((scoreDomicile != null && scoreDomicile < 0) || (scoreExterieur != null && scoreExterieur < 0)) {
+            return "Les scores doivent etre positifs.";
+        }
+        if (isScoreLockedStatus(statut)) {
+            if (scoreDomicile != null || scoreExterieur != null) {
+                return "Ce statut ne permet pas de score.";
+            }
+            return null;
+        }
+        if ((scoreDomicile == null) != (scoreExterieur == null)) {
+            return "Renseignez les deux scores ou laissez-les tous les deux vides.";
+        }
+        if (requiresFinalScores(statut) && (scoreDomicile == null || scoreExterieur == null)) {
+            return "Pour un match fini, les deux scores sont obligatoires.";
+        }
+        return null;
+    }
+
+    private LocalDate parseInlineMatchDate(String rawValue) {
+        String value = emptyToNull(rawValue);
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(value, DATE_FORMATTER);
+        } catch (Exception ignored) {
+            try {
+                return LocalDate.parse(value);
+            } catch (Exception secondIgnored) {
+                return null;
+            }
+        }
+    }
+
+    private LocalTime parseInlineMatchTime(String rawValue) {
+        String value = emptyToNull(rawValue);
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            return LocalTime.parse(value, TIME_FORMATTER);
+        } catch (Exception ignored) {
+            try {
+                return LocalTime.parse(value);
+            } catch (Exception secondIgnored) {
+                return null;
+            }
+        }
+    }
+
+    private int[] parseInlineScore(String rawValue) {
+        String value = emptyToNull(rawValue);
+        if (value == null) {
+            return new int[0];
+        }
+
+        String[] parts = value.trim().split("\\s*[:\\-]\\s*");
+        if (parts.length != 2) {
+            return null;
+        }
+
+        try {
+            int domicile = Integer.parseInt(parts[0]);
+            int exterieur = Integer.parseInt(parts[1]);
+            return new int[]{domicile, exterieur};
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private Equipe findEquipeByName(String equipeName) {
+        String normalizedName = normalize(equipeName);
+        if (normalizedName == null) {
+            return null;
+        }
+
+        return equipes.stream()
+                .filter(equipe -> Objects.equals(normalize(equipe.getNom()), normalizedName))
+                .findFirst()
+                .orElse(null);
+    }
+
     private Matchs buildMatchFromForm(boolean updateMode) {
         LocalDate dateMatch = dateMatchPicker.getValue();
         String heureText = emptyToNull(heureDebutField.getText());
@@ -1277,7 +1695,7 @@ public class MatchController {
             detailLieuValueLabel.setText("Non renseigne");
             detailTypeValueLabel.setText("Non renseigne");
             detailStatutValueLabel.setText("Programme");
-            detailIdValueLabel.setText("Nouveau");
+            detailIdValueLabel.setText("Creation");
             detailHomeNameLabel.setText("Equipe domicile");
             detailAwayNameLabel.setText("Equipe exterieur");
             updateDetailLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, null, "D");
@@ -1303,7 +1721,7 @@ public class MatchController {
         detailLieuValueLabel.setText(resolveFieldValue(lieuField.getText(), effectiveMatch == null ? null : effectiveMatch.getLieu(), "Non renseigne"));
         detailTypeValueLabel.setText(resolveFieldValue(typeField.getText(), effectiveMatch == null ? null : effectiveMatch.getType(), "Non renseigne"));
         detailStatutValueLabel.setText(status);
-        detailIdValueLabel.setText(selectedMatch == null ? "Nouveau" : (effectiveMatch.getIdMatch() == null ? "#" + effectiveMatch.getId() : effectiveMatch.getIdMatch()));
+        detailIdValueLabel.setText(selectedMatch == null ? "Creation" : "Selection");
         detailHomeNameLabel.setText(homeTeam == null ? "Equipe domicile" : emptyIfNull(homeTeam.getNom()));
         detailAwayNameLabel.setText(awayTeam == null ? "Equipe exterieur" : emptyIfNull(awayTeam.getNom()));
         updateDetailLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, homeTeam, "D");
@@ -1477,14 +1895,7 @@ public class MatchController {
     }
 
     private String resolveMatchReference(Matchs match) {
-        if (match == null) {
-            return "-";
-        }
-        String reference = emptyToNull(match.getIdMatch());
-        if (reference != null) {
-            return reference;
-        }
-        return match.getId() == null ? "-" : "#" + match.getId();
+        return "";
     }
 
     private String resolveMatchLocation(Matchs match) {
@@ -1524,9 +1935,10 @@ public class MatchController {
     private void updateActionAvailability() {
         boolean hasSelection = selectedMatch != null;
         boolean busy = loadingData || mutatingData || syncingData;
-        addButton.setDisable(!serviceReady || busy);
-        updateButton.setDisable(!serviceReady || !hasSelection || busy);
-        deleteButton.setDisable(!serviceReady || !hasSelection || busy);
+        boolean createMode = serviceReady && !busy && !hasSelection;
+        addButton.setDisable(!createMode);
+        updateButton.setDisable(true);
+        deleteButton.setDisable(true);
         clearButton.setDisable(!serviceReady || busy);
         refreshButton.setDisable(!serviceReady || busy);
         searchField.setDisable(!serviceReady || busy);
@@ -1535,6 +1947,15 @@ public class MatchController {
         syncCompetitionComboBox.setDisable(!serviceReady || busy);
         syncTeamsButton.setDisable(!serviceReady || busy);
         syncMatchesButton.setDisable(!serviceReady || busy);
+        dateMatchPicker.setDisable(!createMode);
+        heureDebutField.setDisable(!createMode);
+        lieuField.setDisable(!createMode);
+        typeField.setDisable(!createMode);
+        statutComboBox.setDisable(!createMode);
+        equipeDomicileComboBox.setDisable(!createMode);
+        equipeExterieurComboBox.setDisable(!createMode);
+        scoreDomicileField.setDisable(!createMode || isScoreLockedStatus(statutComboBox.getValue()));
+        scoreExterieurField.setDisable(!createMode || isScoreLockedStatus(statutComboBox.getValue()));
         if (matchTableView != null) {
             matchTableView.setDisable(!serviceReady || busy);
         }
@@ -1826,7 +2247,7 @@ public class MatchController {
         if (normalized == null) {
             return "fixture-status-scheduled";
         }
-        if (normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -1863,7 +2284,7 @@ public class MatchController {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
-        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
+        if (isLiveStatusText(normalized)) {
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -1876,6 +2297,29 @@ public class MatchController {
             return STATUS_ANNULE;
         }
         return null;
+    }
+
+    private boolean isLiveStatusText(String normalized) {
+        if (normalized == null) {
+            return false;
+        }
+        return normalized.contains("direct")
+                || normalized.contains("cours")
+                || normalized.contains("live")
+                || normalized.contains("mi-temps")
+                || normalized.contains("mi temps")
+                || normalized.contains("1re mi")
+                || normalized.contains("premiere mi")
+                || normalized.contains("2e mi")
+                || normalized.contains("deuxieme mi")
+                || normalized.contains("half")
+                || normalized.contains("1h")
+                || normalized.contains("2h")
+                || normalized.contains("prolong")
+                || normalized.contains("extra time")
+                || normalized.contains("tirs au but")
+                || normalized.contains("penalties")
+                || normalized.contains("shootout");
     }
 
     private boolean isScoreLockedStatus(String status) {

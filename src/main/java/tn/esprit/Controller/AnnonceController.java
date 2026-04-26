@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -43,11 +44,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AnnonceController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final List<String> ANNONCE_STATUTS = List.of("ACTIVE", "EN_ATTENTE", "EXPIREE", "CLOSED");
     private static final List<String> COMMENT_STATUTS = List.of("PENDING", "APPROVED", "REJECTED");
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("annonce-admin-db"));
 
     @FXML private HBox navbarRoot;
     @FXML private Button adminNavButton;
@@ -140,6 +147,7 @@ public class AnnonceController {
     private Annonce selectedAnnonce;
     private Commentaire selectedCommentaire;
     private boolean serviceReady;
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -155,8 +163,7 @@ public class AnnonceController {
             commentaireService = new CommentaireService();
             annoncePdfExportService = new AnnoncePdfExportService();
             serviceReady = true;
-            refreshData(null, null);
-            showSuccessStatus("Announcement workspace ready.");
+            refreshData(null, null, "Loading announcement workspace...", "status-muted");
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -167,8 +174,7 @@ public class AnnonceController {
 
     @FXML
     private void handleRefresh() {
-        refreshData(getSelectedAnnonceId(), getSelectedCommentaireId());
-        showMutedStatus("Lists refreshed.");
+        refreshData(getSelectedAnnonceId(), getSelectedCommentaireId(), "Lists refreshed.", "status-muted");
     }
 
     @FXML
@@ -191,9 +197,8 @@ public class AnnonceController {
 
         try {
             annonceService.add(annonce);
-            refreshData(null, null);
+            refreshData(null, null, "Announcement added successfully.", "status-success");
             handleClearAnnonce();
-            showSuccessStatus("Announcement added successfully.");
         } catch (SQLException e) {
             showErrorStatus("Could not add the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Add failed.\n" + e.getMessage());
@@ -217,8 +222,7 @@ public class AnnonceController {
 
         try {
             annonceService.update(annonce);
-            refreshData(annonce.getId(), null);
-            showSuccessStatus("Announcement updated successfully.");
+            refreshData(annonce.getId(), null, "Announcement updated successfully.", "status-success");
         } catch (SQLException e) {
             showErrorStatus("Could not update the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Update failed.\n" + e.getMessage());
@@ -244,9 +248,8 @@ public class AnnonceController {
 
         try {
             annonceService.delete(selectedAnnonce.getId());
-            refreshData(null, null);
+            refreshData(null, null, "Announcement deleted.", "status-success");
             handleClearAnnonce();
-            showSuccessStatus("Announcement deleted.");
         } catch (SQLException e) {
             showErrorStatus("Could not delete the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Delete failed.\n" + e.getMessage());
@@ -323,7 +326,7 @@ public class AnnonceController {
 
         try {
             commentaireService.update(commentaire);
-            refreshData(getSelectedAnnonceId(), commentaire.getId());
+            refreshData(getSelectedAnnonceId(), commentaire.getId(), "Comment updated successfully.", "status-success");
             showCommentSuccessStatus("Comment updated successfully.");
         } catch (SQLException e) {
             showCommentErrorStatus("Could not update the comment.");
@@ -350,7 +353,7 @@ public class AnnonceController {
 
         try {
             commentaireService.delete(selectedCommentaire.getId());
-            refreshData(getSelectedAnnonceId(), null);
+            refreshData(getSelectedAnnonceId(), null, "Comment deleted.", "status-success");
             clearCommentFormFields();
             showCommentSuccessStatus("Comment deleted.");
         } catch (SQLException e) {
@@ -516,15 +519,32 @@ public class AnnonceController {
         commentaireArea.textProperty().addListener((obs, oldValue, newValue) -> clearFieldError(commentaireArea));
     }
 
-    private void refreshData(Integer annonceIdToSelect, Integer commentaireIdToSelect) {
+    private void refreshData(Integer annonceIdToSelect, Integer commentaireIdToSelect, String statusMessage, String statusStyle) {
         if (!serviceReady || annonceService == null || commentaireService == null) {
             updateActionAvailability();
             return;
         }
 
-        try {
-            annonces.setAll(annonceService.getAll());
-            commentaires.setAll(commentaireService.getAll());
+        long requestId = refreshSequence.incrementAndGet();
+        showMutedStatus(statusMessage == null ? "Loading announcements..." : statusMessage);
+
+        Task<RefreshPayload> loadTask = new Task<>() {
+            @Override
+            protected RefreshPayload call() throws Exception {
+                return new RefreshPayload(
+                        new ArrayList<>(annonceService.getAll()),
+                        new ArrayList<>(commentaireService.getAll())
+                );
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            RefreshPayload payload = loadTask.getValue();
+            annonces.setAll(payload.annonces());
+            commentaires.setAll(payload.commentaires());
             rebuildCommentCounts();
             refreshPosteFilterValues();
             applyAnnonceFilters();
@@ -548,10 +568,21 @@ public class AnnonceController {
             }
 
             updateActionAvailability();
-        } catch (SQLException e) {
+            setStatus(statusLabel,
+                    statusMessage == null ? "Announcement workspace ready." : statusMessage,
+                    statusStyle == null ? "status-muted" : statusStyle);
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
             showErrorStatus("Could not refresh the announcements.");
-            showAlert(Alert.AlertType.ERROR, "Announcements", "Refresh failed.\n" + e.getMessage());
-        }
+            Throwable exception = loadTask.getException();
+            showAlert(Alert.AlertType.ERROR, "Announcements", "Refresh failed.\n" + (exception == null ? "" : exception.getMessage()));
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void rebuildCommentCounts() {
@@ -1224,11 +1255,22 @@ public class AnnonceController {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
+    private record RefreshPayload(List<Annonce> annonces, List<Commentaire> commentaires) {
+    }
+
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }

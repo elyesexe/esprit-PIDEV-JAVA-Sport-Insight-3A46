@@ -16,11 +16,13 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
@@ -37,13 +39,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class LeagueTableController {
-    private static final double CREST_SIZE = 42;
+public class LeagueTableController implements AssistantContextProvider {
+    private static final double CREST_SIZE = 26;
     private static final ExecutorService API_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("league-table-api-worker"));
 
@@ -109,6 +112,8 @@ public class LeagueTableController {
     private boolean loadingData;
     private boolean loadingScorers;
     private SidebarModuleGroup sidebarModuleGroup;
+    private LeagueStandingsSnapshot currentSnapshot;
+    private List<ApiFootballScorerEntry> currentTopScorers = List.of();
 
     @FXML
     public void initialize() {
@@ -137,6 +142,8 @@ public class LeagueTableController {
 
     public void setCompetitionFilter(String competitionCode) {
         competitionFilterCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        currentSnapshot = null;
+        currentTopScorers = List.of();
         updateCompetitionTexts();
         if (serviceReady) {
             loadStandingsAsync("Chargement du classement...");
@@ -208,13 +215,14 @@ public class LeagueTableController {
         standingsHeaderGrid.getColumnConstraints().setAll(buildColumnConstraints());
         addHeaderLabel("#", 0, "standings-header-pill");
         addHeaderLabel("Club", 1, "standings-header-main");
-        addHeaderLabel("PJ", 2, "standings-header-stat");
-        addHeaderLabel("G", 3, "standings-header-stat");
-        addHeaderLabel("N", 4, "standings-header-stat");
-        addHeaderLabel("P", 5, "standings-header-stat");
-        addHeaderLabel("Buts", 6, "standings-header-stat");
-        addHeaderLabel("Diff", 7, "standings-header-stat");
-        addHeaderLabel("Pts", 8, "standings-header-points");
+        addHeaderLabel("MP", 2, "standings-header-stat");
+        addHeaderLabel("W", 3, "standings-header-stat");
+        addHeaderLabel("D", 4, "standings-header-stat");
+        addHeaderLabel("L", 5, "standings-header-stat");
+        addHeaderLabel("G", 6, "standings-header-stat");
+        addHeaderLabel("GD", 7, "standings-header-stat");
+        addHeaderLabel("PTS", 8, "standings-header-points");
+        addHeaderLabel("FORM", 9, "standings-header-form");
     }
 
     private void addHeaderLabel(String text, int columnIndex, String styleClass) {
@@ -225,17 +233,19 @@ public class LeagueTableController {
     }
 
     private List<ColumnConstraints> buildColumnConstraints() {
-        ColumnConstraints positionColumn = new ColumnConstraints(60, 60, 60);
+        ColumnConstraints positionColumn = new ColumnConstraints(54, 54, 54);
         ColumnConstraints teamColumn = new ColumnConstraints();
         teamColumn.setHgrow(Priority.ALWAYS);
-        ColumnConstraints playedColumn = centeredColumn(58);
-        ColumnConstraints wonColumn = centeredColumn(58);
-        ColumnConstraints drawColumn = centeredColumn(58);
-        ColumnConstraints lostColumn = centeredColumn(58);
-        ColumnConstraints goalsColumn = centeredColumn(84);
-        ColumnConstraints diffColumn = centeredColumn(66);
-        ColumnConstraints pointsColumn = centeredColumn(70);
-        return List.of(positionColumn, teamColumn, playedColumn, wonColumn, drawColumn, lostColumn, goalsColumn, diffColumn, pointsColumn);
+        ColumnConstraints playedColumn = centeredColumn(46);
+        ColumnConstraints wonColumn = centeredColumn(46);
+        ColumnConstraints drawColumn = centeredColumn(46);
+        ColumnConstraints lostColumn = centeredColumn(46);
+        ColumnConstraints goalsColumn = centeredColumn(76);
+        ColumnConstraints diffColumn = centeredColumn(58);
+        ColumnConstraints pointsColumn = centeredColumn(58);
+        ColumnConstraints formColumn = new ColumnConstraints(190, 190, 190);
+        formColumn.setHalignment(HPos.RIGHT);
+        return List.of(positionColumn, teamColumn, playedColumn, wonColumn, drawColumn, lostColumn, goalsColumn, diffColumn, pointsColumn, formColumn);
     }
 
     private ColumnConstraints centeredColumn(double width) {
@@ -275,6 +285,7 @@ public class LeagueTableController {
                 rowGrid.add(createStatValueLabel(entry.goalsSummary(), false), 6, 0);
                 rowGrid.add(createStatValueLabel(entry.goalDifferenceSummary(), false), 7, 0);
                 rowGrid.add(createStatValueLabel(String.valueOf(entry.points()), true), 8, 0);
+                rowGrid.add(createFormCell(entry), 9, 0);
 
                 StackPane rowShell = new StackPane(rowGrid);
                 rowShell.getStyleClass().add("standings-row-shell");
@@ -292,9 +303,9 @@ public class LeagueTableController {
 
         StackPane badge = new StackPane(label);
         badge.getStyleClass().addAll("standings-position-badge", resolvePositionStyleClass(position));
-        badge.setMinSize(42, 42);
-        badge.setPrefSize(42, 42);
-        badge.setMaxSize(42, 42);
+        badge.setMinSize(34, 34);
+        badge.setPrefSize(34, 34);
+        badge.setMaxSize(34, 34);
         return badge;
     }
 
@@ -330,9 +341,9 @@ public class LeagueTableController {
 
         StackPane crestShell = new StackPane(imageView, fallbackLabel);
         crestShell.getStyleClass().add("standings-team-crest-shell");
-        crestShell.setMinSize(CREST_SIZE + 14, CREST_SIZE + 14);
-        crestShell.setPrefSize(CREST_SIZE + 14, CREST_SIZE + 14);
-        crestShell.setMaxSize(CREST_SIZE + 14, CREST_SIZE + 14);
+        crestShell.setMinSize(CREST_SIZE + 10, CREST_SIZE + 10);
+        crestShell.setPrefSize(CREST_SIZE + 10, CREST_SIZE + 10);
+        crestShell.setMaxSize(CREST_SIZE + 10, CREST_SIZE + 10);
 
         Label nameLabel = new Label(entry.displayName());
         nameLabel.getStyleClass().add("standings-team-name");
@@ -351,6 +362,58 @@ public class LeagueTableController {
         HBox teamBox = new HBox(12, crestShell, textBox);
         teamBox.setAlignment(Pos.CENTER_LEFT);
         return teamBox;
+    }
+
+    private FlowPane createFormCell(LeagueStandingEntry entry) {
+        FlowPane formPane = new FlowPane();
+        formPane.getStyleClass().add("standings-form-pane");
+        formPane.setAlignment(Pos.CENTER_RIGHT);
+        formPane.setHgap(6);
+        formPane.setVgap(4);
+        formPane.setPrefWrapLength(182);
+
+        List<String> recentForm = entry.form();
+        if (recentForm == null || recentForm.isEmpty()) {
+            Label placeholder = new Label("-");
+            placeholder.getStyleClass().addAll("standings-form-chip", "form-empty");
+            formPane.getChildren().add(placeholder);
+            return formPane;
+        }
+
+        int startIndex = Math.max(0, recentForm.size() - 5);
+        for (String result : recentForm.subList(startIndex, recentForm.size())) {
+            Label chip = new Label(resolveFormLabel(result));
+            chip.getStyleClass().addAll("standings-form-chip", resolveFormStyleClass(result));
+            formPane.getChildren().add(chip);
+        }
+        return formPane;
+    }
+
+    private String resolveFormLabel(String result) {
+        String normalized = normalizeForm(result);
+        return switch (normalized) {
+            case "W" -> "W";
+            case "D" -> "D";
+            case "L" -> "L";
+            default -> "?";
+        };
+    }
+
+    private String resolveFormStyleClass(String result) {
+        String normalized = normalizeForm(result);
+        return switch (normalized) {
+            case "W" -> "form-win";
+            case "D" -> "form-draw";
+            case "L" -> "form-loss";
+            default -> "form-empty";
+        };
+    }
+
+    private String normalizeForm(String result) {
+        if (result == null || result.isBlank()) {
+            return "";
+        }
+        return result.trim().toUpperCase(Locale.ROOT);
     }
 
     private Label createStatValueLabel(String value, boolean highlighted) {
@@ -385,6 +448,7 @@ public class LeagueTableController {
             updateToolbarState();
 
             LeagueStandingsSnapshot snapshot = loadTask.getValue();
+            currentSnapshot = snapshot;
             standings.setAll(snapshot == null ? List.of() : snapshot.table());
             updateCompetitionTexts(snapshot);
             updateEmptyState();
@@ -398,6 +462,7 @@ public class LeagueTableController {
 
             loadingData = false;
             updateToolbarState();
+            currentSnapshot = null;
             updateEmptyState();
             Throwable throwable = loadTask.getException();
             showStatus("status-error", "Erreur lors du chargement du classement.");
@@ -432,7 +497,8 @@ public class LeagueTableController {
 
             loadingScorers = false;
             updateToolbarState();
-            renderTopScorers(loadTask.getValue());
+            currentTopScorers = loadTask.getValue() == null ? List.of() : List.copyOf(loadTask.getValue());
+            renderTopScorers(currentTopScorers);
             showScorersStatus("status-success", "Meilleurs buteurs actualises.");
         });
 
@@ -443,6 +509,7 @@ public class LeagueTableController {
 
             loadingScorers = false;
             updateToolbarState();
+            currentTopScorers = List.of();
             renderTopScorers(List.of());
             Throwable throwable = loadTask.getException();
             showScorersStatus("status-warning", shortError(throwable));
@@ -452,6 +519,7 @@ public class LeagueTableController {
     }
 
     private void renderTopScorers(List<ApiFootballScorerEntry> scorers) {
+        currentTopScorers = scorers == null ? List.of() : List.copyOf(scorers);
         scorersContainer.getChildren().clear();
         boolean hasScorers = scorers != null && !scorers.isEmpty();
         scorersEmptyLabel.setManaged(!hasScorers);
@@ -533,8 +601,51 @@ public class LeagueTableController {
                 : "Journée " + snapshot.currentMatchday());
         seasonChipLabel.setText(snapshot == null ? "Saison --" : buildSeasonLabel(snapshot));
         sectionSubtitleLabel.setText(snapshot == null
-                ? "Position, matchs joues, bilan, buts, difference et points."
+                ? "Vue generale du championnat avec bilan, difference, points et forme recente."
                 : "Source : football-data.org | " + defaultIfBlank(snapshot.stage(), "Classement total"));
+    }
+
+    @Override
+    public String assistantContextSummary() {
+        StringBuilder summary = new StringBuilder()
+                .append("Current league table screen.\n")
+                .append("Competition: ").append(defaultIfBlank(pageTitleLabel == null ? null : pageTitleLabel.getText(), "League Table")).append(".\n")
+                .append("Subtitle: ").append(defaultIfBlank(pageSubtitleLabel == null ? null : pageSubtitleLabel.getText(), "No subtitle")).append(".\n")
+                .append("Chips: ").append(defaultIfBlank(clubCountChipLabel == null ? null : clubCountChipLabel.getText(), "Unknown"))
+                .append(", ").append(defaultIfBlank(matchdayChipLabel == null ? null : matchdayChipLabel.getText(), "Unknown"))
+                .append(", ").append(defaultIfBlank(seasonChipLabel == null ? null : seasonChipLabel.getText(), "Unknown")).append(".\n")
+                .append("Status: ").append(defaultIfBlank(statusLabel == null ? null : statusLabel.getText(), "Unknown")).append(".\n");
+
+        List<LeagueStandingEntry> table = currentSnapshot != null && currentSnapshot.table() != null
+                ? currentSnapshot.table()
+                : List.copyOf(standings);
+        if (!table.isEmpty()) {
+            List<String> leaders = table.stream()
+                    .limit(5)
+                    .map(entry -> entry.position() + ". " + defaultIfBlank(entry.displayName(), "Team")
+                            + " - " + entry.points() + " pts, goals " + entry.goalsSummary()
+                            + ", GD " + entry.goalDifferenceSummary())
+                    .toList();
+            summary.append("Top 5: ").append(String.join(" | ", leaders)).append(".\n");
+        }
+
+        if (!currentTopScorers.isEmpty()) {
+            List<String> scorers = currentTopScorers.stream()
+                    .limit(3)
+                    .map(entry -> entry.rank() + ". "
+                            + defaultIfBlank(entry.playerName(), "Player")
+                            + " (" + defaultIfBlank(entry.teamName(), "Team") + ") - "
+                            + (entry.goals() == null ? "-" : entry.goals()) + " goals")
+                    .toList();
+            summary.append("Top scorers: ").append(String.join(" | ", scorers)).append(".\n");
+        }
+
+        if (currentSnapshot != null) {
+            summary.append("Stage: ").append(defaultIfBlank(currentSnapshot.stage(), "Overall"))
+                    .append(". Area: ").append(defaultIfBlank(currentSnapshot.areaName(), "Unknown"))
+                    .append(". Matchday: ").append(currentSnapshot.currentMatchday() == null ? "-" : currentSnapshot.currentMatchday()).append('.');
+        }
+        return summary.toString();
     }
 
     private String buildSubtitle(LeagueStandingsSnapshot snapshot) {

@@ -99,6 +99,22 @@ public class JoueurService implements IService<Joueur> {
         return null;
     }
 
+    public List<Joueur> getByEquipeId(int equipeId) throws SQLException {
+        String sql = "SELECT id, nom, prenom, date_naissance, numero, image, equipe_id, external_api_id, external_source, position, nationalite FROM joueur WHERE equipe_id = ?";
+        List<Joueur> joueurs = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, equipeId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    joueurs.add(mapRow(rs));
+                }
+            }
+        }
+
+        return joueurs;
+    }
+
     public void updateImage(int joueurId, String imagePath) throws SQLException {
         String sql = "UPDATE joueur SET image = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {

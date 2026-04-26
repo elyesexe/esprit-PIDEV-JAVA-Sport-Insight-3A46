@@ -24,6 +24,7 @@ public class Matchs {
     private Long apiFootballId;
     private String apiFootballStatsJson;
     private String apiFootballLineupJson;
+    private String apiFootballIncidentsJson;
     private LocalDateTime apiFootballSyncedAt;
 
     public Matchs() {
@@ -212,6 +213,14 @@ public class Matchs {
         this.apiFootballLineupJson = apiFootballLineupJson;
     }
 
+    public String getApiFootballIncidentsJson() {
+        return apiFootballIncidentsJson;
+    }
+
+    public void setApiFootballIncidentsJson(String apiFootballIncidentsJson) {
+        this.apiFootballIncidentsJson = apiFootballIncidentsJson;
+    }
+
     public LocalDateTime getApiFootballSyncedAt() {
         return apiFootballSyncedAt;
     }
@@ -240,6 +249,7 @@ public class Matchs {
                 ", externalSource='" + externalSource + '\'' +
                 ", competitionCode='" + competitionCode + '\'' +
                 ", apiFootballId=" + apiFootballId +
+                ", apiFootballIncidentsJson='" + apiFootballIncidentsJson + '\'' +
                 ", apiFootballSyncedAt=" + apiFootballSyncedAt +
                 '}';
     }

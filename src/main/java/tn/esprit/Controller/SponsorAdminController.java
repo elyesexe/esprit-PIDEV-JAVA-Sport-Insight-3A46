@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
@@ -52,6 +53,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SponsorAdminController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -62,6 +67,8 @@ public class SponsorAdminController {
     private static final String CONTRACT_SORT_RECENT = "Newest";
     private static final String CONTRACT_SORT_AMOUNT = "Highest amount";
     private static final String CONTRACT_SORT_SPONSOR = "Sponsor name";
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("sponsor-admin-db"));
 
     @FXML private Button adminNavButton;
     @FXML private HBox sidebarBrandBox;
@@ -132,6 +139,8 @@ public class SponsorAdminController {
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
     private SponsorRow selectedSponsorRow;
     private ContractRow selectedContractRow;
+    private boolean darkMode;
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -147,7 +156,7 @@ public class SponsorAdminController {
             workspaceService = new SponsoringWorkspaceService();
             sponsorService = new SponsorService();
             contratSponsorService = new ContratSponsorService();
-            refreshWorkspace("Sponsoring workspace ready.");
+            refreshWorkspace("Loading sponsoring workspace...", "status-muted");
         } catch (SQLException e) {
             showError("Sponsoring", "Could not load sponsor administration.\n" + e.getMessage());
         }
@@ -168,7 +177,7 @@ public class SponsorAdminController {
 
     @FXML
     private void handleRefreshOverview() {
-        refreshWorkspace("Overview refreshed.");
+        refreshWorkspace("Overview refreshed.", "status-success");
     }
 
     @FXML
@@ -192,6 +201,7 @@ public class SponsorAdminController {
     }
 
     public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
         if (budgetChart != null) {
             budgetChart.applyCss();
         }
@@ -294,7 +304,7 @@ public class SponsorAdminController {
 
     @FXML
     private void handleRefreshSponsors() {
-        refreshWorkspace("Sponsors refreshed.");
+        refreshWorkspace("Sponsors refreshed.", "status-success");
     }
 
     @FXML
@@ -327,7 +337,7 @@ public class SponsorAdminController {
         }
         try {
             sponsorService.add(sponsor);
-            refreshWorkspace("Sponsor added.");
+            refreshWorkspace("Sponsor added.", "status-success");
             clearSponsorForm();
             showSponsorStatus("Sponsor added successfully.", "status-success");
         } catch (SQLException e) {
@@ -350,7 +360,7 @@ public class SponsorAdminController {
         sponsor.setId(selectedSponsorRow.sponsor().getId());
         try {
             sponsorService.update(sponsor);
-            refreshWorkspace("Sponsor updated.");
+            refreshWorkspace("Sponsor updated.", "status-success");
             clearSponsorForm();
             showSponsorStatus("Sponsor updated successfully.", "status-success");
         } catch (SQLException e) {
@@ -371,7 +381,7 @@ public class SponsorAdminController {
         }
         try {
             sponsorService.delete(selectedSponsorRow.sponsor().getId());
-            refreshWorkspace("Sponsor deleted.");
+            refreshWorkspace("Sponsor deleted.", "status-success");
             clearSponsorForm();
             showSponsorStatus("Sponsor deleted successfully.", "status-success");
         } catch (SQLException e) {
@@ -387,7 +397,7 @@ public class SponsorAdminController {
 
     @FXML
     private void handleRefreshContracts() {
-        refreshWorkspace("Contracts refreshed.");
+        refreshWorkspace("Contracts refreshed.", "status-success");
     }
 
     @FXML
@@ -399,7 +409,7 @@ public class SponsorAdminController {
         }
         try {
             contratSponsorService.add(contrat);
-            refreshWorkspace("Contract added.");
+            refreshWorkspace("Contract added.", "status-success");
             clearContractForm();
             showContractStatus("Contract added successfully.", "status-success");
         } catch (SQLException e) {
@@ -422,7 +432,7 @@ public class SponsorAdminController {
         contrat.setId(selectedContractRow.contrat().getId());
         try {
             contratSponsorService.update(contrat);
-            refreshWorkspace("Contract updated.");
+            refreshWorkspace("Contract updated.", "status-success");
             clearContractForm();
             showContractStatus("Contract updated successfully.", "status-success");
         } catch (SQLException e) {
@@ -443,7 +453,7 @@ public class SponsorAdminController {
         }
         try {
             contratSponsorService.delete(selectedContractRow.contrat().getId());
-            refreshWorkspace("Contract deleted.");
+            refreshWorkspace("Contract deleted.", "status-success");
             clearContractForm();
             showContractStatus("Contract deleted successfully.", "status-success");
         } catch (SQLException e) {
@@ -483,21 +493,44 @@ public class SponsorAdminController {
         }
     }
 
-    private void refreshWorkspace(String overviewMessage) {
+    private void refreshWorkspace(String overviewMessage, String styleClass) {
         if (workspaceService == null) {
             return;
         }
-        try {
-            snapshot = workspaceService.loadSnapshot();
+        long requestId = refreshSequence.incrementAndGet();
+        showOverviewStatus(overviewMessage == null ? "Refreshing sponsoring workspace..." : overviewMessage,
+                styleClass == null ? "status-muted" : styleClass);
+
+        Task<SponsoringWorkspaceService.SponsoringSnapshot> loadTask = new Task<>() {
+            @Override
+            protected SponsoringWorkspaceService.SponsoringSnapshot call() throws Exception {
+                return workspaceService.loadSnapshot();
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            snapshot = loadTask.getValue();
             rebuildChoiceBoxData();
             updateOverview();
             applySponsorFilters();
             applyContractFilters();
-            showOverviewStatus(overviewMessage, "status-success");
-        } catch (SQLException e) {
+            showOverviewStatus(overviewMessage == null ? "Sponsoring workspace ready." : overviewMessage,
+                    styleClass == null ? "status-success" : styleClass);
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
             showOverviewStatus("Refresh failed.", "status-error");
-            showError("Sponsoring", "Could not refresh sponsor data.\n" + e.getMessage());
-        }
+            Throwable exception = loadTask.getException();
+            showError("Sponsoring", "Could not refresh sponsor data.\n" + (exception == null ? "" : exception.getMessage()));
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
     private void rebuildChoiceBoxData() {
@@ -1007,10 +1040,10 @@ public class SponsorAdminController {
         if (chart == null) {
             return;
         }
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
 
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node ->
@@ -1026,7 +1059,7 @@ public class SponsorAdminController {
     }
 
     private boolean isDarkModeEnabled() {
-        return themeToggleButton != null && themeToggleButton.isSelected();
+        return darkMode || (themeToggleButton != null && themeToggleButton.isSelected());
     }
 
     private boolean confirm(String message) {
@@ -1075,5 +1108,13 @@ public class SponsorAdminController {
         public String toString() {
             return label;
         }
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }

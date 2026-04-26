@@ -5,6 +5,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class SchemaMigration {
     private SchemaMigration() {
@@ -30,6 +32,7 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_id", "BIGINT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_stats_json", "LONGTEXT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_lineup_json", "LONGTEXT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_incidents_json", "LONGTEXT NULL");
             addColumnIfMissing(metaData, catalog, statement, "matchs", "api_football_synced_at", "DATETIME NULL");
 
             addIndexIfMissing(metaData, catalog, statement, "equipe", "idx_equipe_external_sync",
@@ -56,6 +59,9 @@ public final class SchemaMigration {
 
         ensureAnnonceSchema(connection);
         ensureUserSchema(connection);
+        ensureMatchLiveSchema(connection);
+        ensureTrainingUserLinks(connection);
+        ensureNutritionSchema(connection);
     }
 
     private static void backfillEquipeCompetitionCodes(Statement statement) throws SQLException {
@@ -274,6 +280,255 @@ public final class SchemaMigration {
             addIndexIfMissing(metaData, catalog, statement, "user", "idx_user_status",
                     "CREATE INDEX idx_user_status ON `user` (statut)");
         }
+    }
+
+    private static void ensureMatchLiveSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            if (!tableExists(metaData, catalog, "match_follow_target")) {
+                statement.executeUpdate("""
+                        CREATE TABLE match_follow_target (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            target_type VARCHAR(16) NOT NULL,
+                            team_id INT NULL,
+                            match_id INT NULL,
+                            competition_code VARCHAR(16) NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "user_id", "INT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "target_type", "VARCHAR(16) NOT NULL DEFAULT 'TEAM'");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "team_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "match_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "competition_code", "VARCHAR(16) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "match_follow_target", "created_at", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_user",
+                    "CREATE INDEX idx_match_follow_target_user ON match_follow_target (user_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_team",
+                    "CREATE INDEX idx_match_follow_target_team ON match_follow_target (team_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_match",
+                    "CREATE INDEX idx_match_follow_target_match ON match_follow_target (match_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "idx_match_follow_target_competition",
+                    "CREATE INDEX idx_match_follow_target_competition ON match_follow_target (competition_code)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_team",
+                    "CREATE UNIQUE INDEX uq_match_follow_target_team ON match_follow_target (user_id, target_type, team_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_match",
+                    "CREATE UNIQUE INDEX uq_match_follow_target_match ON match_follow_target (user_id, target_type, match_id)");
+            addIndexIfMissing(metaData, catalog, statement, "match_follow_target", "uq_match_follow_target_competition",
+                    "CREATE UNIQUE INDEX uq_match_follow_target_competition ON match_follow_target (user_id, target_type, competition_code)");
+
+            if (!tableExists(metaData, catalog, "notification")) {
+                statement.executeUpdate("""
+                        CREATE TABLE notification (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            title VARCHAR(255) NULL,
+                            message TEXT NOT NULL,
+                            type VARCHAR(32) NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                            user_id INT NOT NULL,
+                            match_id INT NULL,
+                            dedupe_key VARCHAR(255) NULL,
+                            competition_code VARCHAR(16) NULL,
+                            home_team_name VARCHAR(255) NULL,
+                            away_team_name VARCHAR(255) NULL,
+                            home_team_logo VARCHAR(255) NULL,
+                            away_team_logo VARCHAR(255) NULL,
+                            actor_name VARCHAR(255) NULL,
+                            minute_label VARCHAR(32) NULL,
+                            accent_tone VARCHAR(32) NULL
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "notification", "title", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "type", "VARCHAR(32) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "match_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "dedupe_key", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "competition_code", "VARCHAR(16) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "home_team_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "away_team_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "home_team_logo", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "away_team_logo", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "actor_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "minute_label", "VARCHAR(32) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "accent_tone", "VARCHAR(32) NULL");
+
+            addIndexIfMissing(metaData, catalog, statement, "notification", "idx_notification_user_created",
+                    "CREATE INDEX idx_notification_user_created ON notification (user_id, created_at)");
+            addIndexIfMissing(metaData, catalog, statement, "notification", "idx_notification_match",
+                    "CREATE INDEX idx_notification_match ON notification (match_id)");
+            addIndexIfMissing(metaData, catalog, statement, "notification", "uq_notification_dedupe",
+                    "CREATE UNIQUE INDEX uq_notification_dedupe ON notification (user_id, dedupe_key)");
+        }
+    }
+
+    private static void ensureNutritionSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            if (!tableExists(metaData, catalog, "ai_checklist_progress")) {
+                statement.executeUpdate("""
+                        CREATE TABLE ai_checklist_progress (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            plan_type VARCHAR(50) NOT NULL,
+                            plan_category VARCHAR(50) NOT NULL,
+                            item_text VARCHAR(500) NOT NULL,
+                            is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+                            completed_at DATETIME NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            CONSTRAINT fk_checklist_user
+                                FOREIGN KEY (user_id) REFERENCES `user` (id)
+                                ON DELETE CASCADE ON UPDATE CASCADE
+                        )
+                        """);
+            }
+
+            if (!tableExists(metaData, catalog, "food_log")) {
+                statement.executeUpdate("""
+                        CREATE TABLE food_log (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            log_date DATE NOT NULL,
+                            meal_type VARCHAR(50) NOT NULL,
+                            food_description TEXT NOT NULL,
+                            calories DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                            protein_g DECIMAL(8,2) NULL,
+                            carbs_g DECIMAL(8,2) NULL,
+                            fat_g DECIMAL(8,2) NULL,
+                            fiber_g DECIMAL(8,2) NULL,
+                            api_response TEXT NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            CONSTRAINT fk_food_log_user
+                                FOREIGN KEY (user_id) REFERENCES `user` (id)
+                                ON DELETE CASCADE ON UPDATE CASCADE
+                        )
+                        """);
+            }
+
+            if (!tableExists(metaData, catalog, "daily_nutrition_summary")) {
+                statement.executeUpdate("""
+                        CREATE TABLE daily_nutrition_summary (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            summary_date DATE NOT NULL,
+                            total_calories DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                            total_protein_g DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                            total_carbs_g DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                            total_fat_g DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                            total_fiber_g DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+                            target_calories DECIMAL(8,2) NULL,
+                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            UNIQUE KEY unique_user_date (user_id, summary_date),
+                            CONSTRAINT fk_summary_user
+                                FOREIGN KEY (user_id) REFERENCES `user` (id)
+                                ON DELETE CASCADE ON UPDATE CASCADE
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "user_id", "INT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "plan_type", "VARCHAR(50) NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "plan_category", "VARCHAR(50) NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "item_text", "VARCHAR(500) NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "is_completed", "BOOLEAN NOT NULL DEFAULT FALSE");
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "completed_at", "DATETIME NULL");
+            addColumnIfMissing(metaData, catalog, statement, "ai_checklist_progress", "created_at", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "user_id", "INT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "log_date", "DATE NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "meal_type", "VARCHAR(50) NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "food_description", "TEXT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "calories", "DECIMAL(8,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "protein_g", "DECIMAL(8,2) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "carbs_g", "DECIMAL(8,2) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "fat_g", "DECIMAL(8,2) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "fiber_g", "DECIMAL(8,2) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "api_response", "TEXT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "food_log", "created_at", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "user_id", "INT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "summary_date", "DATE NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "total_calories", "DECIMAL(8,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "total_protein_g", "DECIMAL(8,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "total_carbs_g", "DECIMAL(8,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "total_fat_g", "DECIMAL(8,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "total_fiber_g", "DECIMAL(8,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "target_calories", "DECIMAL(8,2) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "updated_at", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+
+            addIndexIfMissing(metaData, catalog, statement, "ai_checklist_progress", "idx_checklist_user_id",
+                    "CREATE INDEX idx_checklist_user_id ON ai_checklist_progress (user_id)");
+            addIndexIfMissing(metaData, catalog, statement, "ai_checklist_progress", "idx_checklist_plan_type",
+                    "CREATE INDEX idx_checklist_plan_type ON ai_checklist_progress (plan_type)");
+            addIndexIfMissing(metaData, catalog, statement, "ai_checklist_progress", "idx_checklist_plan_category",
+                    "CREATE INDEX idx_checklist_plan_category ON ai_checklist_progress (plan_category)");
+            addIndexIfMissing(metaData, catalog, statement, "food_log", "idx_food_log_user_id",
+                    "CREATE INDEX idx_food_log_user_id ON food_log (user_id)");
+            addIndexIfMissing(metaData, catalog, statement, "food_log", "idx_food_log_date",
+                    "CREATE INDEX idx_food_log_date ON food_log (log_date)");
+            addIndexIfMissing(metaData, catalog, statement, "food_log", "idx_food_log_meal_type",
+                    "CREATE INDEX idx_food_log_meal_type ON food_log (meal_type)");
+            addIndexIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "idx_summary_user_id",
+                    "CREATE INDEX idx_summary_user_id ON daily_nutrition_summary (user_id)");
+            addIndexIfMissing(metaData, catalog, statement, "daily_nutrition_summary", "idx_summary_date",
+                    "CREATE INDEX idx_summary_date ON daily_nutrition_summary (summary_date)");
+        }
+    }
+
+    private static void ensureTrainingUserLinks(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            dropForeignKeysReferencing(metaData, catalog, statement, "evaluation", "joueur_id", "joueur");
+            dropForeignKeysReferencing(metaData, catalog, statement, "participation", "joueur_id", "joueur");
+        }
+    }
+
+    private static void dropForeignKeysReferencing(
+            DatabaseMetaData metaData,
+            String catalog,
+            Statement statement,
+            String tableName,
+            String columnName,
+            String referencedTable
+    ) throws SQLException {
+        Set<String> keys = foreignKeysReferencing(metaData, catalog, tableName, columnName, referencedTable);
+        if (keys.isEmpty()) {
+            keys = foreignKeysReferencing(metaData, null, tableName, columnName, referencedTable);
+        }
+        for (String key : keys) {
+            statement.executeUpdate("ALTER TABLE `" + tableName + "` DROP FOREIGN KEY `" + key + "`");
+        }
+    }
+
+    private static Set<String> foreignKeysReferencing(
+            DatabaseMetaData metaData,
+            String catalog,
+            String tableName,
+            String columnName,
+            String referencedTable
+    ) throws SQLException {
+        Set<String> keys = new HashSet<>();
+        try (ResultSet resultSet = metaData.getImportedKeys(catalog, null, tableName)) {
+            while (resultSet.next()) {
+                String discoveredColumn = resultSet.getString("FKCOLUMN_NAME");
+                String discoveredTable = resultSet.getString("PKTABLE_NAME");
+                String key = resultSet.getString("FK_NAME");
+                if (key != null
+                        && columnName.equalsIgnoreCase(discoveredColumn)
+                        && referencedTable.equalsIgnoreCase(discoveredTable)) {
+                    keys.add(key);
+                }
+            }
+        }
+        return keys;
     }
 
     private static boolean tableExists(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {

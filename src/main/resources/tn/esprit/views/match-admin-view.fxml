@@ -218,7 +218,7 @@
                                            prefHeight="540"
                                            styleClass="data-table">
                                     <columns>
-                                        <TableColumn fx:id="matchReferenceColumn" text="Reference" prefWidth="128"/>
+                                        <TableColumn fx:id="matchReferenceColumn" text="" prefWidth="128" visible="false"/>
                                         <TableColumn fx:id="matchDateColumn" text="Date" prefWidth="104"/>
                                         <TableColumn fx:id="matchTimeColumn" text="Heure" prefWidth="88"/>
                                         <TableColumn fx:id="matchHomeColumn" text="Domicile" prefWidth="170"/>
@@ -327,8 +327,8 @@
                                         <Label fx:id="detailStatutValueLabel" text="Programme" styleClass="stat-value"/>
                                     </VBox>
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                        <Label text="Reference" styleClass="stat-caption"/>
-                                        <Label fx:id="detailIdValueLabel" text="Nouveau" styleClass="stat-value"/>
+                                        <Label text="Fiche" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="Creation" styleClass="stat-value"/>
                                     </VBox>
                                 </HBox>
                             </VBox>
@@ -415,6 +415,8 @@
                                             HBox.hgrow="ALWAYS"/>
                                     <Button fx:id="updateButton"
                                             onAction="#handleUpdate"
+                                            managed="false"
+                                            visible="false"
                                             text="Modifier"
                                             styleClass="ghost-button"
                                             HBox.hgrow="ALWAYS"/>
@@ -422,6 +424,8 @@
 
                                 <Button fx:id="deleteButton"
                                         onAction="#handleDelete"
+                                        managed="false"
+                                        visible="false"
                                         text="Supprimer"
                                         styleClass="danger-button"/>
                             </VBox>

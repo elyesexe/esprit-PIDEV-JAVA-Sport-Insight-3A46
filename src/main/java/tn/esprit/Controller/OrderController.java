@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
@@ -47,10 +48,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class OrderController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final ExecutorService DB_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("order-db"));
 
     @FXML private BorderPane pageRoot;
     @FXML private ScrollPane pageScroll;
@@ -124,6 +131,7 @@ public class OrderController {
     private Order selectedOrder;
     private boolean serviceReady;
     private boolean darkMode;
+    private final AtomicLong refreshSequence = new AtomicLong();
 
     @FXML
     public void initialize() {
@@ -140,8 +148,7 @@ public class OrderController {
             userService = new UserService();
             orderPdfExportService = new OrderPdfExportService();
             serviceReady = true;
-            loadReferenceData();
-            refreshOrders(null, null, null);
+            refreshOrders(null, "Chargement des commandes...", "status-muted");
         } catch (SQLException | IllegalStateException exception) {
             serviceReady = false;
             setStatus("Module commandes indisponible.", "status-error");
@@ -154,6 +161,10 @@ public class OrderController {
         if (orderTableView != null) {
             orderTableView.refresh();
         }
+        if (statusChart != null) {
+            statusChart.applyCss();
+        }
+        updateCharts();
         Platform.runLater(() -> applyPieChartTheme(paymentChart));
     }
 
@@ -191,7 +202,6 @@ public class OrderController {
         }
         try {
             orderService.add(order);
-            loadReferenceData();
             refreshOrders(null, "Commande ajoutee avec succes.", "status-success");
             clearValidation();
         } catch (SQLException | IllegalArgumentException exception) {
@@ -211,7 +221,6 @@ public class OrderController {
         }
         try {
             orderService.update(order);
-            loadReferenceData();
             refreshOrders(order.getId(), "Commande modifiee avec succes.", "status-success");
             clearValidation();
         } catch (SQLException | IllegalArgumentException exception) {
@@ -367,8 +376,46 @@ public class OrderController {
         if (!serviceReady) {
             return;
         }
-        try {
-            orders.setAll(filterAndSort(orderService.getAll()));
+        long requestId = refreshSequence.incrementAndGet();
+        String keyword = trimToNull(searchField.getText());
+        String sortBy = sortByComboBox.getValue();
+        String sortDirection = sortDirectionComboBox.getValue();
+
+        setStatus(successMessage == null ? "Chargement des commandes..." : successMessage,
+                styleClass == null ? "status-muted" : styleClass);
+
+        Task<RefreshPayload> loadTask = new Task<>() {
+            @Override
+            protected RefreshPayload call() throws Exception {
+                List<ChoiceItem> loadedProductChoices = productService.getAll().stream()
+                        .map(product -> new ChoiceItem(product.getId(), product.getName() + " • stock " + product.getStock()))
+                        .sorted(Comparator.comparing(ChoiceItem::toString, String.CASE_INSENSITIVE_ORDER))
+                        .toList();
+                List<ChoiceItem> loadedCoachChoices = userService.getAll().stream()
+                        .filter(user -> user.hasRole(UserRoles.ROLE_ENTRAINEUR))
+                        .map(user -> new ChoiceItem(user.getId(), user.getDisplayName() + " • " + user.getEmail()))
+                        .sorted(Comparator.comparing(ChoiceItem::toString, String.CASE_INSENSITIVE_ORDER))
+                        .toList();
+                List<Order> filteredOrders = filterAndSort(
+                        orderService.getAll(),
+                        loadedProductChoices,
+                        loadedCoachChoices,
+                        keyword,
+                        sortBy,
+                        sortDirection
+                );
+                return new RefreshPayload(loadedProductChoices, loadedCoachChoices, filteredOrders);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            RefreshPayload payload = loadTask.getValue();
+            productChoices.setAll(payload.productChoices());
+            coachChoices.setAll(payload.coachChoices());
+            orders.setAll(payload.orders());
             updateMetrics();
             updateCharts();
             if (selectedId != null) {
@@ -384,29 +431,43 @@ public class OrderController {
             } else {
                 setStatus(orders.size() + " commande(s) chargees.", "status-muted");
             }
-        } catch (SQLException exception) {
-            showAlert(Alert.AlertType.ERROR, "Commandes", resolveMessage(exception));
-        }
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            Throwable exception = loadTask.getException();
+            showAlert(Alert.AlertType.ERROR, "Commandes", resolveMessage(exception instanceof Exception e ? e : new Exception(exception)));
+        });
+
+        DB_EXECUTOR.execute(loadTask);
     }
 
-    private List<Order> filterAndSort(List<Order> source) {
-        String keyword = trimToNull(searchField.getText());
-        Comparator<Order> comparator = switch (sortByComboBox.getValue()) {
+    private List<Order> filterAndSort(
+            List<Order> source,
+            List<ChoiceItem> productChoiceSnapshot,
+            List<ChoiceItem> coachChoiceSnapshot,
+            String keyword,
+            String sortBy,
+            String sortDirection
+    ) {
+        Comparator<Order> comparator = switch (sortBy == null ? "Date" : sortBy) {
             case "Montant" -> Comparator.comparing(Order::getTotalAmount, Comparator.nullsLast(Comparator.naturalOrder()));
             case "Statut" -> Comparator.comparing(order -> emptyIfNull(order.getStatus(), ""), String.CASE_INSENSITIVE_ORDER);
             case "Quantite" -> Comparator.comparing(Order::getQuantity, Comparator.nullsLast(Comparator.naturalOrder()));
             default -> Comparator.comparing(Order::getOrderDate, Comparator.nullsLast(Comparator.naturalOrder()));
         };
-        if ("Desc".equalsIgnoreCase(sortDirectionComboBox.getValue())) {
+        if ("Desc".equalsIgnoreCase(sortDirection)) {
             comparator = comparator.reversed();
         }
         return source.stream()
-                .filter(order -> matchesKeyword(order, keyword))
+                .filter(order -> matchesKeyword(order, keyword, productChoiceSnapshot, coachChoiceSnapshot))
                 .sorted(comparator.thenComparing(Order::getId, Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private boolean matchesKeyword(Order order, String keyword) {
+    private boolean matchesKeyword(Order order, String keyword, List<ChoiceItem> productChoiceSnapshot, List<ChoiceItem> coachChoiceSnapshot) {
         if (keyword == null) {
             return true;
         }
@@ -416,8 +477,8 @@ public class OrderController {
                 || contains(order.getPaymentMethod(), normalized)
                 || contains(order.getPaymentStatus(), normalized)
                 || contains(order.getContactEmail(), normalized)
-                || contains(resolveChoiceLabel(productChoices, order.getProductId(), "Produit"), normalized)
-                || contains(resolveChoiceLabel(coachChoices, order.getEntraineurId(), "Coach"), normalized);
+                || contains(resolveChoiceLabel(productChoiceSnapshot, order.getProductId(), "Produit"), normalized)
+                || contains(resolveChoiceLabel(coachChoiceSnapshot, order.getEntraineurId(), "Coach"), normalized);
     }
 
     private boolean contains(Object value, String keyword) {
@@ -518,7 +579,6 @@ public class OrderController {
         }
         try {
             orderService.delete(order.getId());
-            loadReferenceData();
             selectedOrder = null;
             clearFormFields();
             refreshOrders(null, "Commande supprimee avec succes.", "status-success");
@@ -645,6 +705,15 @@ public class OrderController {
     }
 
     private String colorForStatus(String status) {
+        if (darkMode) {
+            return switch (status) {
+                case "CONFIRMED" -> "#9d71ff";
+                case "SHIPPED" -> "#7c84ff";
+                case "DELIVERED" -> "#57d5ff";
+                case "CANCELLED" -> "#ff63d0";
+                default -> "#c084fc";
+            };
+        }
         return switch (status) {
             case "CONFIRMED" -> "#0ea5e9";
             case "SHIPPED" -> "#6366f1";
@@ -810,10 +879,10 @@ public class OrderController {
         if (chart == null) {
             return;
         }
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+        String labelColor = darkMode ? "#eef3ff" : "#475569";
+        String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#eef3ff" : "#475569";
+        String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node -> node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
         chart.lookupAll(".chart-pie-label-line").forEach(node -> node.setStyle("-fx-stroke: " + lineColor + ";"));
@@ -835,5 +904,16 @@ public class OrderController {
         public String toString() {
             return label;
         }
+    }
+
+    private record RefreshPayload(List<ChoiceItem> productChoices, List<ChoiceItem> coachChoices, List<Order> orders) {
+    }
+
+    private static ThreadFactory daemonFactory(String name) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 }
