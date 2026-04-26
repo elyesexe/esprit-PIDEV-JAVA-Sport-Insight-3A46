@@ -85,9 +85,17 @@ public final class AssistantIntentResolver {
             );
         }
 
+        boolean followUp = looksLikeFollowUp(normalized);
+
+        if (context != null && context.controller() instanceof AssistantPlayerProfileProvider) {
+            OptionalPlayerIntent playerIntent = resolvePlayerIntent(normalized, followUp);
+            if (playerIntent.type() != AssistantIntentType.UNKNOWN) {
+                return playerIntent(playerIntent.type(), playerIntent.scope(), normalized, followUp);
+            }
+        }
+
         boolean hasCurrentMatch = (context != null && context.controller() instanceof tn.esprit.Controller.MatchDetailController)
                 || safeMemory.hasRecentMatch();
-        boolean followUp = looksLikeFollowUp(normalized);
         if (!hasCurrentMatch) {
             return AssistantIntent.unknown();
         }
@@ -142,6 +150,50 @@ public final class AssistantIntentResolver {
         }
 
         return AssistantIntent.unknown();
+    }
+
+    private AssistantIntent playerIntent(
+            AssistantIntentType type,
+            AssistantIntentScope scope,
+            String subject,
+            boolean followUp
+    ) {
+        return new AssistantIntent(
+                type,
+                AssistantIntentTarget.CURRENT_PLAYER,
+                scope,
+                subject == null ? "" : subject,
+                followUp,
+                scope == AssistantIntentScope.SUMMARY
+                        ? AssistantResponsePolicy.directWithDetail()
+                        : AssistantResponsePolicy.directFact()
+        );
+    }
+
+    private OptionalPlayerIntent resolvePlayerIntent(String normalized, boolean followUp) {
+        if (looksLikePlayerAgeQuestion(normalized)) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_AGE, AssistantIntentScope.DEFAULT);
+        }
+        if (looksLikePlayerNationalityQuestion(normalized)) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_NATIONALITY, AssistantIntentScope.DEFAULT);
+        }
+        if (looksLikePlayerPositionQuestion(normalized)) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_POSITION, AssistantIntentScope.DEFAULT);
+        }
+        if (looksLikePlayerRecentFormQuestion(normalized)) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_RECENT_FORM, AssistantIntentScope.SUMMARY);
+        }
+        if (looksLikePlayerSeasonStatsQuestion(normalized)) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_SEASON_STATS, AssistantIntentScope.SUMMARY);
+        }
+        if (looksLikePlayerClubQuestion(normalized)) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_CLUB, AssistantIntentScope.DEFAULT);
+        }
+        if (looksLikePlayerProfileSummaryQuestion(normalized)
+                || (followUp && containsAny(normalized, "summary", "overview", "profile"))) {
+            return new OptionalPlayerIntent(AssistantIntentType.PLAYER_PROFILE_SUMMARY, AssistantIntentScope.SUMMARY);
+        }
+        return new OptionalPlayerIntent(AssistantIntentType.UNKNOWN, AssistantIntentScope.DEFAULT);
     }
 
     private AssistantIntent matchIntent(AssistantIntentType type, boolean followUp) {
@@ -258,6 +310,63 @@ public final class AssistantIntentResolver {
         return containsAny(normalized, "mvp", "man of the match", "player of the match", "best player", "star player");
     }
 
+    private boolean looksLikePlayerAgeQuestion(String normalized) {
+        return containsToken(normalized, "age")
+                || containsAny(normalized, "how old", "old is he", "old is she", "old is this player", "birth date", "birthday", "date of birth");
+    }
+
+    private boolean looksLikePlayerNationalityQuestion(String normalized) {
+        return containsAny(normalized, "nationality", "nationalite", "country", "nation", "where is he from", "where is she from", "where is this player from");
+    }
+
+    private boolean looksLikePlayerClubQuestion(String normalized) {
+        return containsAny(
+                normalized,
+                "club",
+                "team",
+                "equipe",
+                "plays for",
+                "play for",
+                "which side",
+                "what side",
+                "who does he play for",
+                "who does she play for",
+                "who does this player play for"
+        );
+    }
+
+    private boolean looksLikePlayerPositionQuestion(String normalized) {
+        return containsAny(normalized, "position", "poste", "role", "where does he play", "where does she play", "where does this player play");
+    }
+
+    private boolean looksLikePlayerSeasonStatsQuestion(String normalized) {
+        return containsAny(
+                normalized,
+                "season stat",
+                "season stats",
+                "statistics",
+                "stats",
+                "appearances",
+                "matches played",
+                "games played",
+                "goals",
+                "assists",
+                "minutes",
+                "yellow cards",
+                "red cards",
+                "cards"
+        );
+    }
+
+    private boolean looksLikePlayerRecentFormQuestion(String normalized) {
+        return containsToken(normalized, "form")
+                || containsAny(normalized, "recent form", "current form", "last form", "form lately", "last matches", "last games", "recent matches", "recent games");
+    }
+
+    private boolean looksLikePlayerProfileSummaryQuestion(String normalized) {
+        return containsAny(normalized, "tell me about this player", "who is this player", "player summary", "profile summary", "overview", "summarize this player");
+    }
+
     private boolean looksLikeRiskyAction(String normalized) {
         return containsAny(
                 normalized,
@@ -340,5 +449,20 @@ public final class AssistantIntentResolver {
             }
         }
         return false;
+    }
+
+    private boolean containsToken(String source, String token) {
+        if (source == null || source.isBlank() || token == null || token.isBlank()) {
+            return false;
+        }
+        for (String part : source.split("\\s+")) {
+            if (part.equals(token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private record OptionalPlayerIntent(AssistantIntentType type, AssistantIntentScope scope) {
     }
 }

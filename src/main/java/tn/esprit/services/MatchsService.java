@@ -11,8 +11,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class MatchsService implements IService<Matchs> {
@@ -190,5 +194,83 @@ public class MatchsService implements IService<Matchs> {
             }
         }
         return 0;
+    }
+
+    public List<Matchs> findNextMatchesForTeam(Integer equipeId, int limit) throws SQLException {
+        if (equipeId == null || limit <= 0) {
+            return List.of();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        return getAll().stream()
+                .filter(match -> isTeamMatch(match, equipeId))
+                .filter(match -> !isFinishedStatus(match.getStatut()))
+                .filter(match -> {
+                    LocalDateTime kickoff = matchDateTime(match);
+                    return kickoff != null && !kickoff.isBefore(now);
+                })
+                .sorted(Comparator.comparing(this::matchDateTime, Comparator.nullsLast(Comparator.naturalOrder())))
+                .limit(limit)
+                .toList();
+    }
+
+    public List<Matchs> findLastResultsForTeam(Integer equipeId, int limit) throws SQLException {
+        if (equipeId == null || limit <= 0) {
+            return List.of();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        return getAll().stream()
+                .filter(match -> isTeamMatch(match, equipeId))
+                .filter(this::hasRecordedScore)
+                .filter(match -> isFinishedStatus(match.getStatut()) || isPastMatch(match, now))
+                .sorted(Comparator.comparing(this::matchDateTime, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .limit(limit)
+                .toList();
+    }
+
+    private boolean isTeamMatch(Matchs match, Integer equipeId) {
+        return match != null
+                && (Objects.equals(match.getEquipeDomicileId(), equipeId)
+                || Objects.equals(match.getEquipeExterieurId(), equipeId));
+    }
+
+    private boolean hasRecordedScore(Matchs match) {
+        return match != null
+                && match.getScoreEquipeDomicile() != null
+                && match.getScoreEquipeExterieur() != null;
+    }
+
+    private boolean isPastMatch(Matchs match, LocalDateTime now) {
+        LocalDateTime kickoff = matchDateTime(match);
+        return kickoff != null && kickoff.isBefore(now);
+    }
+
+    private LocalDateTime matchDateTime(Matchs match) {
+        if (match == null || match.getDateMatch() == null) {
+            return null;
+        }
+        LocalTime time = match.getHeureDebut() == null ? LocalTime.MIDNIGHT : match.getHeureDebut();
+        return match.getDateMatch().atTime(time);
+    }
+
+    private boolean isFinishedStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return false;
+        }
+        String normalized = status.trim().toLowerCase(Locale.ROOT);
+        if (normalized.contains("not finished") || normalized.contains("unfinished")) {
+            return false;
+        }
+        return normalized.equals("finished")
+                || normalized.equals("ft")
+                || normalized.equals("fini")
+                || normalized.contains("match finished")
+                || normalized.contains("full time")
+                || normalized.contains("fini")
+                || normalized.contains("termine")
+                || normalized.contains("termin")
+                || normalized.contains("ended")
+                || normalized.contains("complete");
     }
 }

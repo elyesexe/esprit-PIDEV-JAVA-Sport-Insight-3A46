@@ -1,6 +1,7 @@
 package tn.esprit.services.football;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
@@ -15,6 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class YouTubeServiceTest {
+    @BeforeEach
+    void clearHighlightsCache() {
+        YouTubeService.clearHighlightsCacheForTests();
+    }
+
     @Test
     void buildsStandardEmbedUrl() {
         YouTubeVideo video = new YouTubeVideo("abc123", "Highlights", "Channel");
@@ -64,6 +70,53 @@ class YouTubeServiceTest {
         assertEquals("one", videos.get(0).videoId());
         assertEquals("three", videos.get(1).videoId());
         assertEquals("Real Madrid vs Bayern Munich highlights", service.lastQuery);
+    }
+
+    @Test
+    void finishedMatchSearchResultIsCachedPerMatch() throws Exception {
+        FakeYouTubeService service = new FakeYouTubeService(
+                List.of(new YouTubeVideo("one", "One", "Channel A")),
+                Set.of("one")
+        );
+
+        Matchs match = fixture("FINISHED");
+        Equipe homeTeam = team("Real Madrid");
+        Equipe awayTeam = team("Bayern Munich");
+
+        List<YouTubeVideo> firstVideos = service.searchInAppHighlights(match, homeTeam, awayTeam);
+        service.searchResults = List.of(new YouTubeVideo("two", "Two", "Channel B"));
+        service.playableIds = Set.of("two");
+        List<YouTubeVideo> secondVideos = service.searchInAppHighlights(match, homeTeam, awayTeam);
+
+        assertEquals(1, firstVideos.size());
+        assertEquals("one", firstVideos.get(0).videoId());
+        assertEquals(1, secondVideos.size());
+        assertEquals("one", secondVideos.get(0).videoId());
+        assertEquals(1, service.searchCallCount);
+        assertEquals(1, service.statusCallCount);
+        assertTrue(service.readCachedInAppHighlights(match, homeTeam, awayTeam).isPresent());
+    }
+
+    @Test
+    void forceRefreshBypassesCachedHighlights() throws Exception {
+        FakeYouTubeService service = new FakeYouTubeService(
+                List.of(new YouTubeVideo("one", "One", "Channel A")),
+                Set.of("one")
+        );
+
+        Matchs match = fixture("FINISHED");
+        Equipe homeTeam = team("Real Madrid");
+        Equipe awayTeam = team("Bayern Munich");
+
+        service.searchInAppHighlights(match, homeTeam, awayTeam);
+        service.searchResults = List.of(new YouTubeVideo("two", "Two", "Channel B"));
+        service.playableIds = Set.of("two");
+        List<YouTubeVideo> refreshedVideos = service.searchInAppHighlights(match, homeTeam, awayTeam, true);
+
+        assertEquals(1, refreshedVideos.size());
+        assertEquals("two", refreshedVideos.get(0).videoId());
+        assertEquals(2, service.searchCallCount);
+        assertEquals(2, service.statusCallCount);
     }
 
     @Test
@@ -131,10 +184,12 @@ class YouTubeServiceTest {
     }
 
     private static final class FakeYouTubeService extends YouTubeService {
-        private final List<YouTubeVideo> searchResults;
-        private final Set<String> playableIds;
+        private List<YouTubeVideo> searchResults;
+        private Set<String> playableIds;
         private boolean searchCalled;
         private boolean statusCalled;
+        private int searchCallCount;
+        private int statusCallCount;
         private String lastQuery;
 
         private FakeYouTubeService(List<YouTubeVideo> searchResults, Set<String> playableIds) {
@@ -145,6 +200,7 @@ class YouTubeServiceTest {
         @Override
         public List<YouTubeVideo> searchVideos(String query) throws IOException {
             searchCalled = true;
+            searchCallCount++;
             lastQuery = query;
             return searchResults;
         }
@@ -152,6 +208,7 @@ class YouTubeServiceTest {
         @Override
         public Set<String> getPlayableVideoIds(List<String> videoIds) throws IOException {
             statusCalled = true;
+            statusCallCount++;
             return playableIds;
         }
     }

@@ -75,7 +75,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -261,6 +260,8 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Button inAppYouTubePlayerButton;
     @FXML
+    private Button refreshVideosButton;
+    @FXML
     private Button localMp4DemoButton;
     @FXML
     private StackPane chromiumPlayerHost;
@@ -309,7 +310,8 @@ public class MatchDetailController implements AssistantContextProvider {
     private ChromiumBrowserView chromiumBrowserView;
     private MediaPlayer localDemoMediaPlayer;
     private File currentLocalMp4File;
-    private Instant lastMatchVideoRefreshAt = Instant.EPOCH;
+    private boolean matchVideoLookupCompleted;
+    private boolean matchVideoRefreshInProgress;
 
     @FXML
     public void initialize() {
@@ -959,9 +961,7 @@ public class MatchDetailController implements AssistantContextProvider {
     private void handleShowVideosTab() {
         activeTab = MatchDetailTab.VIDEOS;
         applyActiveTab();
-        if (youtubeVideos.isEmpty()) {
-            refreshMatchVideosAsync(true);
-        }
+        ensureFinishedMatchHighlightsLoaded(false);
     }
 
     @FXML
@@ -1069,7 +1069,7 @@ public class MatchDetailController implements AssistantContextProvider {
             updateLogo(detailAwayLogoView, detailAwayLogoFallbackLabel, awayTeam, "E");
             refreshFollowButtons();
             renderCachedInsights();
-            refreshMatchVideosAsync(true);
+            ensureFinishedMatchHighlightsLoaded(false);
             refreshLiveMatchAsync(true);
             startLiveRefreshIfNeeded();
         } catch (SQLException e) {
@@ -1153,7 +1153,9 @@ public class MatchDetailController implements AssistantContextProvider {
             if (payload.details() != null) {
                 renderApiFootballInsights(payload.details());
             }
-            if (activeTab == MatchDetailTab.VIDEOS) {
+            if (isFinishedMatch(match)) {
+                ensureFinishedMatchHighlightsLoaded(false);
+            } else if (activeTab == MatchDetailTab.VIDEOS) {
                 refreshMatchVideosAsync(false);
             }
 
@@ -1196,29 +1198,37 @@ public class MatchDetailController implements AssistantContextProvider {
         if (match == null || youtubeService == null) {
             return;
         }
-        if (!force && Instant.now().isBefore(lastMatchVideoRefreshAt.plusSeconds(75))) {
+        if (matchVideoRefreshInProgress) {
+            return;
+        }
+        if (!force && matchVideoLookupCompleted) {
             return;
         }
 
         if (!isFinishedMatch(match)) {
-            lastMatchVideoRefreshAt = Instant.now();
-            youtubeVideos.clear();
-            selectedYouTubeVideo = null;
-            showMatchVideoStatus("This match has not finished yet. Highlights are not available.");
-            showMatchVideoPlaceholder(
-                    "This match has not finished yet.",
-                    "Highlights are not available."
-            );
+            showUnfinishedMatchVideoUnavailable();
             return;
         }
 
         long requestId = videoRequestSequence.incrementAndGet();
+        Matchs requestedMatch = match;
+        Equipe requestedHomeTeam = homeTeam;
+        Equipe requestedAwayTeam = awayTeam;
+        matchVideoRefreshInProgress = true;
+        matchVideoLookupCompleted = false;
+        setMatchVideoLoading(true);
         showMatchVideoStatus("Searching YouTube highlights...");
+        if (youtubeVideos.isEmpty()) {
+            showMatchVideoPlaceholder(
+                    "Searching YouTube highlights...",
+                    "Checking YouTube for a playable highlight."
+            );
+        }
 
         Task<List<YouTubeVideo>> task = new Task<>() {
             @Override
             protected List<YouTubeVideo> call() throws Exception {
-                return youtubeService.searchInAppHighlights(match, homeTeam, awayTeam);
+                return youtubeService.searchInAppHighlights(requestedMatch, requestedHomeTeam, requestedAwayTeam, force);
             }
         };
 
@@ -1227,21 +1237,10 @@ public class MatchDetailController implements AssistantContextProvider {
                 return;
             }
 
-            lastMatchVideoRefreshAt = Instant.now();
+            matchVideoRefreshInProgress = false;
+            setMatchVideoLoading(false);
             List<YouTubeVideo> videos = task.getValue() == null ? List.of() : task.getValue();
-            youtubeVideos.setAll(videos);
-            if (videos.isEmpty()) {
-                selectedYouTubeVideo = null;
-                showMatchVideoStatus("No in-app highlight available for this match.");
-                showMatchVideoPlaceholder(
-                        "No in-app highlight available for this match.",
-                        "YouTube did not return a playable highlight for this finished match."
-                );
-                return;
-            }
-
-            showMatchVideoStatus(videos.size() + " YouTube highlight" + (videos.size() > 1 ? "s" : "") + " found for in-app playback.");
-            youtubeVideoListView.getSelectionModel().selectFirst();
+            applyMatchVideoResults(videos, false);
         });
 
         task.setOnFailed(event -> {
@@ -1249,13 +1248,28 @@ public class MatchDetailController implements AssistantContextProvider {
                 return;
             }
 
+            matchVideoRefreshInProgress = false;
+            matchVideoLookupCompleted = true;
+            setMatchVideoLoading(false);
             youtubeVideos.clear();
             selectedYouTubeVideo = null;
+            if (youtubeVideoListView != null) {
+                youtubeVideoListView.getSelectionModel().clearSelection();
+            }
+            resetSelectedMatchVideoLabels();
             showMatchVideoStatus(YouTubeService.API_ERROR_MESSAGE);
             showMatchVideoPlaceholder(
                     "YouTube API error. Check API key or quota.",
                     "Set the YOUTUBE_API_KEY environment variable and make sure the quota is available."
             );
+        });
+
+        task.setOnCancelled(event -> {
+            if (requestId != videoRequestSequence.get()) {
+                return;
+            }
+            matchVideoRefreshInProgress = false;
+            setMatchVideoLoading(false);
         });
 
         VIDEO_EXECUTOR.execute(task);
@@ -1308,14 +1322,20 @@ public class MatchDetailController implements AssistantContextProvider {
         detailScoreValueLabel.setText(buildScore(match));
         detailDateValueLabel.setText(formatDate(match.getDateMatch()));
         detailHeureValueLabel.setText(formatTime(match.getHeureDebut()));
+        if (youtubeMatchInfoLabel != null) {
+            youtubeMatchInfoLabel.setText(buildYouTubeMatchInfo());
+        }
         updateLiveScoreboard(snapshot, statusLabel);
     }
 
     private void resetMatchVideoUiForNewMatch() {
+        videoRequestSequence.incrementAndGet();
         youtubeVideos.clear();
         selectedYouTubeVideo = null;
         loadedYouTubeVideo = null;
-        lastMatchVideoRefreshAt = Instant.EPOCH;
+        matchVideoLookupCompleted = false;
+        matchVideoRefreshInProgress = false;
+        setMatchVideoLoading(false);
 
         if (youtubeMatchInfoLabel != null) {
             youtubeMatchInfoLabel.setText(buildYouTubeMatchInfo());
@@ -1331,8 +1351,112 @@ public class MatchDetailController implements AssistantContextProvider {
         if (selectedVideoMetaLabel != null) {
             selectedVideoMetaLabel.setText("YouTube videos play inside the embedded Chromium player.");
         }
+        if (fullscreenVideoButton != null) {
+            fullscreenVideoButton.setDisable(true);
+        }
         setInAppYouTubePlayerButtonVisible(false);
         stopLocalMp4Demo();
+    }
+
+    private void ensureFinishedMatchHighlightsLoaded(boolean force) {
+        if (match == null || youtubeService == null) {
+            return;
+        }
+        if (!isFinishedMatch(match)) {
+            showUnfinishedMatchVideoUnavailable();
+            return;
+        }
+        if (!force && applyCachedMatchVideoResults()) {
+            return;
+        }
+        refreshMatchVideosAsync(force);
+    }
+
+    private boolean applyCachedMatchVideoResults() {
+        Optional<List<YouTubeVideo>> cachedVideos = youtubeService.readCachedInAppHighlights(match, homeTeam, awayTeam);
+        if (cachedVideos.isEmpty()) {
+            return false;
+        }
+        applyMatchVideoResults(cachedVideos.get(), true);
+        return true;
+    }
+
+    private void applyMatchVideoResults(List<YouTubeVideo> videos, boolean fromCache) {
+        List<YouTubeVideo> playableVideos = videos == null ? List.of() : List.copyOf(videos);
+        matchVideoLookupCompleted = true;
+        youtubeVideos.setAll(playableVideos);
+
+        if (playableVideos.isEmpty()) {
+            selectedYouTubeVideo = null;
+            if (youtubeVideoListView != null) {
+                youtubeVideoListView.getSelectionModel().clearSelection();
+            }
+            resetSelectedMatchVideoLabels();
+            showMatchVideoStatus(fromCache
+                    ? "No cached in-app highlight is available for this match."
+                    : "No in-app highlight available for this match.");
+            showMatchVideoPlaceholder(
+                    "No in-app highlight available for this match.",
+                    "YouTube did not return a playable highlight for this finished match."
+            );
+            return;
+        }
+
+        String prefix = fromCache ? "Cached " : "";
+        showMatchVideoStatus(prefix + playableVideos.size()
+                + " YouTube highlight" + (playableVideos.size() > 1 ? "s" : "")
+                + " ready for in-app playback.");
+
+        YouTubeVideo preferredSelection = selectedYouTubeVideo == null
+                ? playableVideos.get(0)
+                : playableVideos.stream()
+                .filter(video -> Objects.equals(video, selectedYouTubeVideo))
+                .findFirst()
+                .orElse(playableVideos.get(0));
+
+        if (youtubeVideoListView != null) {
+            youtubeVideoListView.getSelectionModel().select(preferredSelection);
+        } else {
+            selectedYouTubeVideo = preferredSelection;
+            renderSelectedMatchVideo();
+        }
+    }
+
+    private void showUnfinishedMatchVideoUnavailable() {
+        matchVideoLookupCompleted = false;
+        matchVideoRefreshInProgress = false;
+        setMatchVideoLoading(false);
+        youtubeVideos.clear();
+        selectedYouTubeVideo = null;
+        if (youtubeVideoListView != null) {
+            youtubeVideoListView.getSelectionModel().clearSelection();
+        }
+        resetSelectedMatchVideoLabels();
+        showMatchVideoStatus("This match has not finished yet. Highlights are not available.");
+        showMatchVideoPlaceholder(
+                "This match has not finished yet.",
+                "Highlights are available after full time when YouTube has a playable upload."
+        );
+    }
+
+    private void resetSelectedMatchVideoLabels() {
+        if (selectedVideoTitleLabel != null) {
+            selectedVideoTitleLabel.setText("No video selected");
+        }
+        if (selectedVideoMetaLabel != null) {
+            selectedVideoMetaLabel.setText("YouTube videos play inside the embedded Chromium player.");
+        }
+        if (fullscreenVideoButton != null) {
+            fullscreenVideoButton.setDisable(true);
+        }
+        setInAppYouTubePlayerButtonVisible(false);
+    }
+
+    private void setMatchVideoLoading(boolean loading) {
+        if (refreshVideosButton != null) {
+            refreshVideosButton.setDisable(loading);
+            refreshVideosButton.setText(loading ? "Loading..." : "Load Highlights");
+        }
     }
 
     private void renderSelectedMatchVideo() {
@@ -1366,9 +1490,7 @@ public class MatchDetailController implements AssistantContextProvider {
         }
 
         setInAppYouTubePlayerButtonVisible(true);
-        if (Objects.equals(selectedYouTubeVideo, loadedYouTubeVideo)
-                && chromiumPlayerHost != null
-                && chromiumPlayerHost.isVisible()) {
+        if (Objects.equals(selectedYouTubeVideo, loadedYouTubeVideo)) {
             if (matchVideoEmptyStateBox != null) {
                 matchVideoEmptyStateBox.setManaged(false);
                 matchVideoEmptyStateBox.setVisible(false);
@@ -2147,7 +2269,7 @@ public class MatchDetailController implements AssistantContextProvider {
 
         Label minuteLabel = new Label(emptyToFallback(incident.minuteLabel(), "--"));
         minuteLabel.getStyleClass().add("timeline-minute-chip");
-        minuteLabel.setMinWidth(58);
+        minuteLabel.setMinWidth(44);
         minuteLabel.setAlignment(Pos.CENTER);
 
         Region leftSpacer = new Region();
@@ -2157,7 +2279,7 @@ public class MatchDetailController implements AssistantContextProvider {
         HBox.setHgrow(leftSpacer, javafx.scene.layout.Priority.ALWAYS);
         HBox.setHgrow(rightSpacer, javafx.scene.layout.Priority.ALWAYS);
 
-        HBox row = new HBox(14);
+        HBox row = new HBox(8);
         row.setAlignment(Pos.CENTER);
         row.getStyleClass().add("timeline-row");
 
@@ -2170,7 +2292,7 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     private VBox buildTimelineEventBox(ApiFootballMatchIncident incident, boolean homeSide) {
-        VBox box = new VBox(4);
+        VBox box = new VBox(2);
         box.setAlignment(homeSide ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
         box.getStyleClass().addAll(
                 "timeline-event-box",
@@ -2178,7 +2300,7 @@ public class MatchDetailController implements AssistantContextProvider {
         );
         box.setMaxWidth(Double.MAX_VALUE);
 
-        HBox badgeRow = new HBox(8);
+        HBox badgeRow = new HBox(6);
         badgeRow.setAlignment(homeSide ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
         Label badge = new Label(buildTimelineBadgeText(incident));
         badge.getStyleClass().addAll("timeline-event-badge", timelineBadgeTone(incident));

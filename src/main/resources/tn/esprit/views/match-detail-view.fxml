@@ -104,12 +104,12 @@
                     BorderPane.alignment="CENTER">
             <content>
                 <StackPane styleClass="page-shell-wrap">
-                    <VBox spacing="16" maxWidth="1020.0" styleClass="page-shell flashscore-match-shell">
+                    <VBox spacing="12" maxWidth="1020.0" styleClass="page-shell flashscore-match-shell">
                         <padding>
-                            <Insets top="20" right="20" bottom="24" left="20"/>
+                            <Insets top="16" right="18" bottom="20" left="18"/>
                         </padding>
 
-                        <VBox spacing="14" styleClass="panel-card flashscore-score-card">
+                        <VBox spacing="10" styleClass="panel-card flashscore-score-card">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label fx:id="competitionBadgeLabel" text="Competition" styleClass="toolbar-chip"/>
                                 <Label fx:id="detailStatusChipLabel" text="Programme" styleClass="status-pill status-warning"/>
@@ -118,7 +118,7 @@
                                 <Button onAction="#handleBack" text="Retour" styleClass="ghost-button"/>
                             </HBox>
 
-                            <VBox spacing="4" styleClass="flashscore-title-block">
+                            <VBox spacing="3" styleClass="flashscore-title-block">
                                 <Label fx:id="detailTitleLabel" text="Chargement du match..." styleClass="flashscore-match-title"/>
                                 <Label fx:id="detailSubtitleLabel"
                                        text="Presentation compacte inspiree des pages de match Flashscore."
@@ -126,12 +126,12 @@
                                        styleClass="flashscore-match-subtitle"/>
                             </VBox>
 
-                            <HBox alignment="CENTER" spacing="22" styleClass="flashscore-scoreboard">
-                                <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="flashscore-team-column">
+                            <HBox alignment="CENTER" spacing="18" styleClass="flashscore-scoreboard">
+                                <VBox alignment="CENTER" spacing="7" HBox.hgrow="ALWAYS" styleClass="flashscore-team-column">
                                     <StackPane styleClass="flashscore-logo-shell">
                                         <ImageView fx:id="detailHomeLogoView"
-                                                   fitWidth="84"
-                                                   fitHeight="84"
+                                                   fitWidth="118"
+                                                   fitHeight="118"
                                                    preserveRatio="true"
                                                    managed="false"
                                                    visible="false"/>
@@ -143,7 +143,7 @@
                                     <Label text="Domicile" styleClass="flashscore-team-role"/>
                                 </VBox>
 
-                                <VBox alignment="CENTER" spacing="8" styleClass="flashscore-center-column">
+                                <VBox alignment="CENTER" spacing="6" styleClass="flashscore-center-column">
                                     <Label fx:id="detailDateValueLabel" text="-" styleClass="flashscore-kickoff-date"/>
                                     <Label fx:id="detailHeureValueLabel" text="-" styleClass="flashscore-kickoff-time"/>
                                     <Label fx:id="detailScoreValueLabel" text="- : -" styleClass="flashscore-main-score"/>
@@ -160,11 +160,11 @@
                                     <Label fx:id="detailLieuValueLabel" text="Non renseigne" wrapText="true" styleClass="flashscore-venue-label"/>
                                 </VBox>
 
-                                <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="flashscore-team-column">
+                                <VBox alignment="CENTER" spacing="7" HBox.hgrow="ALWAYS" styleClass="flashscore-team-column">
                                     <StackPane styleClass="flashscore-logo-shell">
                                         <ImageView fx:id="detailAwayLogoView"
-                                                   fitWidth="84"
-                                                   fitHeight="84"
+                                                   fitWidth="118"
+                                                   fitHeight="118"
                                                    preserveRatio="true"
                                                    managed="false"
                                                    visible="false"/>
@@ -177,7 +177,7 @@
                                 </VBox>
                             </HBox>
 
-                            <HBox spacing="10" styleClass="flashscore-facts-row">
+                            <HBox spacing="8" styleClass="flashscore-facts-row">
                                 <VBox HBox.hgrow="ALWAYS" styleClass="flashscore-fact-chip">
                                     <Label text="Competition" styleClass="flashscore-fact-caption"/>
                                     <Label fx:id="detailCompetitionValueLabel" text="Non renseignee" styleClass="flashscore-fact-value"/>
@@ -196,7 +196,7 @@
                                 </VBox>
                             </HBox>
 
-                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="match-follow-toolbar">
+                            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="match-follow-toolbar">
                                 <Label text="Live alerts" styleClass="flashscore-inline-badge"/>
                                 <Button fx:id="followMatchButton"
                                         onAction="#handleToggleFollowMatch"
@@ -217,7 +217,7 @@
                             </HBox>
                         </VBox>
 
-                        <HBox spacing="12" styleClass="detail-tabs-row">
+                        <HBox spacing="8" styleClass="detail-tabs-row">
                             <Button fx:id="summaryTabButton"
                                     onAction="#handleShowSummaryTab"
                                     text="Resume"
@@ -236,7 +236,7 @@
                                     styleClass="detail-tab-button"/>
                         </HBox>
 
-                        <VBox fx:id="summarySection" spacing="12" styleClass="panel-card flashscore-summary-card">
+                        <VBox fx:id="summarySection" spacing="8" styleClass="panel-card flashscore-summary-card">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Resume du match" styleClass="section-title flashscore-section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>
@@ -256,10 +256,10 @@
                                    wrapText="true"
                                    styleClass="section-subtitle"/>
 
-                            <VBox fx:id="summaryTimelineContainer" spacing="10"/>
+                            <VBox fx:id="summaryTimelineContainer" spacing="6"/>
                         </VBox>
 
-                        <VBox fx:id="lineupSection" spacing="14" styleClass="panel-card flashscore-lineup-card" visible="false" managed="false">
+                        <VBox fx:id="lineupSection" spacing="10" styleClass="panel-card flashscore-lineup-card" visible="false" managed="false">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Compositions" styleClass="section-title flashscore-section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>
@@ -316,7 +316,7 @@
                             </HBox>
                         </VBox>
 
-                        <VBox fx:id="statsSection" spacing="12" styleClass="panel-card flashscore-stats-card" visible="false" managed="false">
+                        <VBox fx:id="statsSection" spacing="8" styleClass="panel-card flashscore-stats-card" visible="false" managed="false">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Statistiques du match" styleClass="section-title flashscore-section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>
@@ -339,7 +339,7 @@
                             <VBox fx:id="matchStatsContainer" spacing="12"/>
                         </VBox>
 
-                        <VBox fx:id="videosSection" spacing="14" styleClass="panel-card flashscore-videos-card" visible="false" managed="false">
+                        <VBox fx:id="videosSection" spacing="10" styleClass="panel-card flashscore-videos-card" visible="false" managed="false">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <VBox spacing="4" HBox.hgrow="ALWAYS">
                                     <Label text="YouTube Highlights" styleClass="section-title flashscore-section-title"/>
@@ -348,7 +348,10 @@
                                            wrapText="true"
                                            styleClass="section-subtitle match-video-status"/>
                                 </VBox>
-                                <Button onAction="#handleRefreshVideos" text="Load Highlights" styleClass="ghost-button"/>
+                                <Button fx:id="refreshVideosButton"
+                                        onAction="#handleRefreshVideos"
+                                        text="Load Highlights"
+                                        styleClass="ghost-button"/>
                                 <Button fx:id="localMp4DemoButton"
                                         onAction="#handleOpenLocalMp4Demo"
                                         text="Local MP4 demo"

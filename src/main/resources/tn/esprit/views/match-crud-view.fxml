@@ -183,8 +183,8 @@
                     <VBox spacing="14" styleClass="panel-card results-panel">
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Cartes des matchs" styleClass="section-title"/>
-                                <Label text="Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici."
+                                <Label text="Catalogue des matchs" styleClass="section-title"/>
+                                <Label text="Logo domicile, adversaire, date et heure. Les autres informations sont dans la fiche detail."
                                        wrapText="true"
                                        styleClass="section-subtitle"/>
                             </VBox>

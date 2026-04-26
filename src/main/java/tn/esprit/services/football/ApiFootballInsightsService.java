@@ -37,6 +37,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ApiFootballInsightsService {
+    private static final int TEAM_TOP_SCORERS_TARGET = 5;
+    private static final int TEAM_TOP_SCORERS_MAX_DISPLAY = 8;
+    private static final int[] TEAM_FOOTBALL_DATA_SCORER_LIMITS = {50, 100, 200};
     private static final Duration TEAM_LOOKUP_CACHE_TTL = Duration.ofHours(12);
     private static final Duration TOP_SCORERS_CACHE_TTL = Duration.ofHours(6);
     private static final Duration THE_SPORTS_DB_TEAM_CACHE_TTL = Duration.ofHours(12);
@@ -211,16 +214,31 @@ public class ApiFootballInsightsService {
         String competitionCode = FootballDataCompetitions.normalizeCode(equipe.getCompetitionCode());
         String cacheKey = (equipe.getExternalApiId() == null ? equipe.getId() : equipe.getExternalApiId()) + ":" + competitionCode;
         List<ApiFootballScorerEntry> cached = getCached(TEAM_SCORERS_CACHE, cacheKey, TOP_SCORERS_CACHE_TTL);
-        if (cached != null) {
+        if (cached != null && cached.size() >= TEAM_TOP_SCORERS_TARGET) {
             return cached;
         }
 
         List<ApiFootballScorerEntry> ranked = loadTeamTopScorersFromFootballData(equipe, competitionCode);
-        if (ranked.isEmpty()) {
-            ranked = loadTeamTopScorersFromApiFootball(equipe, competitionCode);
+        if (ranked.size() < TEAM_TOP_SCORERS_TARGET) {
+            try {
+                List<ApiFootballScorerEntry> apiRanked = loadTeamTopScorersFromApiFootball(equipe, competitionCode);
+                if (apiRanked.size() > ranked.size()) {
+                    ranked = apiRanked;
+                }
+            } catch (InterruptedException e) {
+                if (ranked.isEmpty()) {
+                    throw e;
+                }
+                Thread.currentThread().interrupt();
+            } catch (IOException | SQLException e) {
+                if (ranked.isEmpty()) {
+                    throw e;
+                }
+            }
         }
-        TEAM_SCORERS_CACHE.put(cacheKey, new CacheEntry<>(ranked, Instant.now()));
-        return ranked;
+        List<ApiFootballScorerEntry> visibleRanked = limit(ranked, TEAM_TOP_SCORERS_TARGET);
+        TEAM_SCORERS_CACHE.put(cacheKey, new CacheEntry<>(visibleRanked, Instant.now()));
+        return visibleRanked;
     }
 
     public Optional<ApiFootballPlayerSeasonStats> loadPlayerSeasonStats(Joueur joueur, Equipe equipe)
@@ -1250,11 +1268,25 @@ public class ApiFootballInsightsService {
 
     private List<ApiFootballScorerEntry> loadTeamTopScorersFromFootballData(Equipe equipe, String competitionCode)
             throws IOException, InterruptedException {
-        List<FootballDataScorerSnapshot> snapshots = loadFootballDataScorerSnapshots(competitionCode, 50);
-        if (snapshots.isEmpty()) {
-            return List.of();
-        }
+        List<ApiFootballScorerEntry> bestScorers = List.of();
+        for (int sourceLimit : TEAM_FOOTBALL_DATA_SCORER_LIMITS) {
+            List<FootballDataScorerSnapshot> snapshots = loadFootballDataScorerSnapshots(competitionCode, sourceLimit);
+            if (snapshots.isEmpty()) {
+                break;
+            }
 
+            List<ApiFootballScorerEntry> scorers = buildTeamScorersFromSnapshots(equipe, snapshots);
+            if (scorers.size() > bestScorers.size()) {
+                bestScorers = scorers;
+            }
+            if (bestScorers.size() >= TEAM_TOP_SCORERS_TARGET || snapshots.size() < sourceLimit) {
+                break;
+            }
+        }
+        return rankEntries(limit(bestScorers, TEAM_TOP_SCORERS_MAX_DISPLAY));
+    }
+
+    private List<ApiFootballScorerEntry> buildTeamScorersFromSnapshots(Equipe equipe, List<FootballDataScorerSnapshot> snapshots) {
         List<ApiFootballScorerEntry> scorers = new ArrayList<>();
         for (FootballDataScorerSnapshot snapshot : snapshots) {
             if (!matchesFootballDataTeam(equipe, snapshot)) {
@@ -1270,7 +1302,7 @@ public class ApiFootballInsightsService {
                     null
             ));
         }
-        return rankEntries(limit(scorers, 8));
+        return scorers;
     }
 
     private List<ApiFootballScorerEntry> loadTeamTopScorersFromApiFootball(Equipe equipe, String competitionCode)

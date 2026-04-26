@@ -8,6 +8,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -99,7 +100,7 @@
                     BorderPane.alignment="CENTER">
             <content>
                 <StackPane styleClass="page-shell-wrap">
-                <VBox spacing="18" styleClass="page-shell">
+                <VBox spacing="18" alignment="TOP_CENTER" maxWidth="1180" styleClass="page-shell team-detail-page-shell">
                     <padding>
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
@@ -188,7 +189,12 @@
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Effectif" styleClass="section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="Vue rapide" styleClass="toolbar-chip-soft"/>
+                                <Button fx:id="squadToggleButton"
+                                        onAction="#handleToggleSquadExpanded"
+                                        text="Afficher"
+                                        managed="false"
+                                        visible="false"
+                                        styleClass="ghost-button team-squad-toggle-button"/>
                             </HBox>
 
                             <Label fx:id="squadEmptyLabel"
@@ -196,7 +202,50 @@
                                    wrapText="true"
                                    styleClass="section-subtitle"/>
 
-                            <VBox fx:id="squadContainer" spacing="10"/>
+                            <FlowPane fx:id="squadContainer"
+                                      hgap="10"
+                                      vgap="10"
+                                      prefWrapLength="540"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="18" styleClass="content-shell team-form-row">
+                        <VBox spacing="14" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <VBox spacing="4">
+                                    <Label text="Prochains matchs" styleClass="section-title"/>
+                                    <Label text="Les 5 prochains rendez-vous de cette equipe."
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Next 5" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+
+                            <Label fx:id="nextMatchesEmptyLabel"
+                                   text="Aucun prochain match programme pour cette equipe."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+
+                            <VBox fx:id="nextMatchesContainer" spacing="10"/>
+                        </VBox>
+
+                        <VBox spacing="14" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <VBox spacing="4">
+                                    <Label text="5 derniers resultats" styleClass="section-title"/>
+                                    <Label text="Vert: victoire, jaune: nul, rouge: defaite."
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Last 5" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+
+                            <Label fx:id="recentResultsEmptyLabel"
+                                   text="Aucun resultat recent disponible pour cette equipe."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+
+                            <VBox fx:id="recentResultsContainer" spacing="10"/>
                         </VBox>
                     </HBox>
 

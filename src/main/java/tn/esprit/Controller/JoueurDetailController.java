@@ -11,6 +11,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 import tn.esprit.assistant.AssistantContextProvider;
+import tn.esprit.assistant.AssistantPlayerProfileProvider;
+import tn.esprit.assistant.AssistantPlayerProfileSnapshot;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -36,7 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-public class JoueurDetailController implements AssistantContextProvider {
+public class JoueurDetailController implements AssistantContextProvider, AssistantPlayerProfileProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-detail-image-import"));
@@ -146,6 +148,7 @@ public class JoueurDetailController implements AssistantContextProvider {
 
     @Override
     public String assistantContextSummary() {
+        AssistantPlayerProfileSnapshot profile = assistantPlayerProfileSnapshot();
         return """
                 Current player detail screen.
                 Player: %s.
@@ -154,23 +157,50 @@ public class JoueurDetailController implements AssistantContextProvider {
                 Birth date: %s. Age: %s.
                 Position: %s. Nationality: %s.
                 Source: %s.
+                Season stats context: %s.
                 Season stats: appearances %s, goals %s, assists %s, yellow cards %s, red cards %s, minutes %s.
+                Recent form: %s.
                 """.formatted(
-                emptyToFallback(detailNameLabel == null ? null : detailNameLabel.getText(), "Player"),
-                emptyToFallback(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText(), "No subtitle"),
-                emptyToFallback(detailEquipeValueLabel == null ? null : detailEquipeValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailNumeroValueLabel == null ? null : detailNumeroValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailDateNaissanceValueLabel == null ? null : detailDateNaissanceValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailAgeValueLabel == null ? null : detailAgeValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailPositionValueLabel == null ? null : detailPositionValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailNationaliteValueLabel == null ? null : detailNationaliteValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailSourceValueLabel == null ? null : detailSourceValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailAppearancesValueLabel == null ? null : detailAppearancesValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailGoalsValueLabel == null ? null : detailGoalsValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailAssistsValueLabel == null ? null : detailAssistsValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailYellowCardsValueLabel == null ? null : detailYellowCardsValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailRedCardsValueLabel == null ? null : detailRedCardsValueLabel.getText(), "Unknown"),
-                emptyToFallback(detailMinutesValueLabel == null ? null : detailMinutesValueLabel.getText(), "Unknown")
+                emptyToFallback(profile.playerName(), "Player"),
+                emptyToFallback(profile.subtitle(), "No subtitle"),
+                emptyToFallback(profile.clubName(), "Unknown"),
+                emptyToFallback(profile.numberLabel(), "Unknown"),
+                emptyToFallback(profile.birthDateLabel(), "Unknown"),
+                emptyToFallback(profile.ageLabel(), "Unknown"),
+                emptyToFallback(profile.positionLabel(), "Unknown"),
+                emptyToFallback(profile.nationalityLabel(), "Unknown"),
+                emptyToFallback(profile.sourceLabel(), "Unknown"),
+                emptyToFallback(profile.statsStatusLabel(), "Unknown"),
+                emptyToFallback(profile.appearancesLabel(), "Unknown"),
+                emptyToFallback(profile.goalsLabel(), "Unknown"),
+                emptyToFallback(profile.assistsLabel(), "Unknown"),
+                emptyToFallback(profile.yellowCardsLabel(), "Unknown"),
+                emptyToFallback(profile.redCardsLabel(), "Unknown"),
+                emptyToFallback(profile.minutesLabel(), "Unknown"),
+                emptyToFallback(profile.recentFormLabel(), "Not visible on this screen")
+        );
+    }
+
+    @Override
+    public AssistantPlayerProfileSnapshot assistantPlayerProfileSnapshot() {
+        return new AssistantPlayerProfileSnapshot(
+                textOf(detailNameLabel),
+                textOf(detailSubtitleLabel),
+                textOf(detailEquipeValueLabel),
+                textOf(detailNumeroValueLabel),
+                textOf(detailDateNaissanceValueLabel),
+                textOf(detailAgeValueLabel),
+                textOf(detailPositionValueLabel),
+                textOf(detailNationaliteValueLabel),
+                textOf(detailSourceValueLabel),
+                textOf(detailStatsStatusLabel),
+                textOf(detailAppearancesValueLabel),
+                textOf(detailGoalsValueLabel),
+                textOf(detailAssistsValueLabel),
+                textOf(detailYellowCardsValueLabel),
+                textOf(detailRedCardsValueLabel),
+                textOf(detailMinutesValueLabel),
+                null
         );
     }
 
@@ -528,6 +558,10 @@ public class JoueurDetailController implements AssistantContextProvider {
             return "Age indisponible";
         }
         return Period.between(date, LocalDate.now()).getYears() + " ans";
+    }
+
+    private String textOf(Label label) {
+        return label == null ? null : label.getText();
     }
 
     private String emptyToFallback(String value, String fallback) {

@@ -292,6 +292,32 @@ public final class AssistantService {
             }
             case MATCH_SCORERS, MATCH_ASSISTS, MATCH_WINNER, MATCH_SCORE, MATCH_CARDS ->
                     handleMatchSnapshotIntent(intent, resolveCurrentMatchSnapshot(context, memorySnapshot));
+            case PLAYER_PROFILE_SUMMARY, PLAYER_AGE, PLAYER_NATIONALITY, PLAYER_CLUB, PLAYER_POSITION, PLAYER_SEASON_STATS, PLAYER_RECENT_FORM ->
+                    handlePlayerProfileIntent(intent, resolveCurrentPlayerProfileSnapshot(context));
+            default -> Optional.empty();
+        };
+    }
+
+    private Optional<Reply> handlePlayerProfileIntent(
+            AssistantIntent intent,
+            AssistantPlayerProfileSnapshot snapshot
+    ) {
+        if (snapshot == null) {
+            return Optional.of(new Reply(
+                    "I don't have a player profile in focus yet. Open a player detail screen first.",
+                    null,
+                    true
+            ));
+        }
+
+        return switch (intent.type()) {
+            case PLAYER_PROFILE_SUMMARY -> Optional.of(new Reply(buildPlayerProfileSummaryReply(snapshot), null, true));
+            case PLAYER_AGE -> Optional.of(new Reply(buildPlayerAgeReply(snapshot), null, true));
+            case PLAYER_NATIONALITY -> Optional.of(new Reply(buildPlayerNationalityReply(snapshot), null, true));
+            case PLAYER_CLUB -> Optional.of(new Reply(buildPlayerClubReply(snapshot), null, true));
+            case PLAYER_POSITION -> Optional.of(new Reply(buildPlayerPositionReply(snapshot), null, true));
+            case PLAYER_SEASON_STATS -> Optional.of(new Reply(buildPlayerSeasonStatsReply(snapshot), null, true));
+            case PLAYER_RECENT_FORM -> Optional.of(new Reply(buildPlayerRecentFormReply(snapshot), null, true));
             default -> Optional.empty();
         };
     }
@@ -368,6 +394,13 @@ public final class AssistantService {
             return AssistantConversationMemory.MatchSnapshot.fromController(controller);
         }
         return memorySnapshot == null ? null : memorySnapshot.recentMatch().orElse(null);
+    }
+
+    private AssistantPlayerProfileSnapshot resolveCurrentPlayerProfileSnapshot(Context context) {
+        if (context != null && context.controller() instanceof AssistantPlayerProfileProvider provider) {
+            return provider.assistantPlayerProfileSnapshot();
+        }
+        return null;
     }
 
     private Optional<Reply> tryHandleLocally(String normalized, Context context, AssistantScreenCatalog.ScreenMeta currentScreen) {
@@ -695,6 +728,167 @@ public final class AssistantService {
             return "No cards recorded yet.";
         }
         return "Cards: " + String.join(" | ", cards.stream().limit(6).toList()) + ".";
+    }
+
+    static String buildPlayerAgeReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        String age = cleanProfileValue(profile == null ? null : profile.ageLabel());
+        String birthDate = cleanProfileValue(profile == null ? null : profile.birthDateLabel());
+        if (isVisibleProfileValue(age)) {
+            String reply = name + " is " + age + ".";
+            if (isVisibleProfileValue(birthDate)) {
+                reply += " Birth date: " + birthDate + ".";
+            }
+            return reply;
+        }
+        if (isVisibleProfileValue(birthDate)) {
+            return "The visible profile shows " + name + "'s birth date as " + birthDate + ", but it does not show an age.";
+        }
+        return "The visible profile does not show an age for " + name + ".";
+    }
+
+    static String buildPlayerNationalityReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        String nationality = cleanProfileValue(profile == null ? null : profile.nationalityLabel());
+        if (isVisibleProfileValue(nationality)) {
+            return name + "'s nationality is " + nationality + ".";
+        }
+        return "The visible profile does not show a nationality for " + name + ".";
+    }
+
+    static String buildPlayerClubReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        String club = cleanProfileValue(profile == null ? null : profile.clubName());
+        if (normalize(club).equals("sans equipe")) {
+            return "The visible profile shows " + name + " has no team assigned.";
+        }
+        if (isVisibleProfileValue(club)) {
+            return name + "'s club is " + club + ".";
+        }
+        return "The visible profile does not show a club for " + name + ".";
+    }
+
+    static String buildPlayerPositionReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        String position = cleanProfileValue(profile == null ? null : profile.positionLabel());
+        if (isVisibleProfileValue(position)) {
+            return name + "'s position is " + position + ".";
+        }
+        return "The visible profile does not show a position for " + name + ".";
+    }
+
+    static String buildPlayerSeasonStatsReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        List<String> stats = buildVisiblePlayerStatPhrases(profile);
+        String status = cleanProfileValue(profile == null ? null : profile.statsStatusLabel());
+        if (stats.isEmpty()) {
+            String reply = "I don't see loaded season stats for " + name + " on this screen yet.";
+            if (isVisibleProfileValue(status)) {
+                reply += " Status: " + status + ".";
+            }
+            return reply;
+        }
+
+        String reply = "Season stats for " + name + ": " + String.join(", ", stats) + ".";
+        if (isVisibleProfileValue(status)) {
+            reply += " Context: " + status + ".";
+        }
+        return reply;
+    }
+
+    static String buildPlayerRecentFormReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        String recentForm = cleanProfileValue(profile == null ? null : profile.recentFormLabel());
+        if (isVisibleProfileValue(recentForm)) {
+            return "Recent form for " + name + ": " + recentForm + ".";
+        }
+        return "I don't see recent form on this player profile screen. I can answer from the visible profile fields and loaded season stats.";
+    }
+
+    static String buildPlayerProfileSummaryReply(AssistantPlayerProfileSnapshot profile) {
+        String name = playerProfileName(profile);
+        List<String> facts = new ArrayList<>();
+        appendPlayerFact(facts, "club", profile == null ? null : profile.clubName());
+        appendPlayerFact(facts, "position", profile == null ? null : profile.positionLabel());
+        appendPlayerFact(facts, "nationality", profile == null ? null : profile.nationalityLabel());
+        appendPlayerFact(facts, "age", profile == null ? null : profile.ageLabel());
+
+        StringBuilder reply = new StringBuilder(name);
+        if (facts.isEmpty()) {
+            reply.append(" is the current player profile.");
+        } else {
+            reply.append(": ").append(String.join(", ", facts)).append(".");
+        }
+
+        List<String> stats = buildVisiblePlayerStatPhrases(profile);
+        if (!stats.isEmpty()) {
+            reply.append(" Season stats: ").append(String.join(", ", stats)).append(".");
+        }
+        return reply.toString();
+    }
+
+    private static void appendPlayerFact(List<String> facts, String label, String value) {
+        String clean = cleanProfileValue(value);
+        if (isVisibleProfileValue(clean)) {
+            facts.add(label + " " + clean);
+        }
+    }
+
+    private static List<String> buildVisiblePlayerStatPhrases(AssistantPlayerProfileSnapshot profile) {
+        List<String> stats = new ArrayList<>();
+        appendPlayerStat(stats, profile == null ? null : profile.appearancesLabel(), "appearance", "appearances");
+        appendPlayerStat(stats, profile == null ? null : profile.goalsLabel(), "goal", "goals");
+        appendPlayerStat(stats, profile == null ? null : profile.assistsLabel(), "assist", "assists");
+        appendPlayerStat(stats, profile == null ? null : profile.yellowCardsLabel(), "yellow card", "yellow cards");
+        appendPlayerStat(stats, profile == null ? null : profile.redCardsLabel(), "red card", "red cards");
+        appendPlayerStat(stats, profile == null ? null : profile.minutesLabel(), "minute", "minutes");
+        return stats;
+    }
+
+    private static void appendPlayerStat(List<String> stats, String value, String singular, String plural) {
+        String clean = cleanProfileValue(value);
+        if (!isVisibleStatValue(clean)) {
+            return;
+        }
+        String label = "1".equals(clean) ? singular : plural;
+        stats.add(clean + " " + label);
+    }
+
+    private static String playerProfileName(AssistantPlayerProfileSnapshot profile) {
+        String name = cleanProfileValue(profile == null ? null : profile.playerName());
+        return isVisibleProfileValue(name) ? name : "this player";
+    }
+
+    private static boolean isVisibleProfileValue(String value) {
+        String clean = cleanProfileValue(value);
+        if (clean.isBlank() || clean.equals("-")) {
+            return false;
+        }
+        String normalized = normalize(clean);
+        return !Set.of(
+                "unknown",
+                "n a",
+                "na",
+                "non defini",
+                "non renseigne",
+                "non renseignee",
+                "age indisponible",
+                "chargement",
+                "loading"
+        ).contains(normalized);
+    }
+
+    private static boolean isVisibleStatValue(String value) {
+        String clean = cleanProfileValue(value);
+        if (clean.isBlank() || clean.equals("-")) {
+            return false;
+        }
+        String normalized = normalize(clean);
+        return !Set.of("n a", "na", "unknown").contains(normalized);
+    }
+
+    private static String cleanProfileValue(String value) {
+        return value == null ? "" : value.replace('\r', ' ').replace('\n', ' ').trim();
     }
 
     private static String buildSecondaryMatchDetail(String statusLabel, String competitionLabel) {

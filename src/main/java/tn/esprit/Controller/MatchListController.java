@@ -1,5 +1,6 @@
 package tn.esprit.Controller;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -15,6 +16,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -25,6 +27,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
@@ -65,7 +68,11 @@ import java.util.stream.Collectors;
 public class MatchListController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
-    private static final double CARD_LOGO_SIZE = 68;
+    private static final int MAX_CATALOG_COLUMNS = 3;
+    private static final double CATALOG_CARD_WIDTH = 380;
+    private static final double CATALOG_CARD_GAP = 20;
+    private static final double CATALOG_LOGO_SIZE = 70;
+    private static final double CATALOG_TEAM_WIDTH = 120;
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
     private static final Map<String, String> COMPETITION_CODES_BY_LABEL = COMPETITION_LABELS.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
@@ -116,7 +123,7 @@ public class MatchListController implements AssistantContextProvider {
     @FXML
     private Label syncMetaLabel;
     @FXML
-    private ListView<Matchs> matchListView;
+    private ListView<List<Matchs>> matchListView;
     @FXML
     private VBox emptyStateBox;
     @FXML
@@ -131,7 +138,9 @@ public class MatchListController implements AssistantContextProvider {
     private final ObservableList<Matchs> matchs = FXCollections.observableArrayList();
     private final FilteredList<Matchs> filteredMatchs = new FilteredList<>(matchs, match -> true);
     private final SortedList<Matchs> sortedMatchs = new SortedList<>(filteredMatchs);
+    private final ObservableList<List<Matchs>> catalogRows = FXCollections.observableArrayList();
     private final AtomicLong refreshSequence = new AtomicLong();
+    private int catalogColumnCount = MAX_CATALOG_COLUMNS;
 
     private MatchsService matchsService;
     private EquipeService equipeService;
@@ -412,93 +421,149 @@ public class MatchListController implements AssistantContextProvider {
 
     private void configureMatchList() {
         sortedMatchs.setComparator(displayComparatorFor(selectedStatusFilter()));
-        matchListView.setItems(sortedMatchs);
+        matchListView.setItems(catalogRows);
         matchListView.setPlaceholder(new Label(""));
+        if (!matchListView.getStyleClass().contains("match-catalog-list-view")) {
+            matchListView.getStyleClass().add("match-catalog-list-view");
+        }
+        matchListView.widthProperty().addListener((observable, oldValue, newValue) ->
+                updateCatalogColumnCount(newValue.doubleValue()));
         matchListView.setCellFactory(listView -> new ListCell<>() {
             @Override
-            protected void updateItem(Matchs item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(List<Matchs> rowMatches, boolean empty) {
+                super.updateItem(rowMatches, empty);
+                if (empty || rowMatches == null || rowMatches.isEmpty()) {
                     setText(null);
                     setGraphic(null);
                     return;
                 }
 
-                VBox card = buildMatchCard(item);
-                card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
-                card.setOnMouseClicked(event -> openMatchDetail(item));
+                HBox row = buildCatalogRow(rowMatches);
                 setText(null);
-                setGraphic(card);
+                setGraphic(row);
             }
         });
+        rebuildCatalogRows();
     }
 
     private VBox buildMatchCard(Matchs match) {
-        Label statusChip = new Label(resolveStatus(match));
-        statusChip.getStyleClass().add("fixture-status");
-        applyFixtureStatusStyle(statusChip, match.getStatut());
-
-        Label dateLabel = new Label(formatDate(match.getDateMatch()) + "  |  " + formatTime(match.getHeureDebut()));
-        dateLabel.getStyleClass().add("fixture-date");
-
-        Region headSpacer = new Region();
-        HBox.setHgrow(headSpacer, Priority.ALWAYS);
-
-        HBox head = new HBox(10, statusChip, headSpacer, dateLabel);
-        head.getChildren().add(0, buildFavoriteButton(match));
-        head.setAlignment(Pos.CENTER_LEFT);
-        head.getStyleClass().add("fixture-card-head");
-
         Equipe homeTeam = getEquipe(match.getEquipeDomicileId());
         Equipe awayTeam = getEquipe(match.getEquipeExterieurId());
 
-        VBox homeBox = buildTeamPreview(homeTeam, "Domicile");
-        VBox awayBox = buildTeamPreview(awayTeam, "Exterieur");
+        Button favoriteButton = buildFavoriteButton(match);
+        StackPane.setAlignment(favoriteButton, Pos.TOP_LEFT);
 
-        Label scoreLabel = new Label(buildScore(match));
-        scoreLabel.getStyleClass().add("fixture-score-value");
+        Label statusBadge = buildCatalogStatusBadge(match);
+        StackPane.setAlignment(statusBadge, Pos.TOP_RIGHT);
+
+        StackPane head = new StackPane(statusBadge, favoriteButton);
+        head.setMaxWidth(Double.MAX_VALUE);
+        head.getStyleClass().add("fixture-catalog-head");
 
         Label versusLabel = new Label("VS");
-        versusLabel.getStyleClass().add("fixture-score-caption");
+        versusLabel.setAlignment(Pos.CENTER);
+        versusLabel.setMinSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        versusLabel.setPrefSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        versusLabel.setMaxSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        versusLabel.setTextOverrun(OverrunStyle.CLIP);
+        versusLabel.getStyleClass().add("fixture-catalog-vs");
 
-        VBox scoreBox = new VBox(2, scoreLabel, versusLabel);
-        scoreBox.setAlignment(Pos.CENTER);
-        scoreBox.getStyleClass().add("fixture-score-shell");
-
-        HBox teamsRow = new HBox(16, homeBox, scoreBox, awayBox);
+        HBox teamsRow = new HBox(16,
+                buildCatalogTeam(homeTeam, "Domicile"),
+                versusLabel,
+                buildCatalogTeam(awayTeam, "Exterieur"));
         teamsRow.setAlignment(Pos.CENTER);
-        teamsRow.getStyleClass().add("fixture-teams-row");
-        HBox.setHgrow(homeBox, Priority.ALWAYS);
-        HBox.setHgrow(awayBox, Priority.ALWAYS);
+        teamsRow.getStyleClass().add("fixture-catalog-teams");
 
-        Label competitionChip = new Label(resolveCompetitionTag(match));
-        competitionChip.getStyleClass().add("fixture-meta-chip");
-
-        Label locationChip = new Label(resolveMatchLocation(match));
-        locationChip.getStyleClass().add("fixture-meta-chip");
-
-        Label typeChip = new Label(resolveMatchType(match));
-        typeChip.getStyleClass().add("fixture-meta-chip");
-
-        Label detailChip = new Label("Voir la fiche");
-        detailChip.getStyleClass().add("fixture-link-chip");
-
-        Region metaSpacer = new Region();
-        HBox.setHgrow(metaSpacer, Priority.ALWAYS);
-
-        HBox metaRow = new HBox(10, competitionChip, locationChip, typeChip, metaSpacer, detailChip);
-        metaRow.setAlignment(Pos.CENTER_LEFT);
-        metaRow.getStyleClass().add("fixture-meta-row");
-
-        VBox card = new VBox(14, head, teamsRow, metaRow);
-        card.getStyleClass().addAll("fixture-card", "fixture-card-clickable");
-        card.setMaxWidth(Double.MAX_VALUE);
+        VBox card = new VBox(18, head, teamsRow);
+        card.getStyleClass().addAll("fixture-card", "fixture-catalog-card", "fixture-card-clickable");
+        card.setMinWidth(CATALOG_CARD_WIDTH);
+        card.setPrefWidth(CATALOG_CARD_WIDTH);
+        card.setMaxWidth(CATALOG_CARD_WIDTH);
+        card.setOnMouseClicked(event -> openMatchDetail(match));
+        Tooltip.install(card, new Tooltip(buildMatchLabel(match)));
         return card;
+    }
+
+    private Label buildCatalogStatusBadge(Matchs match) {
+        String normalizedStatus = normalizeMatchStatus(match == null ? null : match.getStatut());
+        Label badge = new Label();
+        badge.getStyleClass().add("fixture-catalog-status-badge");
+
+        if (STATUS_FINI.equals(normalizedStatus)) {
+            badge.setText("Finished");
+            badge.getStyleClass().add("fixture-catalog-status-finished");
+            return badge;
+        }
+        if (STATUS_EN_DIRECT.equals(normalizedStatus)) {
+            badge.setText("Live");
+            badge.getStyleClass().add("fixture-catalog-status-live");
+            animateLiveBadge(badge);
+            return badge;
+        }
+        if (STATUS_REPORTE.equals(normalizedStatus) || STATUS_ANNULE.equals(normalizedStatus)) {
+            badge.setText(resolveStatus(match));
+            badge.getStyleClass().add("fixture-catalog-status-muted");
+            return badge;
+        }
+
+        badge.setText(formatDate(match == null ? null : match.getDateMatch()) + " | "
+                + formatTime(match == null ? null : match.getHeureDebut()));
+        badge.getStyleClass().add("fixture-catalog-date");
+        return badge;
+    }
+
+    private void animateLiveBadge(Label badge) {
+        FadeTransition pulse = new FadeTransition(Duration.millis(760), badge);
+        pulse.setFromValue(1.0);
+        pulse.setToValue(0.58);
+        pulse.setAutoReverse(true);
+        pulse.setCycleCount(Timeline.INDEFINITE);
+        pulse.play();
+    }
+
+    private HBox buildCatalogRow(List<Matchs> rowMatches) {
+        HBox row = new HBox(CATALOG_CARD_GAP);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("match-catalog-row");
+        rowMatches.forEach(match -> row.getChildren().add(buildMatchCard(match)));
+        return row;
+    }
+
+    private void updateCatalogColumnCount(double availableWidth) {
+        if (availableWidth <= 0) {
+            return;
+        }
+        int computedColumns = Math.max(1, Math.min(MAX_CATALOG_COLUMNS,
+                (int) Math.floor((availableWidth + CATALOG_CARD_GAP) / (CATALOG_CARD_WIDTH + CATALOG_CARD_GAP))));
+        if (computedColumns != catalogColumnCount) {
+            catalogColumnCount = computedColumns;
+            rebuildCatalogRows();
+        }
+    }
+
+    private void rebuildCatalogRows() {
+        if (matchListView == null) {
+            return;
+        }
+        List<List<Matchs>> rows = new ArrayList<>();
+        List<Matchs> currentRow = new ArrayList<>(catalogColumnCount);
+        for (Matchs match : sortedMatchs) {
+            currentRow.add(match);
+            if (currentRow.size() == catalogColumnCount) {
+                rows.add(List.copyOf(currentRow));
+                currentRow.clear();
+            }
+        }
+        if (!currentRow.isEmpty()) {
+            rows.add(List.copyOf(currentRow));
+        }
+        catalogRows.setAll(rows);
     }
 
     private Button buildFavoriteButton(Matchs match) {
         boolean favorite = match != null && match.getId() != null && favoriteMatchIds.contains(match.getId());
-        Button favoriteButton = new Button(favorite ? "★" : "☆");
+        Button favoriteButton = new Button(favorite ? "\u2605" : "\u2606");
         favoriteButton.getStyleClass().add("fixture-favorite-button");
         if (favorite) {
             favoriteButton.getStyleClass().add("fixture-favorite-button-active");
@@ -543,6 +608,7 @@ public class MatchListController implements AssistantContextProvider {
             }
 
             favoriteMatchIds = Set.copyOf(updatedFavorites);
+            rebuildCatalogRows();
             matchListView.refresh();
         } catch (SQLException e) {
             showErrorStatus("Impossible de mettre a jour les matchs favoris.");
@@ -555,13 +621,13 @@ public class MatchListController implements AssistantContextProvider {
         }
     }
 
-    private VBox buildTeamPreview(Equipe equipe, String fallbackRole) {
-        String teamName = equipe == null ? "Equipe " + fallbackRole.toLowerCase() : emptyIfNull(equipe.getNom());
-
+    private StackPane buildCatalogLogo(Equipe equipe, String fallbackText) {
+        String teamName = equipe == null ? fallbackText : emptyIfNull(equipe.getNom());
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(CARD_LOGO_SIZE);
-        imageView.setFitHeight(CARD_LOGO_SIZE);
+        imageView.setFitWidth(CATALOG_LOGO_SIZE);
+        imageView.setFitHeight(CATALOG_LOGO_SIZE);
         imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
 
         Image image = equipe == null ? null : EquipeUiSupport.loadEquipeImage(equipe.getImage());
         boolean hasImage = image != null;
@@ -570,27 +636,33 @@ public class MatchListController implements AssistantContextProvider {
         imageView.setVisible(hasImage);
 
         Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(teamName, "SI"));
-        fallbackLabel.getStyleClass().add("fixture-team-fallback");
+        fallbackLabel.getStyleClass().add("fixture-catalog-fallback");
         fallbackLabel.setManaged(!hasImage);
         fallbackLabel.setVisible(!hasImage);
 
         StackPane logoPane = new StackPane(imageView, fallbackLabel);
-        logoPane.setMinSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
-        logoPane.setPrefSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
-        logoPane.setMaxSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
-        logoPane.getStyleClass().add("fixture-team-logo-shell");
+        logoPane.setMinSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        logoPane.setPrefSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        logoPane.setMaxSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
+        logoPane.getStyleClass().add("fixture-catalog-logo-shell");
+        return logoPane;
+    }
+
+    private VBox buildCatalogTeam(Equipe equipe, String fallbackRole) {
+        String teamName = equipe == null ? "Equipe " + fallbackRole.toLowerCase() : emptyIfNull(equipe.getNom());
 
         Label nameLabel = new Label(teamName);
-        nameLabel.setWrapText(true);
-        nameLabel.getStyleClass().add("fixture-team-name");
+        nameLabel.setAlignment(Pos.CENTER);
+        nameLabel.setMaxWidth(CATALOG_TEAM_WIDTH);
+        nameLabel.setPrefWidth(CATALOG_TEAM_WIDTH);
+        nameLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
+        nameLabel.setTooltip(new Tooltip(teamName));
+        nameLabel.getStyleClass().add("fixture-catalog-team-name");
 
-        Label roleLabel = new Label(fallbackRole);
-        roleLabel.getStyleClass().add("fixture-team-role");
-
-        VBox box = new VBox(10, logoPane, nameLabel, roleLabel);
-        box.setAlignment(Pos.CENTER);
-        box.getStyleClass().add("fixture-team-box");
-        return box;
+        VBox teamBox = new VBox(8, buildCatalogLogo(equipe, fallbackRole), nameLabel);
+        teamBox.setAlignment(Pos.CENTER);
+        teamBox.getStyleClass().add("fixture-catalog-team");
+        return teamBox;
     }
 
     private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage, boolean backgroundRefresh) {
@@ -742,6 +814,7 @@ public class MatchListController implements AssistantContextProvider {
         );
         sortedMatchs.setComparator(displayComparatorFor(statusFilter));
 
+        rebuildCatalogRows();
         updateCounters();
         updateEmptyState();
     }

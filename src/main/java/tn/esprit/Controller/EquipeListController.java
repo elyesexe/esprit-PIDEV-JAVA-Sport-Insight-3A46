@@ -4,51 +4,42 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.entities.Equipe;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
-import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
-import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
-import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class EquipeListController {
-    private static final double CARD_LOGO_SIZE = 82;
+    private static final double CARD_LOGO_SIZE = 96;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-list-db-worker"));
 
@@ -95,7 +86,7 @@ public class EquipeListController {
     @FXML
     private Button addButton;
     @FXML
-    private ListView<Equipe> equipeListView;
+    private FlowPane equipeCatalogPane;
     @FXML
     private VBox emptyStateBox;
 
@@ -105,7 +96,6 @@ public class EquipeListController {
 
     private EquipeService equipeService;
     private FootballDataSyncService footballDataSyncService;
-    private MatchFollowTargetService matchFollowTargetService;
     private String competitionFilterCode;
     private String lastAutoSyncedCompetitionCode;
     private boolean sortDescending;
@@ -113,29 +103,19 @@ public class EquipeListController {
     private boolean loadingData;
     private boolean syncingData;
     private SidebarModuleGroup sidebarModuleGroup;
-    private Set<Integer> followedTeamIds = Set.of();
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
         configureToolbar();
-        configureListView();
+        configureCatalogPane();
         updateCompetitionTexts();
         updateSortOrderButtonText();
         updateToolbarState();
 
         try {
             equipeService = new EquipeService();
-            if (AuthSession.isAuthenticated()) {
-                try {
-                    matchFollowTargetService = new MatchFollowTargetService();
-                    refreshFollowedTeams();
-                } catch (SQLException ignored) {
-                    matchFollowTargetService = null;
-                    followedTeamIds = Set.of();
-                }
-            }
             serviceReady = true;
             refreshTableAsync("Chargement des equipes...");
         } catch (SQLException e) {
@@ -253,9 +233,13 @@ public class EquipeListController {
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
     }
 
-    private void configureListView() {
-        equipeListView.setItems(displayedEquipes);
-        equipeListView.setCellFactory(listView -> createEquipeCell());
+    private void configureCatalogPane() {
+        if (equipeCatalogPane == null) {
+            return;
+        }
+        equipeCatalogPane.setHgap(18);
+        equipeCatalogPane.setVgap(18);
+        equipeCatalogPane.setAlignment(Pos.CENTER);
     }
 
     private void refreshTableAsync(String loadingMessage) {
@@ -392,6 +376,7 @@ public class EquipeListController {
 
         filtered.sort(buildComparator());
         displayedEquipes.setAll(filtered);
+        renderEquipeCatalog(filtered);
 
         boolean isEmpty = filtered.isEmpty();
         emptyStateBox.setManaged(isEmpty);
@@ -432,58 +417,35 @@ public class EquipeListController {
         return sortDescending ? comparator.reversed() : comparator;
     }
 
-    private ListCell<Equipe> createEquipeCell() {
-        return new ListCell<>() {
-            @Override
-            protected void updateItem(Equipe equipe, boolean empty) {
-                super.updateItem(equipe, empty);
-                if (empty || equipe == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
+    private void renderEquipeCatalog(List<Equipe> equipes) {
+        if (equipeCatalogPane == null) {
+            return;
+        }
+        equipeCatalogPane.getChildren().clear();
+        if (equipes == null || equipes.isEmpty()) {
+            return;
+        }
 
-                StackPane logoPane = createLogoPane(equipe);
+        for (Equipe equipe : equipes) {
+            equipeCatalogPane.getChildren().add(createEquipeCatalogCard(equipe));
+        }
+    }
 
-                Label nameLabel = new Label(emptyIfNull(equipe.getNom()));
-                nameLabel.getStyleClass().add("card-title");
-                nameLabel.setWrapText(true);
+    private StackPane createEquipeCatalogCard(Equipe equipe) {
+        StackPane logoPane = createLogoPane(equipe);
 
-                String coach = emptyToNull(equipe.getCoach());
-                Label coachLabel = new Label(coach == null ? "Coach non renseigne" : "Coach : " + coach);
-                coachLabel.getStyleClass().add(coach == null ? "card-subtitle-muted" : "card-subtitle");
-                coachLabel.setWrapText(true);
+        Label nameLabel = new Label(emptyIfNull(equipe.getNom()));
+        nameLabel.getStyleClass().add("team-catalog-title");
+        nameLabel.setWrapText(true);
+        nameLabel.setAlignment(Pos.CENTER);
 
-                Label competitionLabel = new Label(resolveCompetitionLabel(equipe.getCompetitionCode()));
-                competitionLabel.getStyleClass().add("team-card-competition-badge");
+        VBox cardContent = new VBox(16, logoPane, nameLabel);
+        cardContent.setAlignment(Pos.CENTER);
 
-                String logoState = emptyToNull(equipe.getImage()) == null ? "Sans logo" : "Logo disponible";
-                Label metaLabel = new Label(logoState);
-                metaLabel.getStyleClass().add("card-meta");
-
-                Label ctaLabel = new Label("Ouvrir la fiche");
-                ctaLabel.getStyleClass().add("card-link");
-
-                VBox textBox = new VBox(6, competitionLabel, nameLabel, coachLabel, metaLabel, ctaLabel);
-                textBox.setAlignment(Pos.CENTER_LEFT);
-                HBox.setHgrow(textBox, Priority.ALWAYS);
-
-                HBox cardContent = new HBox(16, logoPane, textBox);
-                cardContent.setAlignment(Pos.CENTER_LEFT);
-
-                Button favouriteButton = createFavouriteButton(equipe);
-
-                StackPane cardButton = new StackPane(cardContent, favouriteButton);
-                cardButton.getStyleClass().addAll("team-list-card", "team-list-card-clickable");
-                StackPane.setAlignment(favouriteButton, Pos.TOP_LEFT);
-                StackPane.setMargin(favouriteButton, new Insets(12, 0, 0, 12));
-                cardButton.setOnMouseClicked(event -> openEquipeDetail(equipe));
-
-                setText(null);
-                setGraphic(cardButton);
-                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            }
-        };
+        StackPane card = new StackPane(cardContent);
+        card.getStyleClass().addAll("team-catalog-card", "team-list-card-clickable");
+        card.setOnMouseClicked(event -> openEquipeDetail(equipe));
+        return card;
     }
 
     private StackPane createLogoPane(Equipe equipe) {
@@ -511,75 +473,9 @@ public class EquipeListController {
         return logoPane;
     }
 
-    private Button createFavouriteButton(Equipe equipe) {
-        Button favouriteButton = new Button();
-        favouriteButton.getStyleClass().add("favorite-star-button");
-        favouriteButton.setFocusTraversable(false);
-        updateFavouriteButton(favouriteButton, equipe != null && equipe.getId() != null && followedTeamIds.contains(equipe.getId()));
-        favouriteButton.setOnAction(event -> {
-            event.consume();
-            toggleFavouriteTeam(equipe, favouriteButton);
-        });
-        return favouriteButton;
-    }
-
-    private void toggleFavouriteTeam(Equipe equipe, Button favouriteButton) {
-        Integer userId = currentUserId();
-        if (equipe == null || equipe.getId() == null) {
-            showStatus("status-warning", "Cette equipe ne peut pas etre suivie.");
-            return;
-        }
-        if (userId == null) {
-            showStatus("status-warning", "Connectez-vous pour suivre une equipe.");
-            return;
-        }
-        if (matchFollowTargetService == null) {
-            showStatus("status-warning", "Les favorites sont temporairement indisponibles.");
-            return;
-        }
-
-        try {
-            boolean followed = followedTeamIds.contains(equipe.getId());
-            Set<Integer> nextFollowedTeamIds = new LinkedHashSet<>(followedTeamIds);
-            if (followed) {
-                if (matchFollowTargetService.removeTeamFavorite(userId, equipe.getId())) {
-                    nextFollowedTeamIds.remove(equipe.getId());
-                    showStatus("status-muted", emptyIfNull(equipe.getNom()) + " retiree des favorites.");
-                }
-            } else if (matchFollowTargetService.addTeamFavorite(userId, equipe.getId())) {
-                nextFollowedTeamIds.add(equipe.getId());
-                showStatus("status-success", emptyIfNull(equipe.getNom()) + " ajoutee aux favorites.");
-                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
-            }
-
-            followedTeamIds = Set.copyOf(nextFollowedTeamIds);
-            updateFavouriteButton(favouriteButton, followedTeamIds.contains(equipe.getId()));
-            equipeListView.refresh();
-        } catch (SQLException e) {
-            showStatus("status-error", "Impossible de mettre a jour les favorites.");
-        }
-    }
-
-    private void updateFavouriteButton(Button favouriteButton, boolean followed) {
-        favouriteButton.setText(followed ? "★" : "☆");
-        favouriteButton.getStyleClass().remove("favorite-star-button-active");
-        if (followed) {
-            favouriteButton.getStyleClass().add("favorite-star-button-active");
-        }
-    }
-
-    private void refreshFollowedTeams() throws SQLException {
-        Integer userId = currentUserId();
-        if (matchFollowTargetService == null || userId == null) {
-            followedTeamIds = Set.of();
-            return;
-        }
-        followedTeamIds = Set.copyOf(matchFollowTargetService.getFollowedTeamIds(userId));
-    }
-
     private void openEquipeDetail(Equipe equipe) {
         SceneNavigator.switchScene(
-                equipeListView,
+                equipeCatalogPane,
                 "/tn/esprit/views/equipe-detail-view.fxml",
                 "/tn/esprit/styles/equipe-theme.css",
                 emptyIfNull(equipe.getNom()) + " | Equipe",
@@ -665,14 +561,6 @@ public class EquipeListController {
 
     private String emptyIfNull(String value) {
         return value == null ? "" : value;
-    }
-
-    private String emptyToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
-    }
-
-    private Integer currentUserId() {
-        return AuthSession.getCurrentUser() == null ? null : AuthSession.getCurrentUser().getId();
     }
 
     private static ThreadFactory daemonFactory(String threadName) {

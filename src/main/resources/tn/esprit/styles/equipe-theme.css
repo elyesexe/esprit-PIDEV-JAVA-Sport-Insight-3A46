@@ -555,7 +555,12 @@
 
 .page-shell-wrap {
     -fx-alignment: top-center;
-    -fx-padding: 0 14 0 14;
+    -fx-padding: 0 32 0 32;
+}
+
+.team-list-page-shell,
+.team-detail-page-shell {
+    -fx-max-width: 1180;
 }
 
 .page-root .button,
@@ -1047,6 +1052,41 @@
 .team-list-view .scroll-bar:vertical .thumb {
     -fx-background-color: rgba(16, 185, 129, 0.38);
     -fx-background-radius: 999;
+}
+
+.team-catalog-pane {
+    -fx-padding: 18 28 24 28;
+    -fx-alignment: center;
+}
+
+.team-catalog-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.96) 0%, rgba(240, 253, 244, 0.98) 100%);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(16, 185, 129, 0.16);
+    -fx-border-radius: 26;
+    -fx-padding: 18 18 18 18;
+    -fx-min-width: 238;
+    -fx-pref-width: 238;
+    -fx-max-width: 238;
+    -fx-min-height: 236;
+    -fx-pref-height: 236;
+    -fx-max-height: 236;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 26, 0.2, 0, 14);
+}
+
+.team-catalog-card:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 1) 0%, rgba(255, 255, 255, 1) 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.34);
+    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.18), 30, 0.22, 0, 16);
+}
+
+.team-catalog-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 23px;
+    -fx-font-weight: 700;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-text-fill: #0f172a;
 }
 
 .card-logo-shell {
@@ -1703,6 +1743,20 @@
     -fx-border-color: rgba(52, 211, 153, 0.6);
 }
 
+.theme-dark .team-catalog-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(6, 78, 59, 0.92) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.34);
+}
+
+.theme-dark .team-catalog-card:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.94) 0%, rgba(15, 23, 42, 0.94) 100%);
+    -fx-border-color: rgba(110, 231, 183, 0.52);
+}
+
+.theme-dark .team-catalog-title {
+    -fx-text-fill: #e2e8f0;
+}
+
 .theme-dark .card-logo-shell,
 .theme-dark .detail-logo-shell,
 .theme-dark .stat-chip,
@@ -1853,6 +1907,13 @@
     -fx-spacing: 16;
 }
 
+.team-squad-toggle-button {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 12px;
+}
+
 .detail-header-shell {
     -fx-padding: 6 0 0 0;
 }
@@ -1877,31 +1938,37 @@
 
 .squad-card {
     -fx-background-color: rgba(248, 250, 252, 0.96);
-    -fx-background-radius: 20;
+    -fx-background-radius: 16;
     -fx-border-color: rgba(148, 163, 184, 0.2);
-    -fx-border-radius: 20;
-    -fx-padding: 12 14 12 14;
+    -fx-border-radius: 16;
+    -fx-padding: 7 9 7 9;
+    -fx-min-width: 172;
+    -fx-pref-width: 172;
+    -fx-max-width: 172;
+    -fx-min-height: 52;
 }
 
 .squad-number {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #10b981 100%);
     -fx-background-radius: 999;
-    -fx-padding: 8 12 8 12;
-    -fx-min-width: 44;
+    -fx-padding: 5 8 5 8;
+    -fx-min-width: 32;
+    -fx-pref-width: 32;
+    -fx-max-width: 32;
     -fx-alignment: center;
-    -fx-font-size: 14px;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-text-fill: #f8fafc;
 }
 
 .squad-name {
-    -fx-font-size: 15px;
+    -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-text-fill: #0f172a;
 }
 
 .squad-meta {
-    -fx-font-size: 12px;
+    -fx-font-size: 10.5px;
     -fx-text-fill: #64748b;
 }
 
@@ -1941,6 +2008,101 @@
     -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-text-fill: #047857;
+}
+
+.team-next-match-card,
+.team-result-card {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 20;
+    -fx-padding: 12 14 12 14;
+}
+
+.team-next-match-card {
+    -fx-border-color: rgba(59, 130, 246, 0.22);
+}
+
+.team-result-card-win {
+    -fx-background-color: rgba(236, 253, 245, 0.98);
+    -fx-border-color: rgba(16, 185, 129, 0.34);
+}
+
+.team-result-card-draw {
+    -fx-background-color: rgba(255, 251, 235, 0.98);
+    -fx-border-color: rgba(245, 158, 11, 0.34);
+}
+
+.team-result-card-loss {
+    -fx-background-color: rgba(254, 242, 242, 0.98);
+    -fx-border-color: rgba(239, 68, 68, 0.34);
+}
+
+.team-match-date-pill,
+.team-match-time-pill,
+.team-result-badge {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 7 10 7 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-alignment: center;
+}
+
+.team-match-date-pill {
+    -fx-background-color: rgba(59, 130, 246, 0.12);
+    -fx-border-color: rgba(59, 130, 246, 0.22);
+    -fx-text-fill: #1d4ed8;
+    -fx-min-width: 86;
+}
+
+.team-match-time-pill {
+    -fx-background-color: rgba(15, 23, 42, 0.06);
+    -fx-border-color: rgba(15, 23, 42, 0.1);
+    -fx-text-fill: #334155;
+    -fx-min-width: 56;
+}
+
+.team-match-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.team-match-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.team-result-badge {
+    -fx-min-width: 54;
+}
+
+.team-result-badge-win {
+    -fx-background-color: rgba(16, 185, 129, 0.16);
+    -fx-border-color: rgba(16, 185, 129, 0.28);
+    -fx-text-fill: #047857;
+}
+
+.team-result-badge-draw {
+    -fx-background-color: rgba(245, 158, 11, 0.16);
+    -fx-border-color: rgba(245, 158, 11, 0.28);
+    -fx-text-fill: #b45309;
+}
+
+.team-result-badge-loss {
+    -fx-background-color: rgba(239, 68, 68, 0.16);
+    -fx-border-color: rgba(239, 68, 68, 0.28);
+    -fx-text-fill: #b91c1c;
+}
+
+.team-result-score {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+    -fx-min-width: 64;
+    -fx-alignment: center-right;
 }
 
 .theme-dark .toolbar-summary-card {
@@ -2080,4 +2242,68 @@
     -fx-background-color: rgba(6, 95, 70, 0.5);
     -fx-border-color: rgba(52, 211, 153, 0.42);
     -fx-text-fill: #86efac;
+}
+
+.theme-dark .team-next-match-card,
+.theme-dark .team-result-card {
+    -fx-background-color: rgba(11, 18, 32, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .team-next-match-card {
+    -fx-border-color: rgba(96, 165, 250, 0.34);
+}
+
+.theme-dark .team-result-card-win {
+    -fx-background-color: rgba(6, 95, 70, 0.44);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+}
+
+.theme-dark .team-result-card-draw {
+    -fx-background-color: rgba(120, 53, 15, 0.44);
+    -fx-border-color: rgba(245, 158, 11, 0.46);
+}
+
+.theme-dark .team-result-card-loss {
+    -fx-background-color: rgba(127, 29, 29, 0.44);
+    -fx-border-color: rgba(248, 113, 113, 0.46);
+}
+
+.theme-dark .team-match-title,
+.theme-dark .team-result-score {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .team-match-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .team-match-date-pill {
+    -fx-background-color: rgba(37, 99, 235, 0.24);
+    -fx-border-color: rgba(96, 165, 250, 0.42);
+    -fx-text-fill: #bfdbfe;
+}
+
+.theme-dark .team-match-time-pill {
+    -fx-background-color: rgba(30, 41, 59, 0.82);
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .team-result-badge-win {
+    -fx-background-color: rgba(6, 95, 70, 0.64);
+    -fx-border-color: rgba(52, 211, 153, 0.48);
+    -fx-text-fill: #bbf7d0;
+}
+
+.theme-dark .team-result-badge-draw {
+    -fx-background-color: rgba(120, 53, 15, 0.64);
+    -fx-border-color: rgba(245, 158, 11, 0.48);
+    -fx-text-fill: #fde68a;
+}
+
+.theme-dark .team-result-badge-loss {
+    -fx-background-color: rgba(127, 29, 29, 0.64);
+    -fx-border-color: rgba(248, 113, 113, 0.48);
+    -fx-text-fill: #fecaca;
 }

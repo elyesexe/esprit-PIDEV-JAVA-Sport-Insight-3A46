@@ -13,17 +13,25 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class YouTubeService {
     static final String SEARCH_URL = "https://www.googleapis.com/youtube/v3/search";
     static final String VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos";
     public static final String API_ERROR_MESSAGE = "YouTube API error. Check API key or quota.";
+    private static final Duration HIGHLIGHTS_CACHE_TTL = Duration.ofMinutes(15);
+    private static final ConcurrentHashMap<String, CachedHighlights> HIGHLIGHTS_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, CompletableFuture<List<YouTubeVideo>>> IN_FLIGHT_HIGHLIGHTS = new ConcurrentHashMap<>();
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -45,10 +53,65 @@ public class YouTubeService {
 
     public List<YouTubeVideo> searchInAppHighlights(Matchs match, Equipe homeTeam, Equipe awayTeam)
             throws IOException, InterruptedException {
+        return searchInAppHighlights(match, homeTeam, awayTeam, false);
+    }
+
+    public List<YouTubeVideo> searchInAppHighlights(Matchs match, Equipe homeTeam, Equipe awayTeam, boolean forceRefresh)
+            throws IOException, InterruptedException {
         if (!isFinishedStatus(match == null ? null : match.getStatut())) {
             return List.of();
         }
 
+        String cacheKey = buildHighlightsCacheKey(match, homeTeam, awayTeam);
+        Instant now = Instant.now();
+        if (!forceRefresh) {
+            Optional<List<YouTubeVideo>> cached = readCachedHighlights(cacheKey, now);
+            if (cached.isPresent()) {
+                return cached.get();
+            }
+
+            CompletableFuture<List<YouTubeVideo>> existingRequest = IN_FLIGHT_HIGHLIGHTS.get(cacheKey);
+            if (existingRequest != null) {
+                return awaitHighlights(existingRequest);
+            }
+        }
+
+        CompletableFuture<List<YouTubeVideo>> request = new CompletableFuture<>();
+        if (!forceRefresh) {
+            CompletableFuture<List<YouTubeVideo>> existingRequest = IN_FLIGHT_HIGHLIGHTS.putIfAbsent(cacheKey, request);
+            if (existingRequest != null) {
+                return awaitHighlights(existingRequest);
+            }
+        }
+
+        try {
+            List<YouTubeVideo> videos = loadInAppHighlights(homeTeam, awayTeam);
+            HIGHLIGHTS_CACHE.put(cacheKey, new CachedHighlights(videos, Instant.now()));
+            request.complete(videos);
+            return videos;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            request.completeExceptionally(e);
+            throw e;
+        } catch (IOException | RuntimeException e) {
+            request.completeExceptionally(e);
+            throw e;
+        } finally {
+            if (!forceRefresh) {
+                IN_FLIGHT_HIGHLIGHTS.remove(cacheKey, request);
+            }
+        }
+    }
+
+    public Optional<List<YouTubeVideo>> readCachedInAppHighlights(Matchs match, Equipe homeTeam, Equipe awayTeam) {
+        if (!isFinishedStatus(match == null ? null : match.getStatut())) {
+            return Optional.empty();
+        }
+        return readCachedHighlights(buildHighlightsCacheKey(match, homeTeam, awayTeam), Instant.now());
+    }
+
+    private List<YouTubeVideo> loadInAppHighlights(Equipe homeTeam, Equipe awayTeam)
+            throws IOException, InterruptedException {
         List<YouTubeVideo> videos = searchVideos(buildHighlightsQuery(homeTeam, awayTeam));
         Set<String> playableIds = getPlayableVideoIds(videos.stream()
                 .map(YouTubeVideo::videoId)
@@ -58,6 +121,41 @@ public class YouTubeService {
         return videos.stream()
                 .filter(video -> playableIds.contains(video.videoId()))
                 .toList();
+    }
+
+    private Optional<List<YouTubeVideo>> readCachedHighlights(String cacheKey, Instant now) {
+        CachedHighlights cached = HIGHLIGHTS_CACHE.get(cacheKey);
+        if (cached == null) {
+            return Optional.empty();
+        }
+        if (cached.isExpired(now)) {
+            HIGHLIGHTS_CACHE.remove(cacheKey, cached);
+            return Optional.empty();
+        }
+        return Optional.of(cached.videos());
+    }
+
+    private List<YouTubeVideo> awaitHighlights(CompletableFuture<List<YouTubeVideo>> request)
+            throws IOException, InterruptedException {
+        try {
+            return request.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw e;
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException ioException) {
+                throw ioException;
+            }
+            if (cause instanceof InterruptedException interruptedException) {
+                Thread.currentThread().interrupt();
+                throw interruptedException;
+            }
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new IOException(API_ERROR_MESSAGE, cause);
+        }
     }
 
     public List<YouTubeVideo> searchVideos(String query) throws IOException, InterruptedException {
@@ -174,6 +272,22 @@ public class YouTubeService {
         return home + " vs " + away + " highlights";
     }
 
+    private static String buildHighlightsCacheKey(Matchs match, Equipe homeTeam, Equipe awayTeam) {
+        if (match != null && match.getId() != null) {
+            return "db:" + match.getId();
+        }
+
+        String providerId = sanitize(match == null ? null : match.getIdMatch());
+        if (providerId != null) {
+            return "provider:" + keyPart(providerId);
+        }
+
+        String date = match == null || match.getDateMatch() == null ? "unknown-date" : match.getDateMatch().toString();
+        String home = homeTeam == null ? null : homeTeam.getNom();
+        String away = awayTeam == null ? null : awayTeam.getNom();
+        return "fallback:" + keyPart(date) + "|" + keyPart(home) + "|" + keyPart(away);
+    }
+
     public static boolean isFinishedStatus(String status) {
         String normalized = sanitize(status);
         if (normalized == null) {
@@ -208,5 +322,26 @@ public class YouTubeService {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static String keyPart(String value) {
+        String sanitized = sanitize(value);
+        return sanitized == null ? "unknown" : sanitized.toLowerCase(Locale.ROOT);
+    }
+
+    static void clearHighlightsCacheForTests() {
+        HIGHLIGHTS_CACHE.clear();
+        IN_FLIGHT_HIGHLIGHTS.clear();
+    }
+
+    private record CachedHighlights(List<YouTubeVideo> videos, Instant cachedAt) {
+        private CachedHighlights {
+            videos = videos == null ? List.of() : List.copyOf(videos);
+            cachedAt = cachedAt == null ? Instant.EPOCH : cachedAt;
+        }
+
+        private boolean isExpired(Instant now) {
+            return cachedAt.plus(HIGHLIGHTS_CACHE_TTL).isBefore(now);
+        }
     }
 }

@@ -4,13 +4,13 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -102,7 +102,7 @@
                     BorderPane.alignment="CENTER">
             <content>
                 <StackPane styleClass="page-shell-wrap">
-                <VBox spacing="18" styleClass="page-shell">
+                <VBox spacing="18" alignment="TOP_CENTER" maxWidth="1180" styleClass="page-shell team-list-page-shell">
                     <padding>
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
@@ -195,7 +195,12 @@
                         </HBox>
 
                         <StackPane VBox.vgrow="ALWAYS">
-                            <ListView fx:id="equipeListView" styleClass="team-list-view"/>
+                            <FlowPane fx:id="equipeCatalogPane"
+                                      alignment="CENTER"
+                                      hgap="18"
+                                      vgap="18"
+                                      prefWrapLength="1040"
+                                      styleClass="team-catalog-pane"/>
 
                             <VBox fx:id="emptyStateBox"
                                   alignment="CENTER"

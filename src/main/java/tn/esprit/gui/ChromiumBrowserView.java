@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 public class ChromiumBrowserView extends StackPane {
@@ -55,6 +56,8 @@ public class ChromiumBrowserView extends StackPane {
     private static boolean appHandlerRegistered;
     private static boolean nativeLibrariesLoaded;
     private static LocalPlayerServer localPlayerServer;
+    private static final Map<String, JFrame> ACTIVE_PLAYER_WINDOWS = new ConcurrentHashMap<>();
+    private static final Map<String, CompletableFuture<Boolean>> OPENING_PLAYER_WINDOWS = new ConcurrentHashMap<>();
 
     private final SwingNode swingNode = new SwingNode();
     private CefClient client;
@@ -91,12 +94,51 @@ public class ChromiumBrowserView extends StackPane {
     }
 
     public static CompletableFuture<Boolean> openPlayerWindow(String url, String title, boolean maximized) {
-        return cefApp()
+        String windowKey = clean(url);
+        if (windowKey == null) {
+            lastError = new IllegalArgumentException("Missing player URL.");
+            return CompletableFuture.completedFuture(false);
+        }
+        if (focusOpenPlayerWindow(windowKey, maximized)) {
+            return CompletableFuture.completedFuture(true);
+        }
+
+        CompletableFuture<Boolean> openFuture = new CompletableFuture<>();
+        CompletableFuture<Boolean> existingOpen = OPENING_PLAYER_WINDOWS.putIfAbsent(windowKey, openFuture);
+        if (existingOpen != null && !existingOpen.isDone()) {
+            return existingOpen.thenApply(loaded -> {
+                if (loaded) {
+                    focusOpenPlayerWindow(windowKey, maximized);
+                }
+                return loaded;
+            });
+        }
+        if (existingOpen != null) {
+            OPENING_PLAYER_WINDOWS.remove(windowKey, existingOpen);
+            existingOpen = OPENING_PLAYER_WINDOWS.putIfAbsent(windowKey, openFuture);
+            if (existingOpen != null) {
+                return existingOpen.thenApply(loaded -> {
+                    if (loaded) {
+                        focusOpenPlayerWindow(windowKey, maximized);
+                    }
+                    return loaded;
+                });
+            }
+        }
+
+        cefApp()
                 .thenCompose(ChromiumBrowserView::ensureCefReady)
                 .thenCompose(app -> {
                     CompletableFuture<Boolean> future = new CompletableFuture<>();
                     SwingUtilities.invokeLater(() -> {
                         try {
+                            JFrame existingFrame = ACTIVE_PLAYER_WINDOWS.get(windowKey);
+                            if (existingFrame != null && existingFrame.isDisplayable()) {
+                                focusPlayerWindow(existingFrame, maximized);
+                                future.complete(true);
+                                return;
+                            }
+
                             CefClient windowClient = app.createClient();
                             JLabel statusLabel = new JLabel("Loading highlight...", SwingConstants.CENTER);
                             statusLabel.setOpaque(true);
@@ -120,7 +162,7 @@ public class ChromiumBrowserView extends StackPane {
                                     });
                                 }
                             });
-                            CefBrowser windowBrowser = windowClient.createBrowser(url, false, false);
+                            CefBrowser windowBrowser = windowClient.createBrowser(windowKey, false, false);
                             Component browserComponent = windowBrowser.getUIComponent();
                             browserComponent.setPreferredSize(new Dimension(1280, 720));
                             browserComponent.setVisible(true);
@@ -140,19 +182,21 @@ public class ChromiumBrowserView extends StackPane {
                             }
                             frame.setLocationRelativeTo(null);
                             frame.setVisible(true);
+                            ACTIVE_PLAYER_WINDOWS.put(windowKey, frame);
                             panel.revalidate();
                             panel.repaint();
                             windowBrowser.createImmediately();
                             SwingUtilities.invokeLater(() -> {
-                                windowBrowser.loadURL(url);
+                                windowBrowser.loadURL(windowKey);
                                 browserComponent.requestFocusInWindow();
                             });
-                            Timer retryTimer = new Timer(1200, event -> windowBrowser.loadURL(url));
+                            Timer retryTimer = new Timer(1200, event -> windowBrowser.loadURL(windowKey));
                             retryTimer.setRepeats(false);
                             retryTimer.start();
                             frame.addWindowListener(new java.awt.event.WindowAdapter() {
                                 @Override
                                 public void windowClosed(java.awt.event.WindowEvent event) {
+                                    ACTIVE_PLAYER_WINDOWS.remove(windowKey, frame);
                                     retryTimer.stop();
                                     windowBrowser.close(true);
                                     windowClient.dispose();
@@ -167,11 +211,44 @@ public class ChromiumBrowserView extends StackPane {
                     });
                     return future;
                 })
-                .exceptionally(throwable -> {
-                    lastError = unwrap(throwable);
-                    lastError.printStackTrace(System.err);
-                    return false;
+                .whenComplete((loaded, throwable) -> {
+                    OPENING_PLAYER_WINDOWS.remove(windowKey, openFuture);
+                    if (throwable != null) {
+                        lastError = unwrap(throwable);
+                        lastError.printStackTrace(System.err);
+                        openFuture.complete(false);
+                    } else {
+                        openFuture.complete(Boolean.TRUE.equals(loaded));
+                    }
                 });
+        return openFuture;
+    }
+
+    private static boolean focusOpenPlayerWindow(String windowKey, boolean maximized) {
+        JFrame frame = ACTIVE_PLAYER_WINDOWS.get(windowKey);
+        if (frame == null) {
+            return false;
+        }
+        if (!frame.isDisplayable()) {
+            ACTIVE_PLAYER_WINDOWS.remove(windowKey, frame);
+            return false;
+        }
+        SwingUtilities.invokeLater(() -> focusPlayerWindow(frame, maximized));
+        return true;
+    }
+
+    private static void focusPlayerWindow(JFrame frame, boolean maximized) {
+        if (frame == null) {
+            return;
+        }
+        if (maximized) {
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        }
+        if (!frame.isVisible()) {
+            frame.setVisible(true);
+        }
+        frame.toFront();
+        frame.requestFocus();
     }
 
     public static CompletableFuture<Boolean> openYouTubePlayerWindow(String videoId, String title) {

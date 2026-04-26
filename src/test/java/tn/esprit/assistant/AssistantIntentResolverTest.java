@@ -69,4 +69,109 @@ class AssistantIntentResolverTest {
         assertEquals(AssistantIntentType.SAFE_ACTION, intent.type());
         assertEquals("open_stats", intent.subject());
     }
+
+    @Test
+    void resolvesPlayerDetailAgeQuestionAgainstCurrentPlayer() {
+        AssistantIntentResolver resolver = new AssistantIntentResolver();
+        AssistantIntent intent = resolver.resolve(
+                "how old is this player",
+                playerContext(),
+                new AssistantConversationMemory().snapshot()
+        );
+
+        assertEquals(AssistantIntentType.PLAYER_AGE, intent.type());
+        assertEquals(AssistantIntentTarget.CURRENT_PLAYER, intent.target());
+    }
+
+    @Test
+    void resolvesPlayerDetailSeasonStatsQuestionAgainstCurrentPlayer() {
+        AssistantIntentResolver resolver = new AssistantIntentResolver();
+        AssistantIntent intent = resolver.resolve(
+                "what are his season stats",
+                playerContext(),
+                new AssistantConversationMemory().snapshot()
+        );
+
+        assertEquals(AssistantIntentType.PLAYER_SEASON_STATS, intent.type());
+        assertEquals(AssistantIntentTarget.CURRENT_PLAYER, intent.target());
+    }
+
+    @Test
+    void resolvesPlayerDetailIdentityQuestionsAgainstCurrentPlayer() {
+        AssistantIntentResolver resolver = new AssistantIntentResolver();
+
+        assertEquals(
+                AssistantIntentType.PLAYER_NATIONALITY,
+                resolver.resolve("what is his nationality", playerContext(), new AssistantConversationMemory().snapshot()).type()
+        );
+        assertEquals(
+                AssistantIntentType.PLAYER_CLUB,
+                resolver.resolve("which club does he play for", playerContext(), new AssistantConversationMemory().snapshot()).type()
+        );
+        assertEquals(
+                AssistantIntentType.PLAYER_POSITION,
+                resolver.resolve("what position does he play", playerContext(), new AssistantConversationMemory().snapshot()).type()
+        );
+    }
+
+    @Test
+    void resolvesPlayerDetailRecentFormQuestionAgainstCurrentPlayer() {
+        AssistantIntentResolver resolver = new AssistantIntentResolver();
+        AssistantIntent intent = resolver.resolve(
+                "what is his recent form",
+                playerContext(),
+                new AssistantConversationMemory().snapshot()
+        );
+
+        assertEquals(AssistantIntentType.PLAYER_RECENT_FORM, intent.type());
+        assertEquals(AssistantIntentTarget.CURRENT_PLAYER, intent.target());
+    }
+
+    @Test
+    void playerAgeIntentDoesNotTriggerFromPageText() {
+        AssistantIntentResolver resolver = new AssistantIntentResolver();
+        AssistantIntent intent = resolver.resolve(
+                "explain this page",
+                playerContext(),
+                new AssistantConversationMemory().snapshot()
+        );
+
+        assertEquals(AssistantIntentType.CURRENT_SCREEN, intent.type());
+    }
+
+    private AssistantService.Context playerContext() {
+        return new AssistantService.Context(
+                "/tn/esprit/views/joueur-detail-view.fxml",
+                "Fiche joueur",
+                true,
+                false,
+                "Tester",
+                new PlayerProfileControllerStub()
+        );
+    }
+
+    private static final class PlayerProfileControllerStub implements AssistantPlayerProfileProvider {
+        @Override
+        public AssistantPlayerProfileSnapshot assistantPlayerProfileSnapshot() {
+            return new AssistantPlayerProfileSnapshot(
+                    "Kylian Mbappe",
+                    "Real Madrid | Forward | France",
+                    "Real Madrid",
+                    "#10",
+                    "20/12/1998",
+                    "27 ans",
+                    "Forward",
+                    "France",
+                    "API-Football",
+                    "Real Madrid | La Liga | saison 2025/2026",
+                    "31",
+                    "25",
+                    "4",
+                    "3",
+                    "0",
+                    "2460",
+                    null
+            );
+        }
+    }
 }

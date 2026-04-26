@@ -10,12 +10,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
+import tn.esprit.entities.Matchs;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
@@ -23,11 +26,15 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.ApiFootballScorerEntry;
 import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +45,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class EquipeDetailController implements AssistantContextProvider {
+    private static final int COLLAPSED_SQUAD_LIMIT = 6;
+    private static final int TOP_SCORERS_DISPLAY_LIMIT = 5;
+    private static final DateTimeFormatter MATCH_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter MATCH_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final ExecutorService API_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-detail-api-worker"));
     @FXML
@@ -87,24 +98,38 @@ public class EquipeDetailController implements AssistantContextProvider {
     @FXML
     private Label detailSourceValueLabel;
     @FXML
-    private VBox squadContainer;
+    private FlowPane squadContainer;
     @FXML
     private Label squadEmptyLabel;
+    @FXML
+    private Button squadToggleButton;
     @FXML
     private Label topScorersStatusLabel;
     @FXML
     private VBox topScorersContainer;
     @FXML
     private Label topScorersEmptyLabel;
+    @FXML
+    private VBox nextMatchesContainer;
+    @FXML
+    private Label nextMatchesEmptyLabel;
+    @FXML
+    private VBox recentResultsContainer;
+    @FXML
+    private Label recentResultsEmptyLabel;
 
     private EquipeService equipeService;
     private JoueurService joueurService;
+    private MatchsService matchsService;
     private ApiFootballInsightsService apiFootballInsightsService;
     private Equipe equipe;
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong scorersRequestSequence = new AtomicLong();
     private List<Joueur> currentSquad = List.of();
     private List<ApiFootballScorerEntry> currentTopScorers = List.of();
+    private List<Matchs> currentNextMatches = List.of();
+    private List<Matchs> currentRecentResults = List.of();
+    private boolean squadExpanded;
 
     @FXML
     public void initialize() {
@@ -114,6 +139,7 @@ public class EquipeDetailController implements AssistantContextProvider {
         try {
             equipeService = new EquipeService();
             joueurService = new JoueurService();
+            matchsService = new MatchsService();
             apiFootballInsightsService = new ApiFootballInsightsService();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de preparer la fiche equipe.\n" + e.getMessage());
@@ -213,6 +239,15 @@ public class EquipeDetailController implements AssistantContextProvider {
         }
     }
 
+    @FXML
+    private void handleToggleSquadExpanded() {
+        if (currentSquad.size() <= COLLAPSED_SQUAD_LIMIT) {
+            return;
+        }
+        squadExpanded = !squadExpanded;
+        renderSquad(currentSquad);
+    }
+
     private void renderEquipe() {
         if (equipe == null || equipeService == null || joueurService == null) {
             return;
@@ -249,7 +284,9 @@ public class EquipeDetailController implements AssistantContextProvider {
 
             updateLogo();
             currentSquad = squad == null ? List.of() : List.copyOf(squad);
+            squadExpanded = false;
             renderSquad(squad);
+            renderTeamMatches();
             loadTopScorersAsync();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations de l'equipe.\n" + e.getMessage());
@@ -259,16 +296,34 @@ public class EquipeDetailController implements AssistantContextProvider {
     private void renderSquad(List<Joueur> squad) {
         currentSquad = squad == null ? List.of() : List.copyOf(squad);
         squadContainer.getChildren().clear();
-        boolean hasPlayers = squad != null && !squad.isEmpty();
+        boolean hasPlayers = !currentSquad.isEmpty();
         squadEmptyLabel.setManaged(!hasPlayers);
         squadEmptyLabel.setVisible(!hasPlayers);
+        updateSquadToggleButton();
         if (!hasPlayers) {
             return;
         }
 
-        for (Joueur joueur : squad) {
+        List<Joueur> visiblePlayers = squadExpanded
+                ? currentSquad
+                : currentSquad.stream().limit(COLLAPSED_SQUAD_LIMIT).toList();
+        for (Joueur joueur : visiblePlayers) {
             squadContainer.getChildren().add(createPlayerCard(joueur));
         }
+    }
+
+    private void updateSquadToggleButton() {
+        if (squadToggleButton == null) {
+            return;
+        }
+        boolean canToggle = currentSquad.size() > COLLAPSED_SQUAD_LIMIT;
+        squadToggleButton.setManaged(canToggle);
+        squadToggleButton.setVisible(canToggle);
+        if (!canToggle) {
+            return;
+        }
+        int hiddenPlayers = currentSquad.size() - COLLAPSED_SQUAD_LIMIT;
+        squadToggleButton.setText(squadExpanded ? "Reduire" : "Afficher " + hiddenPlayers + " autres");
     }
 
     private HBox createPlayerCard(Joueur joueur) {
@@ -336,9 +391,12 @@ public class EquipeDetailController implements AssistantContextProvider {
     }
 
     private void renderTopScorers(List<ApiFootballScorerEntry> scorers) {
-        currentTopScorers = scorers == null ? List.of() : List.copyOf(scorers);
+        List<ApiFootballScorerEntry> visibleScorers = scorers == null
+                ? List.of()
+                : scorers.stream().limit(TOP_SCORERS_DISPLAY_LIMIT).toList();
+        currentTopScorers = List.copyOf(visibleScorers);
         topScorersContainer.getChildren().clear();
-        boolean hasScorers = scorers != null && !scorers.isEmpty();
+        boolean hasScorers = !visibleScorers.isEmpty();
         topScorersEmptyLabel.setManaged(!hasScorers);
         topScorersEmptyLabel.setVisible(!hasScorers);
         if (!hasScorers) {
@@ -346,7 +404,7 @@ public class EquipeDetailController implements AssistantContextProvider {
             return;
         }
 
-        for (ApiFootballScorerEntry scorer : scorers) {
+        for (ApiFootballScorerEntry scorer : visibleScorers) {
             Label rankLabel = new Label(scorer.rank() + ".");
             rankLabel.getStyleClass().add("team-top-scorer-rank");
 
@@ -369,6 +427,166 @@ public class EquipeDetailController implements AssistantContextProvider {
             row.getStyleClass().add("team-top-scorer-row");
             topScorersContainer.getChildren().add(row);
         }
+    }
+
+    private void renderTeamMatches() throws SQLException {
+        if (equipe == null || equipe.getId() == null || matchsService == null) {
+            renderNextMatches(List.of());
+            renderRecentResults(List.of());
+            return;
+        }
+
+        renderNextMatches(matchsService.findNextMatchesForTeam(equipe.getId(), 5));
+        renderRecentResults(matchsService.findLastResultsForTeam(equipe.getId(), 5));
+    }
+
+    private void renderNextMatches(List<Matchs> matches) {
+        currentNextMatches = matches == null ? List.of() : List.copyOf(matches);
+        nextMatchesContainer.getChildren().clear();
+        boolean hasMatches = matches != null && !matches.isEmpty();
+        nextMatchesEmptyLabel.setManaged(!hasMatches);
+        nextMatchesEmptyLabel.setVisible(!hasMatches);
+        if (!hasMatches) {
+            nextMatchesEmptyLabel.setText("Aucun prochain match programme pour cette equipe.");
+            return;
+        }
+
+        for (Matchs match : matches) {
+            nextMatchesContainer.getChildren().add(createNextMatchCard(match));
+        }
+    }
+
+    private void renderRecentResults(List<Matchs> matches) {
+        currentRecentResults = matches == null ? List.of() : List.copyOf(matches);
+        recentResultsContainer.getChildren().clear();
+        boolean hasMatches = matches != null && !matches.isEmpty();
+        recentResultsEmptyLabel.setManaged(!hasMatches);
+        recentResultsEmptyLabel.setVisible(!hasMatches);
+        if (!hasMatches) {
+            recentResultsEmptyLabel.setText("Aucun resultat recent disponible pour cette equipe.");
+            return;
+        }
+
+        for (Matchs match : matches) {
+            recentResultsContainer.getChildren().add(createResultMatchCard(match));
+        }
+    }
+
+    private HBox createNextMatchCard(Matchs match) {
+        Label dateLabel = new Label(formatMatchDate(match.getDateMatch()));
+        dateLabel.getStyleClass().add("team-match-date-pill");
+
+        Label titleLabel = new Label(buildMatchTeamsLabel(match));
+        titleLabel.getStyleClass().add("team-match-title");
+        titleLabel.setWrapText(true);
+
+        Label metaLabel = new Label(buildMatchMeta(match));
+        metaLabel.getStyleClass().add("team-match-meta");
+        metaLabel.setWrapText(true);
+
+        VBox textBox = new VBox(4, titleLabel, metaLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        Label timeLabel = new Label(formatMatchTime(match.getHeureDebut()));
+        timeLabel.getStyleClass().add("team-match-time-pill");
+
+        HBox card = new HBox(14, dateLabel, textBox, timeLabel);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.getStyleClass().add("team-next-match-card");
+        return card;
+    }
+
+    private HBox createResultMatchCard(Matchs match) {
+        TeamResultOutcome outcome = resolveResultOutcome(match);
+
+        Label resultLabel = new Label(outcome.label());
+        resultLabel.getStyleClass().addAll("team-result-badge", outcome.badgeStyleClass());
+
+        Label titleLabel = new Label(buildMatchTeamsLabel(match));
+        titleLabel.getStyleClass().add("team-match-title");
+        titleLabel.setWrapText(true);
+
+        Label metaLabel = new Label(buildMatchMeta(match));
+        metaLabel.getStyleClass().add("team-match-meta");
+        metaLabel.setWrapText(true);
+
+        VBox textBox = new VBox(4, titleLabel, metaLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        Label scoreLabel = new Label(formatScore(match));
+        scoreLabel.getStyleClass().add("team-result-score");
+
+        HBox card = new HBox(14, resultLabel, textBox, scoreLabel);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.getStyleClass().addAll("team-result-card", outcome.cardStyleClass());
+        return card;
+    }
+
+    private TeamResultOutcome resolveResultOutcome(Matchs match) {
+        if (match == null
+                || equipe == null
+                || match.getScoreEquipeDomicile() == null
+                || match.getScoreEquipeExterieur() == null) {
+            return TeamResultOutcome.DRAW;
+        }
+
+        int homeScore = match.getScoreEquipeDomicile();
+        int awayScore = match.getScoreEquipeExterieur();
+        if (homeScore == awayScore) {
+            return TeamResultOutcome.DRAW;
+        }
+
+        boolean openedTeamHome = equipe.getId() != null && equipe.getId().equals(match.getEquipeDomicileId());
+        boolean openedTeamWon = openedTeamHome ? homeScore > awayScore : awayScore > homeScore;
+        return openedTeamWon ? TeamResultOutcome.WIN : TeamResultOutcome.LOSS;
+    }
+
+    private String buildMatchTeamsLabel(Matchs match) {
+        return resolveTeamName(match.getEquipeDomicileId(), "Equipe domicile")
+                + " vs "
+                + resolveTeamName(match.getEquipeExterieurId(), "Equipe exterieur");
+    }
+
+    private String buildMatchMeta(Matchs match) {
+        return formatMatchDate(match.getDateMatch())
+                + " | "
+                + formatMatchTime(match.getHeureDebut())
+                + " | "
+                + emptyToFallback(match.getLieu(), "Lieu non renseigne");
+    }
+
+    private String resolveTeamName(Integer teamId, String fallback) {
+        if (teamId == null) {
+            return fallback;
+        }
+        if (equipe != null && equipe.getId() != null && equipe.getId().equals(teamId)) {
+            return emptyToFallback(equipe.getNom(), fallback);
+        }
+        if (equipeService == null) {
+            return fallback;
+        }
+        try {
+            Equipe team = equipeService.getById(teamId);
+            return team == null ? fallback : emptyToFallback(team.getNom(), fallback);
+        } catch (SQLException e) {
+            return fallback;
+        }
+    }
+
+    private String formatScore(Matchs match) {
+        String homeScore = match.getScoreEquipeDomicile() == null ? "-" : String.valueOf(match.getScoreEquipeDomicile());
+        String awayScore = match.getScoreEquipeExterieur() == null ? "-" : String.valueOf(match.getScoreEquipeExterieur());
+        return homeScore + " : " + awayScore;
+    }
+
+    private String formatMatchDate(LocalDate date) {
+        return date == null ? "-" : MATCH_DATE_FORMATTER.format(date);
+    }
+
+    private String formatMatchTime(LocalTime time) {
+        return time == null ? "-" : MATCH_TIME_FORMATTER.format(time);
     }
 
     private String buildScorerMeta(ApiFootballScorerEntry scorer) {
@@ -407,6 +625,22 @@ public class EquipeDetailController implements AssistantContextProvider {
                             + " - " + (entry.goals() == null ? "-" : entry.goals()) + " goals")
                     .toList();
             summary.append("Top scorers: ").append(String.join(" | ", scorers)).append(".\n");
+        }
+
+        if (!currentNextMatches.isEmpty()) {
+            List<String> nextMatches = currentNextMatches.stream()
+                    .limit(5)
+                    .map(match -> buildMatchTeamsLabel(match) + " on " + formatMatchDate(match.getDateMatch()))
+                    .toList();
+            summary.append("Next matches: ").append(String.join(" | ", nextMatches)).append(".\n");
+        }
+
+        if (!currentRecentResults.isEmpty()) {
+            List<String> results = currentRecentResults.stream()
+                    .limit(5)
+                    .map(match -> resolveResultOutcome(match).label() + " " + formatScore(match) + " vs " + buildMatchTeamsLabel(match))
+                    .toList();
+            summary.append("Recent results: ").append(String.join(" | ", results)).append(".\n");
         }
 
         summary.append("Top scorer status: ").append(emptyToFallback(topScorersStatusLabel == null ? null : topScorersStatusLabel.getText(), "Unknown"));
@@ -502,6 +736,34 @@ public class EquipeDetailController implements AssistantContextProvider {
 
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private enum TeamResultOutcome {
+        WIN("WIN", "team-result-card-win", "team-result-badge-win"),
+        DRAW("DRAW", "team-result-card-draw", "team-result-badge-draw"),
+        LOSS("LOSS", "team-result-card-loss", "team-result-badge-loss");
+
+        private final String label;
+        private final String cardStyleClass;
+        private final String badgeStyleClass;
+
+        TeamResultOutcome(String label, String cardStyleClass, String badgeStyleClass) {
+            this.label = label;
+            this.cardStyleClass = cardStyleClass;
+            this.badgeStyleClass = badgeStyleClass;
+        }
+
+        private String label() {
+            return label;
+        }
+
+        private String cardStyleClass() {
+            return cardStyleClass;
+        }
+
+        private String badgeStyleClass() {
+            return badgeStyleClass;
+        }
     }
 
     private static ThreadFactory daemonFactory(String threadName) {
