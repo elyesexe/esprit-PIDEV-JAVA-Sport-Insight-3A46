@@ -16,6 +16,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.assistant.AssistantContextProvider;
+import tn.esprit.assistant.AssistantTeamDetailProvider;
+import tn.esprit.assistant.AssistantTeamDetailSnapshot;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
@@ -44,7 +46,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class EquipeDetailController implements AssistantContextProvider {
+public class EquipeDetailController implements AssistantContextProvider, AssistantTeamDetailProvider {
     private static final int COLLAPSED_SQUAD_LIMIT = 6;
     private static final int TOP_SCORERS_DISPLAY_LIMIT = 5;
     private static final DateTimeFormatter MATCH_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -597,54 +599,75 @@ public class EquipeDetailController implements AssistantContextProvider {
 
     @Override
     public String assistantContextSummary() {
+        AssistantTeamDetailSnapshot snapshot = assistantTeamDetailSnapshot();
         StringBuilder summary = new StringBuilder()
                 .append("Current team detail screen.\n")
-                .append("Team: ").append(emptyToFallback(detailTitleLabel == null ? null : detailTitleLabel.getText(), "Team")).append(".\n")
-                .append("Subtitle: ").append(emptyToFallback(detailSubtitleLabel == null ? null : detailSubtitleLabel.getText(), "No subtitle")).append(".\n")
-                .append("Coach: ").append(emptyToFallback(detailCoachValueLabel == null ? null : detailCoachValueLabel.getText(), "Unknown")).append(". ")
-                .append("Competition: ").append(emptyToFallback(detailCompetitionValueLabel == null ? null : detailCompetitionValueLabel.getText(), "Unknown")).append(". ")
-                .append("Player count: ").append(emptyToFallback(detailPlayerCountValueLabel == null ? null : detailPlayerCountValueLabel.getText(), "0")).append(".\n")
+                .append("Team: ").append(emptyToFallback(snapshot.teamName(), "Team")).append(".\n")
+                .append("Subtitle: ").append(emptyToFallback(snapshot.subtitle(), "No subtitle")).append(".\n")
+                .append("Coach: ").append(emptyToFallback(snapshot.coachLabel(), "Unknown")).append(". ")
+                .append("Competition: ").append(emptyToFallback(snapshot.competitionLabel(), "Unknown")).append(". ")
+                .append("Player count: ").append(emptyToFallback(snapshot.playerCountLabel(), "0")).append(".\n")
                 .append("Contact: ")
-                .append(emptyToFallback(detailAddressValueLabel == null ? null : detailAddressValueLabel.getText(), "No address"))
-                .append(" | ").append(emptyToFallback(detailPhoneValueLabel == null ? null : detailPhoneValueLabel.getText(), "No phone"))
-                .append(" | ").append(emptyToFallback(detailEmailValueLabel == null ? null : detailEmailValueLabel.getText(), "No email")).append(".\n");
+                .append(emptyToFallback(snapshot.addressLabel(), "No address"))
+                .append(" | ").append(emptyToFallback(snapshot.phoneLabel(), "No phone"))
+                .append(" | ").append(emptyToFallback(snapshot.emailLabel(), "No email")).append(".\n");
 
-        if (!currentSquad.isEmpty()) {
-            List<String> squad = currentSquad.stream()
-                    .limit(8)
-                    .map(joueur -> buildPlayerName(joueur) + " (" + emptyToFallback(joueur.getPosition(), "Position unknown") + ")")
-                    .toList();
-            summary.append("Squad sample: ").append(String.join(" | ", squad)).append(".\n");
+        if (!snapshot.squadSample().isEmpty()) {
+            summary.append("Squad sample: ").append(String.join(" | ", snapshot.squadSample())).append(".\n");
         }
 
-        if (!currentTopScorers.isEmpty()) {
-            List<String> scorers = currentTopScorers.stream()
-                    .limit(3)
-                    .map(entry -> entry.rank() + ". "
-                            + emptyToFallback(entry.playerName(), "Player")
-                            + " - " + (entry.goals() == null ? "-" : entry.goals()) + " goals")
-                    .toList();
-            summary.append("Top scorers: ").append(String.join(" | ", scorers)).append(".\n");
+        if (!snapshot.topScorers().isEmpty()) {
+            summary.append("Top scorers: ").append(String.join(" | ", snapshot.topScorers())).append(".\n");
         }
 
-        if (!currentNextMatches.isEmpty()) {
-            List<String> nextMatches = currentNextMatches.stream()
-                    .limit(5)
-                    .map(match -> buildMatchTeamsLabel(match) + " on " + formatMatchDate(match.getDateMatch()))
-                    .toList();
-            summary.append("Next matches: ").append(String.join(" | ", nextMatches)).append(".\n");
+        if (!snapshot.nextMatches().isEmpty()) {
+            summary.append("Next matches: ").append(String.join(" | ", snapshot.nextMatches())).append(".\n");
         }
 
-        if (!currentRecentResults.isEmpty()) {
-            List<String> results = currentRecentResults.stream()
-                    .limit(5)
-                    .map(match -> resolveResultOutcome(match).label() + " " + formatScore(match) + " vs " + buildMatchTeamsLabel(match))
-                    .toList();
-            summary.append("Recent results: ").append(String.join(" | ", results)).append(".\n");
+        if (!snapshot.recentResults().isEmpty()) {
+            summary.append("Recent results: ").append(String.join(" | ", snapshot.recentResults())).append(".\n");
         }
 
-        summary.append("Top scorer status: ").append(emptyToFallback(topScorersStatusLabel == null ? null : topScorersStatusLabel.getText(), "Unknown"));
+        summary.append("Top scorer status: ").append(emptyToFallback(snapshot.topScorerStatusLabel(), "Unknown"));
         return summary.toString();
+    }
+
+    @Override
+    public AssistantTeamDetailSnapshot assistantTeamDetailSnapshot() {
+        return new AssistantTeamDetailSnapshot(
+                textOf(detailTitleLabel),
+                textOf(detailSubtitleLabel),
+                textOf(detailCoachValueLabel),
+                textOf(detailCompetitionValueLabel),
+                textOf(detailPlayerCountValueLabel),
+                textOf(detailAddressValueLabel),
+                textOf(detailPhoneValueLabel),
+                textOf(detailEmailValueLabel),
+                textOf(detailSourceValueLabel),
+                currentSquad.stream()
+                        .limit(8)
+                        .map(joueur -> buildPlayerName(joueur) + " (" + emptyToFallback(joueur.getPosition(), "Position unknown") + ")")
+                        .toList(),
+                currentTopScorers.stream()
+                        .limit(3)
+                        .map(entry -> entry.rank() + ". "
+                                + emptyToFallback(entry.playerName(), "Player")
+                                + " - " + (entry.goals() == null ? "-" : entry.goals()) + " goals")
+                        .toList(),
+                currentNextMatches.stream()
+                        .limit(5)
+                        .map(match -> buildMatchTeamsLabel(match)
+                                + " on " + formatMatchDate(match.getDateMatch())
+                                + " at " + formatMatchTime(match.getHeureDebut()))
+                        .toList(),
+                currentRecentResults.stream()
+                        .limit(5)
+                        .map(match -> resolveResultOutcome(match).label()
+                                + " " + formatScore(match)
+                                + " - " + buildMatchTeamsLabel(match))
+                        .toList(),
+                textOf(topScorersStatusLabel)
+        );
     }
 
     private void showTopScorersStatus(String styleClass, String message) {
@@ -732,6 +755,10 @@ public class EquipeDetailController implements AssistantContextProvider {
         String nom = joueur.getNom() == null ? "" : joueur.getNom().trim();
         String fullName = (prenom + " " + nom).trim();
         return fullName.isBlank() ? "Joueur" : fullName;
+    }
+
+    private String textOf(Label label) {
+        return label == null ? null : label.getText();
     }
 
     private String emptyToFallback(String value, String fallback) {

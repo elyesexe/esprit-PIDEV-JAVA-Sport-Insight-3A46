@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.Controller.PlayerPerformanceController"
+            styleClass="root">
+
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="20">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+
+            <HBox fx:id="sidebarBrandBox" styleClass="navbar-brand" alignment="CENTER_LEFT" spacing="10"
+                  onMouseClicked="#handleOpenHome" style="-fx-cursor: hand;">
+                <Label text="⚽" style="-fx-font-size: 24px;"/>
+                <Label text="Sport Insight" styleClass="brand-text"/>
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <ToggleButton fx:id="themeToggleButton" text="🌙" styleClass="theme-toggle"/>
+            <Button fx:id="userMenuButton" text="👤" styleClass="user-menu-button"/>
+        </HBox>
+    </top>
+
+    <!-- Main Content -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent;">
+            <VBox spacing="25" style="-fx-padding: 30px;">
+
+                <!-- Header -->
+                <VBox spacing="10">
+                    <Label text="📊 Mon Évolution" style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
+                    <Label fx:id="playerNameLabel" text="Joueur" style="-fx-font-size: 18px; -fx-text-fill: #666;"/>
+                </VBox>
+
+                <!-- Quick Stats Cards -->
+                <HBox spacing="20">
+                    <VBox styleClass="stat-card" spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="📝 Évaluations" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                        <Label fx:id="totalEvaluationsLabel" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card" spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="✅ Taux de présence" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                        <Label fx:id="attendanceRateLabel" text="0%" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #4caf50;"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card" spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="⭐ Moyenne générale" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                        <Label fx:id="avgOverallLabel" text="0.00 / 20" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2196f3;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Performance Chart -->
+                <VBox styleClass="chart-container" spacing="15">
+                    <Label text="📈 Évolution des performances" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    
+                    <!-- Date Filter -->
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Label text="Période:"/>
+                        <DatePicker fx:id="startDatePicker" promptText="Date début"/>
+                        <Label text="à"/>
+                        <DatePicker fx:id="endDatePicker" promptText="Date fin"/>
+                        <Button fx:id="filterButton" text="Filtrer" styleClass="primary-button"/>
+                        <Button fx:id="resetButton" text="Réinitialiser" styleClass="secondary-button"/>
+                    </HBox>
+
+                    <LineChart fx:id="performanceChart" legendVisible="true" createSymbols="true" 
+                               prefHeight="400" animated="true">
+                        <xAxis>
+                            <NumberAxis fx:id="xAxis" side="BOTTOM" label="Évaluation #"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="yAxis" side="LEFT" label="Score"/>
+                        </yAxis>
+                    </LineChart>
+                </VBox>
+
+                <!-- Statistics Grid -->
+                <GridPane hgap="20" vgap="20">
+                    <!-- Average Scores -->
+                    <VBox styleClass="stat-card" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="💪 Moyenne Physique" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <Label fx:id="avgPhysiqueLabel" text="0.00 / 20" style="-fx-font-size: 24px; -fx-text-fill: #ff5722;"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="⚽ Moyenne Technique" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <Label fx:id="avgTechniqueLabel" text="0.00 / 20" style="-fx-font-size: 24px; -fx-text-fill: #2196f3;"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <Label text="🎯 Moyenne Tactique" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <Label fx:id="avgTactiqueLabel" text="0.00 / 20" style="-fx-font-size: 24px; -fx-text-fill: #9c27b0;"/>
+                    </VBox>
+
+                    <!-- Improvement Percentages -->
+                    <VBox styleClass="stat-card" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="📊 Progression Physique" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                        <Label fx:id="improvementPhysiqueLabel" text="N/A" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label text="📊 Progression Technique" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                        <Label fx:id="improvementTechniqueLabel" text="N/A" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <Label text="📊 Progression Tactique" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                        <Label fx:id="improvementTactiqueLabel" text="N/A" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    </VBox>
+                </GridPane>
+
+                <!-- Weak Areas & Recommendations -->
+                <VBox styleClass="recommendation-card" spacing="15">
+                    <Label text="🎯 Points à améliorer" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <VBox fx:id="weakAreasBox" spacing="10">
+                        <Label text="Analyse en cours..." style="-fx-text-fill: #666;"/>
+                    </VBox>
+                    <Button fx:id="getRecommendationsButton" text="🤖 Obtenir des recommandations IA" 
+                            styleClass="ai-button" maxWidth="Infinity"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

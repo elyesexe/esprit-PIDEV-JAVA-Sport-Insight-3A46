@@ -485,7 +485,17 @@ public final class AssistantService {
     }
 
     private Optional<Reply> tryHandleCurrentPageActions(String normalized, Context context) {
+        if (context == null) {
+            return Optional.empty();
+        }
+
         Object controller = context.controller();
+        if (controller instanceof AssistantTeamDetailProvider teamDetailProvider) {
+            Optional<Reply> teamDetailReply = tryBuildTeamDetailAnswer(normalized, teamDetailProvider.assistantTeamDetailSnapshot());
+            if (teamDetailReply.isPresent()) {
+                return teamDetailReply;
+            }
+        }
         if (controller instanceof MatchDetailController matchDetailController) {
             return tryHandleMatchDetailPageActions(normalized, matchDetailController);
         }
@@ -827,6 +837,162 @@ public final class AssistantService {
         return reply.toString();
     }
 
+    static Optional<Reply> tryBuildTeamDetailAnswer(String normalized, AssistantTeamDetailSnapshot snapshot) {
+        if (normalized == null || normalized.isBlank() || snapshot == null) {
+            return Optional.empty();
+        }
+
+        if (looksLikeTeamCoachQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamCoachReply(snapshot), null, true));
+        }
+        if (looksLikeTeamCompetitionQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamCompetitionReply(snapshot), null, true));
+        }
+        if (looksLikeTeamPlayerCountQuestion(normalized) || looksLikeTeamSquadQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamSquadReply(snapshot), null, true));
+        }
+        if (looksLikeTeamTopScorersQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamTopScorersReply(snapshot), null, true));
+        }
+        if (looksLikeTeamNextMatchesQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamNextMatchesReply(snapshot), null, true));
+        }
+        if (looksLikeTeamRecentResultsQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamRecentResultsReply(snapshot), null, true));
+        }
+        if (looksLikeTeamContactQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamContactReply(snapshot), null, true));
+        }
+        if (looksLikeTeamSourceQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamSourceReply(snapshot), null, true));
+        }
+        if (looksLikeTeamSummaryQuestion(normalized)) {
+            return Optional.of(new Reply(buildTeamVisibleInfoReply(snapshot), null, true));
+        }
+
+        return Optional.empty();
+    }
+
+    static String buildTeamCoachReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        String coach = cleanTeamValue(snapshot == null ? null : snapshot.coachLabel());
+        if (isVisibleTeamValue(coach)) {
+            return "The coach of " + name + " is " + coach + ".";
+        }
+        return "The visible team detail screen does not show a coach for " + name + ".";
+    }
+
+    static String buildTeamCompetitionReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        String competition = cleanTeamValue(snapshot == null ? null : snapshot.competitionLabel());
+        if (isVisibleTeamValue(competition)) {
+            return name + " is in " + competition + ".";
+        }
+        return "The visible team detail screen does not show a competition for " + name + ".";
+    }
+
+    static String buildTeamSquadReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        String playerCount = cleanTeamValue(snapshot == null ? null : snapshot.playerCountLabel());
+        List<String> squadSample = snapshot == null ? List.of() : snapshot.squadSample();
+        boolean hasPlayerCount = isVisibleTeamValue(playerCount);
+        if (squadSample.isEmpty()) {
+            if (hasPlayerCount) {
+                return "The visible team detail screen shows " + playerCount + " players for " + name + ".";
+            }
+            return "I don't see a visible squad list for " + name + " on this team detail screen.";
+        }
+
+        StringBuilder reply = new StringBuilder("The visible squad for ")
+                .append(name);
+        if (hasPlayerCount) {
+            reply.append(" shows ").append(playerCount).append(" players");
+        } else {
+            reply.append(" includes");
+        }
+        reply.append(". Sample: ").append(String.join(", ", squadSample)).append(".");
+        return reply.toString();
+    }
+
+    static String buildTeamTopScorersReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        List<String> scorers = snapshot == null ? List.of() : snapshot.topScorers();
+        if (!scorers.isEmpty()) {
+            return "Top scorers for " + name + ": " + String.join(" | ", scorers) + ".";
+        }
+
+        String status = cleanTeamValue(snapshot == null ? null : snapshot.topScorerStatusLabel());
+        if (isVisibleTeamValue(status)) {
+            return "I don't see top scorers for " + name + " yet. Status: " + status + ".";
+        }
+        return "I don't see top scorers for " + name + " on this team detail screen yet.";
+    }
+
+    static String buildTeamNextMatchesReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        List<String> nextMatches = snapshot == null ? List.of() : snapshot.nextMatches();
+        if (!nextMatches.isEmpty()) {
+            return "Next matches for " + name + ": " + String.join(" | ", nextMatches) + ".";
+        }
+        return "I don't see upcoming matches for " + name + " on this team detail screen.";
+    }
+
+    static String buildTeamRecentResultsReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        List<String> recentResults = snapshot == null ? List.of() : snapshot.recentResults();
+        if (!recentResults.isEmpty()) {
+            return "Recent results for " + name + ": " + String.join(" | ", recentResults) + ".";
+        }
+        return "I don't see recent results for " + name + " on this team detail screen.";
+    }
+
+    static String buildTeamContactReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        List<String> contactParts = buildVisibleTeamContactParts(snapshot);
+        if (contactParts.isEmpty()) {
+            return "The visible team detail screen does not show contact details for " + name + ".";
+        }
+        return "Contact for " + name + ": " + String.join(", ", contactParts) + ".";
+    }
+
+    static String buildTeamSourceReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        String source = cleanTeamValue(snapshot == null ? null : snapshot.sourceLabel());
+        if (isVisibleTeamValue(source)) {
+            return "The visible source for " + name + " is " + source + ".";
+        }
+        return "The visible team detail screen does not show a data source for " + name + ".";
+    }
+
+    static String buildTeamVisibleInfoReply(AssistantTeamDetailSnapshot snapshot) {
+        String name = teamDetailName(snapshot);
+        List<String> facts = new ArrayList<>();
+        appendTeamFact(facts, "competition", snapshot == null ? null : snapshot.competitionLabel());
+        appendTeamFact(facts, "coach", snapshot == null ? null : snapshot.coachLabel());
+        String playerCount = cleanTeamValue(snapshot == null ? null : snapshot.playerCountLabel());
+        if (isVisibleTeamValue(playerCount)) {
+            facts.add(playerCount + " players");
+        }
+        appendTeamFact(facts, "source", snapshot == null ? null : snapshot.sourceLabel());
+
+        StringBuilder reply = new StringBuilder(name);
+        if (facts.isEmpty()) {
+            reply.append(" is the current team detail screen.");
+        } else {
+            reply.append(": ").append(String.join(", ", facts)).append(".");
+        }
+
+        List<String> contactParts = buildVisibleTeamContactParts(snapshot);
+        if (!contactParts.isEmpty()) {
+            reply.append(" Contact: ").append(String.join(", ", contactParts)).append(".");
+        }
+        List<String> squadSample = snapshot == null ? List.of() : snapshot.squadSample();
+        if (!squadSample.isEmpty()) {
+            reply.append(" Visible squad sample: ").append(String.join(", ", squadSample)).append(".");
+        }
+        return reply.toString();
+    }
+
     private static void appendPlayerFact(List<String> facts, String label, String value) {
         String clean = cleanProfileValue(value);
         if (isVisibleProfileValue(clean)) {
@@ -888,6 +1054,137 @@ public final class AssistantService {
     }
 
     private static String cleanProfileValue(String value) {
+        return value == null ? "" : value.replace('\r', ' ').replace('\n', ' ').trim();
+    }
+
+    private static boolean looksLikeTeamCoachQuestion(String normalized) {
+        return containsAny(normalized, "coach", "manager", "trainer", "entraineur");
+    }
+
+    private static boolean looksLikeTeamCompetitionQuestion(String normalized) {
+        if (!containsAny(normalized, "competition", "league", "championship", "division")) {
+            return false;
+        }
+        return !containsAny(normalized, "standings", "table", "classement", "ranking", "fixture", "fixtures", "matches", "matchs");
+    }
+
+    private static boolean looksLikeTeamPlayerCountQuestion(String normalized) {
+        return containsAny(normalized, "how many players", "player count", "number of players", "squad size", "roster size");
+    }
+
+    private static boolean looksLikeTeamSquadQuestion(String normalized) {
+        return containsAny(
+                normalized,
+                "squad",
+                "roster",
+                "player list",
+                "list players",
+                "team players",
+                "players in this team",
+                "who plays",
+                "who is in the squad",
+                "who are the players"
+        );
+    }
+
+    private static boolean looksLikeTeamTopScorersQuestion(String normalized) {
+        return containsAny(normalized, "top scorer", "top scorers", "best scorer", "best scorers", "goal scorers", "buteur", "buteurs")
+                || (containsAny(normalized, "goals", "scored") && containsAny(normalized, "top", "most", "leader", "leaders"));
+    }
+
+    private static boolean looksLikeTeamNextMatchesQuestion(String normalized) {
+        return containsAny(normalized, "next match", "next matches", "next fixture", "next fixtures", "upcoming match", "upcoming matches", "upcoming fixture", "upcoming fixtures", "schedule", "calendar");
+    }
+
+    private static boolean looksLikeTeamRecentResultsQuestion(String normalized) {
+        return containsAny(normalized, "recent result", "recent results", "last result", "last results", "recent matches", "last matches", "last match", "team form", "recent form");
+    }
+
+    private static boolean looksLikeTeamContactQuestion(String normalized) {
+        return containsAny(normalized, "contact", "address", "phone", "telephone", "email", "mail");
+    }
+
+    private static boolean looksLikeTeamSourceQuestion(String normalized) {
+        return containsAny(normalized, "source", "data source", "external source");
+    }
+
+    private static boolean looksLikeTeamSummaryQuestion(String normalized) {
+        if (looksLikeNavigationRequest(normalized)) {
+            return false;
+        }
+        return containsAny(
+                normalized,
+                "tell me about this team",
+                "team summary",
+                "summary of this team",
+                "team overview",
+                "overview of this team",
+                "visible team info",
+                "team info",
+                "what team is this",
+                "which team is this",
+                "tell me about the team",
+                "what do we know",
+                "who is this team",
+                "describe this team",
+                "current team info"
+        );
+    }
+
+    private static String teamDetailName(AssistantTeamDetailSnapshot snapshot) {
+        String name = cleanTeamValue(snapshot == null ? null : snapshot.teamName());
+        return isVisibleTeamValue(name) ? name : "this team";
+    }
+
+    private static void appendTeamFact(List<String> facts, String label, String value) {
+        String clean = cleanTeamValue(value);
+        if (isVisibleTeamValue(clean)) {
+            facts.add(label + " " + clean);
+        }
+    }
+
+    private static List<String> buildVisibleTeamContactParts(AssistantTeamDetailSnapshot snapshot) {
+        List<String> contactParts = new ArrayList<>();
+        appendTeamContactPart(contactParts, "address", snapshot == null ? null : snapshot.addressLabel());
+        appendTeamContactPart(contactParts, "phone", snapshot == null ? null : snapshot.phoneLabel());
+        appendTeamContactPart(contactParts, "email", snapshot == null ? null : snapshot.emailLabel());
+        return contactParts;
+    }
+
+    private static void appendTeamContactPart(List<String> contactParts, String label, String value) {
+        String clean = cleanTeamValue(value);
+        if (isVisibleTeamValue(clean)) {
+            contactParts.add(label + " " + clean);
+        }
+    }
+
+    private static boolean isVisibleTeamValue(String value) {
+        String clean = cleanTeamValue(value);
+        if (clean.isBlank() || clean.equals("-")) {
+            return false;
+        }
+        String normalized = normalize(clean);
+        return !Set.of(
+                "unknown",
+                "n a",
+                "na",
+                "non defini",
+                "non renseigne",
+                "non renseignee",
+                "competition non renseignee",
+                "coach non renseigne",
+                "adresse non renseignee",
+                "telephone non renseigne",
+                "email non renseignee",
+                "no address",
+                "no phone",
+                "no email",
+                "loading",
+                "chargement"
+        ).contains(normalized);
+    }
+
+    private static String cleanTeamValue(String value) {
         return value == null ? "" : value.replace('\r', ' ').replace('\n', ' ').trim();
     }
 

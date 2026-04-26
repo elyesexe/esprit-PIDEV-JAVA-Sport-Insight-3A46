@@ -189,7 +189,7 @@ CREATE TABLE `evaluation` (
         FOREIGN KEY (`entrainement_id`) REFERENCES `entrainement` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_evaluation_joueur`
-        FOREIGN KEY (`joueur_id`) REFERENCES `joueur` (`id`)
+        FOREIGN KEY (`joueur_id`) REFERENCES `user` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -206,7 +206,7 @@ CREATE TABLE `participation` (
         FOREIGN KEY (`entrainement_id`) REFERENCES `entrainement` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_participation_joueur`
-        FOREIGN KEY (`joueur_id`) REFERENCES `joueur` (`id`)
+        FOREIGN KEY (`joueur_id`) REFERENCES `user` (`id`)
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -139,6 +141,53 @@
 
                     <HBox spacing="20">
                         <VBox spacing="16" HBox.hgrow="ALWAYS">
+                            <!-- Performance Evolution Section -->
+                            <VBox spacing="12" styleClass="panel-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="📊 Mon Évolution" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="togglePerformanceButton" text="▼ Afficher" styleClass="ghost-button" 
+                                            onAction="#handleTogglePerformance"/>
+                                </HBox>
+                                
+                                <VBox fx:id="performanceSection" spacing="15" visible="false" managed="false">
+                                    <!-- Quick Stats -->
+                                    <HBox spacing="15">
+                                        <VBox styleClass="stat-mini-card" spacing="5" HBox.hgrow="ALWAYS">
+                                            <Label text="📝 Évaluations" styleClass="stat-mini-label"/>
+                                            <Label fx:id="totalEvaluationsLabel" text="0" styleClass="stat-mini-value"/>
+                                        </VBox>
+                                        <VBox styleClass="stat-mini-card" spacing="5" HBox.hgrow="ALWAYS">
+                                            <Label text="✅ Présence" styleClass="stat-mini-label"/>
+                                            <Label fx:id="attendanceRateLabel" text="0%" styleClass="stat-mini-value"/>
+                                        </VBox>
+                                        <VBox styleClass="stat-mini-card" spacing="5" HBox.hgrow="ALWAYS">
+                                            <Label text="⭐ Moyenne" styleClass="stat-mini-label"/>
+                                            <Label fx:id="avgOverallLabel" text="0.00" styleClass="stat-mini-value"/>
+                                        </VBox>
+                                    </HBox>
+                                    
+                                    <!-- Performance Chart Placeholder -->
+                                    <VBox fx:id="performanceChartContainer" spacing="10" styleClass="chart-mini-container">
+                                        <Label text="📈 Progression" styleClass="section-subtitle"/>
+                                        <!-- Chart will be added programmatically -->
+                                    </VBox>
+                                    
+                                    <!-- Weak Areas -->
+                                    <VBox fx:id="weakAreasBox" spacing="8" styleClass="weak-areas-box">
+                                        <Label text="🎯 Points à améliorer" styleClass="section-subtitle"/>
+                                    </VBox>
+                                    
+                                    <!-- AI Buttons -->
+                                    <HBox spacing="10" alignment="CENTER">
+                                        <Button fx:id="getAIRecommendationsButton" text="🤖 Recommandations IA" 
+                                                styleClass="ai-mini-button" onAction="#handleGetAIRecommendations"/>
+                                        <Button fx:id="foodTrackingButton" text="🍽️ Suivi Nutritionnel" 
+                                                styleClass="nutrition-button" onAction="#handleOpenFoodTracking"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                            
                             <VBox spacing="10" styleClass="panel-card">
                                 <Label text="Sessions d'entrainement" styleClass="section-title"/>
                                 <Label text="Recherchez par type, lieu, ou objectif et triez par date."

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.FoodTrackingController"
+            styleClass="main-scroll-pane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+    
+<VBox styleClass="root-pane" spacing="15" alignment="TOP_CENTER" maxWidth="1200">
+    
+    <padding>
+        <Insets top="20" right="30" bottom="20" left="30"/>
+    </padding>
+    
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="16" styleClass="toolbar-card" maxWidth="1100">
+        <padding>
+            <Insets top="16" right="18" bottom="16" left="18"/>
+        </padding>
+        <Button fx:id="backButton"
+                text="Retour aux entrainements"
+                onAction="#handleBackToEntrainement"
+                styleClass="back-button"/>
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Suivi nutritionnel" styleClass="header-title"/>
+            <Label text="Analysez, enregistrez et suivez vos repas sans perdre le fil."
+                   wrapText="true"
+                   styleClass="header-subtitle"/>
+        </VBox>
+        <VBox alignment="CENTER_RIGHT" spacing="2" styleClass="header-chip">
+            <Label text="Nutrition" styleClass="header-chip-value"/>
+            <Label text="journalier" styleClass="header-chip-subtitle"/>
+        </VBox>
+    </HBox>
+    
+    <!-- Date Selection -->
+    <HBox spacing="15" alignment="CENTER" styleClass="compact-card" maxWidth="1100">
+        <padding>
+            <Insets top="12" right="15" bottom="12" left="15"/>
+        </padding>
+        <Label text="Sélectionner une date" styleClass="label-text"/>
+        <DatePicker fx:id="datePicker" styleClass="compact-picker"/>
+    </HBox>
+    
+    <!-- Daily Summary -->
+    <VBox spacing="12" styleClass="summary-card" maxWidth="1100">
+        <padding>
+            <Insets top="15" right="20" bottom="15" left="20"/>
+        </padding>
+        
+        <Label text="📊 Résumé du Jour" styleClass="section-title"/>
+        
+        <HBox spacing="20" alignment="CENTER">
+            <Label fx:id="totalCaloriesLabel" text="0 kcal" styleClass="calories-consumed"/>
+            <Label text="/" styleClass="separator-text"/>
+            <Label text="Objectif: " styleClass="label-small"/>
+            <Label fx:id="targetCaloriesLabel" text="2500 kcal" styleClass="calories-target"/>
+        </HBox>
+        
+        <ProgressBar fx:id="calorieProgressBar" progress="0" prefWidth="Infinity" prefHeight="8" styleClass="compact-progress"/>
+        <Label text="Continuez comme ça! 💪" styleClass="progress-text" alignment="CENTER"/>
+    </VBox>
+    
+    <!-- Input Section -->
+    <HBox spacing="15" maxWidth="1100">
+        <!-- Left: Meal Type & Food Input -->
+        <VBox spacing="12" styleClass="input-card" prefWidth="450" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+            
+            <Label text="🍴 Type de Repas" styleClass="section-title"/>
+            <ComboBox fx:id="mealTypeComboBox" prefWidth="Infinity" styleClass="compact-combo"/>
+            
+            <Label text="✍️ Qu'avez-vous mangé?" styleClass="section-title"/>
+            <TextArea fx:id="foodDescriptionArea" 
+                      promptText="Ex: 1 banane, 2 oeufs, 1 tasse de riz..."
+                      prefRowCount="3"
+                      wrapText="true"
+                      styleClass="compact-textarea"/>
+            
+            <Button fx:id="analyzeButton" text="🔍 Analyser" onAction="#handleAnalyzeFood" 
+                    styleClass="action-button" maxWidth="Infinity"/>
+        </VBox>
+        
+        <!-- Right: Nutrition Info -->
+        <VBox spacing="12" styleClass="nutrition-card" prefWidth="350">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+            
+            <Label text="📈 Informations Nutritionnelles" styleClass="section-title"/>
+            
+            <GridPane hgap="10" vgap="10">
+                <!-- Calories -->
+                <VBox spacing="3" alignment="CENTER" styleClass="nutrient-box calories-box"
+                      GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
+                    <Label fx:id="caloriesLabel" text="-" styleClass="nutrient-value-large"/>
+                    <Label text="kcal" styleClass="nutrient-label"/>
+                </VBox>
+                
+                <!-- Protein -->
+                <VBox spacing="3" alignment="CENTER" styleClass="nutrient-box protein-box"
+                      GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label text="💪" styleClass="nutrient-emoji"/>
+                    <Label fx:id="proteinLabel" text="-" styleClass="nutrient-value"/>
+                    <Label text="Protéines" styleClass="nutrient-label"/>
+                </VBox>
+                
+                <!-- Carbs -->
+                <VBox spacing="3" alignment="CENTER" styleClass="nutrient-box carbs-box"
+                      GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label text="🍞" styleClass="nutrient-emoji"/>
+                    <Label fx:id="carbsLabel" text="-" styleClass="nutrient-value"/>
+                    <Label text="Glucides" styleClass="nutrient-label"/>
+                </VBox>
+                
+                <!-- Fat -->
+                <VBox spacing="3" alignment="CENTER" styleClass="nutrient-box fat-box"
+                      GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <Label text="🥑" styleClass="nutrient-emoji"/>
+                    <Label fx:id="fatLabel" text="-" styleClass="nutrient-value"/>
+                    <Label text="Lipides" styleClass="nutrient-label"/>
+                </VBox>
+                
+                <!-- Fiber -->
+                <VBox spacing="3" alignment="CENTER" styleClass="nutrient-box fiber-box"
+                      GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <Label text="🌾" styleClass="nutrient-emoji"/>
+                    <Label fx:id="fiberLabel" text="-" styleClass="nutrient-value"/>
+                    <Label text="Fibres" styleClass="nutrient-label"/>
+                </VBox>
+            </GridPane>
+            
+            <Button fx:id="saveButton" text="💾 Enregistrer" onAction="#handleSaveFood" 
+                    styleClass="save-button" disable="true" maxWidth="Infinity"/>
+        </VBox>
+    </HBox>
+    
+    <!-- Food Log History -->
+    <VBox spacing="10" styleClass="history-card" maxWidth="1100">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="📝" styleClass="history-emoji"/>
+            <VBox spacing="2">
+                <Label text="Historique des repas" styleClass="history-title"/>
+                <Label text="Les repas sauvegardes apparaissent ici avec leurs apports et leur date."
+                       wrapText="true"
+                       styleClass="history-subtitle"/>
+            </VBox>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" prefHeight="250" styleClass="history-scroll" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+            <VBox fx:id="foodLogContainer" spacing="12">
+                <padding>
+                    <Insets top="5" right="5" bottom="5" left="5"/>
+                </padding>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+</VBox>
+
+</ScrollPane>

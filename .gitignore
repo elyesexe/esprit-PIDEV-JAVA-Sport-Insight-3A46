@@ -19,6 +19,8 @@ Desktop.ini
 image/
 football-data.local.properties
 api-football.local.properties
+evaluation-mail.local.properties
+nutrition-api.local.properties
 verify-cp.txt
 runtime.classpath
 jcef-bundle/

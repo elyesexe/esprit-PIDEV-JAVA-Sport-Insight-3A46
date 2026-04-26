@@ -232,6 +232,9 @@ public final class AssistantOverlay extends StackPane {
     private void configureLauncher() {
         launcherButton.getStyleClass().add("assistant-launcher");
         launcherButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        launcherButton.setMinSize(62, 62);
+        launcherButton.setPrefSize(62, 62);
+        launcherButton.setMaxSize(62, 62);
         launcherButton.setGraphic(createLauncherGraphic());
         launcherButton.setOnAction(event -> togglePanel(!panelVisible));
         updateLauncherLabel();
@@ -554,7 +557,10 @@ public final class AssistantOverlay extends StackPane {
     private StackPane createLauncherGraphic() {
         launcherOrb.getChildren().clear();
         launcherOrb.getStyleClass().setAll("assistant-launcher-orb");
-        ImageView logo = createLogoView(64);
+        launcherOrb.setMinSize(56, 56);
+        launcherOrb.setPrefSize(56, 56);
+        launcherOrb.setMaxSize(56, 56);
+        ImageView logo = createLogoView(44);
         if (logo != null) {
             logo.getStyleClass().add("assistant-launcher-image");
             launcherOrb.getChildren().add(logo);
