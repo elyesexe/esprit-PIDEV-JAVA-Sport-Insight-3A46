@@ -18,6 +18,7 @@ The admin workspace recently received a large UI and workflow refresh. The bigge
 - aligned styling for buttons, tables, inputs, combo boxes, calendars, and status pills
 - cleaner Git hygiene with generated build output ignored from version control
 - finished-match highlight playback using the official YouTube Data API and an embedded Chromium player
+- a new user-facing News page with live football headlines, search, topic filters, saved stories, a custom hero image, responsive dark mode, and optimized high-resolution story images
 
 ## Project Vision
 
@@ -55,6 +56,7 @@ Sport Insight covers several business areas inside the same application:
 - sponsor and contract management
 - product and store management
 - league discovery, competition browsing, and standings consultation
+- live football news browsing through the Sport Insight News page
 
 ## Main Modules
 
@@ -211,6 +213,32 @@ The application contains a complete user flow:
 - profile interface
 - access-aware navigation
 
+### 10. Sport Insight News
+
+The News section adds a user-facing football newsroom inside the JavaFX application. It is designed to feel consistent with the Sport Insight interface while giving users quick access to current football headlines.
+
+Main capabilities:
+
+- load live football stories from a configurable football news feed
+- display a branded `Sport Insight News` hero using the local `News hero.png` image asset
+- search headlines and summaries directly on the page
+- filter stories by topics such as Premier, Champions, Transfers, Women, and Europe
+- save stories locally for the current session without changing the database schema
+- open full reports in the system browser
+- show KPIs for loaded stories, saved stories, and last update time inside transparent hero cards
+- render story images with upgraded high-resolution URLs when available
+- batch-render story cards with a `Show more` control so the page remains responsive while scrolling
+- support both light mode and dark mode with styling aligned to the rest of the user app
+
+Main related files:
+
+- `FootballNewsController`
+- `FootballNewsService`
+- `FootballNewsArticle`
+- `football-news-view.fxml`
+- `football-news-theme.css`
+- `News hero.png`
+
 ## CRUD Coverage
 
 Sport Insight includes strong CRUD coverage across the project. The platform manages operations such as:
@@ -249,6 +277,7 @@ The project is interface-driven and built around JavaFX views. Important screens
 - sponsor admin and user views
 - product/store views
 - competition and standings views
+- Sport Insight News user view
 
 Notable FXML files:
 
@@ -264,6 +293,7 @@ Notable FXML files:
 - `product-crud-view.fxml`
 - `store-view.fxml`
 - `league-table-view.fxml`
+- `football-news-view.fxml`
 
 Recent admin UX improvements include:
 
@@ -348,6 +378,25 @@ Main related classes:
 - `YouTubeVideo`
 - `ChromiumBrowserView`
 - `MatchDetailController`
+
+### Sport Insight News feed integration
+
+The News page retrieves live football headlines through `FootballNewsService`. The feed URL is configurable, so the application can switch providers without database changes or schema migration.
+
+Configuration options:
+
+- Java system property: `sport.insight.football.news.feed`
+- environment variable: `SPORT_INSIGHT_FOOTBALL_NEWS_FEED`
+
+The News service parses RSS/XML items into `FootballNewsArticle` records, cleans summaries, normalizes publication dates, deduplicates stories by URL, and upgrades small feed thumbnails to higher-resolution image URLs when the provider supports it.
+
+The JavaFX controller keeps the UI responsive by:
+
+- loading feed data in a background task
+- decoding remote images asynchronously
+- rendering story cards in batches
+- falling back to the local `News hero.png` image if a remote image is missing or fails
+- keeping saved stories in memory for the current session only
 
 ### Wikidata integration
 
@@ -455,12 +504,14 @@ Sport Insight can use multiple football APIs in parallel:
 - `TheSportsDB` for free match stats and starting lineups
 - `API-Football` as an optional richer-match-data provider when available
 - `YouTube Data API v3` for finished-match highlights
+- configurable RSS/XML football news feed for the Sport Insight News page
 
 You can configure them with environment variables or local properties files:
 
 - `FOOTBALL_DATA_API_KEY`
 - `API_FOOTBALL_KEY`
 - `YOUTUBE_API_KEY`
+- `SPORT_INSIGHT_FOOTBALL_NEWS_FEED`
 - `football-data.local.properties`
 - `api-football.local.properties`
 
@@ -518,9 +569,11 @@ The project emphasizes:
 - dashboard visibility
 - modern football-oriented styling
 - unified violet dark mode support in admin areas
+- dark-mode support for user-facing pages, including the News page background and scroll panel
 - improved light mode readability for admin interfaces
 - detailed screens for teams, players, and matches
 - inline editing flows for selected admin tables
+- responsive media-heavy pages that avoid UI freezes by batching image-card rendering
 
 The goal is not only to store sports data, but to make that data meaningful, accessible, and attractive through a complete interface experience.
 
@@ -546,4 +599,5 @@ Sport Insight is a JavaFX and MySQL football platform that brings together:
 - administration and dashboard views
 - public and user-oriented screens
 - football-data and Wikidata integration
+- live Sport Insight News feed integration
 - a clear sports-tech concept centered on football insight and management
