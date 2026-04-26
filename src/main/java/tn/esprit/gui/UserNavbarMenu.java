@@ -15,11 +15,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import tn.esprit.entities.User;
 import tn.esprit.security.AuthSession;
-import tn.esprit.security.UserRoles;
 
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -38,6 +36,8 @@ public final class UserNavbarMenu {
     private static final String STORE_CSS = "/tn/esprit/styles/store-theme.css";
     private static final String SPONSOR_VIEW = "/tn/esprit/views/sponsor-user-view.fxml";
     private static final String SPONSOR_CSS = "/tn/esprit/styles/sponsor-theme.css";
+    private static final String FOOTBALL_NEWS_VIEW = "/tn/esprit/views/football-news-view.fxml";
+    private static final String FOOTBALL_NEWS_CSS = "/tn/esprit/styles/football-news-theme.css";
     private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
     private static final double SETTINGS_MENU_ACTION_WIDTH = 112;
 
@@ -66,6 +66,7 @@ public final class UserNavbarMenu {
         hideNode(themeToggleButton);
         ensureStoreNavButton(navbarRoot);
         ensureSponsorNavButton(navbarRoot);
+        ensureFootballNewsNavButton(navbarRoot);
         ensureTrainingNavButton(navbarRoot);
 
         NavbarNotificationCenter notificationCenter = new NavbarNotificationCenter();
@@ -162,26 +163,6 @@ public final class UserNavbarMenu {
     private static ContextMenu createSettingsMenu(Button ownerButton) {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getStyleClass().add("settings-context-menu");
-
-        User currentUser = AuthSession.getCurrentUser();
-        if (currentUser != null) {
-            VBox accountBox = new VBox(2);
-            accountBox.getStyleClass().add("settings-menu-panel");
-            accountBox.setAlignment(Pos.CENTER);
-            accountBox.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
-            accountBox.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
-            accountBox.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
-
-            Label nameLabel = new Label(currentUser.getDisplayName());
-            nameLabel.getStyleClass().add("settings-menu-user");
-
-            Label roleLabel = new Label(UserRoles.displayName(currentUser.getPrimaryRole()));
-            roleLabel.getStyleClass().add("settings-menu-role");
-
-            accountBox.getChildren().addAll(nameLabel, roleLabel);
-            contextMenu.getItems().add(wrapNode(accountBox, false));
-            contextMenu.getItems().add(new SeparatorMenuItem());
-        }
 
         ToggleButton menuThemeToggle = createThemeToggle();
         ThemeManager.bindToggle(menuThemeToggle);
@@ -392,6 +373,43 @@ public final class UserNavbarMenu {
             }
         }
         modules.getChildren().add(insertIndex, sponsorButton);
+    }
+
+    private static void ensureFootballNewsNavButton(HBox navbarRoot) {
+        HBox modules = findModulesContainer(navbarRoot);
+        if (modules == null) {
+            return;
+        }
+
+        boolean exists = modules.getChildren().stream()
+                .filter(node -> node instanceof Button)
+                .map(node -> (Button) node)
+                .anyMatch(button -> {
+                    String label = button.getText() == null ? "" : button.getText().trim().toLowerCase(Locale.ROOT);
+                    return "sport insight news".equals(label) || "football news".equals(label) || "news".equals(label);
+                });
+        if (exists) {
+            return;
+        }
+
+        Button newsButton = new Button("News");
+        newsButton.setMnemonicParsing(false);
+        newsButton.getStyleClass().add("navbar-nav-button");
+        newsButton.setOnAction(event ->
+                SceneNavigator.switchScene(newsButton, FOOTBALL_NEWS_VIEW, FOOTBALL_NEWS_CSS, "Sport Insight News | Sport Insight"));
+
+        int insertIndex = modules.getChildren().size();
+        for (int i = 0; i < modules.getChildren().size(); i++) {
+            Node node = modules.getChildren().get(i);
+            if (node instanceof Button button) {
+                String label = button.getText() == null ? "" : button.getText().toLowerCase(Locale.ROOT);
+                if (label.contains("annonc") || label.contains("anonce") || label.contains("entrain")) {
+                    insertIndex = i;
+                    break;
+                }
+            }
+        }
+        modules.getChildren().add(insertIndex, newsButton);
     }
 
     private static HBox findModulesContainer(HBox navbarRoot) {

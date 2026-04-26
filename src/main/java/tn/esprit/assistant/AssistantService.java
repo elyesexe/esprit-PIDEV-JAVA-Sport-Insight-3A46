@@ -2569,7 +2569,7 @@ public final class AssistantService {
     }
 
     private String buildVoiceKnowledgeSummary() {
-        return "Home, Equipes, Joueurs, Matchs, Leagues, Annonces, Entrainements, Sponsors, Store, Admin.";
+        return "Home, Equipes, Joueurs, Matchs, Leagues, Sport Insight News, Annonces, Entrainements, Sponsors, Store, Admin.";
     }
 
     private String buildOfflineFallback(AssistantScreenCatalog.ScreenMeta currentScreen, Context context, InteractionMode mode) {
@@ -2625,6 +2625,7 @@ public final class AssistantService {
                 - Joueurs: manage player profiles and team assignment.
                 - Matchs: manage fixtures, competitions, scores, and detailed match pages.
                 - Leagues: browse competitions and standings.
+                - Sport Insight News: read live football headlines, filter topics, save stories locally, and open articles.
                 - Annonces: publish updates and announcements.
                 - Entrainements: manage training sessions, participation, and evaluation flows.
                 - Sponsors: manage sponsorship and contract workflows.

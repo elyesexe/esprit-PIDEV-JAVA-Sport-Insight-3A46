@@ -77,6 +77,15 @@ public enum AssistantNavigationTarget {
             false,
             List.of("league", "leagues", "competition", "competitions", "standings", "table")
     ),
+    FOOTBALL_NEWS(
+            "Sport Insight News",
+            "/tn/esprit/views/football-news-view.fxml",
+            "/tn/esprit/styles/football-news-theme.css",
+            "Sport Insight News | Sport Insight",
+            true,
+            false,
+            List.of("sport insight news", "football news", "sports news", "sport news", "latest news", "news", "headlines", "bbc football")
+    ),
     ANNOUNCEMENTS(
             "Annonces",
             "/tn/esprit/views/annonce-user-view.fxml",

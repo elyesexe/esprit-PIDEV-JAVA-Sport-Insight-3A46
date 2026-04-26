@@ -109,6 +109,8 @@ public class HomeController {
     @FXML
     private Button annoncesModuleBox;
     @FXML
+    private Button newsModuleBox;
+    @FXML
     private Button trainModuleBox;
     @FXML
     private Button sponsorsModuleBox;
@@ -176,6 +178,7 @@ public class HomeController {
             setModuleVisible(equipesButton, true);
             setModuleVisible(joueursButton, true);
             setModuleVisible(matchsButton, true);
+            setModuleVisible(newsModuleBox, true);
             setModuleVisible(annoncesModuleBox, true);
             setModuleVisible(trainModuleBox, true);
             setModuleVisible(sponsorsModuleBox, true);
@@ -185,15 +188,17 @@ public class HomeController {
         boolean teams = matchesTokens(n, "team", "teams", "equipe", "equipes", "club", "clubs", "roster");
         boolean players = matchesTokens(n, "player", "players", "joueur", "joueurs", "profile", "profiles");
         boolean matches = matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games");
-        boolean news = matchesTokens(n, "news", "annonce", "annonces", "update", "updates");
+        boolean news = matchesTokens(n, "news", "headline", "headlines", "football news", "sport insight news");
+        boolean announcements = matchesTokens(n, "annonce", "annonces", "announcement", "announcements", "update", "updates");
         boolean training = matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions");
         boolean sponsors = matchesTokens(n, "sponsor", "sponsors", "contract", "contracts", "partnership", "partnerships");
         boolean store = matchesTokens(n, "store", "shop", "product", "products", "order", "orders");
-        boolean any = teams || players || matches || news || training || sponsors || store;
+        boolean any = teams || players || matches || news || announcements || training || sponsors || store;
         if (!any) {
             setModuleVisible(equipesButton, true);
             setModuleVisible(joueursButton, true);
             setModuleVisible(matchsButton, true);
+            setModuleVisible(newsModuleBox, true);
             setModuleVisible(annoncesModuleBox, true);
             setModuleVisible(trainModuleBox, true);
             setModuleVisible(sponsorsModuleBox, true);
@@ -203,7 +208,8 @@ public class HomeController {
         setModuleVisible(equipesButton, teams);
         setModuleVisible(joueursButton, players);
         setModuleVisible(matchsButton, matches);
-        setModuleVisible(annoncesModuleBox, news);
+        setModuleVisible(newsModuleBox, news);
+        setModuleVisible(annoncesModuleBox, announcements);
         setModuleVisible(trainModuleBox, training);
         setModuleVisible(sponsorsModuleBox, sponsors);
         setModuleVisible(storeModuleBox, store);
@@ -266,7 +272,9 @@ public class HomeController {
             handleOpenJoueurs();
         } else if (matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games")) {
             openMatchsModule();
-        } else if (matchesTokens(n, "news", "annonce", "annonces", "update", "updates")) {
+        } else if (matchesTokens(n, "news", "headline", "headlines", "football news", "sport insight news")) {
+            handleOpenNews();
+        } else if (matchesTokens(n, "annonce", "annonces", "announcement", "announcements", "update", "updates")) {
             handleOpenAnnonces();
         } else if (matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions")) {
             handleOpenEntrainements();
@@ -453,6 +461,12 @@ public class HomeController {
     }
 
     @FXML
+    private void handleOpenNews() {
+        Node source = newsModuleBox != null ? newsModuleBox : sidebarBrandBox;
+        SceneNavigator.switchScene(source, "/tn/esprit/views/football-news-view.fxml", "/tn/esprit/styles/football-news-theme.css", "Sport Insight News | Sport Insight");
+    }
+
+    @FXML
     private void handleOpenEntrainements() {
         Node source = trainModuleBox != null ? trainModuleBox : sidebarBrandBox;
         SceneNavigator.switchScene(source, "/tn/esprit/views/entrainement-user-view.fxml", "/tn/esprit/styles/entrainement-theme.css", "Entrainements | Sport Insight");
@@ -494,6 +508,7 @@ public class HomeController {
         installHoverAnimation(equipesButton);
         installHoverAnimation(joueursButton);
         installHoverAnimation(matchsButton);
+        installHoverAnimation(newsModuleBox);
         installHoverAnimation(annoncesModuleBox);
         installHoverAnimation(trainModuleBox);
         installHoverAnimation(sponsorsModuleBox);
@@ -515,6 +530,7 @@ public class HomeController {
                 equipesButton,
                 joueursButton,
                 matchsButton,
+                newsModuleBox,
                 annoncesModuleBox,
                 trainModuleBox,
                 sponsorsModuleBox,
@@ -555,10 +571,11 @@ public class HomeController {
         playTileEntrance(equipesButton, 0);
         playTileEntrance(joueursButton, 45);
         playTileEntrance(matchsButton, 90);
-        playTileEntrance(annoncesModuleBox, 135);
-        playTileEntrance(trainModuleBox, 180);
-        playTileEntrance(sponsorsModuleBox, 225);
-        playTileEntrance(storeModuleBox, 270);
+        playTileEntrance(newsModuleBox, 135);
+        playTileEntrance(annoncesModuleBox, 180);
+        playTileEntrance(trainModuleBox, 225);
+        playTileEntrance(sponsorsModuleBox, 270);
+        playTileEntrance(storeModuleBox, 315);
     }
 
     private void playTileEntrance(Button card, int delayMillis) {

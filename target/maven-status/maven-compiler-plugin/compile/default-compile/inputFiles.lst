@@ -39,6 +39,7 @@ C:\PI Java\src\main\java\tn\esprit\Controller\EquipeDetailController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\EquipeFormController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\EquipeListController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\FoodTrackingController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FootballNewsController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\HomeController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\JoueurCompetitionController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\JoueurController.java
@@ -134,6 +135,8 @@ C:\PI Java\src\main\java\tn\esprit\services\ExercisePlanGenerator.java
 C:\PI Java\src\main\java\tn\esprit\services\FoodLogService.java
 C:\PI Java\src\main\java\tn\esprit\services\FootballDataSyncService.java
 C:\PI Java\src\main\java\tn\esprit\services\FootballDataSyncSummary.java
+C:\PI Java\src\main\java\tn\esprit\services\FootballNewsArticle.java
+C:\PI Java\src\main\java\tn\esprit\services\FootballNewsService.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballClient.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballCompetitionMappings.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballFixtureSnapshot.java

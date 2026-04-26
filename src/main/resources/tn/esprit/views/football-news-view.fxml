@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.FootballNewsController"
+            fx:id="pageRoot"
+            styleClass="page-root football-news-root">
+
+    <top>
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Annonce"
+                            styleClass="navbar-nav-button"/>
+
+                    <Button fx:id="footballNewsNavButton"
+                            onAction="#handleOpenFootballNews"
+                            text="News"
+                            styleClass="navbar-nav-button navbar-nav-button-active"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fx:id="pageScroll"
+                    fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="news-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="news-page-wrap">
+                    <VBox spacing="22" styleClass="news-shell">
+                        <StackPane fx:id="pageHeroShell" styleClass="news-hero-shell">
+                            <ImageView fx:id="pageHeroImageView"
+                                       preserveRatio="false"
+                                       smooth="true"
+                                       styleClass="news-hero-image"/>
+                            <Region styleClass="news-hero-overlay"/>
+                            <VBox spacing="14" styleClass="news-hero-content">
+                                <Label text="Live newsroom" styleClass="news-hero-kicker"/>
+                                <Label text="Sport Insight News" wrapText="true" styleClass="news-hero-title"/>
+                                <Label text="Follow football headlines, filter by competition, save stories for this session, and open full reports when you need the details."
+                                       wrapText="true"
+                                       styleClass="news-hero-subtitle"/>
+
+                                <HBox spacing="12" styleClass="news-stats-row news-hero-stats-row">
+                                    <VBox spacing="4" styleClass="news-stat-card news-hero-stat-card">
+                                        <Label text="Stories" styleClass="news-stat-label"/>
+                                        <Label fx:id="totalCountLabel" text="0" styleClass="news-stat-value"/>
+                                    </VBox>
+                                    <VBox spacing="4" styleClass="news-stat-card news-hero-stat-card">
+                                        <Label text="Saved" styleClass="news-stat-label"/>
+                                        <Label fx:id="savedCountLabel" text="0" styleClass="news-stat-value"/>
+                                    </VBox>
+                                    <VBox spacing="4" styleClass="news-stat-card news-hero-stat-card">
+                                        <Label text="Updated" styleClass="news-stat-label"/>
+                                        <Label fx:id="latestTimeLabel" text="--" styleClass="news-stat-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                        </StackPane>
+
+                        <VBox spacing="14" styleClass="news-controls-panel">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <TextField fx:id="searchField"
+                                           promptText="Search Sport Insight news"
+                                           HBox.hgrow="ALWAYS"
+                                           styleClass="news-search-field"/>
+                                <ToggleButton fx:id="savedOnlyButton"
+                                              text="Saved"
+                                              onAction="#handleSavedOnly"
+                                              mnemonicParsing="false"
+                                              styleClass="news-filter-toggle"/>
+                                <Button fx:id="refreshButton"
+                                        text="Refresh"
+                                        onAction="#handleRefresh"
+                                        mnemonicParsing="false"
+                                        styleClass="news-primary-action"/>
+                                <Button fx:id="resetButton"
+                                        text="Reset"
+                                        onAction="#handleResetFilters"
+                                        mnemonicParsing="false"
+                                        styleClass="news-secondary-action"/>
+                                <ProgressIndicator fx:id="loadingIndicator"
+                                                   prefWidth="26"
+                                                   prefHeight="26"
+                                                   managed="false"
+                                                   visible="false"
+                                                   styleClass="news-loader"/>
+                            </HBox>
+
+                            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="news-topic-row">
+                                <ToggleButton fx:id="allTopicButton"
+                                              text="All"
+                                              selected="true"
+                                              onAction="#handleTopicFilter"
+                                              mnemonicParsing="false"
+                                              styleClass="news-topic-button"/>
+                                <ToggleButton fx:id="premierLeagueButton"
+                                              text="Premier"
+                                              onAction="#handleTopicFilter"
+                                              mnemonicParsing="false"
+                                              styleClass="news-topic-button"/>
+                                <ToggleButton fx:id="championsLeagueButton"
+                                              text="Champions"
+                                              onAction="#handleTopicFilter"
+                                              mnemonicParsing="false"
+                                              styleClass="news-topic-button"/>
+                                <ToggleButton fx:id="transfersButton"
+                                              text="Transfers"
+                                              onAction="#handleTopicFilter"
+                                              mnemonicParsing="false"
+                                              styleClass="news-topic-button"/>
+                                <ToggleButton fx:id="womenButton"
+                                              text="Women"
+                                              onAction="#handleTopicFilter"
+                                              mnemonicParsing="false"
+                                              styleClass="news-topic-button"/>
+                                <ToggleButton fx:id="europeButton"
+                                              text="Europe"
+                                              onAction="#handleTopicFilter"
+                                              mnemonicParsing="false"
+                                              styleClass="news-topic-button"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="statusLabel" text="Sport Insight news ready." styleClass="news-status-pill"/>
+                            </HBox>
+                        </VBox>
+
+                        <HBox spacing="24" alignment="TOP_LEFT" styleClass="news-lead-layout">
+                            <VBox spacing="12" styleClass="news-lead-copy">
+                                <Label fx:id="heroTitleLabel"
+                                       text="Loading football headlines"
+                                       wrapText="true"
+                                       styleClass="news-lead-title"/>
+                                <Label fx:id="heroSummaryLabel"
+                                       text="Latest football stories will appear here."
+                                       wrapText="true"
+                                       styleClass="news-lead-summary"/>
+                                <Label fx:id="heroMetaLabel" text="just now" styleClass="news-lead-meta"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Button fx:id="heroOpenButton"
+                                            text="Open Story"
+                                            onAction="#handleOpenHero"
+                                            mnemonicParsing="false"
+                                            styleClass="news-primary-action"/>
+                                    <Button fx:id="heroBookmarkButton"
+                                            text="Save"
+                                            onAction="#handleBookmarkHero"
+                                            mnemonicParsing="false"
+                                            styleClass="news-secondary-action"/>
+                                </HBox>
+                            </VBox>
+
+                            <StackPane styleClass="news-lead-media-wrap">
+                                <ImageView fx:id="heroImageView"
+                                           fitWidth="430"
+                                           fitHeight="242"
+                                           preserveRatio="false"
+                                           smooth="true"
+                                           styleClass="news-lead-image"/>
+                            </StackPane>
+
+                            <VBox spacing="12" styleClass="news-right-rail">
+                                <Label text="Latest" styleClass="news-section-heading"/>
+                                <VBox fx:id="rightRailBox" spacing="10" styleClass="news-right-rail-list"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="14" styleClass="news-card-section">
+                            <Label text="More football stories" styleClass="news-section-heading"/>
+                            <FlowPane fx:id="cardsPane"
+                                      hgap="18"
+                                      vgap="18"
+                                      prefWrapLength="960"
+                                      styleClass="news-card-grid"/>
+                        </VBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

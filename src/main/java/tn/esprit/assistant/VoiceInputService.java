@@ -56,7 +56,7 @@ public final class VoiceInputService {
     private static final String VOSK_MODEL_NAME = "vosk-model-small-en-us-0.15";
     private static final URI VOSK_MODEL_DOWNLOAD_URI = URI.create("https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
 
-    private static final String WHISPER_PROMPT_BASE = "Sport Insight, Real Madrid, Bayern Munich, UEFA Champions League, Equipes, Joueurs, Matchs, Entrainements, Sponsors, Store, player profile, match details, scorer, assists, cards, lineups, standings, statistics.";
+    private static final String WHISPER_PROMPT_BASE = "Sport Insight, Sport Insight News, Real Madrid, Bayern Munich, UEFA Champions League, Equipes, Joueurs, Matchs, Football News, Entrainements, Sponsors, Store, player profile, match details, scorer, assists, cards, lineups, standings, statistics.";
     private static final Path INSTALL_ROOT = Path.of(System.getProperty("user.home"), ".sport-insight", "assistant", "stt");
     private static final Path WHISPER_RUNTIME_DIR = INSTALL_ROOT.resolve("whisper");
     private static final Path WHISPER_EXE = WHISPER_RUNTIME_DIR.resolve("Release").resolve("whisper-cli.exe");
@@ -430,7 +430,7 @@ public final class VoiceInputService {
                 "open", "show", "go to", "goto", "search", "find", "explain", "tell me",
                 "match", "matches", "details", "detail", "score", "mvp", "lineup", "lineups",
                 "teams", "players", "joueurs", "equipes", "league", "table", "standings",
-                "real madrid", "bayern", "premier league", "champions league", "settings",
+                "real madrid", "bayern", "premier league", "champions league", "sport insight news", "football news", "headlines", "settings",
                 "store", "sponsors", "admin", "home")) {
             return true;
         }

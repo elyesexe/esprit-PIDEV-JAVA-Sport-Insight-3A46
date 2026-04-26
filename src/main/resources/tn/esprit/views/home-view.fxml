@@ -254,6 +254,44 @@
                                     </graphic>
                                 </Button>
 
+                                <!-- NEWS -->
+                                <Button fx:id="newsModuleBox"
+                                        onAction="#handleOpenNews"
+                                        text=""
+                                        mnemonicParsing="false"
+                                        focusTraversable="false"
+                                        styleClass="home-link-card">
+                                    <graphic>
+                                        <StackPane styleClass="home-link-content" alignment="CENTER">
+                                            <clip>
+                                                <Rectangle width="220" height="220" arcWidth="20" arcHeight="20"/>
+                                            </clip>
+
+                                            <ImageView preserveRatio="true"
+                                                       smooth="true"
+                                                       fitHeight="220"
+                                                       styleClass="home-link-bg">
+                                                <image>
+                                                    <Image url="@../images/News%20hero.png"/>
+                                                </image>
+                                            </ImageView>
+
+                                            <VBox spacing="10"
+                                                  alignment="BOTTOM_LEFT"
+                                                  styleClass="home-link-inner">
+                                                <StackPane styleClass="home-link-icon-wrap">
+                                                    <Region styleClass="home-link-icon home-link-icon-news"/>
+                                                </StackPane>
+                                                <Region VBox.vgrow="ALWAYS"/>
+                                                <Label text="News" styleClass="home-link-title"/>
+                                                <Label text="Open Sport Insight headlines"
+                                                       wrapText="true"
+                                                       styleClass="home-link-text"/>
+                                            </VBox>
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
+
                                 <!-- ANNONCES -->
                                 <Button fx:id="annoncesModuleBox"
                                         onAction="#handleOpenAnnonces"

@@ -26,10 +26,10 @@ public final class AssistantScreenCatalog {
     );
     private static final ScreenMeta HOME = new ScreenMeta(
             "Home",
-            "The home page is the fastest way to explore teams, players, matches, announcements, training, sponsors, and store tools.",
+            "The home page is the fastest way to explore teams, players, matches, Sport Insight News, announcements, training, sponsors, and store tools.",
             List.of(
                     "Use the large tiles to jump into a module.",
-                    "Search by words like team, player, match, sponsor, or store.",
+                    "Search by words like team, player, match, news, sponsor, or store.",
                     "Open the assistant for guided navigation across the app."
             ),
             List.of("What can I do here?", "Open teams", "Open matches")
@@ -83,6 +83,16 @@ public final class AssistantScreenCatalog {
                     "Jump from leagues into teams or matches."
             ),
             List.of("Explain standings", "Open matches", "Open teams")
+    );
+    private static final ScreenMeta FOOTBALL_NEWS = new ScreenMeta(
+            "Sport Insight News",
+            "The Sport Insight News page loads live football headline stories without storing anything in the database.",
+            List.of(
+                    "Search headlines and summaries.",
+                    "Filter by topic chips such as Premier League, Champions League, transfers, women, and Europe.",
+                    "Save stories locally for the current session or open the full article in the browser."
+            ),
+            List.of("Refresh Sport Insight news", "Show saved stories", "Open latest football headlines")
     );
     private static final ScreenMeta ANNOUNCEMENTS = new ScreenMeta(
             "Annonces",
@@ -174,6 +184,9 @@ public final class AssistantScreenCatalog {
         if (normalized.contains("league")) {
             return LEAGUES;
         }
+        if (normalized.contains("football news")) {
+            return FOOTBALL_NEWS;
+        }
         if (normalized.contains("annonce")) {
             return ANNOUNCEMENTS;
         }
@@ -205,6 +218,7 @@ public final class AssistantScreenCatalog {
             case PLAYERS -> PLAYERS;
             case MATCHES -> MATCHES;
             case LEAGUES -> LEAGUES;
+            case FOOTBALL_NEWS -> FOOTBALL_NEWS;
             case ANNOUNCEMENTS -> ANNOUNCEMENTS;
             case TRAINING -> TRAINING;
             case SPONSORS -> SPONSORS;
