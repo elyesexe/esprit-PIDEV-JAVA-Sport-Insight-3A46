@@ -1952,23 +1952,28 @@
 }
 
 .player-rating-elite {
-    -fx-background-color: #16a34a;
+    -fx-background-color: #fbbf24;
+    -fx-text-fill: #422006;
 }
 
 .player-rating-good {
-    -fx-background-color: #65a30d;
+    -fx-background-color: #16a34a;
+    -fx-text-fill: #ffffff;
 }
 
 .player-rating-mid {
-    -fx-background-color: #f59e0b;
+    -fx-background-color: #facc15;
+    -fx-text-fill: #422006;
 }
 
 .player-rating-low {
     -fx-background-color: #dc2626;
+    -fx-text-fill: #ffffff;
 }
 
 .player-rating-neutral {
     -fx-background-color: #64748b;
+    -fx-text-fill: #ffffff;
 }
 
 .bench-rating-badge {
@@ -2242,6 +2247,146 @@
     -fx-font-size: 11px;
 }
 
+.live-companion-panel {
+    -fx-padding: 2 0 8 0;
+}
+
+.live-companion-kicker {
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+}
+
+.live-companion-summary {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #042f2e;
+    -fx-line-spacing: 1px;
+}
+
+.live-companion-metrics-row {
+    -fx-padding: 2 0 2 0;
+}
+
+.live-companion-metric-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #115e59;
+}
+
+.live-companion-metric-value {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #042f2e;
+}
+
+.live-companion-columns {
+    -fx-padding: 2 0 4 0;
+}
+
+.live-companion-column {
+    -fx-background-color: rgba(255, 255, 255, 0.46);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(13, 148, 136, 0.18);
+    -fx-border-radius: 12;
+    -fx-padding: 10 12 10 12;
+}
+
+.live-companion-column-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.live-companion-list-row,
+.live-companion-impact-row {
+    -fx-padding: 0;
+}
+
+.live-companion-bullet {
+    -fx-font-size: 14px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f766e;
+    -fx-min-width: 10;
+}
+
+.live-companion-list-text,
+.live-companion-impact-meta,
+.live-companion-placeholder {
+    -fx-font-size: 12px;
+    -fx-text-fill: #115e59;
+}
+
+.live-companion-impact-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #042f2e;
+}
+
+.live-companion-impact-score {
+    -fx-background-color: rgba(240, 253, 250, 0.86);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(13, 148, 136, 0.24);
+    -fx-border-radius: 999;
+    -fx-padding: 4 9 4 9;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+}
+
+.live-companion-impact-score.player-rating-elite {
+    -fx-background-color: rgba(251, 191, 36, 0.22);
+    -fx-border-color: rgba(251, 191, 36, 0.54);
+    -fx-text-fill: #fbbf24;
+}
+
+.live-companion-impact-score.player-rating-good {
+    -fx-background-color: rgba(22, 163, 74, 0.18);
+    -fx-border-color: rgba(34, 197, 94, 0.46);
+    -fx-text-fill: #22c55e;
+}
+
+.live-companion-impact-score.player-rating-mid {
+    -fx-background-color: rgba(250, 204, 21, 0.18);
+    -fx-border-color: rgba(250, 204, 21, 0.44);
+    -fx-text-fill: #facc15;
+}
+
+.live-companion-impact-score.player-rating-low {
+    -fx-background-color: rgba(220, 38, 38, 0.16);
+    -fx-border-color: rgba(248, 113, 113, 0.4);
+    -fx-text-fill: #fca5a5;
+}
+
+.live-companion-impact-score.player-rating-neutral {
+    -fx-background-color: rgba(100, 116, 139, 0.2);
+    -fx-border-color: rgba(148, 163, 184, 0.36);
+    -fx-text-fill: #cbd5e1;
+}
+
+.live-companion-tone-home {
+    -fx-text-fill: #0f766e;
+}
+
+.live-companion-tone-away {
+    -fx-text-fill: #1d4ed8;
+}
+
+.live-companion-tone-balanced {
+    -fx-text-fill: #475569;
+}
+
+.live-companion-tone-low {
+    -fx-text-fill: #0f766e;
+}
+
+.live-companion-tone-medium {
+    -fx-text-fill: #b45309;
+}
+
+.live-companion-tone-high {
+    -fx-text-fill: #b91c1c;
+}
+
 .theme-dark .flashscore-summary-card {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 47, 73, 0.96) 0%, rgba(15, 23, 42, 0.96) 100%);
     -fx-border-color: rgba(56, 189, 248, 0.34);
@@ -2275,6 +2420,88 @@
 .theme-dark .flashscore-summary-card .timeline-event-box {
     -fx-background-color: rgba(15, 23, 42, 0.82);
     -fx-border-color: rgba(125, 211, 252, 0.28);
+}
+
+.theme-dark .live-companion-summary,
+.theme-dark .live-companion-column-title,
+.theme-dark .live-companion-impact-name,
+.theme-dark .live-companion-metric-value {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .live-companion-metric-label,
+.theme-dark .live-companion-list-text,
+.theme-dark .live-companion-impact-meta,
+.theme-dark .live-companion-placeholder {
+    -fx-text-fill: #bae6fd;
+}
+
+.theme-dark .live-companion-column {
+    -fx-background-color: rgba(15, 23, 42, 0.54);
+    -fx-border-color: rgba(125, 211, 252, 0.22);
+}
+
+.theme-dark .live-companion-impact-score {
+    -fx-background-color: rgba(14, 116, 144, 0.34);
+    -fx-border-color: rgba(125, 211, 252, 0.32);
+}
+
+.theme-dark .live-companion-impact-score.player-rating-elite {
+    -fx-background-color: rgba(251, 191, 36, 0.24);
+    -fx-border-color: rgba(252, 211, 77, 0.54);
+    -fx-text-fill: #fde68a;
+}
+
+.theme-dark .live-companion-impact-score.player-rating-good {
+    -fx-background-color: rgba(22, 163, 74, 0.24);
+    -fx-border-color: rgba(74, 222, 128, 0.46);
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .live-companion-impact-score.player-rating-mid {
+    -fx-background-color: rgba(250, 204, 21, 0.22);
+    -fx-border-color: rgba(250, 204, 21, 0.46);
+    -fx-text-fill: #fde68a;
+}
+
+.theme-dark .live-companion-impact-score.player-rating-low {
+    -fx-background-color: rgba(220, 38, 38, 0.22);
+    -fx-border-color: rgba(248, 113, 113, 0.42);
+    -fx-text-fill: #fda4af;
+}
+
+.theme-dark .live-companion-impact-score.player-rating-neutral {
+    -fx-background-color: rgba(100, 116, 139, 0.22);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .live-companion-bullet {
+    -fx-text-fill: #67e8f9;
+}
+
+.theme-dark .live-companion-tone-home {
+    -fx-text-fill: #5eead4;
+}
+
+.theme-dark .live-companion-tone-away {
+    -fx-text-fill: #93c5fd;
+}
+
+.theme-dark .live-companion-tone-balanced {
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .live-companion-tone-low {
+    -fx-text-fill: #5eead4;
+}
+
+.theme-dark .live-companion-tone-medium {
+    -fx-text-fill: #fde68a;
+}
+
+.theme-dark .live-companion-tone-high {
+    -fx-text-fill: #fda4af;
 }
 
 /* Final timeline minute contrast guard for both theme roots. */

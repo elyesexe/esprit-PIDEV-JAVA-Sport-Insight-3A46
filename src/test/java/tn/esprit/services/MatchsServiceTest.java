@@ -1,5 +1,6 @@
 package tn.esprit.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,17 +10,28 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
+import tn.esprit.services.football.ApiFootballLineupPlayer;
+import tn.esprit.services.football.ApiFootballLineupSide;
+import tn.esprit.services.football.ApiFootballMatchIncident;
+import tn.esprit.services.football.ApiFootballStatisticRow;
+import tn.esprit.tools.MyConnection;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -27,6 +39,7 @@ class MatchsServiceTest {
 
     private static final String TEST_MATCH_PREFIX = "JUNIT_MATCH_" + System.currentTimeMillis() + "_";
     private static final String TEST_EQUIPE_PREFIX = TEST_MATCH_PREFIX + "TEAM_";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static MatchsService matchsService;
     private static EquipeService equipeService;
@@ -274,6 +287,137 @@ class MatchsServiceTest {
         assertEquals(testIdMatch("DRAW"), lastResults.get(1).getIdMatch());
     }
 
+    @Test
+    @Order(5)
+    void getLiveCompanionThrowsWhenMatchIsMissing() {
+        assertThrows(MatchNotFoundException.class, () -> matchsService.getLiveCompanion(Integer.MAX_VALUE));
+    }
+
+    @Test
+    @Order(6)
+    void getLiveCompanionHandlesEmptyJsonData() throws Exception {
+        TeamPair teams = createTeamPair("LIVE_EMPTY", "PL");
+        Matchs match = createStoredMatch(
+                "LIVE_EMPTY",
+                teams,
+                "En direct 48'",
+                0,
+                0,
+                "",
+                "",
+                ""
+        );
+
+        MatchLiveCompanionResponse response = assertDoesNotThrow(() -> matchsService.getLiveCompanion(match.getId()));
+
+        assertEquals("LIVE", response.status());
+        assertEquals(48, response.minute());
+        assertEquals("balanced", response.momentum().dominantTeam());
+        assertEquals("low", response.dangerLevel());
+        assertTrue(response.turningPoints().isEmpty());
+        assertTrue(response.topImpacts().isEmpty());
+        assertFalse(response.summary().isBlank());
+    }
+
+    @Test
+    @Order(7)
+    void getLiveCompanionBuildsInsightsFromGoalsCardsAndLineups() throws Exception {
+        TeamPair teams = createTeamPair("LIVE_EVENTS", "PL");
+        Matchs match = createStoredMatch(
+                "LIVE_EVENTS",
+                teams,
+                "En direct 78'",
+                2,
+                1,
+                buildStatsJson(
+                        new ApiFootballStatisticRow("Shots on Goal", "6", "2"),
+                        new ApiFootballStatisticRow("Total Shots", "14", "7"),
+                        new ApiFootballStatisticRow("Corner Kicks", "7", "3"),
+                        new ApiFootballStatisticRow("Ball Possession", "58%", "42%"),
+                        new ApiFootballStatisticRow("Yellow Cards", "1", "3"),
+                        new ApiFootballStatisticRow("Red Cards", "0", "1")
+                ),
+                buildIncidentsJson(
+                        new ApiFootballMatchIncident("goal", "regular", "12'", 12, null, true, "Player A", 101L, "Player B", 102L, null, null, null, null, null, 1, 0),
+                        new ApiFootballMatchIncident("goal", "regular", "52'", 52, null, false, "Away Striker", 201L, null, null, null, null, null, null, null, 1, 1),
+                        new ApiFootballMatchIncident("card", "red", "63'", 63, null, false, "Away Defender", 202L, null, null, null, null, null, null, "Professional foul", null, null),
+                        new ApiFootballMatchIncident("substitution", "tactical", "70'", 70, null, true, null, null, null, null, "Impact Sub", 103L, "Home Midfielder", 104L, "Midfield refresh", null, null),
+                        new ApiFootballMatchIncident("goal", "penalty", "78'", 78, null, true, "Player A", 101L, null, null, null, null, null, null, "Penalty scored", 2, 1)
+                ),
+                buildLineupsJson()
+        );
+
+        MatchLiveCompanionResponse response = matchsService.getLiveCompanion(match.getId());
+
+        assertEquals("LIVE", response.status());
+        assertEquals(78, response.minute());
+        assertEquals("home", response.momentum().dominantTeam());
+        assertEquals("high", response.dangerLevel());
+        assertTrue(response.turningPoints().contains("Red card for away team at 63'"));
+        assertTrue(response.turningPoints().contains("Home team took the lead at 78'"));
+        assertFalse(response.topImpacts().isEmpty());
+        assertEquals("Player A", response.topImpacts().get(0).player());
+        assertEquals("home", response.topImpacts().get(0).team());
+        assertTrue(response.topImpacts().get(0).impactScore() >= 10.0);
+        assertTrue(response.intensityScore() >= 70);
+        assertFalse(response.summary().isBlank());
+    }
+
+    @Test
+    @Order(8)
+    void getLiveCompanionIgnoresMalformedJsonWithoutCrashing() throws Exception {
+        TeamPair teams = createTeamPair("LIVE_MALFORMED", "PL");
+        Matchs match = createStoredMatch(
+                "LIVE_MALFORMED",
+                teams,
+                "En direct 63'",
+                1,
+                0,
+                "{broken-json",
+                buildIncidentsJson(
+                        new ApiFootballMatchIncident("goal", "regular", "54'", 54, null, true, "Player A", 101L, null, null, null, null, null, null, null, 1, 0)
+                ),
+                buildLineupsJson()
+        );
+
+        MatchLiveCompanionResponse response = assertDoesNotThrow(() -> matchsService.getLiveCompanion(match.getId()));
+
+        assertEquals("LIVE", response.status());
+        assertEquals(63, response.minute());
+        assertFalse(response.turningPoints().isEmpty());
+        assertEquals("Player A", response.topImpacts().get(0).player());
+    }
+
+    @Test
+    @Order(9)
+    void getLiveCompanionKeepsBalancedMomentumWhenStatsAreEven() throws Exception {
+        TeamPair teams = createTeamPair("LIVE_BALANCED", "PL");
+        Matchs match = createStoredMatch(
+                "LIVE_BALANCED",
+                teams,
+                "En direct 55'",
+                1,
+                1,
+                buildStatsJson(
+                        new ApiFootballStatisticRow("Shots on Goal", "3", "3"),
+                        new ApiFootballStatisticRow("Total Shots", "8", "8"),
+                        new ApiFootballStatisticRow("Corner Kicks", "4", "4"),
+                        new ApiFootballStatisticRow("Ball Possession", "50%", "50%"),
+                        new ApiFootballStatisticRow("Yellow Cards", "1", "1")
+                ),
+                buildIncidentsJson(
+                        new ApiFootballMatchIncident("goal", "regular", "22'", 22, null, true, "Player A", 101L, null, null, null, null, null, null, null, 1, 0),
+                        new ApiFootballMatchIncident("goal", "regular", "37'", 37, null, false, "Away Striker", 201L, null, null, null, null, null, null, null, 1, 1)
+                ),
+                buildLineupsJson()
+        );
+
+        MatchLiveCompanionResponse response = matchsService.getLiveCompanion(match.getId());
+
+        assertEquals("balanced", response.momentum().dominantTeam());
+        assertTrue(Math.abs(response.momentum().homePressure() - response.momentum().awayPressure()) <= 8);
+    }
+
     private Matchs buildMatch(
             String idMatch,
             Integer equipeDomicileId,
@@ -305,6 +449,107 @@ class MatchsServiceTest {
         );
         matchs.setCompetitionCode(competitionCode);
         return matchs;
+    }
+
+    private Matchs createStoredMatch(
+            String label,
+            TeamPair teams,
+            String status,
+            Integer homeScore,
+            Integer awayScore,
+            String statsJson,
+            String incidentsJson,
+            String lineupsJson
+    ) throws Exception {
+        String idMatch = testIdMatch(label);
+        matchsService.add(buildMatch(
+                idMatch,
+                teams.home().getId(),
+                teams.away().getId(),
+                LocalDate.of(2026, 5, 1),
+                LocalTime.of(20, 0),
+                "Companion Arena",
+                "Championnat",
+                status,
+                "4-3-3",
+                "4-4-2",
+                homeScore,
+                awayScore,
+                "PL"
+        ));
+        Matchs match = findByIdMatch(idMatch);
+        assertNotNull(match);
+        updateStoredApiFields(match.getId(), status, homeScore, awayScore, statsJson, incidentsJson, lineupsJson);
+        return matchsService.getById(match.getId());
+    }
+
+    private void updateStoredApiFields(
+            int matchId,
+            String status,
+            Integer homeScore,
+            Integer awayScore,
+            String statsJson,
+            String incidentsJson,
+            String lineupsJson
+    ) throws Exception {
+        try (PreparedStatement statement = MyConnection.getInstance().getConnection().prepareStatement(
+                "UPDATE matchs SET statut = ?, score_equipe_domicile = ?, score_equipe_exterieur = ?, api_football_stats_json = ?, api_football_incidents_json = ?, api_football_lineup_json = ?, api_football_synced_at = ? WHERE id = ?")) {
+            statement.setString(1, status);
+            setNullableInteger(statement, 2, homeScore);
+            setNullableInteger(statement, 3, awayScore);
+            statement.setString(4, statsJson);
+            statement.setString(5, incidentsJson);
+            statement.setString(6, lineupsJson);
+            statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setInt(8, matchId);
+            statement.executeUpdate();
+        }
+    }
+
+    private void setNullableInteger(PreparedStatement statement, int index, Integer value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, java.sql.Types.INTEGER);
+        } else {
+            statement.setInt(index, value);
+        }
+    }
+
+    private String buildStatsJson(ApiFootballStatisticRow... rows) throws Exception {
+        return OBJECT_MAPPER.writeValueAsString(List.of(rows));
+    }
+
+    private String buildIncidentsJson(ApiFootballMatchIncident... incidents) throws Exception {
+        return OBJECT_MAPPER.writeValueAsString(List.of(incidents));
+    }
+
+    private String buildLineupsJson() throws Exception {
+        ApiFootballLineupSide home = new ApiFootballLineupSide(
+                "JUnit Home",
+                "4-3-3",
+                "Coach Home",
+                List.of(
+                        new ApiFootballLineupPlayer("Player A", "9", "F", null, null, 101L, 8.4),
+                        new ApiFootballLineupPlayer("Player B", "10", "M", null, null, 102L, 7.3),
+                        new ApiFootballLineupPlayer("Home Midfielder", "8", "M", null, null, 104L, 6.7)
+                ),
+                List.of(
+                        new ApiFootballLineupPlayer("Impact Sub", "17", "M", null, null, 103L, 7.1)
+                )
+        );
+        ApiFootballLineupSide away = new ApiFootballLineupSide(
+                "JUnit Away",
+                "4-4-2",
+                "Coach Away",
+                List.of(
+                        new ApiFootballLineupPlayer("Away Striker", "11", "F", null, null, 201L, 7.5),
+                        new ApiFootballLineupPlayer("Away Defender", "4", "D", null, null, 202L, 6.1)
+                ),
+                List.of()
+        );
+        return OBJECT_MAPPER.writeValueAsString(Map.of(
+                "homeLineup", home,
+                "awayLineup", away
+        ));
     }
 
     private TeamPair createTeamPair(String label, String competitionCode) throws SQLException {

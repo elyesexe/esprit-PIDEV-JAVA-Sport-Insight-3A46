@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import tn.esprit.assistant.AssistantOverlay;
 import tn.esprit.assistant.AssistantService;
 import tn.esprit.i18n.I18n;
+import tn.esprit.i18n.UiTextLocalizer;
 import tn.esprit.security.AuthSession;
 
 import java.net.URL;
@@ -114,6 +115,7 @@ public final class SceneNavigator {
             Parent sceneRoot = publicView
                     ? root
                     : AssistantOverlay.wrap(root, stage, fxmlPath, title, loader.getController());
+            UiTextLocalizer.install(sceneRoot);
             URL stylesheet = SceneNavigator.class.getResource(cssPath);
             URL assistantStylesheet = SceneNavigator.class.getResource(ASSISTANT_CSS);
             String pageStylesheet = stylesheet == null ? null : stylesheet.toExternalForm();
@@ -204,7 +206,7 @@ public final class SceneNavigator {
             return fallback;
         }
         String fileName = fxmlPath.substring(fxmlPath.lastIndexOf('/') + 1).replace(".fxml", "");
-        return I18n.getOrDefault("scene.title." + fileName, fallback);
+        return I18n.getOrDefault("scene.title." + fileName, I18n.translateLiteral(fallback));
     }
 
     private record SceneState(String fxmlPath, String cssPath, String title, Consumer<Object> controllerConfigurer) {

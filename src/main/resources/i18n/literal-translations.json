@@ -1,0 +1,3252 @@
+[
+    {
+        "literal":  "Chargement...",
+        "fr":  "Chargement...",
+        "en":  "Loading..."
+    },
+    {
+        "literal":  "Aucune donnee operationnelle disponible.",
+        "fr":  "Aucune donnee operationnelle disponible.",
+        "en":  "No operational data available."
+    },
+    {
+        "literal":  "Aucun utilisateur disponible.",
+        "fr":  "Aucun utilisateur disponible.",
+        "en":  "No users available."
+    },
+    {
+        "literal":  "Aucune annonce disponible.",
+        "fr":  "Aucune annonce disponible.",
+        "en":  "No listings available."
+    },
+    {
+        "literal":  "Aucun entrainement disponible.",
+        "fr":  "Aucun entrainement disponible.",
+        "en":  "No training available."
+    },
+    {
+        "literal":  "â€¹",
+        "fr":  "â€¹",
+        "en":  "â€¹"
+    },
+    {
+        "literal":  "Loading...",
+        "fr":  "Chargement...",
+        "en":  "Loading..."
+    },
+    {
+        "literal":  "Admin",
+        "fr":  "Administrateur",
+        "en":  "Admin"
+    },
+    {
+        "literal":  "Matchs",
+        "fr":  "Matchs",
+        "en":  "Matches"
+    },
+    {
+        "literal":  "Equipes",
+        "fr":  "Équipes",
+        "en":  "Teams"
+    },
+    {
+        "literal":  "Leagues",
+        "fr":  "Ligues",
+        "en":  "Leagues"
+    },
+    {
+        "literal":  "Joueurs",
+        "fr":  "Joueurs",
+        "en":  "Players"
+    },
+    {
+        "literal":  "Anonce",
+        "fr":  "Annonce",
+        "en":  "Announcement"
+    },
+    {
+        "literal":  "Recruitment",
+        "fr":  "Recrutement",
+        "en":  "Recruitment"
+    },
+    {
+        "literal":  "Integrate annonces into the local workspace",
+        "fr":  "Intégrer des annonces dans l\u0027espace de travail local",
+        "en":  "Integrate annonces into the local workspace"
+    },
+    {
+        "literal":  "Manage announcements and their comments from one designed module that works in both the user experience and the admin shell.",
+        "fr":  "Gérez les annonces et leurs commentaires à partir d\u0027un module conçu qui fonctionne à la fois dans l\u0027expérience utilisateur et dans le shell d\u0027administration.",
+        "en":  "Manage announcements and their comments from one designed module that works in both the user experience and the admin shell."
+    },
+    {
+        "literal":  "0 total announcement(s)",
+        "fr":  "0 annonce(s) au total",
+        "en":  "0 total announcement(s)"
+    },
+    {
+        "literal":  "Select an announcement",
+        "fr":  "Sélectionnez une annonce",
+        "en":  "Select an announcement"
+    },
+    {
+        "literal":  "Total announcements",
+        "fr":  "Annonces totales",
+        "en":  "Total announcements"
+    },
+    {
+        "literal":  "Active",
+        "fr":  "Actif",
+        "en":  "Active"
+    },
+    {
+        "literal":  "Urgent",
+        "fr":  "Urgent",
+        "en":  "Urgent"
+    },
+    {
+        "literal":  "Pending comments",
+        "fr":  "Commentaires en attente",
+        "en":  "Pending comments"
+    },
+    {
+        "literal":  "Announcement search",
+        "fr":  "Recherche d\u0027annonces",
+        "en":  "Announcement search"
+    },
+    {
+        "literal":  "Filter by text, role, status, or urgency without leaving the local design system.",
+        "fr":  "Filtrez par texte, rôle, statut ou urgence sans quitter le système de conception local.",
+        "en":  "Filter by text, role, status, or urgency without leaving the local design system."
+    },
+    {
+        "literal":  "0 announcement(s) visible",
+        "fr":  "0 annonce(s) visible(s)",
+        "en":  "0 announcement(s) visible"
+    },
+    {
+        "literal":  "Ready",
+        "fr":  "Prêt",
+        "en":  "Ready"
+    },
+    {
+        "literal":  "Search",
+        "fr":  "Recherche",
+        "en":  "Search"
+    },
+    {
+        "literal":  "Search title, description, role, or level",
+        "fr":  "Rechercher un titre, une description, un rôle ou un niveau",
+        "en":  "Search title, description, role, or level"
+    },
+    {
+        "literal":  "Role",
+        "fr":  "Rôle",
+        "en":  "Role"
+    },
+    {
+        "literal":  "Status",
+        "fr":  "Statut",
+        "en":  "Status"
+    },
+    {
+        "literal":  "Flags",
+        "fr":  "Drapeaux",
+        "en":  "Flags"
+    },
+    {
+        "literal":  "Urgent only",
+        "fr":  "Urgent seulement",
+        "en":  "Urgent only"
+    },
+    {
+        "literal":  "Actions",
+        "fr":  "Actes",
+        "en":  "Actions"
+    },
+    {
+        "literal":  "Refresh",
+        "fr":  "Rafraîchir",
+        "en":  "Refresh"
+    },
+    {
+        "literal":  "Export PDF",
+        "fr":  "Exporter un PDF",
+        "en":  "Export PDF"
+    },
+    {
+        "literal":  "Reset",
+        "fr":  "Réinitialiser",
+        "en":  "Reset"
+    },
+    {
+        "literal":  "Announcements table",
+        "fr":  "Tableau des annonces",
+        "en":  "Announcements table"
+    },
+    {
+        "literal":  "Select a row to edit it, review its state, and unlock the related comments panel below.",
+        "fr":  "Sélectionnez une ligne pour la modifier, vérifiez son état et déverrouillez le panneau de commentaires associé ci-dessous.",
+        "en":  "Select a row to edit it, review its state, and unlock the related comments panel below."
+    },
+    {
+        "literal":  "ID",
+        "fr":  "IDENTIFIANT",
+        "en":  "ID"
+    },
+    {
+        "literal":  "Title",
+        "fr":  "Titre",
+        "en":  "Title"
+    },
+    {
+        "literal":  "Level",
+        "fr":  "Niveau",
+        "en":  "Level"
+    },
+    {
+        "literal":  "Date",
+        "fr":  "Date",
+        "en":  "Date"
+    },
+    {
+        "literal":  "Priority",
+        "fr":  "Priorité",
+        "en":  "Priority"
+    },
+    {
+        "literal":  "Comments",
+        "fr":  "Commentaires",
+        "en":  "Comments"
+    },
+    {
+        "literal":  "Preview",
+        "fr":  "Aperçu",
+        "en":  "Preview"
+    },
+    {
+        "literal":  "Draft",
+        "fr":  "Brouillon",
+        "en":  "Draft"
+    },
+    {
+        "literal":  "No announcement selected",
+        "fr":  "Aucune annonce sélectionnée",
+        "en":  "No announcement selected"
+    },
+    {
+        "literal":  "Choose an announcement from the list or start a new one.",
+        "fr":  "Choisissez une annonce dans la liste ou démarrez-en une nouvelle.",
+        "en":  "Choose an announcement from the list or start a new one."
+    },
+    {
+        "literal":  "Coach",
+        "fr":  "Entraîneur",
+        "en":  "Coach"
+    },
+    {
+        "literal":  "No coach ID",
+        "fr":  "Pas d\u0027identifiant d\u0027entraîneur",
+        "en":  "No coach ID"
+    },
+    {
+        "literal":  "Standard",
+        "fr":  "Standard",
+        "en":  "Standard"
+    },
+    {
+        "literal":  "Announcement form",
+        "fr":  "Formulaire d\u0027annonce",
+        "en":  "Announcement form"
+    },
+    {
+        "literal":  "Create a new announcement with the same visual language as the local modules.",
+        "fr":  "Créez une nouvelle annonce avec le même langage visuel que les modules locaux.",
+        "en":  "Create a new announcement with the same visual language as the local modules."
+    },
+    {
+        "literal":  "Announcement title",
+        "fr":  "Titre de l\u0027annonce",
+        "en":  "Announcement title"
+    },
+    {
+        "literal":  "Description",
+        "fr":  "Description",
+        "en":  "Description"
+    },
+    {
+        "literal":  "Describe the recruitment need",
+        "fr":  "Décrire le besoin de recrutement",
+        "en":  "Describe the recruitment need"
+    },
+    {
+        "literal":  "Example: Goalkeeper",
+        "fr":  "Exemple : gardien de but",
+        "en":  "Example: Goalkeeper"
+    },
+    {
+        "literal":  "Example: Advanced",
+        "fr":  "Exemple : Avancé",
+        "en":  "Example: Advanced"
+    },
+    {
+        "literal":  "Publication date",
+        "fr":  "Date de parution",
+        "en":  "Publication date"
+    },
+    {
+        "literal":  "Coach ID",
+        "fr":  "Identifiant de l\u0027entraîneur",
+        "en":  "Coach ID"
+    },
+    {
+        "literal":  "Optional numeric ID",
+        "fr":  "ID numérique facultatif",
+        "en":  "Optional numeric ID"
+    },
+    {
+        "literal":  "Comments enabled",
+        "fr":  "Commentaires activés",
+        "en":  "Comments enabled"
+    },
+    {
+        "literal":  "Mark as urgent",
+        "fr":  "Marquer comme urgent",
+        "en":  "Mark as urgent"
+    },
+    {
+        "literal":  "Add",
+        "fr":  "Ajouter",
+        "en":  "Add"
+    },
+    {
+        "literal":  "Update",
+        "fr":  "Mise à jour",
+        "en":  "Update"
+    },
+    {
+        "literal":  "Delete",
+        "fr":  "Supprimer",
+        "en":  "Delete"
+    },
+    {
+        "literal":  "Clear",
+        "fr":  "Clair",
+        "en":  "Clear"
+    },
+    {
+        "literal":  "Select an announcement to manage comments.",
+        "fr":  "Sélectionnez une annonce pour gérer les commentaires.",
+        "en":  "Select an announcement to manage comments."
+    },
+    {
+        "literal":  "0 comment(s)",
+        "fr":  "0 commentaire",
+        "en":  "0 comment(s)"
+    },
+    {
+        "literal":  "Author",
+        "fr":  "Auteur",
+        "en":  "Author"
+    },
+    {
+        "literal":  "Content",
+        "fr":  "Contenu",
+        "en":  "Content"
+    },
+    {
+        "literal":  "Likes",
+        "fr":  "Goûts",
+        "en":  "Likes"
+    },
+    {
+        "literal":  "Moderation",
+        "fr":  "Modération",
+        "en":  "Moderation"
+    },
+    {
+        "literal":  "Comment form",
+        "fr":  "Formulaire de commentaires",
+        "en":  "Comment form"
+    },
+    {
+        "literal":  "Select an announcement first.",
+        "fr":  "Sélectionnez d\u0027abord une annonce.",
+        "en":  "Select an announcement first."
+    },
+    {
+        "literal":  "Visible label for the comment",
+        "fr":  "Etiquette visible pour le commentaire",
+        "en":  "Visible label for the comment"
+    },
+    {
+        "literal":  "Player ID",
+        "fr":  "Identifiant du joueur",
+        "en":  "Player ID"
+    },
+    {
+        "literal":  "Comment date",
+        "fr":  "Date du commentaire",
+        "en":  "Comment date"
+    },
+    {
+        "literal":  "Moderation status",
+        "fr":  "Statut de modération",
+        "en":  "Moderation status"
+    },
+    {
+        "literal":  "Moderation reason",
+        "fr":  "Raison de modération",
+        "en":  "Moderation reason"
+    },
+    {
+        "literal":  "Optional reason",
+        "fr":  "Raison facultative",
+        "en":  "Optional reason"
+    },
+    {
+        "literal":  "Comment content",
+        "fr":  "Contenu du commentaire",
+        "en":  "Comment content"
+    },
+    {
+        "literal":  "Write the comment body",
+        "fr":  "Écrivez le corps du commentaire",
+        "en":  "Write the comment body"
+    },
+    {
+        "literal":  "Matchs +",
+        "fr":  "Matchs +",
+        "en":  "Matches +"
+    },
+    {
+        "literal":  "Announcement feed",
+        "fr":  "Flux d\u0027annonces",
+        "en":  "Announcement feed"
+    },
+    {
+        "literal":  "Club posts, updates and discussion",
+        "fr":  "Messages du club, mises à jour et discussions",
+        "en":  "Club posts, updates and discussion"
+    },
+    {
+        "literal":  "Browse announcements like a social feed. Read the post and its comments in one place.",
+        "fr":  "Parcourez les annonces comme un flux social. Lisez l\u0027article et ses commentaires en un seul endroit.",
+        "en":  "Browse announcements like a social feed. Read the post and its comments in one place."
+    },
+    {
+        "literal":  "Find posts",
+        "fr":  "Rechercher des messages",
+        "en":  "Find posts"
+    },
+    {
+        "literal":  "Search announcements and browse them as a feed.",
+        "fr":  "Recherchez des annonces et parcourez-les sous forme de flux.",
+        "en":  "Search announcements and browse them as a feed."
+    },
+    {
+        "literal":  "Feed ready",
+        "fr":  "Nourrir prêt",
+        "en":  "Feed ready"
+    },
+    {
+        "literal":  "All levels",
+        "fr":  "Tous niveaux",
+        "en":  "All levels"
+    },
+    {
+        "literal":  "Sort",
+        "fr":  "Trier",
+        "en":  "Sort"
+    },
+    {
+        "literal":  "Feed mode",
+        "fr":  "Mode d\u0027alimentation",
+        "en":  "Feed mode"
+    },
+    {
+        "literal":  "SI",
+        "fr":  "ET",
+        "en":  "AND"
+    },
+    {
+        "literal":  "Post as Sport Insight user",
+        "fr":  "Publier en tant qu\u0027utilisateur de Sport Insight",
+        "en":  "Post as Sport Insight user"
+    },
+    {
+        "literal":  "Only players can create a post or add comments.",
+        "fr":  "Seuls les joueurs peuvent créer une publication ou ajouter des commentaires.",
+        "en":  "Only players can create a post or add comments."
+    },
+    {
+        "literal":  "Post title",
+        "fr":  "Titre du message",
+        "en":  "Post title"
+    },
+    {
+        "literal":  "Write a short title for your post",
+        "fr":  "Écrivez un titre court pour votre message",
+        "en":  "Write a short title for your post"
+    },
+    {
+        "literal":  "Goalkeeper, Defender...",
+        "fr":  "Gardien, Défenseur...",
+        "en":  "Goalkeeper, Defender..."
+    },
+    {
+        "literal":  "Junior, Senior...",
+        "fr":  "Juniors, Séniors...",
+        "en":  "Junior, Senior..."
+    },
+    {
+        "literal":  "Post content",
+        "fr":  "Publier du contenu",
+        "en":  "Post content"
+    },
+    {
+        "literal":  "Share your update like a social post...",
+        "fr":  "Partagez votre mise à jour comme une publication sociale...",
+        "en":  "Share your update like a social post..."
+    },
+    {
+        "literal":  "Urgent post",
+        "fr":  "Message urgent",
+        "en":  "Urgent post"
+    },
+    {
+        "literal":  "Publish post",
+        "fr":  "Publier le message",
+        "en":  "Publish post"
+    },
+    {
+        "literal":  "Posts",
+        "fr":  "Messages",
+        "en":  "Posts"
+    },
+    {
+        "literal":  "Each announcement is shown as a post with its comments directly below.",
+        "fr":  "Chaque annonce est présentée sous forme de publication avec ses commentaires directement en dessous.",
+        "en":  "Each announcement is shown as a post with its comments directly below."
+    },
+    {
+        "literal":  "Moderation entrainement, evaluation et participation",
+        "fr":  "Moderation entrainement, evaluation et participation",
+        "en":  "Training moderation, evaluation and participation"
+    },
+    {
+        "literal":  "Toutes les options CRUD sont accessibles depuis ce dashboard.",
+        "fr":  "Toutes les options CRUD sont accessibles depuis ce dashboard.",
+        "en":  "All CRUD options are accessible from this dashboard."
+    },
+    {
+        "literal":  "Entrainements",
+        "fr":  "Entrainements",
+        "en":  "Trainings"
+    },
+    {
+        "literal":  "Rechercher par type, lieu, objectif",
+        "fr":  "Rechercher par type, lieu, objectif",
+        "en":  "Search by type, location, purpose"
+    },
+    {
+        "literal":  "Trier par",
+        "fr":  "Trier par",
+        "en":  "sort by"
+    },
+    {
+        "literal":  "Actualiser",
+        "fr":  "Actualiser",
+        "en":  "Refresh"
+    },
+    {
+        "literal":  "Type",
+        "fr":  "Taper",
+        "en":  "Type"
+    },
+    {
+        "literal":  "Lieu",
+        "fr":  "Lieu",
+        "en":  "Lieu"
+    },
+    {
+        "literal":  "Horaire",
+        "fr":  "Horaire",
+        "en":  "Hourly"
+    },
+    {
+        "literal":  "Creer / Modifier",
+        "fr":  "Creer / Modifier",
+        "en":  "Create / Modify"
+    },
+    {
+        "literal":  "Selectionnez une ligne ou saisissez une nouvelle session.",
+        "fr":  "Selectionnez une ligne ou saisissez une nouvelle session.",
+        "en":  "Select a line or enter a new session."
+    },
+    {
+        "literal":  "Heure debut (HH:mm)",
+        "fr":  "Heure debut (HH:mm)",
+        "en":  "Start time (HH:mm)"
+    },
+    {
+        "literal":  "Heure fin (HH:mm)",
+        "fr":  "Heure fin (HH:mm)",
+        "en":  "End time (HH:mm)"
+    },
+    {
+        "literal":  "Objectif",
+        "fr":  "Objectif",
+        "en":  "Objective"
+    },
+    {
+        "literal":  "Ajouter",
+        "fr":  "Ajouter",
+        "en":  "Add"
+    },
+    {
+        "literal":  "Modifier",
+        "fr":  "Modificateur",
+        "en":  "Modifier"
+    },
+    {
+        "literal":  "Supprimer",
+        "fr":  "Supprimer",
+        "en":  "DELETE"
+    },
+    {
+        "literal":  "Reinitialiser",
+        "fr":  "réinitialiseur",
+        "en":  "reinitializer"
+    },
+    {
+        "literal":  "Evaluations",
+        "fr":  "Évaluations",
+        "en":  "Evaluations"
+    },
+    {
+        "literal":  "Rechercher dans les commentaires",
+        "fr":  "Rechercher dans les commentaires",
+        "en":  "Search in comments"
+    },
+    {
+        "literal":  "Entrainement",
+        "fr":  "Entrainement",
+        "en":  "Training"
+    },
+    {
+        "literal":  "Joueur",
+        "fr":  "Joueur",
+        "en":  "Player"
+    },
+    {
+        "literal":  "Scores",
+        "fr":  "Partitions",
+        "en":  "Scores"
+    },
+    {
+        "literal":  "Moyenne",
+        "fr":  "Moyenne",
+        "en":  "Average"
+    },
+    {
+        "literal":  "Selectionnez une evaluation ou creez-en une.",
+        "fr":  "Selectionnez une evaluation ou creez-en une.",
+        "en":  "Select an assessment or create one."
+    },
+    {
+        "literal":  "Note physique",
+        "fr":  "Note physique",
+        "en":  "Physical note"
+    },
+    {
+        "literal":  "Note technique",
+        "fr":  "Note technique",
+        "en":  "Technical note"
+    },
+    {
+        "literal":  "Note tactique",
+        "fr":  "Note tactique",
+        "en":  "Tactical note"
+    },
+    {
+        "literal":  "Commentaire",
+        "fr":  "Commentaire",
+        "en":  "Comment"
+    },
+    {
+        "literal":  "Participations",
+        "fr":  "Participation",
+        "en":  "Participations"
+    },
+    {
+        "literal":  "Rechercher par presence",
+        "fr":  "Rechercher par presence",
+        "en":  "Search by presence"
+    },
+    {
+        "literal":  "Presence",
+        "fr":  "Présence",
+        "en":  "Presence"
+    },
+    {
+        "literal":  "Justification",
+        "fr":  "Justification",
+        "en":  "Justification"
+    },
+    {
+        "literal":  "Selectionnez une participation ou creez-en une.",
+        "fr":  "Selectionnez une participation ou creez-en une.",
+        "en":  "Select an entry or create one."
+    },
+    {
+        "literal":  "Present / Absent",
+        "fr":  "Présent / Absent",
+        "en":  "Present / Absent"
+    },
+    {
+        "literal":  "Gestion \u0026 suivi",
+        "fr":  "Gestion \u0026 suivi",
+        "en":  "Management \u0026 monitoring"
+    },
+    {
+        "literal":  "Planifiez les sessions, suivez les objectifs et surveillez la presence en temps reel.",
+        "fr":  "Planifiez les sessions, suivez les objectifs et surveillez la presence en temps reel.",
+        "en":  "Schedule sessions, track goals, and monitor attendance in real time."
+    },
+    {
+        "literal":  "ðŸ“Š Mon Ã‰volution",
+        "fr":  "ðŸ“Š Mon évolution",
+        "en":  "ðŸ“Š My Ã‰evolution"
+    },
+    {
+        "literal":  "â–¼ Afficher",
+        "fr":  "â–¼ Afficher",
+        "en":  "â–¼ Show"
+    },
+    {
+        "literal":  "ðŸ“ Ã‰valuations",
+        "fr":  "ðŸ\" évaluations",
+        "en":  "ðŸ“ Ã‰valuations"
+    },
+    {
+        "literal":  "âœ… PrÃ©sence",
+        "fr":  "âœ… PrÃ©sence",
+        "en":  "âœ… Presence"
+    },
+    {
+        "literal":  "â­ Moyenne",
+        "fr":  "â­ Moyenne",
+        "en":  "â Average"
+    },
+    {
+        "literal":  "ðŸ“ˆ Progression",
+        "fr":  "ðŸ« ˆ Progression",
+        "en":  "ðŸ“ˆ Progression"
+    },
+    {
+        "literal":  "ðŸŽ¯ Points Ã  amÃ©liorer",
+        "fr":  "ðŸŽ¯ Points élirer",
+        "en":  "ðŸŽ¯ Points Ã©liorer"
+    },
+    {
+        "literal":  "ðŸ¤– Recommandations IA",
+        "fr":  "ðŸ¤– Recommandations IA",
+        "en":  "ðŸ¤– AI Recommendations"
+    },
+    {
+        "literal":  "ðŸ½ï¸ Suivi Nutritionnel",
+        "fr":  "ðŸ½ï¸ Suivi Nutritionnel",
+        "en":  "ðŸ½ï¸ Nutritional Monitoring"
+    },
+    {
+        "literal":  "Sessions d\u0027entrainement",
+        "fr":  "Sessions d\u0027entrainement",
+        "en":  "Training sessions"
+    },
+    {
+        "literal":  "Recherchez par type, lieu, ou objectif et triez par date.",
+        "fr":  "Recherchez par type, lieu, ou objectif et triez par date.",
+        "en":  "Search by type, location, or purpose and sort by date."
+    },
+    {
+        "literal":  "Total",
+        "fr":  "Total",
+        "en":  "Total"
+    },
+    {
+        "literal":  "Aucun entrainement pour le moment.",
+        "fr":  "Aucun entrainement pour le moment.",
+        "en":  "No training at the moment."
+    },
+    {
+        "literal":  "Renseignez les details de la session.",
+        "fr":  "Renseignez les details de la session.",
+        "en":  "Fill in the details of the session."
+    },
+    {
+        "literal":  "Type (Technique, Tactique)",
+        "fr":  "Type (Technique, Tactique)",
+        "en":  "Type (Technical, Tactical)"
+    },
+    {
+        "literal":  "Notes internes (optionnel)",
+        "fr":  "Notes internes (optionnel)",
+        "en":  "Internal notes (optional)"
+    },
+    {
+        "literal":  "Participation",
+        "fr":  "Participation",
+        "en":  "Participation"
+    },
+    {
+        "literal":  "Selectionnez une session pour marquer votre presence.",
+        "fr":  "Selectionnez une session pour marquer votre presence.",
+        "en":  "Select a session to mark your presence."
+    },
+    {
+        "literal":  "Justification si absent",
+        "fr":  "Justification si absente",
+        "en":  "Justification si absent"
+    },
+    {
+        "literal":  "Enregistrer",
+        "fr":  "Enregistrer",
+        "en":  "Save"
+    },
+    {
+        "literal":  "Aucune evaluation chargee.",
+        "fr":  "Aucune evaluation chargee.",
+        "en":  "No ratings loaded."
+    },
+    {
+        "literal":  "â˜€",
+        "fr":  "â˜€",
+        "en":  "â˜€"
+    },
+    {
+        "literal":  "â˜¾",
+        "fr":  "â˜¾",
+        "en":  "â˜¾"
+    },
+    {
+        "literal":  "Competitions",
+        "fr":  "Compétitions",
+        "en":  "Competitions"
+    },
+    {
+        "literal":  "Choisissez un championnat",
+        "fr":  "Choisissez un championnat",
+        "en":  "Choose a championship"
+    },
+    {
+        "literal":  "Chaque carte ouvre une nouvelle page avec la liste des equipes de cette competition. La Champions League n\u0027est pas incluse ici.",
+        "fr":  "Chaque carte ouvre une nouvelle page avec la liste des equipes de cette competition. La Champions League n\u0027est pas incluse ici.",
+        "en":  "Each card opens a new page with the list of teams in this competition. The Champions League is not included here."
+    },
+    {
+        "literal":  "5 competitions",
+        "fr":  "5 compétitions",
+        "en":  "5 competitions"
+    },
+    {
+        "literal":  "Logo en haut, nom en dessous",
+        "fr":  "Logo en haut, nom en dessous",
+        "en":  "Logo on top, name below"
+    },
+    {
+        "literal":  "Liste des competitions",
+        "fr":  "Liste des competitions",
+        "en":  "List of competitions"
+    },
+    {
+        "literal":  "Cliquez sur une carte pour ouvrir la page des equipes correspondantes.",
+        "fr":  "Cliquez sur une carte pour ouvrir la page des equipes correspondantes.",
+        "en":  "Click on a card to open the corresponding teams page."
+    },
+    {
+        "literal":  "Navigation seule",
+        "fr":  "Navigation seule",
+        "en":  "Navigation only"
+    },
+    {
+        "literal":  "Statistiques equipe",
+        "fr":  "Statistiques equipe",
+        "en":  "Team statistics"
+    },
+    {
+        "literal":  "Ecrivez le nom d\u0027une equipe pour afficher son taux de victoire, nul et defaite.",
+        "fr":  "Ecrivez le nom d\u0027une equipe pour afficher son taux de victoire, nul et defaite.",
+        "en":  "Write the name of a team to display its win, draw and loss rate."
+    },
+    {
+        "literal":  "Nom de l\u0027equipe",
+        "fr":  "Nom de l\u0027equipe",
+        "en":  "Team name"
+    },
+    {
+        "literal":  "Afficher",
+        "fr":  "Afficher",
+        "en":  "Display"
+    },
+    {
+        "literal":  "Ecrivez le nom d\u0027une equipe pour voir ses statistiques.",
+        "fr":  "Ecrivez le nom d\u0027une equipe pour voir ses statistiques.",
+        "en":  "Write the name of a team to see its statistics."
+    },
+    {
+        "literal":  "Equipe admin",
+        "fr":  "Équipe administrative",
+        "en":  "Admin team"
+    },
+    {
+        "literal":  "Gestion des equipes, recherche rapide, edition et suppression depuis une vue de type back-office.",
+        "fr":  "Gestion des equipes, recherche rapide, edition et suppression depuis une vue de type back-office.",
+        "en":  "Team management, quick search, editing and deletion from a back-office type view."
+    },
+    {
+        "literal":  "Pret",
+        "fr":  "Contre",
+        "en":  "Against"
+    },
+    {
+        "literal":  "Enregistrements",
+        "fr":  "Enregistrements",
+        "en":  "Records"
+    },
+    {
+        "literal":  "0 equipe(s)",
+        "fr":  "0 équipe(s)",
+        "en":  "0 team(s)"
+    },
+    {
+        "literal":  "Etat courant",
+        "fr":  "Etat courant",
+        "en":  "Current state"
+    },
+    {
+        "literal":  "Mode creation",
+        "fr":  "Création de modes",
+        "en":  "Mode creation"
+    },
+    {
+        "literal":  "Competition",
+        "fr":  "Concours",
+        "en":  "Competition"
+    },
+    {
+        "literal":  "Recherche",
+        "fr":  "Recherche",
+        "en":  "Research"
+    },
+    {
+        "literal":  "Rechercher par nom ou coach",
+        "fr":  "Rechercher par nom ou coach",
+        "en":  "Search by name or coach"
+    },
+    {
+        "literal":  "Tri",
+        "fr":  "Tri",
+        "en":  "Tri"
+    },
+    {
+        "literal":  "Ordre",
+        "fr":  "Ordre",
+        "en":  "Order"
+    },
+    {
+        "literal":  "Croissant",
+        "fr":  "Croissant",
+        "en":  "Croissant"
+    },
+    {
+        "literal":  "Excel",
+        "fr":  "Exceller",
+        "en":  "Excel"
+    },
+    {
+        "literal":  "Table des equipes",
+        "fr":  "Table des equipes",
+        "en":  "Team table"
+    },
+    {
+        "literal":  "Selectionnez une ligne pour alimenter la fiche detail et le formulaire d\u0027edition.",
+        "fr":  "Selectionnez une ligne pour alimenter la fiche detail et le formulaire d\u0027edition.",
+        "en":  "Select a line to populate the detail sheet and the edit form."
+    },
+    {
+        "literal":  "0 ligne(s)",
+        "fr":  "0 ligne(s)",
+        "en":  "0 line(s)"
+    },
+    {
+        "literal":  "Equipe",
+        "fr":  "Équipe",
+        "en":  "Team"
+    },
+    {
+        "literal":  "Source",
+        "fr":  "Source",
+        "en":  "Source"
+    },
+    {
+        "literal":  "Logo",
+        "fr":  "Logo",
+        "en":  "Logo"
+    },
+    {
+        "literal":  "Aucune equipe trouvee",
+        "fr":  "Aucune equipe trouvee",
+        "en":  "No team found"
+    },
+    {
+        "literal":  "Essayez un autre filtre ou rechargez la liste pour retrouver les fiches en base.",
+        "fr":  "Essayez un autre filtre ou rechargez la liste pour retrouver les fiches en base.",
+        "en":  "Try another filter or reload the list to find the records in base."
+    },
+    {
+        "literal":  "Apercu",
+        "fr":  "Apercu",
+        "en":  "Preview"
+    },
+    {
+        "literal":  "Nouvelle fiche",
+        "fr":  "Nouvelle fiche",
+        "en":  "New sheet"
+    },
+    {
+        "literal":  "Aucune equipe selectionnee",
+        "fr":  "Aucune equipe selectionnee",
+        "en":  "No team selected"
+    },
+    {
+        "literal":  "Selectionnez une ligne du tableau ou creez une nouvelle fiche pour afficher le detail.",
+        "fr":  "Selectionnez une ligne du tableau ou creez une nouvelle fiche pour afficher le detail.",
+        "en":  "Select a row in the table or create a new form to display the detail."
+    },
+    {
+        "literal":  "Fiche",
+        "fr":  "Fiche",
+        "en":  "Form"
+    },
+    {
+        "literal":  "Creation",
+        "fr":  "Création",
+        "en":  "Creation"
+    },
+    {
+        "literal":  "Non renseigne",
+        "fr":  "Non renseigne",
+        "en":  "Not specified"
+    },
+    {
+        "literal":  "Sans logo",
+        "fr":  "Sans logo",
+        "en":  "Without logo"
+    },
+    {
+        "literal":  "Formulaire equipe",
+        "fr":  "Formulaire du personnel",
+        "en":  "Staff form"
+    },
+    {
+        "literal":  "Renseignez les champs ci-dessous pour creer une nouvelle fiche equipe.",
+        "fr":  "Renseignez les champs ci-dessous pour creer une nouvelle fiche equipe.",
+        "en":  "Complete the fields below to create a new team file."
+    },
+    {
+        "literal":  "Ex: Real Madrid",
+        "fr":  "Ex : Real Madrid",
+        "en":  "Ex: Real Madrid"
+    },
+    {
+        "literal":  "Ex: Carlo Ancelotti",
+        "fr":  "Ex : Carlo Ancelotti",
+        "en":  "Ex: Carlo Ancelotti"
+    },
+    {
+        "literal":  "Choisissez un logo",
+        "fr":  "Choisissez un logo",
+        "en":  "Choose a logo"
+    },
+    {
+        "literal":  "Parcourir...",
+        "fr":  "Parcourir...",
+        "en":  "Browse..."
+    },
+    {
+        "literal":  "Le logo alimente l\u0027aperu detail et la fiche equipe.",
+        "fr":  "Le logo alimente les détails d’ouverture et les informations sur l’équipe.",
+        "en":  "The logo feeds the opening details and the team information."
+    },
+    {
+        "literal":  "Vider",
+        "fr":  "Vider",
+        "en":  "Empty"
+    },
+    {
+        "literal":  "Retour",
+        "fr":  "Retour",
+        "en":  "Back"
+    },
+    {
+        "literal":  "Lecture seule",
+        "fr":  "Lecture seule",
+        "en":  "Read only"
+    },
+    {
+        "literal":  "Competition | Coach",
+        "fr":  "Concours | Entraîneur",
+        "en":  "Competition | Coach"
+    },
+    {
+        "literal":  "Informations du club",
+        "fr":  "Informations du club",
+        "en":  "Club information"
+    },
+    {
+        "literal":  "Adresse",
+        "fr":  "Adresse",
+        "en":  "Address"
+    },
+    {
+        "literal":  "Telephone",
+        "fr":  "Téléphone",
+        "en":  "Telephone"
+    },
+    {
+        "literal":  "Email",
+        "fr":  "E-mail",
+        "en":  "Email"
+    },
+    {
+        "literal":  "Effectif",
+        "fr":  "Effectif",
+        "en":  "Effective"
+    },
+    {
+        "literal":  "Aucun joueur rattache a cette equipe pour le moment.",
+        "fr":  "Aucun joueur rattache a cette equipe pour le moment.",
+        "en":  "No players attached to this team at the moment."
+    },
+    {
+        "literal":  "Prochains matchs",
+        "fr":  "Prochains matchs",
+        "en":  "Next matches"
+    },
+    {
+        "literal":  "Les 5 prochains rendez-vous de cette equipe.",
+        "fr":  "Les 5 prochains rendez-vous de cette equipe.",
+        "en":  "The next 5 meetings of this team."
+    },
+    {
+        "literal":  "Next 5",
+        "fr":  "Les 5 suivants",
+        "en":  "Next 5"
+    },
+    {
+        "literal":  "Aucun prochain match programme pour cette equipe.",
+        "fr":  "Aucun prochain match programme pour cette equipe.",
+        "en":  "No next match scheduled for this team."
+    },
+    {
+        "literal":  "5 derniers resultats",
+        "fr":  "5 derniers resultats",
+        "en":  "Last 5 results"
+    },
+    {
+        "literal":  "Vert: victoire, jaune: nul, rouge: defaite.",
+        "fr":  "Vert: victoire, jaune: nul, rouge: defaite.",
+        "en":  "Green: victory, yellow: draw, red: defeat."
+    },
+    {
+        "literal":  "Last 5",
+        "fr":  "5 derniers",
+        "en":  "Last 5"
+    },
+    {
+        "literal":  "Aucun resultat recent disponible pour cette equipe.",
+        "fr":  "Aucun resultat recent disponible pour cette equipe.",
+        "en":  "No recent results available for this team."
+    },
+    {
+        "literal":  "Meilleurs buteurs",
+        "fr":  "Meilleurs buteurs",
+        "en":  "Top scorers"
+    },
+    {
+        "literal":  "Classement offensif de l\u0027equipe charge depuis API-Football.",
+        "fr":  "Classement offensif de l\u0027equipe charge depuis API-Football.",
+        "en":  "Offensive ranking of the team loaded from API-Football."
+    },
+    {
+        "literal":  "En attente",
+        "fr":  "En attente",
+        "en":  "On hold"
+    },
+    {
+        "literal":  "Aucun meilleur buteur disponible pour cette equipe.",
+        "fr":  "Aucun meilleur buteur disponible pour cette equipe.",
+        "en":  "No top scorer available for this team."
+    },
+    {
+        "literal":  "Ajout",
+        "fr":  "Ajout",
+        "en":  "Addition"
+    },
+    {
+        "literal":  "Annuler",
+        "fr":  "Annuler",
+        "en":  "Cancel"
+    },
+    {
+        "literal":  "Ajouter une equipe",
+        "fr":  "Ajouter une equipe",
+        "en":  "Add a team"
+    },
+    {
+        "literal":  "Renseignez le formulaire pour creer un club dans l\u0027une des 5 competitions.",
+        "fr":  "Renseignez le formulaire pour creer un club dans l\u0027une des 5 competitions.",
+        "en":  "Complete the form to create a club in one of the 5 competitions."
+    },
+    {
+        "literal":  "Selectionnez une competition",
+        "fr":  "Selectionnez une competition",
+        "en":  "Select a competition"
+    },
+    {
+        "literal":  "Ex: Liverpool",
+        "fr":  "Ex : Liverpool",
+        "en":  "Ex: Liverpool"
+    },
+    {
+        "literal":  "Ex: Arne Slot",
+        "fr":  "Ex : Machine à sous Arne",
+        "en":  "Ex: Arne Slot"
+    },
+    {
+        "literal":  "Ex: +44 20 0000 0000",
+        "fr":  "Ex : +44 20 0000 0000",
+        "en":  "Ex: +44 20 0000 0000"
+    },
+    {
+        "literal":  "Ex: Anfield Road, Liverpool",
+        "fr":  "Ex : Anfield Road, Liverpool",
+        "en":  "Ex: Anfield Road, Liverpool"
+    },
+    {
+        "literal":  "Ex: contact@club.com",
+        "fr":  "Ex : contact@club.com",
+        "en":  "Ex: contact@club.com"
+    },
+    {
+        "literal":  "Le logo sera affiche sur la carte, la liste et la fiche detail.",
+        "fr":  "Le logo sera affiche sur la carte, la liste et la fiche detail.",
+        "en":  "The logo will be displayed on the map, the list and the detail sheet."
+    },
+    {
+        "literal":  "Tous les clubs de la competition selectionnee sont disponibles ici.",
+        "fr":  "Tous les clubs de la competition selectionnee sont disponibles ici.",
+        "en":  "All clubs in the selected competition are available here."
+    },
+    {
+        "literal":  "Cliquez sur une carte pour ouvrir sa fiche complete",
+        "fr":  "Cliquez sur une carte pour ouvrir sa fiche complete",
+        "en":  "Click on a card to open its complete file"
+    },
+    {
+        "literal":  "Recherchez, triez et ouvrez une fiche equipe sur une page dediee.",
+        "fr":  "Recherchez, triez et ouvrez une fiche equipe sur une page dediee.",
+        "en":  "Search, sort and open a team file on a dedicated page."
+    },
+    {
+        "literal":  "0 resultat(s)",
+        "fr":  "0 résultat(s)",
+        "en":  "0 result(s)"
+    },
+    {
+        "literal":  "Liste des equipes",
+        "fr":  "Liste des equipes",
+        "en":  "List of teams"
+    },
+    {
+        "literal":  "Chaque carte ouvre une page detail en lecture seule avec les informations du club et son effectif.",
+        "fr":  "Chaque carte ouvre une page detail en lecture seule avec les informations du club et son effectif.",
+        "en":  "Each card opens a read-only detail page with club information and membership."
+    },
+    {
+        "literal":  "Essayez un autre mot-cle ou revenez aux competitions pour changer de championnat.",
+        "fr":  "Essayez un autre mot-cle ou revenez aux competitions pour changer de championnat.",
+        "en":  "Try another keyword or return to competitions to change championships."
+    },
+    {
+        "literal":  "Retour aux entrainements",
+        "fr":  "Retour aux entrainements",
+        "en":  "Back to training"
+    },
+    {
+        "literal":  "Suivi nutritionnel",
+        "fr":  "Suivi nutritionnel",
+        "en":  "Nutritional monitoring"
+    },
+    {
+        "literal":  "Analysez, enregistrez et suivez vos repas sans perdre le fil.",
+        "fr":  "Analysez, enregistrez et suivez vos repas sans perdre le fil.",
+        "en":  "Analyze, record and track your meals without losing track."
+    },
+    {
+        "literal":  "Nutrition",
+        "fr":  "Nutrition",
+        "en":  "Nutrition"
+    },
+    {
+        "literal":  "journalier",
+        "fr":  "journalier",
+        "en":  "daily"
+    },
+    {
+        "literal":  "SÃ©lectionner une date",
+        "fr":  "SÃ©lectionner une date",
+        "en":  "Select a date"
+    },
+    {
+        "literal":  "ðŸ“Š RÃ©sumÃ© du Jour",
+        "fr":  "ðŸ“Š RÃ©sumÃ© du Jour",
+        "en":  "ðŸ“Š Summary of the Day"
+    },
+    {
+        "literal":  "0 kcal",
+        "fr":  "0 kcal",
+        "en":  "0 kcal"
+    },
+    {
+        "literal":  "Objectif:",
+        "fr":  "Objectif:",
+        "en":  "Objective:"
+    },
+    {
+        "literal":  "2500 kcal",
+        "fr":  "2500 calories",
+        "en":  "2500 kcal"
+    },
+    {
+        "literal":  "Continuez comme Ã§a! ðŸ’ª",
+        "fr":  "Continuez comme Ã§a! ðŸ’ª",
+        "en":  "Keep it up! ðŸ’ª"
+    },
+    {
+        "literal":  "ðŸ´ Type de Repas",
+        "fr":  "ðŸ´ Type de Repas",
+        "en":  "ðŸ´ Type of Meal"
+    },
+    {
+        "literal":  "âœï¸ Qu\u0027avez-vous mangÃ©?",
+        "fr":  "âœï¸ Qu\u0027avez-vous mangÃ©?",
+        "en":  "âœï¸ What did you eat?"
+    },
+    {
+        "literal":  "Ex: 1 banane, 2 oeufs, 1 tasse de riz...",
+        "fr":  "Ex: 1 banane, 2 oeufs, 1 tasse de riz...",
+        "en":  "Ex: 1 banana, 2 eggs, 1 cup of rice..."
+    },
+    {
+        "literal":  "ðŸ” Analyser",
+        "fr":  "ðŸ”ზ Analyser",
+        "en":  "ðŸ”ზ Analyze"
+    },
+    {
+        "literal":  "ðŸ“ˆ Informations Nutritionnelles",
+        "fr":  "ðŸ“ˆ Informations Nutritionnelles",
+        "en":  "ðŸ“ˆ Nutritional Information"
+    },
+    {
+        "literal":  "kcal",
+        "fr":  "kilocalories",
+        "en":  "kcal"
+    },
+    {
+        "literal":  "ðŸ’ª",
+        "fr":  "ðŸ\u0027ª",
+        "en":  "ðŸ’ª"
+    },
+    {
+        "literal":  "ProtÃ©ines",
+        "fr":  "ProtÃ©ines",
+        "en":  "Proteins"
+    },
+    {
+        "literal":  "ðŸž",
+        "fr":  "ðŸž",
+        "en":  "ðŸž"
+    },
+    {
+        "literal":  "Glucides",
+        "fr":  "Glucides",
+        "en":  "Carbohydrates"
+    },
+    {
+        "literal":  "ðŸ¥‘",
+        "fr":  "ðŸ¥‘",
+        "en":  "ðŸ¥‘"
+    },
+    {
+        "literal":  "Lipides",
+        "fr":  "Lipides",
+        "en":  "Lipids"
+    },
+    {
+        "literal":  "ðŸŒ¾",
+        "fr":  "ðŸŒ¾",
+        "en":  "ðŸŒ¾"
+    },
+    {
+        "literal":  "Fibres",
+        "fr":  "Fibres",
+        "en":  "Fibers"
+    },
+    {
+        "literal":  "ðŸ’¾ Enregistrer",
+        "fr":  "ðŸ’¾ Enregistrer",
+        "en":  "ðŸ’¾ Save"
+    },
+    {
+        "literal":  "ðŸ“",
+        "fr":  "ðŸ“",
+        "en":  "ðŸ“"
+    },
+    {
+        "literal":  "Historique des repas",
+        "fr":  "Historique des repas",
+        "en":  "Meal history"
+    },
+    {
+        "literal":  "Les repas sauvegardes apparaissent ici avec leurs apports et leur date.",
+        "fr":  "Les repas sauvegardes apparaissent ici avec leurs apports et leur date.",
+        "en":  "Saved meals appear here with their intake and date."
+    },
+    {
+        "literal":  "Squad",
+        "fr":  "Équipe",
+        "en":  "Squad"
+    },
+    {
+        "literal":  "Pilotez votre effectif joueur",
+        "fr":  "Pilotez votre effectif joueur",
+        "en":  "Manage your player workforce"
+    },
+    {
+        "literal":  "Retrouvez les profils, filtrez par equipe et gardez une fiche detail vivante pendant la creation ou l\u0027edition.",
+        "fr":  "Retrouvez les profils, filtrez par equipe et gardez une fiche detail vivante pendant la creation ou l\u0027edition.",
+        "en":  "Find profiles, filter by team and keep a detailed profile alive during creation or editing."
+    },
+    {
+        "literal":  "0 joueur(s)",
+        "fr":  "0 joueur(s)",
+        "en":  "0 player(s)"
+    },
+    {
+        "literal":  "Statistiques joueurs",
+        "fr":  "Statistiques joueurs",
+        "en":  "Player statistics"
+    },
+    {
+        "literal":  "Repartition des joueurs par equipe pour suivre les effectifs.",
+        "fr":  "Repartition des joueurs par equipe pour suivre les effectifs.",
+        "en":  "Distribution of players by team to monitor numbers."
+    },
+    {
+        "literal":  "Chargement des statistiques joueurs...",
+        "fr":  "Chargement des statistiques joueurs...",
+        "en":  "Loading player statistics..."
+    },
+    {
+        "literal":  "Filtrez l\u0027effectif par nom ou par equipe dans la meme identite visuelle que le module Equipes.",
+        "fr":  "Filtrez l\u0027effectif par nom ou par equipe dans la meme identite visuelle que le module Equipes.",
+        "en":  "Filter the workforce by name or by team in the same visual identity as the Teams module."
+    },
+    {
+        "literal":  "Rechercher par nom, prenom ou equipe",
+        "fr":  "Rechercher par nom, prenom ou equipe",
+        "en":  "Search by last name, first name or team"
+    },
+    {
+        "literal":  "Toutes les equipes",
+        "fr":  "Toutes les equipes",
+        "en":  "All teams"
+    },
+    {
+        "literal":  "Table des joueurs",
+        "fr":  "Table des joueurs",
+        "en":  "Players table"
+    },
+    {
+        "literal":  "Nom",
+        "fr":  "Nom",
+        "en":  "Nom"
+    },
+    {
+        "literal":  "Prenom",
+        "fr":  "Prenom",
+        "en":  "First name"
+    },
+    {
+        "literal":  "Numero",
+        "fr":  "Nombre",
+        "en":  "Number"
+    },
+    {
+        "literal":  "Naissance",
+        "fr":  "Naissance",
+        "en":  "Birth"
+    },
+    {
+        "literal":  "Position",
+        "fr":  "Position",
+        "en":  "Position"
+    },
+    {
+        "literal":  "Nationalite",
+        "fr":  "Nationalité",
+        "en":  "Nationality"
+    },
+    {
+        "literal":  "Aucun joueur trouve",
+        "fr":  "Aucun joueur trouve",
+        "en":  "No player found"
+    },
+    {
+        "literal":  "Essayez un autre nom ou reinitialisez le filtre pour revoir l\u0027effectif complet.",
+        "fr":  "Essayez un autre nom ou reinitialisez le filtre pour revoir l\u0027effectif complet.",
+        "en":  "Try another name or reset the filter to see the full roster."
+    },
+    {
+        "literal":  "Aucun joueur selectionne",
+        "fr":  "Aucun joueur selectionne",
+        "en":  "No player selected"
+    },
+    {
+        "literal":  "Selectionnez une carte ou commencez une nouvelle creation pour afficher la fiche detail.",
+        "fr":  "Selectionnez une carte ou commencez une nouvelle creation pour afficher la fiche detail.",
+        "en":  "Select a card or start a new creation to display the detail sheet."
+    },
+    {
+        "literal":  "Aucune",
+        "fr":  "Aucune",
+        "en":  "None"
+    },
+    {
+        "literal":  "Non defini",
+        "fr":  "Non défini",
+        "en":  "Not defined"
+    },
+    {
+        "literal":  "Edition de la fiche",
+        "fr":  "Edition de la fiche",
+        "en":  "Editing the file"
+    },
+    {
+        "literal":  "Composez une nouvelle fiche joueur et visualisez-la a droite.",
+        "fr":  "Composez une nouvelle fiche joueur et visualisez-la a droite.",
+        "en":  "Create a new player sheet and view it on the right."
+    },
+    {
+        "literal":  "Ex: Mbappe",
+        "fr":  "Ex : Mbappé",
+        "en":  "Ex: Mbappe"
+    },
+    {
+        "literal":  "Ex: Kylian",
+        "fr":  "Ex : Kylian",
+        "en":  "Ex: Kylian"
+    },
+    {
+        "literal":  "Date de naissance",
+        "fr":  "Date de naissance",
+        "en":  "Date of birth"
+    },
+    {
+        "literal":  "Numero de maillot",
+        "fr":  "Numero de maillot",
+        "en":  "Jersey number"
+    },
+    {
+        "literal":  "Entre 1 et 99",
+        "fr":  "Entre 1 et 99",
+        "en":  "Between 1 and 99"
+    },
+    {
+        "literal":  "Choisir une equipe",
+        "fr":  "Choisir une equipe",
+        "en":  "Choose a team"
+    },
+    {
+        "literal":  "Image",
+        "fr":  "Image",
+        "en":  "Image"
+    },
+    {
+        "literal":  "Choisissez une photo",
+        "fr":  "Choisissez une photo",
+        "en":  "Choose a photo"
+    },
+    {
+        "literal":  "La photo choisie via Windows Explorer s\u0027affiche dans la liste et dans la fiche detail.",
+        "fr":  "La photo choisie via Windows Explorer s\u0027affiche dans la liste et dans la fiche detail.",
+        "en":  "The photo chosen via Windows Explorer is displayed in the list and in the detail sheet."
+    },
+    {
+        "literal":  "Commencez par une ligue du top 5, puis selectionnez une equipe pour ouvrir uniquement son effectif.",
+        "fr":  "Commencez par une ligue du top 5, puis selectionnez une equipe pour ouvrir uniquement son effectif.",
+        "en":  "Start with a top 5 league, then select a team to open only its roster."
+    },
+    {
+        "literal":  "Ligue, equipe, joueurs, detail",
+        "fr":  "Ligue, equipe, joueurs, detail",
+        "en":  "League, team, players, detail"
+    },
+    {
+        "literal":  "Top 5 leagues",
+        "fr":  "Les 5 meilleures ligues",
+        "en":  "Top 5 leagues"
+    },
+    {
+        "literal":  "Cliquez sur une carte pour choisir une equipe de ce championnat.",
+        "fr":  "Cliquez sur une carte pour choisir une equipe de ce championnat.",
+        "en":  "Click on a map to choose a team from this championship."
+    },
+    {
+        "literal":  "Navigation joueurs",
+        "fr":  "Navigation joueurs",
+        "en":  "Player navigation"
+    },
+    {
+        "literal":  "Fiche joueur",
+        "fr":  "Fiche joueur",
+        "en":  "Player profile"
+    },
+    {
+        "literal":  "Manuel",
+        "fr":  "Manuel",
+        "en":  "Manuel"
+    },
+    {
+        "literal":  "Equipe | Date de naissance | Poste | Nationalite",
+        "fr":  "Equipe | Date de naissance | Poste | Nationalite",
+        "en":  "Team | Date of birth | Post | Nationality"
+    },
+    {
+        "literal":  "Sans equipe",
+        "fr":  "Sans equipe",
+        "en":  "Without team"
+    },
+    {
+        "literal":  "Informations du joueur",
+        "fr":  "Informations du joueur",
+        "en":  "Player information"
+    },
+    {
+        "literal":  "Non renseignee",
+        "fr":  "Ne pas informer",
+        "en":  "Don\u0027t inform"
+    },
+    {
+        "literal":  "Age",
+        "fr":  "Âge",
+        "en":  "Age"
+    },
+    {
+        "literal":  "Age indisponible",
+        "fr":  "Age indisponible",
+        "en":  "Age unavailable"
+    },
+    {
+        "literal":  "Statistiques de saison",
+        "fr":  "Statistiques de saison",
+        "en":  "Season statistics"
+    },
+    {
+        "literal":  "Matchs joues, buts, passes et cartons selon les donnees disponibles.",
+        "fr":  "Matchs joues, buts, passes et cartons selon les donnees disponibles.",
+        "en":  "Matches played, goals, assists and cards according to available data."
+    },
+    {
+        "literal":  "Buts",
+        "fr":  "Mais",
+        "en":  "Buts"
+    },
+    {
+        "literal":  "Assists",
+        "fr":  "Aides",
+        "en":  "Assists"
+    },
+    {
+        "literal":  "Jaunes",
+        "fr":  "Jaunes",
+        "en":  "Yellows"
+    },
+    {
+        "literal":  "Rouges",
+        "fr":  "Rouges",
+        "en":  "Reds"
+    },
+    {
+        "literal":  "Minutes",
+        "fr":  "Minutes",
+        "en":  "Minutes"
+    },
+    {
+        "literal":  "Parcourez les joueurs",
+        "fr":  "Parcourez les joueurs",
+        "en":  "Browse the players"
+    },
+    {
+        "literal":  "Retrouvez les profils par nom ou par equipe, puis ouvrez chaque joueur sur une page detail dediee.",
+        "fr":  "Retrouvez les profils par nom ou par equipe, puis ouvrez chaque joueur sur une page detail dediee.",
+        "en":  "Find profiles by name or team, then open each player on a dedicated detail page."
+    },
+    {
+        "literal":  "Cliquez sur une carte pour ouvrir la fiche",
+        "fr":  "Cliquez sur une carte pour ouvrir la fiche",
+        "en":  "Click on a card to open the file"
+    },
+    {
+        "literal":  "Vue publique en lecture seule : liste, filtres et fiche detail sur une autre page.",
+        "fr":  "Vue publique en lecture seule : liste, filtres et fiche detail sur une autre page.",
+        "en":  "Public read-only view: list, filters and detail sheet on another page."
+    },
+    {
+        "literal":  "Cartes des joueurs",
+        "fr":  "Cartes des joueurs",
+        "en":  "Player Cards"
+    },
+    {
+        "literal":  "Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici.",
+        "fr":  "Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici.",
+        "en":  "Each card directly opens a detail page. No CRUD forms or actions here."
+    },
+    {
+        "literal":  "0 carte(s)",
+        "fr":  "0 carte(s)",
+        "en":  "0 card(s)"
+    },
+    {
+        "literal":  "Choisissez une equipe",
+        "fr":  "Choisissez une equipe",
+        "en":  "Choose a team"
+    },
+    {
+        "literal":  "Selectionnez une equipe pour ouvrir uniquement son effectif.",
+        "fr":  "Selectionnez une equipe pour ouvrir uniquement son effectif.",
+        "en":  "Select a team to open only its squad."
+    },
+    {
+        "literal":  "Rechercher une equipe",
+        "fr":  "Rechercher une equipe",
+        "en":  "Find a team"
+    },
+    {
+        "literal":  "Equipes du championnat",
+        "fr":  "Equipes du championnat",
+        "en":  "Championship teams"
+    },
+    {
+        "literal":  "Chaque carte ouvre la liste des joueurs de cette equipe.",
+        "fr":  "Chaque carte ouvre la liste des joueurs de cette equipe.",
+        "en":  "Each card opens the list of players on that team."
+    },
+    {
+        "literal":  "Cartes equipe",
+        "fr":  "Cartes equipe",
+        "en":  "Team cards"
+    },
+    {
+        "literal":  "Actualisez pour synchroniser les clubs et les effectifs de ce championnat.",
+        "fr":  "Actualisez pour synchroniser les clubs et les effectifs de ce championnat.",
+        "en":  "Update to synchronize the clubs and squads for this championship."
+    },
+    {
+        "literal":  "Top 5 European League Tables",
+        "fr":  "Top 5 des classements européens",
+        "en":  "Top 5 European League Tables"
+    },
+    {
+        "literal":  "Choisissez un championnat pour afficher son classement officiel en direct via football-data.org. Chaque carte ouvre une page detaillee avec le tableau complet.",
+        "fr":  "Choisissez un championnat pour afficher son classement officiel en direct via football-data.org. Chaque carte ouvre une page detaillee avec le tableau complet.",
+        "en":  "Choose a championship to view its official ranking live via football-data.org. Each card opens a detailed page with the complete table."
+    },
+    {
+        "literal":  "5 championnats",
+        "fr":  "5 championnats",
+        "en":  "5 championships"
+    },
+    {
+        "literal":  "Classements en direct",
+        "fr":  "Classements en direct",
+        "en":  "Live Leaderboards"
+    },
+    {
+        "literal":  "League Tables",
+        "fr":  "Tableaux de ligue",
+        "en":  "League Tables"
+    },
+    {
+        "literal":  "Le concept reprend les cartes competitions du module Equipes, mais chaque carte mene vers le classement du championnat.",
+        "fr":  "Le concept reprend les cartes competitions du module Equipes, mais chaque carte mene vers le classement du championnat.",
+        "en":  "The concept uses the competition cards from the Teams module, but each card leads to the championship ranking."
+    },
+    {
+        "literal":  "League",
+        "fr":  "Ligue",
+        "en":  "League"
+    },
+    {
+        "literal":  "League Table",
+        "fr":  "Tableau de la ligue",
+        "en":  "League Table"
+    },
+    {
+        "literal":  "Classement officiel en direct charge depuis football-data.org.",
+        "fr":  "Classement officiel en direct charge depuis football-data.org.",
+        "en":  "Official live rankings loaded from football-data.org."
+    },
+    {
+        "literal":  "0 clubs",
+        "fr":  "0 club",
+        "en":  "0 clubs"
+    },
+    {
+        "literal":  "JournÃ©e --",
+        "fr":  "JournÃ©e --",
+        "en":  "Day --"
+    },
+    {
+        "literal":  "Saison --",
+        "fr":  "Saison--",
+        "en":  "Saison --"
+    },
+    {
+        "literal":  "Standings",
+        "fr":  "Classement",
+        "en":  "Standings"
+    },
+    {
+        "literal":  "Position, matchs joues, bilan, buts, difference et points.",
+        "fr":  "Position, matchs joues, bilan, buts, difference et points.",
+        "en":  "Position, matches played, record, goals, difference and points."
+    },
+    {
+        "literal":  "LT",
+        "fr":  "LT",
+        "en":  "LT"
+    },
+    {
+        "literal":  "Aucun classement disponible",
+        "fr":  "Aucun classement disponible",
+        "en":  "No rankings available"
+    },
+    {
+        "literal":  "Verifiez la connexion a football-data.org ou relancez l\u0027actualisation.",
+        "fr":  "Verifiez la connexion a football-data.org ou relancez l\u0027actualisation.",
+        "en":  "Check the connection to football-data.org or restart the update."
+    },
+    {
+        "literal":  "Classement offensif charge depuis API-Football.",
+        "fr":  "Classement offensif charge depuis API-Football.",
+        "en":  "Offensive ranking loaded from API-Football."
+    },
+    {
+        "literal":  "Aucun classement des buteurs disponible pour cette competition.",
+        "fr":  "Aucun classement des buteurs disponible pour cette competition.",
+        "en":  "No scorer rankings available for this competition."
+    },
+    {
+        "literal":  "Fixtures",
+        "fr":  "Calendrier",
+        "en":  "Fixtures"
+    },
+    {
+        "literal":  "Retrouvez et pilotez vos matchs",
+        "fr":  "Retrouvez et pilotez vos matchs",
+        "en":  "Find and manage your matches"
+    },
+    {
+        "literal":  "Consultez et pilotez les matchs de la competition ouverte, puis revenez aux competitions quand vous voulez changer de championnat.",
+        "fr":  "Consultez et pilotez les matchs de la competition ouverte, puis revenez aux competitions quand vous voulez changer de championnat.",
+        "en":  "View and play open competition matches, then return to competitions when you want to change championships."
+    },
+    {
+        "literal":  "0 match(s)",
+        "fr":  "0 correspondance",
+        "en":  "0 match(s)"
+    },
+    {
+        "literal":  "Aucune selection",
+        "fr":  "Aucune selection",
+        "en":  "No selection"
+    },
+    {
+        "literal":  "Statistiques matchs",
+        "fr":  "Statistiques matchs",
+        "en":  "Match statistics"
+    },
+    {
+        "literal":  "Chargement des statistiques matchs...",
+        "fr":  "Chargement des statistiques matchs...",
+        "en":  "Loading match statistics..."
+    },
+    {
+        "literal":  "Calendrier des rencontres",
+        "fr":  "Calendrier des rencontres",
+        "en":  "Meeting calendar"
+    },
+    {
+        "literal":  "0 rencontre(s) affichee(s)",
+        "fr":  "0 rencontre(s) affichee(s)",
+        "en":  "0 encounter(s) displayed"
+    },
+    {
+        "literal":  "Rechercher par equipe, lieu, type, statut ou date",
+        "fr":  "Rechercher par equipe, lieu, type, statut ou date",
+        "en":  "Search by team, location, type, status or date"
+    },
+    {
+        "literal":  "Statut",
+        "fr":  "Statut",
+        "en":  "Status"
+    },
+    {
+        "literal":  "Sync football-data.org",
+        "fr":  "Synchroniser football-data.org",
+        "en":  "Sync football-data.org"
+    },
+    {
+        "literal":  "Plan gratuit : un lot complet sur les 6 competitions prend environ 40 secondes.",
+        "fr":  "Plan gratuit : un lot complet sur les 6 competitions prend environ 40 secondes.",
+        "en":  "Free plan: a full batch across all 6 competitions takes around 40 seconds."
+    },
+    {
+        "literal":  "Clubs \u0026 effectifs",
+        "fr":  "Clubs \u0026 effectifs",
+        "en":  "Clubs \u0026 membership"
+    },
+    {
+        "literal":  "Calendrier",
+        "fr":  "Calendrier",
+        "en":  "Calendar"
+    },
+    {
+        "literal":  "Table des matchs",
+        "fr":  "Table des matchs",
+        "en":  "Table of matches"
+    },
+    {
+        "literal":  "Selectionnez une ligne pour ouvrir la fiche detail et le formulaire d\u0027edition.",
+        "fr":  "Selectionnez une ligne pour ouvrir la fiche detail et le formulaire d\u0027edition.",
+        "en":  "Select a line to open the detail sheet and the edit form."
+    },
+    {
+        "literal":  "Heure",
+        "fr":  "Heure",
+        "en":  "Hour"
+    },
+    {
+        "literal":  "Domicile",
+        "fr":  "Domicile",
+        "en":  "Domicile"
+    },
+    {
+        "literal":  "Exterieur",
+        "fr":  "Exterieur",
+        "en":  "Outside"
+    },
+    {
+        "literal":  "Score",
+        "fr":  "Score",
+        "en":  "Score"
+    },
+    {
+        "literal":  "Aucun match trouve",
+        "fr":  "Aucun match trouve",
+        "en":  "No matches found"
+    },
+    {
+        "literal":  "Aucun resultat ne correspond a la recherche actuelle. Essayez un autre mot-cle ou ajoutez une nouvelle rencontre.",
+        "fr":  "Aucun resultat ne correspond a la recherche actuelle. Essayez un autre mot-cle ou ajoutez une nouvelle rencontre.",
+        "en":  "No results match the current search. Try another keyword or add a new encounter."
+    },
+    {
+        "literal":  "A venir",
+        "fr":  "venir",
+        "en":  "to come"
+    },
+    {
+        "literal":  "Aucun match selectionne",
+        "fr":  "Aucun match selectionne",
+        "en":  "No matches selected"
+    },
+    {
+        "literal":  "Selectionnez une rencontre ou commencez une nouvelle creation pour afficher la fiche detail.",
+        "fr":  "Selectionnez une rencontre ou commencez une nouvelle creation pour afficher la fiche detail.",
+        "en":  "Select an encounter or start a new creation to display the detail sheet."
+    },
+    {
+        "literal":  "Equipe domicile",
+        "fr":  "Equipe domicile",
+        "en":  "Home team"
+    },
+    {
+        "literal":  "Equipe exterieur",
+        "fr":  "Equipe exterieur",
+        "en":  "Away team"
+    },
+    {
+        "literal":  "Programme",
+        "fr":  "Programme",
+        "en":  "Programme"
+    },
+    {
+        "literal":  "Formulaire match",
+        "fr":  "Formulaire match",
+        "en":  "Match form"
+    },
+    {
+        "literal":  "Gardez seulement le CRUD de base pour cette phase. Aucun lineup, aucune formation avancee.",
+        "fr":  "Gardez seulement le CRUD de base pour cette phase. Aucun lineup, aucune formation avancee.",
+        "en":  "Keep only the basic CRUD for this phase. No lineup, no advanced training."
+    },
+    {
+        "literal":  "Date du match",
+        "fr":  "Date du match",
+        "en":  "Match date"
+    },
+    {
+        "literal":  "Heure de debut",
+        "fr":  "Heure de debut",
+        "en":  "Start time"
+    },
+    {
+        "literal":  "HH:mm",
+        "fr":  "HH : mm",
+        "en":  "HH:mm"
+    },
+    {
+        "literal":  "Ex: Stade municipal",
+        "fr":  "Ex : Stade municipal",
+        "en":  "Ex: Stade municipal"
+    },
+    {
+        "literal":  "Ex: Championnat",
+        "fr":  "Ex: Championnat",
+        "en":  "Ex: Championship"
+    },
+    {
+        "literal":  "Choisir le statut",
+        "fr":  "Choisir le statut",
+        "en":  "Choose status"
+    },
+    {
+        "literal":  "Choisir l\u0027equipe domicile",
+        "fr":  "Choisir l\u0027equipe domicile",
+        "en":  "Choose the home team"
+    },
+    {
+        "literal":  "Choisir l\u0027equipe exterieur",
+        "fr":  "Choisir l\u0027equipe exterieur",
+        "en":  "Choose the away team"
+    },
+    {
+        "literal":  "Score domicile",
+        "fr":  "Score domicile",
+        "en":  "Score domicile"
+    },
+    {
+        "literal":  "Score exterieur",
+        "fr":  "Score exterieur",
+        "en":  "Away score"
+    },
+    {
+        "literal":  "Chaque carte ouvre une nouvelle page avec la liste des matchs de cette competition.",
+        "fr":  "Chaque carte ouvre une nouvelle page avec la liste des matchs de cette competition.",
+        "en":  "Each card opens a new page with the list of matches for this competition."
+    },
+    {
+        "literal":  "6 competitions",
+        "fr":  "6 compétitions",
+        "en":  "6 competitions"
+    },
+    {
+        "literal":  "Cliquez sur une carte pour ouvrir la page des matchs correspondants.",
+        "fr":  "Cliquez sur une carte pour ouvrir la page des matchs correspondants.",
+        "en":  "Click on a card to open the corresponding matches page."
+    },
+    {
+        "literal":  "Retrouvez les matchs sans edition",
+        "fr":  "Retrouvez les matchs sans edition",
+        "en":  "Find the matches without edition"
+    },
+    {
+        "literal":  "Parcourez les rencontres, filtrez la competition active et ouvrez chaque fiche sur sa propre page.",
+        "fr":  "Parcourez les rencontres, filtrez la competition active et ouvrez chaque fiche sur sa propre page.",
+        "en":  "Browse the meetings, filter the active competition and open each file on its own page."
+    },
+    {
+        "literal":  "Catalogue des matchs",
+        "fr":  "Catalogue des matchs",
+        "en":  "Match catalog"
+    },
+    {
+        "literal":  "Logo domicile, adversaire, date et heure. Les autres informations sont dans la fiche detail.",
+        "fr":  "Logo domicile, adversaire, date et heure. Les autres informations sont dans la fiche detail.",
+        "en":  "Home logo, opponent, date and time. Other information is in the detail sheet."
+    },
+    {
+        "literal":  "Aucun resultat ne correspond a la recherche actuelle. Essayez un autre mot-cle ou changez de competition.",
+        "fr":  "Aucun resultat ne correspond a la recherche actuelle. Essayez un autre mot-cle ou changez de competition.",
+        "en":  "No results match the current search. Try another keyword or change competition."
+    },
+    {
+        "literal":  "Chargement du match...",
+        "fr":  "Chargement du match...",
+        "en":  "Loading the match..."
+    },
+    {
+        "literal":  "Presentation compacte inspiree des pages de match Flashscore.",
+        "fr":  "Presentation compacte inspiree des pages de match Flashscore.",
+        "en":  "Compact presentation inspired by Flashscore match pages."
+    },
+    {
+        "literal":  "EN DIRECT",
+        "fr":  "ET DIRECTEMENT",
+        "en":  "AND DIRECTLY"
+    },
+    {
+        "literal":  "Type match",
+        "fr":  "Correspondance de type",
+        "en":  "Type match"
+    },
+    {
+        "literal":  "Match",
+        "fr":  "Correspondre",
+        "en":  "Match"
+    },
+    {
+        "literal":  "Live alerts",
+        "fr":  "Alertes en direct",
+        "en":  "Live alerts"
+    },
+    {
+        "literal":  "Follow match",
+        "fr":  "Suivre le match",
+        "en":  "Follow match"
+    },
+    {
+        "literal":  "Follow home team",
+        "fr":  "Suivre l\u0027équipe locale",
+        "en":  "Follow home team"
+    },
+    {
+        "literal":  "Follow away team",
+        "fr":  "Suivre l\u0027équipe",
+        "en":  "Follow away team"
+    },
+    {
+        "literal":  "Follow competition",
+        "fr":  "Suivre la compétition",
+        "en":  "Follow competition"
+    },
+    {
+        "literal":  "Resume",
+        "fr":  "CV",
+        "en":  "Resume"
+    },
+    {
+        "literal":  "Statistiques",
+        "fr":  "Statistiques",
+        "en":  "Statistics"
+    },
+    {
+        "literal":  "Compositions",
+        "fr":  "Compositions",
+        "en":  "Compositions"
+    },
+    {
+        "literal":  "Videos",
+        "fr":  "Vidéos",
+        "en":  "Videos"
+    },
+    {
+        "literal":  "Resume du match",
+        "fr":  "Resume du match",
+        "en":  "Summary of the match"
+    },
+    {
+        "literal":  "Timeline",
+        "fr":  "Chronologie",
+        "en":  "Timeline"
+    },
+    {
+        "literal":  "Evenements",
+        "fr":  "Evenements",
+        "en":  "Events"
+    },
+    {
+        "literal":  "Aucun resume detaille disponible pour ce match.",
+        "fr":  "Aucun resume detaille disponible pour ce match.",
+        "en":  "No detailed summary available for this match."
+    },
+    {
+        "literal":  "Vue terrain",
+        "fr":  "Vue terrain",
+        "en":  "Field view"
+    },
+    {
+        "literal":  "Formation indisponible",
+        "fr":  "Formation indisponible",
+        "en":  "Training unavailable"
+    },
+    {
+        "literal":  "Remplacants domicile",
+        "fr":  "Remplacants domicile",
+        "en":  "Home replacements"
+    },
+    {
+        "literal":  "Remplacants exterieur",
+        "fr":  "Remplacants exterieur",
+        "en":  "External substitutes"
+    },
+    {
+        "literal":  "Statistiques du match",
+        "fr":  "Statistiques du match",
+        "en":  "Match statistics"
+    },
+    {
+        "literal":  "Comparaison",
+        "fr":  "Comparaison",
+        "en":  "Comparison"
+    },
+    {
+        "literal":  "Aucune statistique detaillee disponible pour ce match.",
+        "fr":  "Aucune statistique detaillee disponible pour ce match.",
+        "en":  "No detailed statistics available for this match."
+    },
+    {
+        "literal":  "YouTube Highlights",
+        "fr":  "Faits saillants de YouTube",
+        "en":  "YouTube Highlights"
+    },
+    {
+        "literal":  "Match | Status",
+        "fr":  "Correspondance | Statut",
+        "en":  "Match | Status"
+    },
+    {
+        "literal":  "Load Highlights",
+        "fr":  "Charger les points forts",
+        "en":  "Load Highlights"
+    },
+    {
+        "literal":  "Local MP4 demo",
+        "fr":  "Démo MP4 locale",
+        "en":  "Local MP4 demo"
+    },
+    {
+        "literal":  "Click Load Highlights to search YouTube.",
+        "fr":  "Cliquez sur Charger les faits saillants pour effectuer une recherche sur YouTube.",
+        "en":  "Click Load Highlights to search YouTube."
+    },
+    {
+        "literal":  "YouTube videos",
+        "fr":  "Vidéos YouTube",
+        "en":  "YouTube videos"
+    },
+    {
+        "literal":  "No video selected",
+        "fr":  "Aucune vidéo sélectionnée",
+        "en":  "No video selected"
+    },
+    {
+        "literal":  "YouTube videos play inside the embedded Chromium player.",
+        "fr":  "Les vidéos YouTube sont lues dans le lecteur Chromium intégré.",
+        "en":  "YouTube videos play inside the embedded Chromium player."
+    },
+    {
+        "literal":  "Plein ecran",
+        "fr":  "Plein ecran",
+        "en":  "Full screen"
+    },
+    {
+        "literal":  "Reload in-app player",
+        "fr":  "Recharger le lecteur intégré à l\u0027application",
+        "en":  "Reload in-app player"
+    },
+    {
+        "literal":  "YouTube highlights will appear here after the match is finished.",
+        "fr":  "Les moments forts de YouTube apparaîtront ici une fois le match terminé.",
+        "en":  "YouTube highlights will appear here after the match is finished."
+    },
+    {
+        "literal":  "Ajouter un match",
+        "fr":  "Ajouter un match",
+        "en":  "Add a match"
+    },
+    {
+        "literal":  "Renseignez le formulaire pour creer un nouveau match.",
+        "fr":  "Renseignez le formulaire pour creer un nouveau match.",
+        "en":  "Complete the form to create a new match."
+    },
+    {
+        "literal":  "Choisir parmi les 6 competitions",
+        "fr":  "Choisir parmi les 6 competitions",
+        "en":  "Choose from the 6 competitions"
+    },
+    {
+        "literal":  "Ex: Allianz Arena",
+        "fr":  "Ex : Allianz Arena",
+        "en":  "Ex: Allianz Arena"
+    },
+    {
+        "literal":  "Onze de depart domicile",
+        "fr":  "Onze de chez soi loin de chez soi",
+        "en":  "Onze from home away from home"
+    },
+    {
+        "literal":  "Ex: Neuer, Kimmich, ...",
+        "fr":  "Ex : Neuer, Kimmich, ...",
+        "en":  "Ex: Neuer, Kimmich, ..."
+    },
+    {
+        "literal":  "Onze de depart exterieur",
+        "fr":  "Notre extérieur de départ",
+        "en":  "Our depart exterior"
+    },
+    {
+        "literal":  "Ex: Courtois, Carvajal, ...",
+        "fr":  "Ex : Courtois, Carvajal, ...",
+        "en":  "Ex: Courtois, Carvajal, ..."
+    },
+    {
+        "literal":  "Gestion des commandes",
+        "fr":  "Gestion des commandes",
+        "en":  "Order management"
+    },
+    {
+        "literal":  "Administrez les commandes avec la meme logique visuelle que le module produits, incluant CRUD, recherche, tri et graphiques.",
+        "fr":  "Administrez les commandes avec la meme logique visuelle que le module produits, incluant CRUD, recherche, tri et graphiques.",
+        "en":  "Administer orders with the same visual logic as the products module, including CRUD, search, sorting and graphics."
+    },
+    {
+        "literal":  "Ajouter une commande",
+        "fr":  "Ajouter une commande",
+        "en":  "Add an order"
+    },
+    {
+        "literal":  "0 commande(s)",
+        "fr":  "0 commande(s)",
+        "en":  "0 order(s)"
+    },
+    {
+        "literal":  "Selectionnez une commande",
+        "fr":  "Selectionnez une commande",
+        "en":  "Select an order"
+    },
+    {
+        "literal":  "Commandes visibles",
+        "fr":  "Commandes visibles",
+        "en":  "Visible commands"
+    },
+    {
+        "literal":  "Confirmees / Livrees",
+        "fr":  "Confirmés / Livreés",
+        "en":  "Confirmees / Livrees"
+    },
+    {
+        "literal":  "Paiements en attente",
+        "fr":  "Paiements en attente",
+        "en":  "Pending Payments"
+    },
+    {
+        "literal":  "Orders overview",
+        "fr":  "Aperçu des commandes",
+        "en":  "Orders overview"
+    },
+    {
+        "literal":  "0 visible order(s)",
+        "fr":  "0 commande(s) visible(s)",
+        "en":  "0 visible order(s)"
+    },
+    {
+        "literal":  "Payment split",
+        "fr":  "Répartition des paiements",
+        "en":  "Payment split"
+    },
+    {
+        "literal":  "Aucune donnee de paiement.",
+        "fr":  "Aucune donnee de paiement.",
+        "en":  "No payment information."
+    },
+    {
+        "literal":  "Recherche et tri",
+        "fr":  "Recherche et tri",
+        "en":  "Search and sort"
+    },
+    {
+        "literal":  "Filtrez par statut, paiement, produit ou coach puis ordonnez la liste selon vos priorites.",
+        "fr":  "Filtrez par statut, paiement, produit ou coach puis ordonnez la liste selon vos priorites.",
+        "en":  "Filter by status, payment, product or coach then order the list according to your priorities."
+    },
+    {
+        "literal":  "Commande, produit, coach, email...",
+        "fr":  "Commande, produit, coach, email...",
+        "en":  "Order, product, coach, email..."
+    },
+    {
+        "literal":  "Filtrer",
+        "fr":  "Filtrer",
+        "en":  "Filter"
+    },
+    {
+        "literal":  "Reinit.",
+        "fr":  "Réinitialisez.",
+        "en":  "Reinite."
+    },
+    {
+        "literal":  "Liste des commandes",
+        "fr":  "Liste des commandes",
+        "en":  "List of commands"
+    },
+    {
+        "literal":  "Suivez rapidement le produit, le coach, le statut et le paiement depuis une table d\u0027administration dediee.",
+        "fr":  "Suivez rapidement le produit, le coach, le statut et le paiement depuis une table d\u0027administration dediee.",
+        "en":  "Quickly track product, coach, status and payment from a dedicated administration table."
+    },
+    {
+        "literal":  "Produit",
+        "fr":  "Produit",
+        "en":  "Product"
+    },
+    {
+        "literal":  "Qt",
+        "fr":  "Qt",
+        "en":  "Qt"
+    },
+    {
+        "literal":  "Montant",
+        "fr":  "Montant",
+        "en":  "Amount"
+    },
+    {
+        "literal":  "Paiement",
+        "fr":  "Paiement",
+        "en":  "Payment"
+    },
+    {
+        "literal":  "Aucune commande trouvee.",
+        "fr":  "Aucune commande trouvee.",
+        "en":  "No orders found."
+    },
+    {
+        "literal":  "Aucune commande selectionnee",
+        "fr":  "Aucune commande selectionnee",
+        "en":  "No command selected"
+    },
+    {
+        "literal":  "0.00 DT",
+        "fr":  "0,00 DT",
+        "en":  "0.00 DT"
+    },
+    {
+        "literal":  "Auto",
+        "fr":  "Auto",
+        "en":  "Auto"
+    },
+    {
+        "literal":  "Quantite",
+        "fr":  "Quantite",
+        "en":  "Quantity"
+    },
+    {
+        "literal":  "Livraison",
+        "fr":  "Livraison",
+        "en":  "Delivery"
+    },
+    {
+        "literal":  "Facturation",
+        "fr":  "Facturation",
+        "en":  "Billing"
+    },
+    {
+        "literal":  "Renseignez les informations ci-dessous pour enregistrer une nouvelle commande.",
+        "fr":  "Renseignez les informations ci-dessous pour enregistrer une nouvelle commande.",
+        "en":  "Complete the information below to register a new order."
+    },
+    {
+        "literal":  "Methode",
+        "fr":  "Méthode",
+        "en":  "Method"
+    },
+    {
+        "literal":  "Taille",
+        "fr":  "Taille",
+        "en":  "Size"
+    },
+    {
+        "literal":  "Ex: L",
+        "fr":  "Ex : L",
+        "en":  "Ex: L"
+    },
+    {
+        "literal":  "email@example.com",
+        "fr":  "email@exemple.com",
+        "en":  "email@example.com"
+    },
+    {
+        "literal":  "Montant total",
+        "fr":  "Montant total",
+        "en":  "Total amount"
+    },
+    {
+        "literal":  "Adresse de livraison",
+        "fr":  "Adresse de livraison",
+        "en":  "Delivery address"
+    },
+    {
+        "literal":  "Adresse complete",
+        "fr":  "Adresse complete",
+        "en":  "Full address"
+    },
+    {
+        "literal":  "Adresse de facturation",
+        "fr":  "Adresse de facturation",
+        "en":  "Billing address"
+    },
+    {
+        "literal":  "Mettre a jour",
+        "fr":  "Mettre a jour",
+        "en":  "To update"
+    },
+    {
+        "literal":  "Annuler / Effacer",
+        "fr":  "Annuler / Effacer",
+        "en":  "Cancel/Delete"
+    },
+    {
+        "literal":  "âš½",
+        "fr":  "âš½",
+        "en":  "âš½"
+    },
+    {
+        "literal":  "Sport Insight",
+        "fr":  "Aperçu du sport",
+        "en":  "Sport Insight"
+    },
+    {
+        "literal":  "ðŸŒ™",
+        "fr":  "ðŸŒ™",
+        "en":  "ðŸŒ™"
+    },
+    {
+        "literal":  "ðŸ‘¤",
+        "fr":  "ðŸ‘¤",
+        "en":  "ðŸ‘¤"
+    },
+    {
+        "literal":  "âœ… Taux de prÃ©sence",
+        "fr":  "âœ… Taux de prÃ©sence",
+        "en":  "âœ… Attendance rate"
+    },
+    {
+        "literal":  "â­ Moyenne gÃ©nÃ©rale",
+        "fr":  "â­ Moyenne gÃ©nÃ©rale",
+        "en":  "â Overall average"
+    },
+    {
+        "literal":  "ðŸ“ˆ Ã‰volution des performances",
+        "fr":  "ðŸ“ˆ Ã‰volution des performances",
+        "en":  "ðŸ“ˆ Performance evolution"
+    },
+    {
+        "literal":  "PÃ©riode:",
+        "fr":  "Périodes :",
+        "en":  "Periods:"
+    },
+    {
+        "literal":  "Date dÃ©but",
+        "fr":  "Dates de début",
+        "en":  "Dates started"
+    },
+    {
+        "literal":  "Date fin",
+        "fr":  "Aileron de datte",
+        "en":  "Date fin"
+    },
+    {
+        "literal":  "RÃ©initialiser",
+        "fr":  "RÃ©initialiser",
+        "en":  "Reset"
+    },
+    {
+        "literal":  "ðŸ’ª Moyenne Physique",
+        "fr":  "ðŸ’ª Moyenne Physique",
+        "en":  "ðŸ’ª Physical Average"
+    },
+    {
+        "literal":  "âš½ Moyenne Technique",
+        "fr":  "âš½ Moyenne Technique",
+        "en":  "âš½ Technical Average"
+    },
+    {
+        "literal":  "ðŸŽ¯ Moyenne Tactique",
+        "fr":  "ðŸŽ¯ Moyenne Tactique",
+        "en":  "ðŸŽ¯ Tactical Average"
+    },
+    {
+        "literal":  "ðŸ“Š Progression Physique",
+        "fr":  "ðŸ“Š Progression Physique",
+        "en":  "ðŸ“Š Physical Progress"
+    },
+    {
+        "literal":  "N/A",
+        "fr":  "N / A",
+        "en":  "N/A"
+    },
+    {
+        "literal":  "ðŸ“Š Progression Technique",
+        "fr":  "ðŸ“Š Progression Technique",
+        "en":  "ðŸ“Š Technical Progress"
+    },
+    {
+        "literal":  "ðŸ“Š Progression Tactique",
+        "fr":  "ðŸ“Š Progression Tactique",
+        "en":  "ðŸ“Š Tactical Progression"
+    },
+    {
+        "literal":  "Analyse en cours...",
+        "fr":  "Analyse en cours...",
+        "en":  "Analysis in progress..."
+    },
+    {
+        "literal":  "ðŸ¤– Obtenir des recommandations IA",
+        "fr":  "ðŸ¤– Obtenir des recommandations IA",
+        "en":  "ðŸ¤– Get AI recommendations"
+    },
+    {
+        "literal":  "Annonce",
+        "fr":  "Annonce",
+        "en":  "Announcement"
+    },
+    {
+        "literal":  "Products",
+        "fr":  "Produits",
+        "en":  "Products"
+    },
+    {
+        "literal":  "Store",
+        "fr":  "Magasin",
+        "en":  "Store"
+    },
+    {
+        "literal":  "Pilotez le catalogue produit",
+        "fr":  "Pilotez le catalogue produit",
+        "en":  "Manage the product catalog"
+    },
+    {
+        "literal":  "Retrouvez le meme langage visuel que les modules Joueurs et Matchs, avec CRUD, recherche et tri dans une seule interface.",
+        "fr":  "Retrouvez le meme langage visuel que les modules Joueurs et Matchs, avec CRUD, recherche et tri dans une seule interface.",
+        "en":  "Find the same visual language as the Players and Matches modules, with CRUD, search and sorting in a single interface."
+    },
+    {
+        "literal":  "0 produit(s)",
+        "fr":  "0 produit(s)",
+        "en":  "0 product(s)"
+    },
+    {
+        "literal":  "Selectionnez un produit",
+        "fr":  "Selectionnez un produit",
+        "en":  "Select a product"
+    },
+    {
+        "literal":  "Gestion des produits",
+        "fr":  "Gestion des produits",
+        "en":  "Product management"
+    },
+    {
+        "literal":  "Ajoutez, modifiez, supprimez et suivez rapidement le stock depuis une vue inspiree du design public existant.",
+        "fr":  "Ajoutez, modifiez, supprimez et suivez rapidement le stock depuis une vue inspiree du design public existant.",
+        "en":  "Quickly add, edit, delete and track inventory from a view inspired by existing public design."
+    },
+    {
+        "literal":  "Ajouter un produit",
+        "fr":  "Ajouter un produit",
+        "en":  "Add a product"
+    },
+    {
+        "literal":  "Produits visibles",
+        "fr":  "Produits visibles",
+        "en":  "Visible products"
+    },
+    {
+        "literal":  "Stock faible",
+        "fr":  "Stock faible",
+        "en":  "Low stock"
+    },
+    {
+        "literal":  "Rupture",
+        "fr":  "Rupture",
+        "en":  "Rupture"
+    },
+    {
+        "literal":  "Stock overview",
+        "fr":  "Aperçu des stocks",
+        "en":  "Stock overview"
+    },
+    {
+        "literal":  "0 visible product(s) | 0 healthy | 0 low | 0 out",
+        "fr":  "0 produit(s) visible(s) | 0 en bonne santé | 0 faible | 0 sorti",
+        "en":  "0 visible product(s) | 0 healthy | 0 low | 0 out"
+    },
+    {
+        "literal":  "Top categories",
+        "fr":  "Principales catégories",
+        "en":  "Top categories"
+    },
+    {
+        "literal":  "No category data available.",
+        "fr":  "Aucune donnée de catégorie disponible.",
+        "en":  "No category data available."
+    },
+    {
+        "literal":  "Cherchez par nom, categorie ou marque puis appliquez le tri voulu.",
+        "fr":  "Cherchez par nom, categorie ou marque puis appliquez le tri voulu.",
+        "en":  "Search by name, category or brand then apply the desired sorting."
+    },
+    {
+        "literal":  "Nom, categorie, marque...",
+        "fr":  "Nom, categorie, marque...",
+        "en":  "Name, category, brand..."
+    },
+    {
+        "literal":  "Catalogue",
+        "fr":  "Catalogue",
+        "en":  "Catalogue"
+    },
+    {
+        "literal":  "La table conserve l\u0027esprit du module Symfony avec image, prix, stock et actions rapides.",
+        "fr":  "La table conserve l\u0027esprit du module Symfony avec image, prix, stock et actions rapides.",
+        "en":  "The table retains the spirit of the Symfony module with image, price, stock and quick actions."
+    },
+    {
+        "literal":  "Categorie",
+        "fr":  "Catégories",
+        "en":  "Categories"
+    },
+    {
+        "literal":  "Prix",
+        "fr":  "Prix",
+        "en":  "Prix"
+    },
+    {
+        "literal":  "Stock",
+        "fr":  "Action",
+        "en":  "Stock"
+    },
+    {
+        "literal":  "Marque",
+        "fr":  "Marque",
+        "en":  "Marque"
+    },
+    {
+        "literal":  "Aucun produit trouve.",
+        "fr":  "Aucun produit trouve.",
+        "en":  "No products found."
+    },
+    {
+        "literal":  "IMG",
+        "fr":  "IMG",
+        "en":  "IMG"
+    },
+    {
+        "literal":  "Aucun produit selectionne",
+        "fr":  "Aucun produit selectionne",
+        "en":  "No product selected"
+    },
+    {
+        "literal":  "Aucune image",
+        "fr":  "Aucune image",
+        "en":  "No pictures"
+    },
+    {
+        "literal":  "Renseignez les champs ci-dessous pour ajouter un nouveau produit.",
+        "fr":  "Renseignez les champs ci-dessous pour ajouter un nouveau produit.",
+        "en":  "Complete the fields below to add a new product."
+    },
+    {
+        "literal":  "Ex: Maillot equipe",
+        "fr":  "Ex: Maillot equipe",
+        "en":  "Ex: Team jersey"
+    },
+    {
+        "literal":  "Ex: Vetements",
+        "fr":  "Ex : Vetements",
+        "en":  "Ex: Vetements"
+    },
+    {
+        "literal":  "Ex: Nike",
+        "fr":  "Ex : Nike",
+        "en":  "Ex: Nike"
+    },
+    {
+        "literal":  "Image / URL",
+        "fr":  "Image/URL",
+        "en":  "Image / URL"
+    },
+    {
+        "literal":  "Chemin local ou URL",
+        "fr":  "Chemin local ou URL",
+        "en":  "Local path or URL"
+    },
+    {
+        "literal":  "Sponsoring workspace",
+        "fr":  "Espace de travail de sponsoring",
+        "en":  "Sponsoring workspace"
+    },
+    {
+        "literal":  "Manage sponsors, contracts, statistics, and PDF exports from one admin module.",
+        "fr":  "Gérez les sponsors, les contrats, les statistiques et les exportations PDF à partir d\u0027un seul module d\u0027administration.",
+        "en":  "Manage sponsors, contracts, statistics, and PDF exports from one admin module."
+    },
+    {
+        "literal":  "Export summary PDF",
+        "fr":  "Exporter le résumé PDF",
+        "en":  "Export summary PDF"
+    },
+    {
+        "literal":  "Workspace ready",
+        "fr":  "Espace de travail prêt",
+        "en":  "Workspace ready"
+    },
+    {
+        "literal":  "Overview",
+        "fr":  "Aperçu",
+        "en":  "Overview"
+    },
+    {
+        "literal":  "Sponsors",
+        "fr":  "Commanditaires",
+        "en":  "Sponsors"
+    },
+    {
+        "literal":  "Contracts",
+        "fr":  "Contrats",
+        "en":  "Contracts"
+    },
+    {
+        "literal":  "Expired",
+        "fr":  "Expiré",
+        "en":  "Expired"
+    },
+    {
+        "literal":  "Budget total",
+        "fr":  "Budget total",
+        "en":  "Budget total"
+    },
+    {
+        "literal":  "Avg contract",
+        "fr":  "Contrat moyen",
+        "en":  "Avg contract"
+    },
+    {
+        "literal":  "Top sponsor budgets",
+        "fr":  "Budgets des sponsors les plus importants",
+        "en":  "Top sponsor budgets"
+    },
+    {
+        "literal":  "Highest sponsor budgets in the current database.",
+        "fr":  "Budgets de sponsors les plus élevés dans la base de données actuelle.",
+        "en":  "Highest sponsor budgets in the current database."
+    },
+    {
+        "literal":  "Payment breakdown",
+        "fr":  "Répartition des paiements",
+        "en":  "Payment breakdown"
+    },
+    {
+        "literal":  "Distribution of contract payment states.",
+        "fr":  "Répartition des états de paiement du contrat.",
+        "en":  "Distribution of contract payment states."
+    },
+    {
+        "literal":  "Refresh overview",
+        "fr":  "Actualiser l\u0027aperçu",
+        "en":  "Refresh overview"
+    },
+    {
+        "literal":  "Search sponsor by name, email, phone, or address",
+        "fr":  "Rechercher un sponsor par nom, e-mail, téléphone ou adresse",
+        "en":  "Search sponsor by name, email, phone, or address"
+    },
+    {
+        "literal":  "Name",
+        "fr":  "Nom",
+        "en":  "Name"
+    },
+    {
+        "literal":  "Phone",
+        "fr":  "Téléphone",
+        "en":  "Phone"
+    },
+    {
+        "literal":  "Budget",
+        "fr":  "Budget",
+        "en":  "Budget"
+    },
+    {
+        "literal":  "Address",
+        "fr":  "Adresse",
+        "en":  "Address"
+    },
+    {
+        "literal":  "Sponsor table ready",
+        "fr":  "La table des sponsors est prête",
+        "en":  "Sponsor table ready"
+    },
+    {
+        "literal":  "Create / update sponsor",
+        "fr":  "Créer/mettre à jour un sponsor",
+        "en":  "Create / update sponsor"
+    },
+    {
+        "literal":  "Create a new sponsor or select one to edit it.",
+        "fr":  "Créez un nouveau sponsor ou sélectionnez-en un pour le modifier.",
+        "en":  "Create a new sponsor or select one to edit it."
+    },
+    {
+        "literal":  "Logo reference",
+        "fr":  "Référence du logo",
+        "en":  "Logo reference"
+    },
+    {
+        "literal":  "Browse",
+        "fr":  "Parcourir",
+        "en":  "Browse"
+    },
+    {
+        "literal":  "Sponsor name",
+        "fr":  "Nom du sponsor",
+        "en":  "Sponsor name"
+    },
+    {
+        "literal":  "Sponsor email",
+        "fr":  "E-mail du sponsor",
+        "en":  "Sponsor email"
+    },
+    {
+        "literal":  "Sponsor phone",
+        "fr":  "Téléphone du sponsor",
+        "en":  "Sponsor phone"
+    },
+    {
+        "literal":  "Search by sponsor, team, payment, status, or description",
+        "fr":  "Recherche par sponsor, équipe, paiement, statut ou description",
+        "en":  "Search by sponsor, team, payment, status, or description"
+    },
+    {
+        "literal":  "Sponsor",
+        "fr":  "Parrainer",
+        "en":  "Sponsor"
+    },
+    {
+        "literal":  "Team",
+        "fr":  "Équipe",
+        "en":  "Team"
+    },
+    {
+        "literal":  "Amount",
+        "fr":  "Montant",
+        "en":  "Amount"
+    },
+    {
+        "literal":  "Payment",
+        "fr":  "Paiement",
+        "en":  "Payment"
+    },
+    {
+        "literal":  "Period",
+        "fr":  "Période",
+        "en":  "Period"
+    },
+    {
+        "literal":  "Contract table ready",
+        "fr":  "Table de contrat prête",
+        "en":  "Contract table ready"
+    },
+    {
+        "literal":  "Create / update contract",
+        "fr":  "Créer/mettre à jour un contrat",
+        "en":  "Create / update contract"
+    },
+    {
+        "literal":  "Select a contract or create a new one.",
+        "fr":  "Sélectionnez un contrat ou créez-en un nouveau.",
+        "en":  "Select a contract or create a new one."
+    },
+    {
+        "literal":  "Start date",
+        "fr":  "Date de début",
+        "en":  "Start date"
+    },
+    {
+        "literal":  "End date",
+        "fr":  "Date de fin",
+        "en":  "End date"
+    },
+    {
+        "literal":  "Contract status",
+        "fr":  "Statut du contrat",
+        "en":  "Contract status"
+    },
+    {
+        "literal":  "Payment status",
+        "fr":  "Statut de paiement",
+        "en":  "Payment status"
+    },
+    {
+        "literal":  "Notified",
+        "fr":  "Notifié",
+        "en":  "Notified"
+    },
+    {
+        "literal":  "Contract description",
+        "fr":  "Description du contrat",
+        "en":  "Contract description"
+    },
+    {
+        "literal":  "Club partnerships",
+        "fr":  "Partenariats avec les clubs",
+        "en":  "Club partnerships"
+    },
+    {
+        "literal":  "Sponsors and contracts",
+        "fr":  "Sponsors et contrats",
+        "en":  "Sponsors and contracts"
+    },
+    {
+        "literal":  "Browse the brands that support Sport Insight and review the active contract portfolio in one read-only space.",
+        "fr":  "Parcourez les marques qui soutiennent Sport Insight et examinez le portefeuille de contrats actifs dans un seul espace en lecture seule.",
+        "en":  "Browse the brands that support Sport Insight and review the active contract portfolio in one read-only space."
+    },
+    {
+        "literal":  "Find sponsors",
+        "fr":  "Trouver des sponsors",
+        "en":  "Find sponsors"
+    },
+    {
+        "literal":  "Search the sponsor directory and the linked contracts without editing anything.",
+        "fr":  "Recherchez dans l\u0027annuaire des sponsors et les contrats liés sans rien modifier.",
+        "en":  "Search the sponsor directory and the linked contracts without editing anything."
+    },
+    {
+        "literal":  "0 sponsors / 0 contracts",
+        "fr":  "0 sponsors / 0 contrats",
+        "en":  "0 sponsors / 0 contracts"
+    },
+    {
+        "literal":  "Sponsor feed ready",
+        "fr":  "Flux de sponsors prêt",
+        "en":  "Sponsor feed ready"
+    },
+    {
+        "literal":  "Search sponsor, address, payment, team, or description",
+        "fr":  "Rechercher un sponsor, une adresse, un paiement, une équipe ou une description",
+        "en":  "Search sponsor, address, payment, team, or description"
+    },
+    {
+        "literal":  "All teams",
+        "fr":  "Toutes les équipes",
+        "en":  "All teams"
+    },
+    {
+        "literal":  "All payments",
+        "fr":  "Tous les paiements",
+        "en":  "All payments"
+    },
+    {
+        "literal":  "Sponsor directory",
+        "fr":  "Annuaire des sponsors",
+        "en":  "Sponsor directory"
+    },
+    {
+        "literal":  "0 visible",
+        "fr":  "0 visible",
+        "en":  "0 visible"
+    },
+    {
+        "literal":  "Contract portfolio",
+        "fr":  "Portefeuille de contrats",
+        "en":  "Contract portfolio"
+    },
+    {
+        "literal":  "Shop products, build your cart, confirm payment",
+        "fr":  "Achetez des produits, créez votre panier, confirmez le paiement",
+        "en":  "Shop products, build your cart, confirm payment"
+    },
+    {
+        "literal":  "This user store is separate from the admin CRUD. Browse products, add them to cart, then finish the order in the payment section.",
+        "fr":  "Ce magasin d\u0027utilisateurs est distinct du CRUD d\u0027administration. Parcourez les produits, ajoutez-les au panier, puis terminez la commande dans la section paiement.",
+        "en":  "This user store is separate from the admin CRUD. Browse products, add them to cart, then finish the order in the payment section."
+    },
+    {
+        "literal":  "Products visible",
+        "fr":  "Produits visibles",
+        "en":  "Products visible"
+    },
+    {
+        "literal":  "Items in cart",
+        "fr":  "Articles dans le panier",
+        "en":  "Items in cart"
+    },
+    {
+        "literal":  "Cart total",
+        "fr":  "Total du panier",
+        "en":  "Cart total"
+    },
+    {
+        "literal":  "Store controls",
+        "fr":  "Contrôles du magasin",
+        "en":  "Store controls"
+    },
+    {
+        "literal":  "Search the catalog, sort it, then move between Catalog, Cart, and Payment.",
+        "fr":  "Recherchez dans le catalogue, triez-le, puis déplacez-vous entre Catalogue, Panier et Paiement.",
+        "en":  "Search the catalog, sort it, then move between Catalog, Cart, and Payment."
+    },
+    {
+        "literal":  "0 article(s)",
+        "fr":  "0 article(s)",
+        "en":  "0 article(s)"
+    },
+    {
+        "literal":  "Boutique prete",
+        "fr":  "Boutique prete",
+        "en":  "Shop ready"
+    },
+    {
+        "literal":  "Search by name, category, or brand",
+        "fr":  "Rechercher par nom, catégorie ou marque",
+        "en":  "Search by name, category, or brand"
+    },
+    {
+        "literal":  "Sort by",
+        "fr":  "Trier par",
+        "en":  "Sort by"
+    },
+    {
+        "literal":  "Order",
+        "fr":  "Commande",
+        "en":  "Order"
+    },
+    {
+        "literal":  "Cart",
+        "fr":  "Panier",
+        "en":  "Cart"
+    },
+    {
+        "literal":  "Mode catalogue",
+        "fr":  "Catalogue de modes",
+        "en":  "Mode catalogue"
+    },
+    {
+        "literal":  "Catalog",
+        "fr":  "Catalogue",
+        "en":  "Catalog"
+    },
+    {
+        "literal":  "Browse available products and add them directly to your cart.",
+        "fr":  "Parcourez les produits disponibles et ajoutez-les directement à votre panier.",
+        "en":  "Browse available products and add them directly to your cart."
+    },
+    {
+        "literal":  "Open cart",
+        "fr":  "Ouvrir le panier",
+        "en":  "Open cart"
+    },
+    {
+        "literal":  "Review quantities, remove items, then move to payment.",
+        "fr":  "Vérifiez les quantités, supprimez des articles, puis passez au paiement.",
+        "en":  "Review quantities, remove items, then move to payment."
+    },
+    {
+        "literal":  "Continue shopping",
+        "fr":  "Continuer mes achats",
+        "en":  "Continue shopping"
+    },
+    {
+        "literal":  "Go to payment",
+        "fr":  "Aller au paiement",
+        "en":  "Go to payment"
+    },
+    {
+        "literal":  "Complete delivery and payment details, then confirm the order.",
+        "fr":  "Complétez les détails de livraison et de paiement, puis confirmez la commande.",
+        "en":  "Complete delivery and payment details, then confirm the order."
+    },
+    {
+        "literal":  "Back to cart",
+        "fr":  "Retour au panier",
+        "en":  "Back to cart"
+    },
+    {
+        "literal":  "Order summary",
+        "fr":  "Récapitulatif de la commande",
+        "en":  "Order summary"
+    },
+    {
+        "literal":  "Products ready for checkout.",
+        "fr":  "Produits prêts à être commandés.",
+        "en":  "Products ready for checkout."
+    },
+    {
+        "literal":  "Delivery and payment",
+        "fr":  "Livraison et paiement",
+        "en":  "Delivery and payment"
+    },
+    {
+        "literal":  "No external payment API is used. Payment is confirmed locally and the order is saved in the database.",
+        "fr":  "Aucune API de paiement externe n\u0027est utilisée. Le paiement est confirmé localement et la commande est enregistrée dans la base de données.",
+        "en":  "No external payment API is used. Payment is confirmed locally and the order is saved in the database."
+    },
+    {
+        "literal":  "name@example.com",
+        "fr":  "nom@exemple.com",
+        "en":  "name@example.com"
+    },
+    {
+        "literal":  "Shipping address",
+        "fr":  "Adresse de livraison",
+        "en":  "Shipping address"
+    },
+    {
+        "literal":  "Street, city, postal code",
+        "fr":  "Rue, ville, code postal",
+        "en":  "Street, city, postal code"
+    },
+    {
+        "literal":  "Billing address",
+        "fr":  "Adresse de facturation",
+        "en":  "Billing address"
+    },
+    {
+        "literal":  "Payment method",
+        "fr":  "Mode de paiement",
+        "en":  "Payment method"
+    },
+    {
+        "literal":  "Copy shipping",
+        "fr":  "Expédition de copie",
+        "en":  "Copy shipping"
+    },
+    {
+        "literal":  "Pay now",
+        "fr":  "Payez maintenant",
+        "en":  "Pay now"
+    }
+]

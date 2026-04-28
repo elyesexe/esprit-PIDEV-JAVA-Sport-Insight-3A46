@@ -1,5 +1,9 @@
 package tn.esprit.gui;
 
+import javafx.animation.Interpolator;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -27,6 +31,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import javafx.util.Duration;
 
 public final class UserNavbarMenu {
     private static final String SETTINGS_MENU_KEY = "sportInsight.settingsMenuInjected";
@@ -45,6 +50,9 @@ public final class UserNavbarMenu {
     private static final String FOOTBALL_NEWS_CSS = "/tn/esprit/styles/football-news-theme.css";
     private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
     private static final double SETTINGS_MENU_ACTION_WIDTH = 112;
+    private static final double LANGUAGE_BUTTON_WIDTH = 76;
+    private static final double LANGUAGE_BUTTON_SPACING = 8;
+    private static final double LANGUAGE_INDICATOR_OFFSET = (LANGUAGE_BUTTON_WIDTH + LANGUAGE_BUTTON_SPACING) / 2.0;
 
     private UserNavbarMenu() {
     }
@@ -206,12 +214,11 @@ public final class UserNavbarMenu {
     }
 
     private static HBox createLanguageRow(Button ownerButton, ContextMenu contextMenu) {
-        Label languageLabel = new Label(I18n.get("settings.language"));
-        languageLabel.getStyleClass().add("settings-menu-mode-label");
-
         ToggleGroup languageGroup = new ToggleGroup();
         ToggleButton frenchButton = createLanguageButton(I18n.get("settings.language.french"), languageGroup);
         ToggleButton englishButton = createLanguageButton(I18n.get("settings.language.english"), languageGroup);
+        Region selectionIndicator = new Region();
+        selectionIndicator.getStyleClass().add("settings-language-indicator");
 
         Locale currentLocale = I18n.getLocale();
         if (Locale.ENGLISH.getLanguage().equalsIgnoreCase(currentLocale.getLanguage())) {
@@ -224,13 +231,21 @@ public final class UserNavbarMenu {
         englishButton.setOnAction(event -> switchLanguage(Locale.ENGLISH, ownerButton, contextMenu));
 
         HBox languageButtons = new HBox(8, frenchButton, englishButton);
-        languageButtons.setAlignment(Pos.CENTER_RIGHT);
+        languageButtons.setAlignment(Pos.CENTER);
+        HBox.setHgrow(languageButtons, Priority.ALWAYS);
+        languageButtons.getStyleClass().add("settings-language-switch");
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        StackPane languageSwitchShell = new StackPane(selectionIndicator, languageButtons);
+        languageSwitchShell.setAlignment(Pos.CENTER);
+        languageSwitchShell.getStyleClass().add("settings-language-switch-shell");
 
-        HBox languageRow = new HBox(12, languageLabel, spacer, languageButtons);
-        languageRow.setAlignment(Pos.CENTER_LEFT);
+        languageGroup.selectedToggleProperty().addListener((observable, oldToggle, newToggle) ->
+                updateLanguageSelection(selectionIndicator, frenchButton, englishButton, newToggle == englishButton));
+        Platform.runLater(() ->
+                updateLanguageSelection(selectionIndicator, frenchButton, englishButton, englishButton.isSelected()));
+
+        HBox languageRow = new HBox(languageSwitchShell);
+        languageRow.setAlignment(Pos.CENTER);
         languageRow.getStyleClass().add("settings-menu-row");
         languageRow.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
         languageRow.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
@@ -243,12 +258,51 @@ public final class UserNavbarMenu {
         button.setToggleGroup(group);
         button.setMnemonicParsing(false);
         button.setFocusTraversable(false);
-        button.setMinWidth(76);
-        button.setPrefWidth(76);
-        button.setMaxWidth(76);
+        button.setMinWidth(LANGUAGE_BUTTON_WIDTH);
+        button.setPrefWidth(LANGUAGE_BUTTON_WIDTH);
+        button.setMaxWidth(LANGUAGE_BUTTON_WIDTH);
         button.getStyleClass().add("settings-menu-action");
         button.getStyleClass().add("settings-language-toggle");
         return button;
+    }
+
+    private static void updateLanguageSelection(Region selectionIndicator,
+                                                ToggleButton frenchButton,
+                                                ToggleButton englishButton,
+                                                boolean englishSelected) {
+        if (selectionIndicator == null || frenchButton == null || englishButton == null) {
+            return;
+        }
+
+        double targetTranslateX = englishSelected ? LANGUAGE_INDICATOR_OFFSET : -LANGUAGE_INDICATOR_OFFSET;
+
+        TranslateTransition slide = new TranslateTransition(Duration.millis(190), selectionIndicator);
+        slide.setInterpolator(Interpolator.EASE_BOTH);
+        slide.setToX(targetTranslateX);
+        slide.play();
+
+        applyLanguageButtonState(frenchButton, !englishSelected);
+        applyLanguageButtonState(englishButton, englishSelected);
+    }
+
+    private static void applyLanguageButtonState(ToggleButton button, boolean active) {
+        if (button == null) {
+            return;
+        }
+
+        if (active) {
+            if (!button.getStyleClass().contains("settings-language-active")) {
+                button.getStyleClass().add("settings-language-active");
+            }
+        } else {
+            button.getStyleClass().remove("settings-language-active");
+        }
+
+        ScaleTransition scale = new ScaleTransition(Duration.millis(170), button);
+        scale.setInterpolator(Interpolator.EASE_BOTH);
+        scale.setToX(active ? 1.04 : 1.0);
+        scale.setToY(active ? 1.04 : 1.0);
+        scale.play();
     }
 
     private static void switchLanguage(Locale locale, Button ownerButton, ContextMenu contextMenu) {

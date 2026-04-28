@@ -8,6 +8,11 @@ public record FootballNewsArticle(
         String url,
         String imageUrl,
         Instant publishedAt,
-        String source
+        String source,
+        String originalTitle,
+        String originalSummary
 ) {
+    public FootballNewsArticle(String title, String summary, String url, String imageUrl, Instant publishedAt, String source) {
+        this(title, summary, url, imageUrl, publishedAt, source, title, summary);
+    }
 }

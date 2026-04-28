@@ -4,6 +4,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import tn.esprit.i18n.I18n;
+import tn.esprit.i18n.MachineTranslationService;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -34,6 +36,7 @@ public class FootballNewsService {
 
     private final HttpClient httpClient;
     private final String feedUrl;
+    private final MachineTranslationService translationService = new MachineTranslationService();
 
     public FootballNewsService() {
         this(HttpClient.newBuilder()
@@ -48,6 +51,10 @@ public class FootballNewsService {
     }
 
     public List<FootballNewsArticle> fetchLatest() throws IOException, InterruptedException {
+        return translateArticles(fetchLatestRaw(), I18n.getLocale());
+    }
+
+    public List<FootballNewsArticle> fetchLatestRaw() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(URI.create(feedUrl))
                 .timeout(Duration.ofSeconds(15))
                 .header("Accept", "application/rss+xml, application/xml, text/xml")
@@ -99,16 +106,16 @@ public class FootballNewsService {
         Instant now = Instant.now();
         return List.of(
                 new FootballNewsArticle(
-                        "Football news is temporarily unavailable",
-                        "The live feed could not be loaded. Refresh the page when the network is available.",
+                        I18n.get("news.fallback.unavailableTitle"),
+                        I18n.get("news.fallback.unavailableSummary"),
                         "https://www.bbc.co.uk/sport/football",
                         "",
                         now,
                         "Sport Insight"
                 ),
                 new FootballNewsArticle(
-                        "Use search and topic chips to track the stories you care about",
-                        "The page filters headlines locally without storing anything in the database.",
+                        I18n.get("news.fallback.searchTitle"),
+                        I18n.get("news.fallback.searchSummary"),
                         "https://www.bbc.co.uk/sport/football",
                         "",
                         now.minusSeconds(1800),
@@ -124,6 +131,67 @@ public class FootballNewsService {
         String thumbnail = thumbnailUrl(item);
         Instant publishedAt = parsePublishedAt(text(item, "pubDate"));
         return new FootballNewsArticle(title, summary, url, thumbnail, publishedAt, "Sport Insight");
+    }
+
+    public List<FootballNewsArticle> translateArticles(List<FootballNewsArticle> articles, Locale locale) {
+        if (articles == null || articles.isEmpty()) {
+            return articles;
+        }
+        if (!Locale.FRENCH.getLanguage().equalsIgnoreCase(I18n.normalize(locale).getLanguage())) {
+            return articles.stream()
+                    .map(this::restoreOriginalArticle)
+                    .toList();
+        }
+
+        List<String> titles = articles.stream()
+                .map(article -> article == null ? null : article.originalTitle())
+                .toList();
+        List<String> summaries = articles.stream()
+                .map(article -> article == null ? null : article.originalSummary())
+                .toList();
+
+        List<String> translatedTitles = translationService.translateAll(titles, Locale.FRENCH);
+        List<String> translatedSummaries = translationService.translateAll(summaries, Locale.FRENCH);
+
+        List<FootballNewsArticle> translatedArticles = new ArrayList<>(articles.size());
+        for (int index = 0; index < articles.size(); index++) {
+            FootballNewsArticle article = articles.get(index);
+            if (article == null) {
+                translatedArticles.add(null);
+                continue;
+            }
+            translatedArticles.add(new FootballNewsArticle(
+                    fallbackToOriginal(translatedTitles.get(index), article.originalTitle()),
+                    fallbackToOriginal(translatedSummaries.get(index), article.originalSummary()),
+                    article.url(),
+                    article.imageUrl(),
+                    article.publishedAt(),
+                    article.source(),
+                    article.originalTitle(),
+                    article.originalSummary()
+            ));
+        }
+        return translatedArticles;
+    }
+
+    private FootballNewsArticle restoreOriginalArticle(FootballNewsArticle article) {
+        if (article == null) {
+            return null;
+        }
+        return new FootballNewsArticle(
+                fallbackToOriginal(article.originalTitle(), article.title()),
+                fallbackToOriginal(article.originalSummary(), article.summary()),
+                article.url(),
+                article.imageUrl(),
+                article.publishedAt(),
+                article.source(),
+                article.originalTitle(),
+                article.originalSummary()
+        );
+    }
+
+    private String fallbackToOriginal(String preferred, String fallback) {
+        return preferred == null || preferred.isBlank() ? fallback : preferred;
     }
 
     private static void configureSecureXml(DocumentBuilderFactory factory) {

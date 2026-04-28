@@ -49,6 +49,7 @@ C:\PI Java\src\main\java\tn\esprit\Controller\JoueurTeamController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\LeagueCompetitionController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\LeagueTableController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\LoginController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchApiController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchCompetitionController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchDetailController.java
@@ -108,10 +109,14 @@ C:\PI Java\src\main\java\tn\esprit\gui\SidebarModuleGroup.java
 C:\PI Java\src\main\java\tn\esprit\gui\ThemeManager.java
 C:\PI Java\src\main\java\tn\esprit\gui\UserNavbarMenu.java
 C:\PI Java\src\main\java\tn\esprit\i18n\I18n.java
+C:\PI Java\src\main\java\tn\esprit\i18n\LiteralTranslationCatalog.java
+C:\PI Java\src\main\java\tn\esprit\i18n\MachineTranslationService.java
+C:\PI Java\src\main\java\tn\esprit\i18n\UiTextLocalizer.java
 C:\PI Java\src\main\java\tn\esprit\mains\AnnonceMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\EntrainementMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\LauncherMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\Main.java
+C:\PI Java\src\main\java\tn\esprit\mains\MatchApiMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\MatchMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\ProductMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\SponsorMain.java
@@ -164,7 +169,11 @@ C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeService.java
 C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeVideo.java
 C:\PI Java\src\main\java\tn\esprit\services\IService.java
 C:\PI Java\src\main\java\tn\esprit\services\JoueurService.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchApiServer.java
 C:\PI Java\src\main\java\tn\esprit\services\MatchFollowTargetService.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchLiveCompanionAnalyzer.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchLiveCompanionResponse.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchNotFoundException.java
 C:\PI Java\src\main\java\tn\esprit\services\MatchsService.java
 C:\PI Java\src\main\java\tn\esprit\services\MealPlanGenerator.java
 C:\PI Java\src\main\java\tn\esprit\services\NotificationService.java

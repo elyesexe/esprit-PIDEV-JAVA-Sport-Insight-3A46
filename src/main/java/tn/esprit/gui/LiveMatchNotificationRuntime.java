@@ -84,6 +84,13 @@ public final class LiveMatchNotificationRuntime {
         if (!AuthSession.isAuthenticated()) {
             return;
         }
+        try {
+            ensureServices();
+            startPollingIfNeeded();
+        } catch (SQLException e) {
+            System.err.println("Live match notification runtime unavailable: " + e.getMessage());
+            return;
+        }
         scheduler.schedule(this::pollSafely, 0, TimeUnit.SECONDS);
     }
 
@@ -464,7 +471,7 @@ public final class LiveMatchNotificationRuntime {
     }
 
     private boolean shouldEmitReminderAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
-        if (!directMatchFavorite || now == null || snapshot != null && snapshot.isFinished()) {
+        if (now == null || snapshot != null && snapshot.isFinished()) {
             return false;
         }
         LocalDateTime kickoff = snapshot != null && snapshot.kickoffAt() != null ? snapshot.kickoffAt() : kickoffOf(match);
@@ -567,7 +574,7 @@ public final class LiveMatchNotificationRuntime {
         }
 
         int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 4;
-        int futureMinutes = directMatchFavorite ? MATCH_REMINDER_MINUTES + 5 : 20;
+        int futureMinutes = MATCH_REMINDER_MINUTES + 5;
         if (isFinishedStatus(match.getStatut())) {
             return now.isBefore(kickoff.plusHours(catchUpHours));
         }

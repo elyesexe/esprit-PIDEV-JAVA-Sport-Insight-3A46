@@ -21,9 +21,11 @@ import java.util.Objects;
 
 public class MatchsService implements IService<Matchs> {
     private final Connection connection;
+    private final MatchLiveCompanionAnalyzer liveCompanionAnalyzer;
 
     public MatchsService() throws SQLException {
         connection = MyConnection.getInstance().getConnection();
+        liveCompanionAnalyzer = new MatchLiveCompanionAnalyzer();
     }
 
     @Override
@@ -111,6 +113,21 @@ public class MatchsService implements IService<Matchs> {
         }
 
         return null;
+    }
+
+    public MatchLiveCompanionResponse getLiveCompanion(int matchId) throws SQLException {
+        Matchs match = getById(matchId);
+        if (match == null) {
+            throw new MatchNotFoundException(matchId);
+        }
+        return getLiveCompanion(match);
+    }
+
+    public MatchLiveCompanionResponse getLiveCompanion(Matchs match) {
+        if (match == null || match.getId() == null) {
+            throw new IllegalArgumentException("Match not found.");
+        }
+        return liveCompanionAnalyzer.analyze(match);
     }
 
     private Matchs mapRow(ResultSet rs) throws SQLException {

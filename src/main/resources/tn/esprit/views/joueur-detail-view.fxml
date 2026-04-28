@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -80,8 +80,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-                                    <Label text="Ã¢Ëœâ‚¬" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="Ã¢ËœÂ¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
                                 </StackPane>
                             </StackPane>
                         </StackPane>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -85,8 +85,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-                                    <Label text="Ã¢Ëœâ‚¬" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="Ã¢ËœÂ¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -242,6 +242,59 @@
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <Label text="Timeline" styleClass="flashscore-inline-badge"/>
                             </HBox>
+
+                            <VBox spacing="10" styleClass="live-companion-panel">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Compagnon live" styleClass="summary-center-header live-companion-kicker"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label text="Analyse locale" styleClass="flashscore-inline-badge live-companion-source-badge"/>
+                                </HBox>
+
+                                <Label fx:id="liveCompanionSummaryLabel"
+                                       text="Le compagnon live resume la dynamique du match a partir des donnees stockees."
+                                       wrapText="true"
+                                       styleClass="live-companion-summary"/>
+
+                                <HBox spacing="18" styleClass="live-companion-metrics-row">
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Equipe dominante" styleClass="live-companion-metric-label"/>
+                                        <Label fx:id="liveCompanionDominantTeamValueLabel"
+                                               text="Equilibre"
+                                               wrapText="true"
+                                               styleClass="live-companion-metric-value live-companion-tone-balanced"/>
+                                    </VBox>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Pression" styleClass="live-companion-metric-label"/>
+                                        <Label fx:id="liveCompanionPressureValueLabel"
+                                               text="Domicile 50 | Exterieur 50"
+                                               wrapText="true"
+                                               styleClass="live-companion-metric-value"/>
+                                    </VBox>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Danger recent" styleClass="live-companion-metric-label"/>
+                                        <Label fx:id="liveCompanionDangerValueLabel"
+                                               text="Faible"
+                                               styleClass="live-companion-metric-value live-companion-tone-low"/>
+                                    </VBox>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Intensite" styleClass="live-companion-metric-label"/>
+                                        <Label fx:id="liveCompanionIntensityValueLabel"
+                                               text="0/100"
+                                               styleClass="live-companion-metric-value live-companion-tone-low"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="18" styleClass="live-companion-columns">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS" styleClass="live-companion-column">
+                                        <Label text="Points cles" styleClass="live-companion-column-title"/>
+                                        <VBox fx:id="liveCompanionTurningPointsContainer" spacing="6"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS" styleClass="live-companion-column">
+                                        <Label text="Impacts joueurs" styleClass="live-companion-column-title"/>
+                                        <VBox fx:id="liveCompanionImpactsContainer" spacing="6"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
 
                             <HBox alignment="CENTER" spacing="14" styleClass="summary-teams-header">
                                 <Label fx:id="summaryHomeTeamLabel" text="Domicile" styleClass="summary-team-header"/>

@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class FootballNewsController implements AssistantContextProvider {
@@ -124,6 +125,9 @@ public class FootballNewsController implements AssistantContextProvider {
     private Instant lastLoadedAt;
     private String lastLoadStatus = I18n.get("news.status.ready");
     private int visibleCardLimit = INITIAL_CARD_LIMIT;
+    private final AtomicLong refreshSequence = new AtomicLong();
+    private boolean fetchingArticles;
+    private boolean translatingArticles;
 
     @FXML
     public void initialize() {
@@ -378,38 +382,95 @@ public class FootballNewsController implements AssistantContextProvider {
     }
 
     private void refreshNews() {
+        long requestId = refreshSequence.incrementAndGet();
         resetVisibleCards();
-        setLoading(true);
+        fetchingArticles = true;
+        translatingArticles = false;
+        updateBusyState();
         setStatus(I18n.get("news.status.loading"));
 
         Task<List<FootballNewsArticle>> task = new Task<>() {
             @Override
             protected List<FootballNewsArticle> call() throws Exception {
-                return newsService.fetchLatest();
+                return newsService.fetchLatestRaw();
             }
         };
 
         task.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
             List<FootballNewsArticle> articles = new ArrayList<>(task.getValue());
             articles.sort(Comparator.comparing(FootballNewsArticle::publishedAt).reversed());
             allArticles.setAll(articles);
             lastLoadedAt = Instant.now();
             lastLoadStatus = I18n.get("news.status.loaded");
-            setLoading(false);
+            fetchingArticles = false;
+            updateBusyState();
             applyFilters();
+            translateArticlesIfNeeded(requestId, articles);
         });
         task.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
             Throwable ex = task.getException();
             allArticles.setAll(newsService.fallbackArticles());
             lastLoadedAt = Instant.now();
             lastLoadStatus = ex == null
                     ? I18n.get("news.status.offline")
                     : I18n.format("news.status.offlineWithReason", shortMessage(ex.getMessage()));
-            setLoading(false);
+            fetchingArticles = false;
+            updateBusyState();
             applyFilters();
         });
 
         NEWS_EXECUTOR.execute(task);
+    }
+
+    private void translateArticlesIfNeeded(long requestId, List<FootballNewsArticle> baseArticles) {
+        if (!Locale.FRENCH.getLanguage().equalsIgnoreCase(I18n.getLocale().getLanguage())
+                || baseArticles == null
+                || baseArticles.isEmpty()) {
+            return;
+        }
+
+        translatingArticles = true;
+        updateBusyState();
+        lastLoadStatus = I18n.getOrDefault("news.status.translating", I18n.get("news.status.loaded"));
+        applyFilters();
+
+        Task<List<FootballNewsArticle>> translationTask = new Task<>() {
+            @Override
+            protected List<FootballNewsArticle> call() {
+                return newsService.translateArticles(baseArticles, Locale.FRENCH);
+            }
+        };
+
+        translationTask.setOnSucceeded(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            translatingArticles = false;
+            updateBusyState();
+            List<FootballNewsArticle> translatedArticles = new ArrayList<>(translationTask.getValue());
+            translatedArticles.sort(Comparator.comparing(FootballNewsArticle::publishedAt).reversed());
+            allArticles.setAll(translatedArticles);
+            lastLoadStatus = I18n.getOrDefault("news.status.translated", I18n.get("news.status.loaded"));
+            applyFilters();
+        });
+
+        translationTask.setOnFailed(event -> {
+            if (requestId != refreshSequence.get()) {
+                return;
+            }
+            translatingArticles = false;
+            updateBusyState();
+            lastLoadStatus = I18n.getOrDefault("news.status.translationFailed", I18n.get("news.status.loaded"));
+            applyFilters();
+        });
+
+        NEWS_EXECUTOR.execute(translationTask);
     }
 
     private void applyFilters() {
@@ -431,7 +492,7 @@ public class FootballNewsController implements AssistantContextProvider {
         if (query == null || query.isBlank()) {
             return true;
         }
-        String haystack = normalize(article.title() + " " + article.summary());
+        String haystack = normalize(joinArticleText(article));
         return haystack.contains(query);
     }
 
@@ -795,6 +856,17 @@ public class FootballNewsController implements AssistantContextProvider {
         return I18n.format("news.meta.daysAgo", duration.toDays());
     }
 
+    private String joinArticleText(FootballNewsArticle article) {
+        if (article == null) {
+            return "";
+        }
+        return String.join(" ",
+                emptyToFallback(article.title(), ""),
+                emptyToFallback(article.summary(), ""),
+                emptyToFallback(article.originalTitle(), ""),
+                emptyToFallback(article.originalSummary(), ""));
+    }
+
     private void setActiveTopic(TopicFilter topic) {
         activeTopic = topic == null ? TopicFilter.ALL : topic;
         setTopicSelected(allTopicButton, activeTopic == TopicFilter.ALL);
@@ -811,16 +883,17 @@ public class FootballNewsController implements AssistantContextProvider {
         }
     }
 
-    private void setLoading(boolean loading) {
+    private void updateBusyState() {
+        boolean busy = fetchingArticles || translatingArticles;
         if (loadingIndicator != null) {
-            loadingIndicator.setManaged(loading);
-            loadingIndicator.setVisible(loading);
+            loadingIndicator.setManaged(busy);
+            loadingIndicator.setVisible(busy);
         }
         if (refreshButton != null) {
-            refreshButton.setDisable(loading);
+            refreshButton.setDisable(fetchingArticles);
         }
         if (resetButton != null) {
-            resetButton.setDisable(loading);
+            resetButton.setDisable(fetchingArticles);
         }
     }
 
@@ -965,7 +1038,11 @@ public class FootballNewsController implements AssistantContextProvider {
             if (this == ALL || article == null) {
                 return true;
             }
-            String text = normalize(article.title() + " " + article.summary());
+            String text = normalize(String.join(" ",
+                    article.originalTitle() == null ? article.title() : article.originalTitle(),
+                    article.originalSummary() == null ? article.summary() : article.originalSummary(),
+                    article.title(),
+                    article.summary()));
             return tokens.stream().anyMatch(text::contains);
         }
     }

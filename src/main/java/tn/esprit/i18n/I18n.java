@@ -11,6 +11,7 @@ public final class I18n {
     private static final String PREF_LANGUAGE = "language";
     private static final Locale DEFAULT_LOCALE = Locale.FRENCH;
     private static final Preferences PREFERENCES = Preferences.userNodeForPackage(I18n.class);
+    private static final LiteralTranslationCatalog LITERAL_TRANSLATION_CATALOG = LiteralTranslationCatalog.load();
 
     private static volatile Locale currentLocale = loadSavedLocale();
 
@@ -78,6 +79,14 @@ public final class I18n {
         String pattern = getOrDefault(key, fallback);
         MessageFormat formatter = new MessageFormat(pattern, currentLocale);
         return formatter.format(args == null ? new Object[0] : args);
+    }
+
+    public static String translateLiteral(String text) {
+        return translateLiteral(text, currentLocale);
+    }
+
+    public static String translateLiteral(String text, Locale locale) {
+        return LITERAL_TRANSLATION_CATALOG.translate(text, normalize(locale));
     }
 
     public static Locale normalize(Locale locale) {

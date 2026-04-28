@@ -49,6 +49,7 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.EquipeService;
+import tn.esprit.services.MatchLiveCompanionResponse;
 import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.ApiFootballFixtureSnapshot;
@@ -217,6 +218,20 @@ public class MatchDetailController implements AssistantContextProvider {
     private Label summaryHomeTeamLabel;
     @FXML
     private Label summaryAwayTeamLabel;
+    @FXML
+    private Label liveCompanionSummaryLabel;
+    @FXML
+    private Label liveCompanionDominantTeamValueLabel;
+    @FXML
+    private Label liveCompanionPressureValueLabel;
+    @FXML
+    private Label liveCompanionDangerValueLabel;
+    @FXML
+    private Label liveCompanionIntensityValueLabel;
+    @FXML
+    private VBox liveCompanionTurningPointsContainer;
+    @FXML
+    private VBox liveCompanionImpactsContainer;
     @FXML
     private VBox summaryTimelineContainer;
     @FXML
@@ -1993,6 +2008,7 @@ public class MatchDetailController implements AssistantContextProvider {
         renderLineupSection(awayLineupPitchContainer, awayBenchContainer, awayLineup, true);
 
         renderStatistics(details.statistics());
+        renderLiveCompanion();
     }
 
     private void renderStoredLineups() {
@@ -2009,6 +2025,7 @@ public class MatchDetailController implements AssistantContextProvider {
         lineupExterieurMetaLabel.setText(buildLineupMeta(awayStored));
         renderLineupSection(homeLineupPitchContainer, homeBenchContainer, homeStored, false);
         renderLineupSection(awayLineupPitchContainer, awayBenchContainer, awayStored, true);
+        renderLiveCompanion();
     }
 
     private List<String> extractStartingLineupNames(ApiFootballLineupSide lineup) {
@@ -2034,6 +2051,215 @@ public class MatchDetailController implements AssistantContextProvider {
             return minute + " " + title;
         }
         return minute + " " + title + " (" + meta + ")";
+    }
+
+    private void renderLiveCompanion() {
+        if (liveCompanionSummaryLabel == null
+                || liveCompanionDominantTeamValueLabel == null
+                || liveCompanionPressureValueLabel == null
+                || liveCompanionDangerValueLabel == null
+                || liveCompanionIntensityValueLabel == null
+                || liveCompanionTurningPointsContainer == null
+                || liveCompanionImpactsContainer == null) {
+            return;
+        }
+
+        if (match == null || matchsService == null) {
+            liveCompanionSummaryLabel.setText("Le compagnon live sera disponible des qu'un match detaille est charge.");
+            liveCompanionDominantTeamValueLabel.setText("Equilibre");
+            liveCompanionPressureValueLabel.setText("Domicile 50 | Exterieur 50");
+            liveCompanionDangerValueLabel.setText("Faible");
+            liveCompanionIntensityValueLabel.setText("0/100");
+            applyCompanionTone(liveCompanionDominantTeamValueLabel, "balanced");
+            applyCompanionTone(liveCompanionDangerValueLabel, "low");
+            applyCompanionTone(liveCompanionIntensityValueLabel, "low");
+            renderCompanionTurningPoints(List.of());
+            renderCompanionImpacts(List.of());
+            return;
+        }
+
+        try {
+            MatchLiveCompanionResponse response = matchsService.getLiveCompanion(match);
+            liveCompanionSummaryLabel.setText(emptyToFallback(response.summary(), "Le match reste ouvert, sans tendance nette pour l'instant."));
+            liveCompanionDominantTeamValueLabel.setText(formatCompanionDominantTeam(response.momentum().dominantTeam()));
+            liveCompanionPressureValueLabel.setText(buildCompanionPressureLabel(response));
+            liveCompanionDangerValueLabel.setText(formatCompanionDangerLevel(response.dangerLevel()));
+            liveCompanionIntensityValueLabel.setText(response.intensityScore() + "/100");
+            applyCompanionTone(liveCompanionDominantTeamValueLabel, response.momentum().dominantTeam());
+            applyCompanionTone(liveCompanionDangerValueLabel, response.dangerLevel());
+            applyCompanionTone(liveCompanionIntensityValueLabel, intensityTone(response.intensityScore()));
+            renderCompanionTurningPoints(response.turningPoints());
+            renderCompanionImpacts(response.topImpacts());
+        } catch (RuntimeException e) {
+            liveCompanionSummaryLabel.setText("Le compagnon live n'a pas pu etre calcule pour ce match.");
+            liveCompanionDominantTeamValueLabel.setText("Indisponible");
+            liveCompanionPressureValueLabel.setText("Domicile -- | Exterieur --");
+            liveCompanionDangerValueLabel.setText("Indisponible");
+            liveCompanionIntensityValueLabel.setText("--");
+            applyCompanionTone(liveCompanionDominantTeamValueLabel, "balanced");
+            applyCompanionTone(liveCompanionDangerValueLabel, "medium");
+            applyCompanionTone(liveCompanionIntensityValueLabel, "medium");
+            renderCompanionTurningPoints(List.of());
+            renderCompanionImpacts(List.of());
+        }
+    }
+
+    private void renderCompanionTurningPoints(List<String> turningPoints) {
+        liveCompanionTurningPointsContainer.getChildren().clear();
+        List<String> safePoints = turningPoints == null ? List.of() : turningPoints.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(point -> !point.isBlank())
+                .limit(5)
+                .toList();
+        if (safePoints.isEmpty()) {
+            liveCompanionTurningPointsContainer.getChildren().add(buildCompanionPlaceholder(
+                    "Aucun basculement net detecte pour le moment."
+            ));
+            return;
+        }
+
+        for (String point : safePoints) {
+            HBox row = new HBox(8);
+            row.setAlignment(Pos.TOP_LEFT);
+            row.getStyleClass().add("live-companion-list-row");
+
+            Label bullet = new Label("•");
+            bullet.getStyleClass().add("live-companion-bullet");
+
+            Label text = new Label(point);
+            text.setWrapText(true);
+            text.getStyleClass().add("live-companion-list-text");
+            HBox.setHgrow(text, Priority.ALWAYS);
+
+            row.getChildren().addAll(bullet, text);
+            liveCompanionTurningPointsContainer.getChildren().add(row);
+        }
+    }
+
+    private void renderCompanionImpacts(List<MatchLiveCompanionResponse.PlayerImpact> topImpacts) {
+        liveCompanionImpactsContainer.getChildren().clear();
+        List<MatchLiveCompanionResponse.PlayerImpact> safeImpacts = topImpacts == null ? List.of() : topImpacts.stream()
+                .filter(Objects::nonNull)
+                .limit(5)
+                .toList();
+        if (safeImpacts.isEmpty()) {
+            liveCompanionImpactsContainer.getChildren().add(buildCompanionPlaceholder(
+                    "Aucun impact joueur notable n'est encore disponible."
+            ));
+            return;
+        }
+
+        for (MatchLiveCompanionResponse.PlayerImpact impact : safeImpacts) {
+            HBox row = new HBox(10);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("live-companion-impact-row");
+
+            VBox info = new VBox(2);
+            info.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(info, Priority.ALWAYS);
+
+            Label playerName = new Label(emptyToFallback(impact.player(), "Joueur"));
+            playerName.getStyleClass().add("live-companion-impact-name");
+
+            Label meta = new Label(formatImpactMeta(impact));
+            meta.getStyleClass().add("live-companion-impact-meta");
+
+            info.getChildren().addAll(playerName, meta);
+
+            Label score = new Label(String.format(Locale.US, "%.1f", impact.impactScore()));
+            score.getStyleClass().addAll("live-companion-impact-score", ratingToneStyle(impact.impactScore()));
+
+            row.getChildren().addAll(info, score);
+            liveCompanionImpactsContainer.getChildren().add(row);
+        }
+    }
+
+    private Label buildCompanionPlaceholder(String text) {
+        Label placeholder = new Label(text);
+        placeholder.setWrapText(true);
+        placeholder.getStyleClass().add("live-companion-placeholder");
+        return placeholder;
+    }
+
+    private String formatCompanionDominantTeam(String dominantTeam) {
+        String normalized = lowercase(dominantTeam);
+        if ("home".equals(normalized)) {
+            return detailHomeNameLabel == null ? "Domicile" : emptyToFallback(detailHomeNameLabel.getText(), "Domicile");
+        }
+        if ("away".equals(normalized)) {
+            return detailAwayNameLabel == null ? "Exterieur" : emptyToFallback(detailAwayNameLabel.getText(), "Exterieur");
+        }
+        return "Equilibre";
+    }
+
+    private String buildCompanionPressureLabel(MatchLiveCompanionResponse response) {
+        if (response == null || response.momentum() == null) {
+            return "Domicile -- | Exterieur --";
+        }
+        return "Domicile " + response.momentum().homePressure()
+                + " | Exterieur " + response.momentum().awayPressure();
+    }
+
+    private String formatCompanionDangerLevel(String dangerLevel) {
+        String normalized = lowercase(dangerLevel);
+        if ("high".equals(normalized)) {
+            return "Elevee";
+        }
+        if ("medium".equals(normalized)) {
+            return "Moyenne";
+        }
+        if ("low".equals(normalized)) {
+            return "Faible";
+        }
+        return "Indisponible";
+    }
+
+    private String intensityTone(int intensityScore) {
+        if (intensityScore >= 75) {
+            return "high";
+        }
+        if (intensityScore >= 45) {
+            return "medium";
+        }
+        return "low";
+    }
+
+    private String formatImpactMeta(MatchLiveCompanionResponse.PlayerImpact impact) {
+        String teamLabel = switch (lowercase(impact == null ? null : impact.team())) {
+            case "home" -> emptyToFallback(detailHomeNameLabel == null ? null : detailHomeNameLabel.getText(), "Domicile");
+            case "away" -> emptyToFallback(detailAwayNameLabel == null ? null : detailAwayNameLabel.getText(), "Exterieur");
+            default -> "Match";
+        };
+        return teamLabel + " | Impact";
+    }
+
+    private void applyCompanionTone(Label label, String tone) {
+        if (label == null) {
+            return;
+        }
+        label.getStyleClass().removeAll(
+                "live-companion-tone-home",
+                "live-companion-tone-away",
+                "live-companion-tone-balanced",
+                "live-companion-tone-low",
+                "live-companion-tone-medium",
+                "live-companion-tone-high"
+        );
+        String normalized = lowercase(tone);
+        if ("home".equals(normalized)) {
+            label.getStyleClass().add("live-companion-tone-home");
+        } else if ("away".equals(normalized)) {
+            label.getStyleClass().add("live-companion-tone-away");
+        } else if ("balanced".equals(normalized)) {
+            label.getStyleClass().add("live-companion-tone-balanced");
+        } else if ("high".equals(normalized)) {
+            label.getStyleClass().add("live-companion-tone-high");
+        } else if ("medium".equals(normalized)) {
+            label.getStyleClass().add("live-companion-tone-medium");
+        } else if ("low".equals(normalized)) {
+            label.getStyleClass().add("live-companion-tone-low");
+        }
     }
 
     private void applyActiveTab() {
@@ -3089,13 +3315,13 @@ public class MatchDetailController implements AssistantContextProvider {
         if (rating == null) {
             return "player-rating-neutral";
         }
-        if (rating >= 7.5) {
+        if (rating >= 9.0) {
             return "player-rating-elite";
         }
-        if (rating >= 6.8) {
+        if (rating >= 8.0) {
             return "player-rating-good";
         }
-        if (rating >= 6.2) {
+        if (rating >= 7.0) {
             return "player-rating-mid";
         }
         return "player-rating-low";
@@ -4484,6 +4710,11 @@ public class MatchDetailController implements AssistantContextProvider {
 
     private String emptyToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private String lowercase(String value) {
+        String cleaned = emptyToNull(value);
+        return cleaned == null ? null : cleaned.toLowerCase(Locale.ROOT);
     }
 
     private String normalize(String value) {

@@ -120,6 +120,16 @@ public final class NavbarNotificationCenter {
 
         button.setGraphic(bellShell);
         button.setOnAction(event -> toggleMenu());
+        button.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null || !AuthSession.isAuthenticated()) {
+                return;
+            }
+            Platform.runLater(() -> {
+                if (button.getScene() != null && button.getScene().getWindow() instanceof Stage stage) {
+                    LiveMatchNotificationRuntime.getInstance().bindStage(stage, "navbar-notification-center", false);
+                }
+            });
+        });
         button.getProperties().put(NavbarNotificationCenter.class.getName(), this);
         return button;
     }

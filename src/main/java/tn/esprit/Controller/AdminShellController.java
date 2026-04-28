@@ -21,6 +21,7 @@ import javafx.scene.layout.VBox;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.i18n.I18n;
+import tn.esprit.i18n.UiTextLocalizer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -217,6 +218,7 @@ public class AdminShellController {
         try {
             FXMLLoader loader = new FXMLLoader(url, I18n.getBundle());
             Parent root = loader.load();
+            UiTextLocalizer.install(root);
             if (stripCrudChrome && root instanceof BorderPane borderPane) {
                 borderPane.setTop(null);
             }

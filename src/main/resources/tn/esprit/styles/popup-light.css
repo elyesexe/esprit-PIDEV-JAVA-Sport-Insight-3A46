@@ -230,6 +230,47 @@
     -fx-border-color: rgba(167, 243, 208, 0.48);
 }
 
+.settings-language-switch-shell {
+    -fx-min-width: 160;
+    -fx-pref-width: 160;
+    -fx-max-width: 160;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-max-height: 42;
+}
+
+.settings-language-switch {
+    -fx-spacing: 8;
+    -fx-alignment: center;
+}
+
+.settings-language-indicator {
+    -fx-min-width: 76;
+    -fx-pref-width: 76;
+    -fx-max-width: 76;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-max-height: 42;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(45, 212, 191, 0.26) 0%, rgba(16, 185, 129, 0.38) 100%);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(94, 234, 212, 0.4);
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.22), 16, 0.28, 0, 0);
+}
+
+.settings-language-toggle {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(110, 231, 183, 0.34);
+}
+
+.settings-language-toggle:hover {
+    -fx-background-color: transparent;
+}
+
+.settings-language-toggle.settings-language-active {
+    -fx-text-fill: #f8fafc;
+}
+
 .settings-menu-danger {
     -fx-text-fill: #fecaca;
 }
