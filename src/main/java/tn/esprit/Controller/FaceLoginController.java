@@ -168,11 +168,11 @@ public class FaceLoginController implements Initializable {
         webcam.start();
     }
 
-    @FXML private void onPasswordLogin() { webcam.stop(); navigateTo("/fxml/login.fxml"); }
+    @FXML private void onPasswordLogin() { webcam.stop(); navigateTo("/tn/esprit/views/login-view.fxml"); }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private void openDashboard() { webcam.stop(); navigateTo("/fxml/AdminDashboard.fxml"); }
+    private void openDashboard() { webcam.stop(); navigateTo("/tn/esprit/views/admin-users-view.fxml"); }
 
     private void navigateTo(String path) {
         try {
