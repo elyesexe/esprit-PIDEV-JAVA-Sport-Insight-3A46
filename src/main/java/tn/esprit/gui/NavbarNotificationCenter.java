@@ -76,6 +76,7 @@ public final class NavbarNotificationCenter {
         configurePopupMenu();
         registerActiveCenter();
         refreshBadgeAsync();
+        LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
     }
 
     public Button getButton() {
@@ -124,14 +125,27 @@ public final class NavbarNotificationCenter {
             if (newScene == null || !AuthSession.isAuthenticated()) {
                 return;
             }
-            Platform.runLater(() -> {
-                if (button.getScene() != null && button.getScene().getWindow() instanceof Stage stage) {
-                    LiveMatchNotificationRuntime.getInstance().bindStage(stage, "navbar-notification-center", false);
-                }
-            });
+            Platform.runLater(() -> bindRuntimeWhenStageAvailable(button));
         });
         button.getProperties().put(NavbarNotificationCenter.class.getName(), this);
         return button;
+    }
+
+    private void bindRuntimeWhenStageAvailable(Button button) {
+        if (button == null || button.getScene() == null || !AuthSession.isAuthenticated()) {
+            return;
+        }
+
+        if (button.getScene().getWindow() instanceof Stage stage) {
+            LiveMatchNotificationRuntime.getInstance().bindStage(stage, "navbar-notification-center", false);
+            return;
+        }
+
+        button.getScene().windowProperty().addListener((observable, oldWindow, newWindow) -> {
+            if (newWindow instanceof Stage stage && AuthSession.isAuthenticated()) {
+                LiveMatchNotificationRuntime.getInstance().bindStage(stage, "navbar-notification-center", false);
+            }
+        });
     }
 
     private void configurePopupMenu() {

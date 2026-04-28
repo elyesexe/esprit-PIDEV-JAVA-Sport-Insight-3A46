@@ -172,6 +172,7 @@ tn\esprit\services\IService.class
 tn\esprit\security\PasswordSupport.class
 tn\esprit\services\FootballDataSyncService$PlayerUpsertOutcome.class
 tn\esprit\mains\LauncherMain.class
+tn\esprit\services\CommentaireService$SpamDetectionResult.class
 tn\esprit\entities\ContratSponsor.class
 tn\esprit\services\football\ApiFootballLineupSide.class
 tn\esprit\Controller\MatchFormController$1.class
@@ -193,6 +194,7 @@ tn\esprit\Controller\EntrainementAdminController$CoachOption.class
 tn\esprit\services\AnnonceService.class
 tn\esprit\gui\AdminNavigation.class
 tn\esprit\i18n\MachineTranslationService.class
+tn\esprit\Controller\JoueurListController$3.class
 tn\esprit\services\MatchLiveCompanionAnalyzer$3.class
 tn\esprit\services\UserService.class
 tn\esprit\Controller\SponsorAdminController$SponsorRow.class

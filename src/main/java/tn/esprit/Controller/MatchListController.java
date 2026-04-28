@@ -82,7 +82,8 @@ public class MatchListController implements AssistantContextProvider {
     private static final String STATUS_FINI = "Fini";
     private static final String STATUS_REPORTE = "Reporte";
     private static final String STATUS_ANNULE = "Annule";
-    private static final int BACKGROUND_REFRESH_SECONDS = 90;
+    private static final int BACKGROUND_REFRESH_SECONDS = 30;
+    private static final int BACKGROUND_SYNC_SECONDS = 90;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("match-list-db-worker"));
 
@@ -153,8 +154,10 @@ public class MatchListController implements AssistantContextProvider {
     private boolean serviceReady;
     private boolean loadingData;
     private boolean syncingData;
+    private boolean backgroundSyncing;
     private SidebarModuleGroup sidebarModuleGroup;
     private Timeline liveRefreshTimeline;
+    private long lastBackgroundMatchSyncAtMillis;
 
     @FXML
     public void initialize() {
@@ -176,6 +179,7 @@ public class MatchListController implements AssistantContextProvider {
             matchFollowTargetService = new MatchFollowTargetService();
             serviceReady = true;
             refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.", false);
+            LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
         } catch (Exception e) {
             serviceReady = false;
             updateActionAvailability();
@@ -271,12 +275,15 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private void startLiveRefresh() {
+        LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
         if (liveRefreshTimeline == null) {
             liveRefreshTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(BACKGROUND_REFRESH_SECONDS), event -> {
-                if (!serviceReady || loadingData || syncingData) {
+                if (!serviceReady || loadingData || syncingData || backgroundSyncing) {
                     return;
                 }
-                if (STATUS_FINI.equals(selectedStatusFilter())) {
+                LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+                if (shouldRunBackgroundMatchSync()) {
+                    runSync(true, true);
                     return;
                 }
                 refreshDataAsync(null, null, null, true);
@@ -892,22 +899,35 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private void runSync(boolean matchesOnly) {
+        runSync(matchesOnly, false);
+    }
+
+    private void runSync(boolean matchesOnly, boolean backgroundSync) {
         FootballDataSyncService syncService = ensureSyncService();
         if (syncService == null) {
             return;
         }
 
-        List<String> competitionCodes = selectedSyncCompetitionCodes();
-        syncingData = true;
-        updateActionAvailability();
+        List<String> competitionCodes = backgroundSync ? selectedBackgroundSyncCompetitionCodes() : selectedSyncCompetitionCodes();
+        if (backgroundSync && competitionCodes.isEmpty()) {
+            refreshDataAsync(null, null, null, true);
+            return;
+        }
 
-        String scopeLabel = competitionCodes.size() == 1
-                ? FootballDataCompetitions.labelOf(competitionCodes.get(0))
-                : FootballDataCompetitions.ALL_LABEL;
-        syncMetaLabel.setText("Synchronisation en cours : " + scopeLabel + ".");
-        showMutedStatus(matchesOnly
-                ? "Import du calendrier en cours..."
-                : "Import des clubs et effectifs en cours...");
+        if (backgroundSync) {
+            backgroundSyncing = true;
+        } else {
+            syncingData = true;
+            updateActionAvailability();
+
+            String scopeLabel = competitionCodes.size() == 1
+                    ? FootballDataCompetitions.labelOf(competitionCodes.get(0))
+                    : FootballDataCompetitions.ALL_LABEL;
+            syncMetaLabel.setText("Synchronisation en cours : " + scopeLabel + ".");
+            showMutedStatus(matchesOnly
+                    ? "Import du calendrier en cours..."
+                    : "Import des clubs et effectifs en cours...");
+        }
 
         Task<FootballDataSyncSummary> syncTask = new Task<>() {
             @Override
@@ -921,7 +941,7 @@ public class MatchListController implements AssistantContextProvider {
         };
 
         syncTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null || newValue.isBlank()) {
+            if (backgroundSync || newValue == null || newValue.isBlank()) {
                 return;
             }
             syncMetaLabel.setText(newValue);
@@ -929,27 +949,39 @@ public class MatchListController implements AssistantContextProvider {
         });
 
         syncTask.setOnSucceeded(event -> {
-            syncingData = false;
-            updateActionAvailability();
-
             FootballDataSyncSummary summary = syncTask.getValue();
             String summaryMessage = summary == null
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(!matchesOnly, matchesOnly);
-            syncMetaLabel.setText("Synchronise : " + summaryMessage);
+            if (backgroundSync) {
+                backgroundSyncing = false;
+                lastBackgroundMatchSyncAtMillis = System.currentTimeMillis();
+            } else {
+                syncingData = false;
+                updateActionAvailability();
+                syncMetaLabel.setText("Synchronise : " + summaryMessage);
+            }
             if (!matchesOnly) {
                 EquipeUiSupport.clearImageCache();
             }
-            refreshDataAsync(null, "status-success", summaryMessage, false);
+            LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+            refreshDataAsync(null, backgroundSync ? null : "status-success", backgroundSync ? null : summaryMessage, backgroundSync);
         });
 
         syncTask.setOnFailed(event -> {
+            Throwable throwable = syncTask.getException();
+            if (backgroundSync) {
+                backgroundSyncing = false;
+                lastBackgroundMatchSyncAtMillis = System.currentTimeMillis();
+                System.err.println("Background match sync failed: " + (throwable == null ? "unknown error" : throwable.getMessage()));
+                return;
+            }
+
             syncingData = false;
             updateActionAvailability();
 
             syncMetaLabel.setText("La synchronisation a echoue.");
             showErrorStatus("Erreur pendant la synchronisation.");
-            Throwable throwable = syncTask.getException();
             showAlert(Alert.AlertType.ERROR, "Synchronisation football-data.org",
                     throwable == null ? "Erreur inconnue." : throwable.getMessage());
         });
@@ -971,6 +1003,32 @@ public class MatchListController implements AssistantContextProvider {
                     "Impossible de preparer la synchronisation.\n" + e.getMessage());
             return null;
         }
+    }
+
+    private boolean shouldRunBackgroundMatchSync() {
+        if (STATUS_FINI.equals(selectedStatusFilter())) {
+            return false;
+        }
+
+        List<String> competitionCodes = selectedBackgroundSyncCompetitionCodes();
+        if (competitionCodes.isEmpty()) {
+            return false;
+        }
+
+        long now = System.currentTimeMillis();
+        return now - lastBackgroundMatchSyncAtMillis >= BACKGROUND_SYNC_SECONDS * 1000L;
+    }
+
+    private List<String> selectedBackgroundSyncCompetitionCodes() {
+        if (selectedCompetitionCode != null) {
+            return List.of(selectedCompetitionCode);
+        }
+
+        List<String> selectedCodes = selectedSyncCompetitionCodes();
+        if (selectedCodes.size() == 1) {
+            return selectedCodes;
+        }
+        return List.of();
     }
 
     private void openMatchDetail(Matchs match) {

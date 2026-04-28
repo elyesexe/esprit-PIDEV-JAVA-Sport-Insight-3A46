@@ -10,6 +10,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -59,6 +60,8 @@ public class AnnonceUserController {
             DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
     private static final String SORT_RECENT = "Most recent";
     private static final String SORT_ALPHA = "A-Z";
+    private static final String EDIT_ICON_PATH = "/tn/esprit/icons/comment-edit-white.png";
+    private static final String DELETE_ICON_PATH = "/tn/esprit/icons/comment-delete-white.png";
 
     @FXML private BorderPane pageRoot;
     @FXML private Region heroPhotoRegion;
@@ -635,6 +638,10 @@ public class AnnonceUserController {
         commentaireArea.setWrapText(true);
         commentaireArea.setPrefRowCount(3);
         commentaireArea.getStyleClass().add("annonce-text-area");
+        if (Boolean.TRUE.equals(annonce.getUrgent())) {
+            formBox.getStyleClass().add("annonce-post-comment-form-urgent");
+            commentaireArea.getStyleClass().add("annonce-urgent-comment-field");
+        }
 
         Label validationLabel = new Label();
         validationLabel.getStyleClass().add("annonce-section-note");
@@ -790,10 +797,9 @@ public class AnnonceUserController {
         saveButton.getStyleClass().add("primary-button");
         Button cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("ghost-button");
-        Button editButton = new Button("Edit");
-        editButton.getStyleClass().add("ghost-button");
-        Button deleteButton = new Button("Delete");
-        deleteButton.getStyleClass().add("danger-button");
+        Button editButton = createIconButton("Edit comment", EDIT_ICON_PATH, "annonce-icon-button-edit");
+        Button deleteButton = createIconButton("Delete comment", DELETE_ICON_PATH, "annonce-icon-button-delete");
+        actions.getStyleClass().add("annonce-comment-icon-actions");
         actions.getChildren().addAll(editButton, deleteButton);
         footer.getChildren().add(actions);
 
@@ -872,6 +878,24 @@ public class AnnonceUserController {
 
         editorBox.getChildren().addAll(editorArea, validationLabel, editorActions);
         return editorBox;
+    }
+
+    private Button createIconButton(String accessibleText, String iconPath, String styleClass) {
+        Button button = new Button();
+        button.getStyleClass().addAll("annonce-icon-button", styleClass);
+        button.setAccessibleText(accessibleText);
+        button.setTooltip(new Tooltip(accessibleText));
+
+        var iconUrl = getClass().getResource(iconPath);
+        if (iconUrl != null) {
+            ImageView iconView = new ImageView(new Image(iconUrl.toExternalForm()));
+            iconView.setFitWidth(18);
+            iconView.setFitHeight(18);
+            iconView.setPreserveRatio(true);
+            iconView.setSmooth(true);
+            button.setGraphic(iconView);
+        }
+        return button;
     }
 
     private StackPane createAvatarNode(User user, String displayName, boolean compact) {

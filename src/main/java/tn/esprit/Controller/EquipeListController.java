@@ -1,5 +1,7 @@
 package tn.esprit.Controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -17,6 +19,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import tn.esprit.entities.Equipe;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
@@ -40,6 +43,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class EquipeListController {
     private static final double CARD_LOGO_SIZE = 96;
+    private static final int AUTO_REFRESH_SECONDS = 45;
+    private static final int AUTO_SYNC_SECONDS = 180;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-list-db-worker"));
 
@@ -102,7 +107,10 @@ public class EquipeListController {
     private boolean serviceReady;
     private boolean loadingData;
     private boolean syncingData;
+    private boolean backgroundSyncing;
     private SidebarModuleGroup sidebarModuleGroup;
+    private Timeline autoRefreshTimeline;
+    private long lastBackgroundSyncAtMillis;
 
     @FXML
     public void initialize() {
@@ -110,6 +118,7 @@ public class EquipeListController {
         ThemeManager.bindToggle(themeToggleButton);
         configureToolbar();
         configureCatalogPane();
+        configureAutoRefreshLifecycle();
         updateCompetitionTexts();
         updateSortOrderButtonText();
         updateToolbarState();
@@ -242,18 +251,74 @@ public class EquipeListController {
         equipeCatalogPane.setAlignment(Pos.CENTER);
     }
 
+    private void configureAutoRefreshLifecycle() {
+        if (navbarRoot == null) {
+            return;
+        }
+
+        navbarRoot.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                stopAutoRefresh();
+                return;
+            }
+            startAutoRefresh();
+        });
+    }
+
+    private void startAutoRefresh() {
+        runBackgroundRefreshCycle();
+        if (autoRefreshTimeline == null) {
+            autoRefreshTimeline = new Timeline(new KeyFrame(Duration.seconds(AUTO_REFRESH_SECONDS), event -> runBackgroundRefreshCycle()));
+            autoRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        }
+        if (autoRefreshTimeline.getStatus() != javafx.animation.Animation.Status.RUNNING) {
+            autoRefreshTimeline.play();
+        }
+    }
+
+    private void stopAutoRefresh() {
+        if (autoRefreshTimeline != null) {
+            autoRefreshTimeline.stop();
+        }
+    }
+
+    private void runBackgroundRefreshCycle() {
+        if (!serviceReady || loadingData || syncingData || backgroundSyncing) {
+            return;
+        }
+
+        String normalizedCompetitionCode = normalizeCode(competitionFilterCode);
+        if (normalizedCompetitionCode != null && shouldRunBackgroundSync()) {
+            syncCompetitionAsync(normalizedCompetitionCode, false, true);
+            return;
+        }
+
+        refreshTableAsync(null, null, true);
+    }
+
+    private boolean shouldRunBackgroundSync() {
+        long now = System.currentTimeMillis();
+        return now - lastBackgroundSyncAtMillis >= AUTO_SYNC_SECONDS * 1000L;
+    }
+
     private void refreshTableAsync(String loadingMessage) {
         refreshTableAsync(loadingMessage, "Liste des equipes actualisee.");
     }
 
     private void refreshTableAsync(String loadingMessage, String successMessage) {
+        refreshTableAsync(loadingMessage, successMessage, false);
+    }
+
+    private void refreshTableAsync(String loadingMessage, String successMessage, boolean backgroundRefresh) {
         if (equipeService == null) {
             return;
         }
 
         long requestId = refreshSequence.incrementAndGet();
-        loadingData = true;
-        updateToolbarState();
+        loadingData = !backgroundRefresh;
+        if (!backgroundRefresh) {
+            updateToolbarState();
+        }
         if (loadingMessage != null) {
             showStatus("status-muted", loadingMessage);
         }
@@ -273,12 +338,16 @@ public class EquipeListController {
             masterEquipes.setAll(loadTask.getValue());
             applyFiltersAndSort();
             loadingData = false;
-            updateToolbarState();
+            if (!backgroundRefresh) {
+                updateToolbarState();
+            }
             if (shouldAutoSyncSelectedCompetition()) {
-                syncCompetitionAsync(normalizeCode(competitionFilterCode), true);
+                syncCompetitionAsync(normalizeCode(competitionFilterCode), true, false);
                 return;
             }
-            showStatus("status-success", successMessage);
+            if (successMessage != null) {
+                showStatus("status-success", successMessage);
+            }
         });
 
         loadTask.setOnFailed(event -> {
@@ -287,17 +356,23 @@ public class EquipeListController {
             }
 
             loadingData = false;
-            updateToolbarState();
-            showStatus("status-error", "Erreur lors du chargement des equipes.");
-            Throwable throwable = loadTask.getException();
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les equipes.\n"
-                    + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            if (!backgroundRefresh) {
+                updateToolbarState();
+                showStatus("status-error", "Erreur lors du chargement des equipes.");
+                Throwable throwable = loadTask.getException();
+                showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les equipes.\n"
+                        + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            }
         });
 
         DB_EXECUTOR.execute(loadTask);
     }
 
     private void syncCompetitionAsync(String competitionCode, boolean automatic) {
+        syncCompetitionAsync(competitionCode, automatic, false);
+    }
+
+    private void syncCompetitionAsync(String competitionCode, boolean automatic, boolean backgroundSync) {
         FootballDataSyncService syncService = ensureSyncService();
         if (syncService == null) {
             return;
@@ -305,7 +380,7 @@ public class EquipeListController {
 
         String normalizedCode = normalizeCode(competitionCode);
         if (normalizedCode == null) {
-            refreshTableAsync("Actualisation des equipes...");
+            refreshTableAsync(backgroundSync ? null : "Actualisation des equipes...", null, backgroundSync);
             return;
         }
 
@@ -313,15 +388,19 @@ public class EquipeListController {
             lastAutoSyncedCompetitionCode = normalizedCode;
         }
 
-        syncingData = true;
-        updateToolbarState();
-        showStatus(
-                "status-muted",
-                automatic
-                        ? "Aucune equipe locale pour " + resolveCompetitionLabel(normalizedCode)
-                        + ". Import via football-data.org..."
-                        : "Synchronisation " + resolveCompetitionLabel(normalizedCode) + " en cours..."
-        );
+        if (backgroundSync) {
+            backgroundSyncing = true;
+        } else {
+            syncingData = true;
+            updateToolbarState();
+            showStatus(
+                    "status-muted",
+                    automatic
+                            ? "Aucune equipe locale pour " + resolveCompetitionLabel(normalizedCode)
+                            + ". Import via football-data.org..."
+                            : "Synchronisation " + resolveCompetitionLabel(normalizedCode) + " en cours..."
+            );
+        }
 
         Task<FootballDataSyncSummary> syncTask = new Task<>() {
             @Override
@@ -334,24 +413,37 @@ public class EquipeListController {
         };
 
         syncTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null || newValue.isBlank()) {
+            if (backgroundSync || newValue == null || newValue.isBlank()) {
                 return;
             }
             showStatus("status-muted", newValue);
         });
 
         syncTask.setOnSucceeded(event -> {
-            syncingData = false;
-            updateToolbarState();
+            if (backgroundSync) {
+                backgroundSyncing = false;
+                lastBackgroundSyncAtMillis = System.currentTimeMillis();
+            } else {
+                syncingData = false;
+                updateToolbarState();
+            }
 
             FootballDataSyncSummary summary = syncTask.getValue();
             String summaryMessage = summary == null
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(true, false);
-            refreshTableAsync(null, summaryMessage);
+            refreshTableAsync(null, backgroundSync ? null : summaryMessage, backgroundSync);
         });
 
         syncTask.setOnFailed(event -> {
+            if (backgroundSync) {
+                backgroundSyncing = false;
+                lastBackgroundSyncAtMillis = System.currentTimeMillis();
+                Throwable throwable = syncTask.getException();
+                System.err.println("Background team sync failed: " + (throwable == null ? "unknown error" : throwable.getMessage()));
+                return;
+            }
+
             syncingData = false;
             updateToolbarState();
             Throwable throwable = syncTask.getException();

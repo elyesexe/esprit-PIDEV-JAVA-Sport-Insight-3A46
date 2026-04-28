@@ -36,6 +36,7 @@ import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.MatchsService;
 import tn.esprit.services.NotificationService;
+import tn.esprit.services.football.FootballDataCompetitions;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -385,7 +386,7 @@ public class NotificationCenterController {
         Label scoreLabel = new Label(extractScoreLabel(notification));
         scoreLabel.getStyleClass().add("notification-score-label");
 
-        Label competitionLabel = new Label(emptyToFallback(notification.getCompetitionCode(), "Match alert"));
+        Label competitionLabel = new Label(resolveCompetitionLabel(notification.getCompetitionCode()));
         competitionLabel.getStyleClass().add("notification-score-caption");
 
         VBox scoreBox = new VBox(3, scoreLabel, competitionLabel);
@@ -598,6 +599,11 @@ public class NotificationCenterController {
 
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private String resolveCompetitionLabel(String competitionCode) {
+        String normalizedCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        return normalizedCode == null ? "Match alert" : FootballDataCompetitions.labelOf(normalizedCode);
     }
 
     private Integer currentUserId() {

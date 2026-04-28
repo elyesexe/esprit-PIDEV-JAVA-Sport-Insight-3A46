@@ -259,24 +259,24 @@
 }
 
 .annonce-post-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
-    -fx-background-radius: 24;
-    -fx-border-color: rgba(148, 163, 184, 0.18);
-    -fx-border-radius: 24;
-    -fx-padding: 18 18 18 18;
-    -fx-spacing: 14;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0.14, 0, 8);
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 14;
+    -fx-padding: 24 26 24 26;
+    -fx-spacing: 16;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.07), 18, 0.12, 0, 6);
 }
 
 .annonce-post-card-urgent {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(254, 226, 226, 0.99) 0%, rgba(254, 202, 202, 0.99) 52%, rgba(254, 242, 242, 0.99) 100%);
-    -fx-border-color: rgba(239, 68, 68, 0.56);
-    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.16), 28, 0.2, 0, 10);
+    -fx-background-color: rgba(127, 29, 29, 0.96);
+    -fx-border-color: rgba(248, 113, 113, 0.72);
+    -fx-effect: dropshadow(gaussian, rgba(127, 29, 29, 0.24), 24, 0.18, 0, 8);
 }
 
 .annonce-post-card-urgent .annonce-comment-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(254, 242, 242, 0.99) 0%, rgba(254, 226, 226, 0.99) 100%);
-    -fx-border-color: rgba(248, 113, 113, 0.36);
+    -fx-background-color: rgba(69, 10, 10, 0.34);
+    -fx-border-color: rgba(248, 113, 113, 0.34);
 }
 
 .annonce-post-header {
@@ -301,9 +301,9 @@
 }
 
 .annonce-post-title {
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 28px;
-    -fx-font-weight: 700;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
     -fx-text-fill: #0f172a;
 }
 
@@ -324,17 +324,19 @@
 }
 
 .annonce-user-description-box {
-    -fx-background-color: rgba(248, 250, 252, 0.96);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(226, 232, 240, 0.86);
-    -fx-border-radius: 20;
-    -fx-padding: 14 16 14 16;
+    -fx-background-color: rgba(248, 250, 252, 0.68);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(15, 23, 42, 0.12);
+    -fx-border-width: 0 0 0 3;
+    -fx-border-radius: 10;
+    -fx-padding: 14 16 14 18;
 }
 
 .annonce-user-description-text {
-    -fx-font-size: 13px;
-    -fx-line-spacing: 2px;
-    -fx-text-fill: #334155;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 15px;
+    -fx-line-spacing: 4px;
+    -fx-text-fill: #1f2937;
 }
 
 .annonce-comments-title {
@@ -348,11 +350,11 @@
 }
 
 .annonce-comment-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(248, 250, 252, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(148, 163, 184, 0.2);
-    -fx-border-radius: 18;
-    -fx-padding: 14 16 14 16;
+    -fx-background-color: rgba(248, 250, 252, 0.88);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 12;
+    -fx-padding: 16 18 16 18;
     -fx-spacing: 10;
 }
 
@@ -426,9 +428,10 @@
 }
 
 .annonce-comment-body {
-    -fx-font-size: 12px;
-    -fx-line-spacing: 2px;
-    -fx-text-fill: #334155;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+    -fx-line-spacing: 3px;
+    -fx-text-fill: #1f2937;
 }
 
 .annonce-comment-empty {
@@ -612,4 +615,94 @@
 .admin-dark .annonce-text-area .content .text {
     -fx-fill: #fafafa;
     -fx-text-fill: #fafafa;
+}
+
+.annonce-comment-icon-actions {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.annonce-icon-button {
+    -fx-min-width: 42;
+    -fx-pref-width: 42;
+    -fx-max-width: 42;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-max-height: 42;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.annonce-icon-button-edit {
+    -fx-background-color: rgba(37, 99, 235, 0.96);
+    -fx-border-color: rgba(147, 197, 253, 0.44);
+}
+
+.annonce-icon-button-delete {
+    -fx-background-color: rgba(239, 68, 68, 0.98);
+    -fx-border-color: rgba(254, 202, 202, 0.48);
+}
+
+.annonce-icon-button:hover {
+    -fx-opacity: 0.9;
+}
+
+.annonce-post-card-urgent .annonce-post-author,
+.annonce-post-card-urgent .annonce-post-title,
+.annonce-post-card-urgent .annonce-comments-title,
+.annonce-post-card-urgent .annonce-comment-author {
+    -fx-text-fill: #fff7ed;
+}
+
+.annonce-post-card-urgent .annonce-post-date,
+.annonce-post-card-urgent .annonce-post-subtitle,
+.annonce-post-card-urgent .annonce-section-note,
+.annonce-post-card-urgent .annonce-comment-date,
+.annonce-post-card-urgent .annonce-comment-body,
+.annonce-post-card-urgent .annonce-user-description-text,
+.annonce-post-card-urgent .annonce-comment-empty {
+    -fx-text-fill: #fecaca;
+}
+
+.annonce-post-card-urgent .annonce-user-description-box {
+    -fx-background-color: rgba(69, 10, 10, 0.34);
+    -fx-border-color: rgba(248, 113, 113, 0.72);
+}
+
+.annonce-post-card-urgent .annonce-user-meta-chip,
+.annonce-post-card-urgent .status-muted,
+.annonce-post-card-urgent .status-success,
+.annonce-post-card-urgent .status-warning,
+.annonce-post-card-urgent .status-error {
+    -fx-background-color: rgba(153, 27, 27, 0.62);
+    -fx-border-color: rgba(254, 202, 202, 0.36);
+    -fx-text-fill: #fff7ed;
+}
+
+.annonce-text-area.annonce-urgent-comment-field,
+.annonce-user-dark .annonce-text-area.annonce-urgent-comment-field,
+.theme-dark.annonce-user-root .annonce-text-area.annonce-urgent-comment-field,
+.admin-dark .annonce-text-area.annonce-urgent-comment-field {
+    -fx-background-color: rgba(69, 10, 10, 0.9);
+    -fx-border-color: rgba(248, 113, 113, 0.92);
+    -fx-text-fill: #fee2e2;
+    -fx-prompt-text-fill: #fecaca;
+}
+
+.annonce-text-area.annonce-urgent-comment-field .content,
+.annonce-user-dark .annonce-text-area.annonce-urgent-comment-field .content,
+.theme-dark.annonce-user-root .annonce-text-area.annonce-urgent-comment-field .content,
+.admin-dark .annonce-text-area.annonce-urgent-comment-field .content {
+    -fx-background-color: rgba(69, 10, 10, 0.9);
+    -fx-background-radius: 16;
+}
+
+.annonce-text-area.annonce-urgent-comment-field .text,
+.annonce-user-dark .annonce-text-area.annonce-urgent-comment-field .text,
+.theme-dark.annonce-user-root .annonce-text-area.annonce-urgent-comment-field .text,
+.admin-dark .annonce-text-area.annonce-urgent-comment-field .text {
+    -fx-fill: #fee2e2;
+    -fx-text-fill: #fee2e2;
 }

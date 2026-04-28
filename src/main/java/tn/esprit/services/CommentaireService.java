@@ -11,14 +11,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class CommentaireService implements IService<Commentaire> {
     private final Connection connection;
+    private static final Pattern URL_PATTERN = Pattern.compile("(?i)\\b(?:https?://|www\\.)\\S+");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("\\+?\\d[\\d\\s\\-]{7,}\\d");
+    private static final Pattern REPEATED_CHAR_PATTERN = Pattern.compile("(.)\\1{6,}");
+    private static final Pattern LETTER_PATTERN = Pattern.compile("[a-zA-Z]");
+    private static final List<String> SPAM_KEYWORDS = List.of(
+            "bit.ly", "t.me", "telegram", "whatsapp", "casino", "crypto",
+            "invest", "argent facile", "promo", "gratuit", "click here", "dm me",
+            "contact me", "signal", "forex", "nft"
+    );
 
     public CommentaireService() throws SQLException {
         this.connection = MyConnection.getInstance().getConnection();
@@ -34,6 +49,8 @@ public class CommentaireService implements IService<Commentaire> {
         if (commentaire.getAnnonceId() != null && !areCommentsEnabled(commentaire.getAnnonceId())) {
             throw new SQLException("Comments are disabled for the selected announcement.");
         }
+
+        applySpamModeration(commentaire);
 
         String query = """
                 INSERT INTO commentaire (
@@ -178,6 +195,172 @@ public class CommentaireService implements IService<Commentaire> {
     public void deleteByAnnonce(int annonceId) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("DELETE FROM commentaire WHERE annonce_id = ?")) {
             statement.setInt(1, annonceId);
+            statement.executeUpdate();
+        }
+    }
+
+    private void applySpamModeration(Commentaire commentaire) throws SQLException {
+        SpamDetectionResult spamDetection = detectSpam(commentaire);
+        if (spamDetection.spam()) {
+            commentaire.setModerationStatus("REJECTED");
+            commentaire.setModerationReason("Spam detecte: " + spamDetection.reason());
+            if (spamDetection.shouldBlockUser() && commentaire.getJoueurId() != null) {
+                blockUserForSpam(commentaire.getJoueurId());
+            }
+        } else if (commentaire.getModerationStatus() == null || commentaire.getModerationStatus().isBlank()) {
+            commentaire.setModerationStatus("APPROVED");
+        }
+    }
+
+    private record SpamDetectionResult(boolean spam, boolean shouldBlockUser, String reason) {
+    }
+
+    private SpamDetectionResult detectSpam(Commentaire commentaire) throws SQLException {
+        if (commentaire == null) {
+            return new SpamDetectionResult(false, false, null);
+        }
+
+        String content = commentaire.getContenu() == null ? null : commentaire.getContenu().trim();
+        if (content == null || content.isBlank()) {
+            return new SpamDetectionResult(false, false, null);
+        }
+
+        String lowercase = content.toLowerCase(Locale.ROOT);
+        int score = 0;
+        int hardSignals = 0;
+        String reason = "contenu suspect detecte";
+
+        int urlCount = countPatternMatches(URL_PATTERN, lowercase);
+        if (REPEATED_CHAR_PATTERN.matcher(lowercase).find()) {
+            score += 5;
+            hardSignals++;
+            reason = "caracteres repetes";
+        }
+        if (urlCount >= 2) {
+            score += 5;
+            hardSignals++;
+            reason = "liens suspects";
+        } else if (urlCount == 1) {
+            score += 2;
+        }
+
+        long keywordHits = SPAM_KEYWORDS.stream().filter(lowercase::contains).count();
+        if (keywordHits >= 3) {
+            score += 6;
+            hardSignals++;
+            reason = "mots-cles spam";
+        } else if (keywordHits >= 1) {
+            score += (int) keywordHits + 1;
+        }
+
+        if (countPatternMatches(PHONE_PATTERN, content) >= 1) {
+            score += 2;
+        }
+
+        int letterCount = countPatternMatches(LETTER_PATTERN, content);
+        if (letterCount >= 12) {
+            long uppercaseCount = content.chars().filter(Character::isUpperCase).count();
+            if ((double) uppercaseCount / (double) letterCount > 0.85d) {
+                score += 2;
+                reason = "majuscules excessives";
+            }
+        }
+
+        Integer joueurId = commentaire.getJoueurId();
+        if (joueurId != null) {
+            long sameContentToday = countSameContentToday(joueurId, lowercase);
+            if (sameContentToday >= 2) {
+                score += 4;
+                reason = "message repetitif";
+            } else if (sameContentToday == 1) {
+                score += 2;
+            }
+
+            long todayCount = countMessagesToday(joueurId);
+            if (todayCount >= 8) {
+                score += 4;
+                reason = "trop de messages aujourd'hui";
+            } else if (todayCount >= 4) {
+                score += 2;
+            }
+            if (todayCount >= 4 && urlCount >= 1) {
+                score += 2;
+                reason = "envoi massif avec lien";
+            }
+        }
+
+        String[] tokens = lowercase.split("\\s+");
+        long words = tokens.length;
+        long uniqueWords = Arrays.stream(tokens)
+                .map(String::trim)
+                .filter(token -> !token.isBlank())
+                .distinct()
+                .count();
+        if (words >= 6 && uniqueWords > 0) {
+            double duplicateRatio = 1d - ((double) uniqueWords / (double) words);
+            if (duplicateRatio >= 0.65d) {
+                score += 2;
+            }
+        }
+
+        boolean hasSpamIntent = urlCount > 0 || keywordHits > 0;
+        boolean spam = hardSignals >= 1 || score >= 5 || (score >= 4 && hasSpamIntent);
+        boolean shouldBlockUser = score >= 8 || hardSignals >= 2;
+        return new SpamDetectionResult(spam, shouldBlockUser, reason);
+    }
+
+    private long countSameContentToday(Integer joueurId, String lowercaseContent) throws SQLException {
+        String query = """
+                SELECT COUNT(*) FROM commentaire
+                WHERE joueur_id = ?
+                  AND date_commentaire = ?
+                  AND LOWER(contenu) = ?
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, joueurId);
+            statement.setDate(2, Date.valueOf(LocalDate.now()));
+            statement.setString(3, lowercaseContent);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    private long countMessagesToday(Integer joueurId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM commentaire WHERE joueur_id = ? AND date_commentaire = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, joueurId);
+            statement.setDate(2, Date.valueOf(LocalDate.now()));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    private int countPatternMatches(Pattern pattern, String value) {
+        if (pattern == null || value == null || value.isBlank()) {
+            return 0;
+        }
+
+        int count = 0;
+        var matcher = pattern.matcher(value);
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
+    }
+
+    private void blockUserForSpam(Integer userId) throws SQLException {
+        String query = "UPDATE `user` SET statut = 'BLOCKED', updated_at = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setInt(2, userId);
             statement.executeUpdate();
         }
     }

@@ -25,7 +25,19 @@ public final class FootballDataCompetitions {
             return null;
         }
         String trimmed = code.trim();
-        return trimmed.isEmpty() ? null : trimmed.toUpperCase();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        String upper = trimmed.toUpperCase();
+        if (LABELS.containsKey(upper)) {
+            return upper;
+        }
+        for (Map.Entry<String, String> entry : LABELS.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(trimmed)) {
+                return entry.getKey();
+            }
+        }
+        return upper;
     }
 
     public static String labelOf(String code) {

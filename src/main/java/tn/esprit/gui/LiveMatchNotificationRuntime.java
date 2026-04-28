@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class LiveMatchNotificationRuntime {
     private static final LiveMatchNotificationRuntime INSTANCE = new LiveMatchNotificationRuntime();
     private static final int MAX_POLLED_MATCHES = 80;
+    private static final int MAX_QUEUED_POPUPS = 6;
     private static final int MATCH_REMINDER_MINUTES = 60;
     private static final int DIRECT_MATCH_CATCH_UP_HOURS = 48;
     private static final DateTimeFormatter KICKOFF_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -46,6 +48,7 @@ public final class LiveMatchNotificationRuntime {
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(daemonFactory("live-match-notification-worker"));
     private final AtomicBoolean pollInProgress = new AtomicBoolean();
+    private final Set<Integer> shownQueuedPopupIds = ConcurrentHashMap.newKeySet();
 
     private volatile ScheduledFuture<?> scheduledPoll;
     private volatile Stage ownerStage;
@@ -75,6 +78,7 @@ public final class LiveMatchNotificationRuntime {
             ensureServices();
             startPollingIfNeeded();
             requestImmediatePoll();
+            showQueuedUnreadPopups(stage);
         } catch (SQLException e) {
             System.err.println("Live match notification runtime unavailable: " + e.getMessage());
         }
@@ -298,16 +302,69 @@ public final class LiveMatchNotificationRuntime {
                 return;
             }
 
-            NavbarNotificationCenter.requestRefreshAll();
+            try {
+                NavbarNotificationCenter.requestRefreshAll();
+            } catch (IllegalStateException ignored) {
+                // The database notification is still valid when this runtime is exercised before JavaFX is ready.
+            }
 
             Stage stage = ownerStage;
             if (stage == null || !stage.isShowing()) {
                 return;
             }
-            Platform.runLater(() -> MatchAlertPopupManager.getInstance().show(stage, created));
+            try {
+                Platform.runLater(() -> MatchAlertPopupManager.getInstance().show(stage, created));
+            } catch (IllegalStateException ignored) {
+                // No JavaFX toolkit is available yet; the stored notification will be shown in the bell center.
+            }
         } catch (SQLException e) {
             System.err.println("Live notification could not be stored: " + e.getMessage());
         }
+    }
+
+    private void showQueuedUnreadPopups(Stage stage) {
+        User currentUser = AuthSession.getCurrentUser();
+        if (stage == null || currentUser == null || currentUser.getId() == null) {
+            return;
+        }
+
+        scheduler.schedule(() -> {
+            List<Notification> queued;
+            try {
+                ensureServices();
+                LocalDateTime earliestCreatedAt = LocalDateTime.now().minusHours(DIRECT_MATCH_CATCH_UP_HOURS);
+                queued = notificationService.getRecentByUser(currentUser.getId(), 50).stream()
+                        .filter(notification -> notification != null && !notification.isRead())
+                        .filter(notification -> notification.getId() != null && notification.getMatchId() != null)
+                        .filter(notification -> notification.getCreatedAt() == null || !notification.getCreatedAt().isBefore(earliestCreatedAt))
+                        .filter(notification -> shownQueuedPopupIds.add(notification.getId()))
+                        .limit(MAX_QUEUED_POPUPS)
+                        .sorted(Comparator
+                                .comparing(Notification::getCreatedAt, Comparator.nullsLast(LocalDateTime::compareTo))
+                                .thenComparing(Notification::getId, Comparator.nullsLast(Integer::compareTo)))
+                        .toList();
+            } catch (Exception e) {
+                System.err.println("Queued match popups could not be loaded: " + e.getMessage());
+                return;
+            }
+
+            if (queued.isEmpty()) {
+                return;
+            }
+
+            try {
+                Platform.runLater(() -> {
+                    if (!stage.isShowing()) {
+                        return;
+                    }
+                    for (Notification notification : queued) {
+                        MatchAlertPopupManager.getInstance().show(stage, notification);
+                    }
+                });
+            } catch (IllegalStateException ignored) {
+                // The notifications remain in the bell center if JavaFX is not ready yet.
+            }
+        }, 900, TimeUnit.MILLISECONDS);
     }
 
     private Notification buildKickoffNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam, ApiFootballFixtureSnapshot snapshot) {
@@ -462,7 +519,7 @@ public final class LiveMatchNotificationRuntime {
         notification.setRead(false);
         notification.setUserId(user.getId());
         notification.setMatchId(match == null ? null : match.getId());
-        notification.setCompetitionCode(FootballDataCompetitions.labelOf(match == null ? null : match.getCompetitionCode()));
+        notification.setCompetitionCode(FootballDataCompetitions.normalizeCode(match == null ? null : match.getCompetitionCode()));
         notification.setHomeTeamName(homeTeam == null ? "Home" : homeTeam.getNom());
         notification.setAwayTeamName(awayTeam == null ? "Away" : awayTeam.getNom());
         notification.setHomeTeamLogo(homeTeam == null ? null : homeTeam.getImage());
@@ -490,37 +547,48 @@ public final class LiveMatchNotificationRuntime {
         if (snapshot != null && snapshot.isLive()) {
             return true;
         }
+        if (snapshot == null && isLiveStatus(match == null ? null : match.getStatut())) {
+            return true;
+        }
         int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 4;
         return !now.isBefore(kickoff) && now.isBefore(kickoff.plusHours(catchUpHours));
     }
 
     private boolean shouldEmitHalfTimeAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
-        if (!hasReachedHalfTime(snapshot)) {
-            return false;
+        if (hasReachedHalfTime(snapshot)) {
+            return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
         }
-        return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
+        return snapshot == null
+                && hasLikelyReachedMatchMinute(match, now, 45)
+                && isWithinMatchCatchUp(match, null, now, directMatchFavorite);
     }
 
     private boolean shouldEmitSecondHalfAlert(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
-        if (!hasStartedSecondHalf(snapshot)) {
-            return false;
+        if (hasStartedSecondHalf(snapshot)) {
+            return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
         }
-        return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
+        return snapshot == null
+                && hasLikelyReachedMatchMinute(match, now, 46)
+                && isWithinMatchCatchUp(match, null, now, directMatchFavorite);
     }
 
     private boolean shouldEmitFinalAlert(ApiFootballFixtureSnapshot snapshot, LocalDateTime now, Matchs match, boolean directMatchFavorite) {
-        if (snapshot == null || !snapshot.isFinished()) {
+        if (snapshot != null && snapshot.isFinished()) {
+            return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
+        }
+
+        if (!isFinishedStatus(match == null ? null : match.getStatut())) {
             return false;
         }
 
-        return isWithinMatchCatchUp(match, snapshot, now, directMatchFavorite);
+        return isWithinMatchCatchUp(match, null, now, directMatchFavorite);
     }
 
     private boolean isWithinMatchCatchUp(Matchs match, ApiFootballFixtureSnapshot snapshot, LocalDateTime now, boolean directMatchFavorite) {
         if (now == null) {
             return false;
         }
-        LocalDateTime kickoff = snapshot.kickoffAt() == null ? kickoffOf(match) : snapshot.kickoffAt();
+        LocalDateTime kickoff = snapshot == null || snapshot.kickoffAt() == null ? kickoffOf(match) : snapshot.kickoffAt();
         int catchUpHours = directMatchFavorite ? DIRECT_MATCH_CATCH_UP_HOURS : 6;
         if (kickoff == null) {
             return true;
@@ -533,8 +601,15 @@ public final class LiveMatchNotificationRuntime {
         if (snapshot != null && snapshot.isLive()) {
             return true;
         }
+        if (snapshot == null && isLiveStatus(match == null ? null : match.getStatut())) {
+            return true;
+        }
         if (snapshot != null && snapshot.isFinished()) {
             LocalDateTime kickoff = snapshot.kickoffAt() == null ? kickoffOf(match) : snapshot.kickoffAt();
+            return kickoff != null && now.isBefore(kickoff.plusHours(catchUpHours));
+        }
+        if (snapshot == null && isFinishedStatus(match == null ? null : match.getStatut())) {
+            LocalDateTime kickoff = kickoffOf(match);
             return kickoff != null && now.isBefore(kickoff.plusHours(catchUpHours));
         }
 
@@ -676,6 +751,14 @@ public final class LiveMatchNotificationRuntime {
                 || label.contains("tirs au but")
                 || label.contains("penalties")
                 || snapshot.isFinished();
+    }
+
+    private boolean hasLikelyReachedMatchMinute(Matchs match, LocalDateTime now, int minute) {
+        if (match == null || now == null || (!isLiveStatus(match.getStatut()) && !isFinishedStatus(match.getStatut()))) {
+            return false;
+        }
+        LocalDateTime kickoff = kickoffOf(match);
+        return kickoff != null && !now.isBefore(kickoff.plusMinutes(minute));
     }
 
     private boolean isAlertworthyIncident(ApiFootballMatchIncident incident) {

@@ -1,5 +1,7 @@
 package tn.esprit.Controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -30,6 +33,8 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
+import tn.esprit.services.FootballDataSyncService;
+import tn.esprit.services.FootballDataSyncSummary;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.PlayerPortraitService;
 import tn.esprit.services.football.FootballDataCompetitions;
@@ -55,6 +60,8 @@ public class JoueurListController {
     private static final double PLAYER_CARD_WIDTH = 232;
     private static final double PLAYER_CARD_HEIGHT = 244;
     private static final double CARD_IMAGE_SIZE = 96;
+    private static final int AUTO_REFRESH_SECONDS = 45;
+    private static final int AUTO_SYNC_SECONDS = 180;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-list-db-worker"));
     private static final ExecutorService PORTRAIT_EXECUTOR =
@@ -122,13 +129,18 @@ public class JoueurListController {
 
     private JoueurService joueurService;
     private EquipeService equipeService;
+    private FootballDataSyncService footballDataSyncService;
     private boolean serviceReady;
     private boolean loadingData;
+    private boolean syncingData;
+    private boolean backgroundSyncing;
     private boolean dataLoaded;
     private Integer contextTeamId;
     private String contextCompetitionCode;
     private Equipe contextTeam;
     private SidebarModuleGroup sidebarModuleGroup;
+    private Timeline autoRefreshTimeline;
+    private long lastBackgroundSyncAtMillis;
 
     @FXML
     public void initialize() {
@@ -138,6 +150,7 @@ public class JoueurListController {
         configureEquipeFilter();
         configureSearch();
         configurePlayerList();
+        configureAutoRefreshLifecycle();
         updateActionAvailability();
         updateSelectionState();
 
@@ -285,6 +298,66 @@ public class JoueurListController {
         joueurCardsPane.getChildren().clear();
     }
 
+    private void configureAutoRefreshLifecycle() {
+        if (navbarRoot == null) {
+            return;
+        }
+
+        navbarRoot.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                stopAutoRefresh();
+                return;
+            }
+            startAutoRefresh();
+        });
+    }
+
+    private void startAutoRefresh() {
+        runBackgroundRefreshCycle();
+        if (autoRefreshTimeline == null) {
+            autoRefreshTimeline = new Timeline(new KeyFrame(Duration.seconds(AUTO_REFRESH_SECONDS), event -> runBackgroundRefreshCycle()));
+            autoRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        }
+        if (autoRefreshTimeline.getStatus() != javafx.animation.Animation.Status.RUNNING) {
+            autoRefreshTimeline.play();
+        }
+    }
+
+    private void stopAutoRefresh() {
+        if (autoRefreshTimeline != null) {
+            autoRefreshTimeline.stop();
+        }
+    }
+
+    private void runBackgroundRefreshCycle() {
+        if (!serviceReady || loadingData || syncingData || backgroundSyncing) {
+            return;
+        }
+
+        String autoSyncCompetitionCode = resolveAutoSyncCompetitionCode();
+        if (autoSyncCompetitionCode != null && shouldRunBackgroundSync()) {
+            syncCompetitionAsync(autoSyncCompetitionCode, true);
+            return;
+        }
+
+        refreshDataAsync(null, true);
+    }
+
+    private boolean shouldRunBackgroundSync() {
+        long now = System.currentTimeMillis();
+        return now - lastBackgroundSyncAtMillis >= AUTO_SYNC_SECONDS * 1000L;
+    }
+
+    private String resolveAutoSyncCompetitionCode() {
+        if (contextCompetitionCode != null) {
+            return FootballDataCompetitions.normalizeCode(contextCompetitionCode);
+        }
+        if (contextTeam != null) {
+            return FootballDataCompetitions.normalizeCode(contextTeam.getCompetitionCode());
+        }
+        return null;
+    }
+
     private Button buildPlayerCard(Joueur joueur) {
         StackPane avatarShell = new StackPane();
         avatarShell.getStyleClass().add("player-avatar-shell");
@@ -341,6 +414,10 @@ public class JoueurListController {
     }
 
     private void refreshDataAsync(String loadingMessage) {
+        refreshDataAsync(loadingMessage, false);
+    }
+
+    private void refreshDataAsync(String loadingMessage, boolean backgroundRefresh) {
         if (joueurService == null || equipeService == null) {
             return;
         }
@@ -349,8 +426,10 @@ public class JoueurListController {
         Integer teamId = contextTeamId;
         Equipe teamContext = contextTeam;
         long requestId = refreshSequence.incrementAndGet();
-        loadingData = true;
-        updateActionAvailability();
+        loadingData = !backgroundRefresh;
+        if (!backgroundRefresh) {
+            updateActionAvailability();
+        }
         if (loadingMessage != null) {
             showMutedStatus(loadingMessage);
         }
@@ -408,8 +487,12 @@ public class JoueurListController {
             loadingData = false;
             applyFilters();
             updatePageTexts();
-            updateActionAvailability();
-            showSuccessStatus("Effectif charge.");
+            if (!backgroundRefresh) {
+                updateActionAvailability();
+            }
+            if (!backgroundRefresh) {
+                showSuccessStatus("Effectif charge.");
+            }
             importMissingPortraitsAsync(loadedJoueurs, new HashMap<>(equipeById), requestId);
         });
 
@@ -418,14 +501,100 @@ public class JoueurListController {
                 return;
             }
             loadingData = false;
-            updateActionAvailability();
-            showErrorStatus("Erreur pendant le chargement.");
-            Throwable throwable = loadTask.getException();
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n"
-                    + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            if (!backgroundRefresh) {
+                updateActionAvailability();
+                showErrorStatus("Erreur pendant le chargement.");
+                Throwable throwable = loadTask.getException();
+                showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n"
+                        + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+            }
         });
 
         DB_EXECUTOR.execute(loadTask);
+    }
+
+    private void syncCompetitionAsync(String competitionCode, boolean backgroundSync) {
+        FootballDataSyncService syncService = ensureSyncService();
+        if (syncService == null) {
+            return;
+        }
+
+        String normalizedCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        if (normalizedCode == null) {
+            refreshDataAsync(backgroundSync ? null : "Actualisation des joueurs...", backgroundSync);
+            return;
+        }
+
+        if (backgroundSync) {
+            backgroundSyncing = true;
+        } else {
+            syncingData = true;
+            updateActionAvailability();
+            showMutedStatus("Synchronisation " + FootballDataCompetitions.labelOf(normalizedCode) + "...");
+        }
+
+        Task<FootballDataSyncSummary> syncTask = new Task<>() {
+            @Override
+            protected FootballDataSyncSummary call() throws Exception {
+                return syncService.syncTeamsAndPlayers(List.of(normalizedCode), this::updateMessage);
+            }
+        };
+
+        syncTask.messageProperty().addListener((observable, oldValue, newValue) -> {
+            if (!backgroundSync && newValue != null && !newValue.isBlank()) {
+                showMutedStatus(newValue);
+            }
+        });
+
+        syncTask.setOnSucceeded(event -> {
+            if (backgroundSync) {
+                backgroundSyncing = false;
+                lastBackgroundSyncAtMillis = System.currentTimeMillis();
+            } else {
+                syncingData = false;
+                updateActionAvailability();
+                FootballDataSyncSummary summary = syncTask.getValue();
+                showSuccessStatus(summary == null ? "Synchronisation terminee." : summary.toHumanMessage(true, false));
+            }
+            JoueurUiSupport.clearImageCache();
+            refreshDataAsync(null, backgroundSync);
+        });
+
+        syncTask.setOnFailed(event -> {
+            if (backgroundSync) {
+                backgroundSyncing = false;
+                lastBackgroundSyncAtMillis = System.currentTimeMillis();
+                Throwable throwable = syncTask.getException();
+                System.err.println("Background player sync failed: " + (throwable == null ? "unknown error" : throwable.getMessage()));
+                return;
+            }
+
+            syncingData = false;
+            updateActionAvailability();
+            Throwable throwable = syncTask.getException();
+            showErrorStatus("Synchronisation impossible.");
+            showAlert(Alert.AlertType.ERROR, "football-data.org",
+                    "Impossible de synchroniser " + FootballDataCompetitions.labelOf(normalizedCode) + ".\n"
+                            + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+        });
+
+        DB_EXECUTOR.execute(syncTask);
+    }
+
+    private FootballDataSyncService ensureSyncService() {
+        if (footballDataSyncService != null) {
+            return footballDataSyncService;
+        }
+        try {
+            footballDataSyncService = new FootballDataSyncService();
+            return footballDataSyncService;
+        } catch (Exception e) {
+            if (!backgroundSyncing) {
+                showErrorStatus("Service de synchronisation indisponible.");
+                showAlert(Alert.AlertType.ERROR, "football-data.org", "Impossible de preparer la synchronisation.\n" + e.getMessage());
+            }
+            return null;
+        }
     }
 
     private void importMissingPortraitsAsync(List<Joueur> loadedJoueurs, Map<Integer, Equipe> teamsById, long requestId) {
@@ -578,7 +747,7 @@ public class JoueurListController {
     }
 
     private void updateActionAvailability() {
-        boolean disabled = !serviceReady || loadingData;
+        boolean disabled = !serviceReady || loadingData || syncingData;
         refreshButton.setDisable(disabled);
         searchField.setDisable(disabled);
         equipeFilterComboBox.setDisable(disabled || contextTeamId != null);
