@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
+import tn.esprit.i18n.I18n;
 import tn.esprit.entities.User;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
@@ -63,7 +64,7 @@ public class SignupController {
         hideFeedback();
         Platform.runLater(this::applyAuthThemeChrome);
         userServiceLoading = true;
-        showFeedback("Preparing the registration service...", "auth-feedback-muted");
+        showFeedback(I18n.get("auth.signup.feedback.preparing"), "auth-feedback-muted");
         if (dateNaissancePicker != null) {
             dateNaissancePicker.setEditable(false);
         }
@@ -84,40 +85,40 @@ public class SignupController {
         String passwordConfirmation = confirmPasswordField.getText();
 
         if (prenom == null || nom == null) {
-            showFeedback("First name and last name are required.", "auth-feedback-error");
+            showFeedback(I18n.get("auth.signup.feedback.nameRequired"), "auth-feedback-error");
             return;
         }
         if (email == null) {
-            showFeedback("Email is required.", "auth-feedback-error");
+            showFeedback(I18n.get("common.validation.emailRequired"), "auth-feedback-error");
             return;
         }
         if (telephone == null) {
-            showFeedback("Telephone is required.", "auth-feedback-error");
+            showFeedback(I18n.get("common.validation.phoneRequired"), "auth-feedback-error");
             return;
         }
         if (dateNaissance == null) {
-            showFeedback("Birth date is required.", "auth-feedback-error");
+            showFeedback(I18n.get("common.validation.birthDateRequired"), "auth-feedback-error");
             return;
         }
         if (password == null || password.length() < 8) {
-            showFeedback("Password must contain at least 8 characters.", "auth-feedback-error");
+            showFeedback(I18n.get("auth.signup.feedback.passwordTooShort"), "auth-feedback-error");
             return;
         }
         if (!password.equals(passwordConfirmation)) {
-            showFeedback("The password confirmation does not match.", "auth-feedback-error");
+            showFeedback(I18n.get("common.validation.passwordMismatch"), "auth-feedback-error");
             return;
         }
         if (userService == null) {
             showFeedback(userServiceLoading
-                    ? "Registration is still starting. Please wait a moment and try again."
-                    : "The registration service is unavailable. Please check your database setup and try again.",
+                    ? I18n.get("auth.signup.feedback.starting")
+                    : I18n.get("auth.signup.feedback.unavailable"),
                     "auth-feedback-error");
             return;
         }
 
         try {
             if (userService.emailExists(email, null)) {
-                showFeedback("An account already exists for this email address.", "auth-feedback-error");
+                showFeedback(I18n.get("auth.signup.feedback.emailExists"), "auth-feedback-error");
                 return;
             }
 
@@ -144,11 +145,11 @@ public class SignupController {
                     controller -> {
                         if (controller instanceof LoginController loginController) {
                             loginController.prefillEmail(email);
-                            loginController.showSuccessMessage("Your account has been created. You can sign in now.");
+                            loginController.showSuccessMessage(I18n.get("auth.signup.feedback.accountCreated"));
                         }
                     });
         } catch (SQLException ex) {
-            showFeedback("Account creation failed because the user record could not be saved.", "auth-feedback-error");
+            showFeedback(I18n.get("auth.signup.feedback.createFailed"), "auth-feedback-error");
         } catch (IllegalArgumentException ex) {
             showFeedback(ex.getMessage(), "auth-feedback-error");
         }
@@ -217,7 +218,7 @@ public class SignupController {
                     String reason = ex.getCause() != null && ex.getCause().getMessage() != null
                             ? ex.getCause().getMessage()
                             : ex.getMessage();
-                    showFeedback("Database connection failed: " + reason, "auth-feedback-error");
+                    showFeedback(I18n.format("common.error.databaseConnection", reason), "auth-feedback-error");
                 });
             }
         }, "signup-user-service-loader");

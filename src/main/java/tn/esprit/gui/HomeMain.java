@@ -4,11 +4,13 @@ import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import tn.esprit.i18n.I18n;
 import tn.esprit.security.AuthSession;
 
 public class HomeMain extends Application {
     @Override
     public void start(Stage stage) {
+        I18n.getLocale();
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         double width = Math.min(1420, visualBounds.getWidth() - 40);
         double height = Math.min(900, visualBounds.getHeight() - 40);

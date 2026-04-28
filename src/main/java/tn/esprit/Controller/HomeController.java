@@ -32,6 +32,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import tn.esprit.entities.User;
+import tn.esprit.i18n.I18n;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
@@ -57,8 +58,6 @@ import java.util.concurrent.ThreadFactory;
 public class HomeController {
     private static final String MATCH_STATUS_PROGRAMME = "Programme";
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("home-db-worker"));
-    private static final DateTimeFormatter HEADER_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("EEEE, MMM d", Locale.ENGLISH);
     private static final Path NOTES_LOG_PATH =
             Path.of(System.getProperty("user.home"), ".sport-insight", "home-notes.log");
 
@@ -163,10 +162,10 @@ public class HomeController {
         User currentUser = AuthSession.getCurrentUser();
         String displayName = currentUser == null ? "" : currentUser.getDisplayName();
         if (displayName == null || displayName.isBlank()) {
-            welcomeTitleLabel.setText("Welcome back");
+            welcomeTitleLabel.setText(I18n.get("home.welcome.back"));
             return;
         }
-        welcomeTitleLabel.setText("Welcome back, " + displayName);
+        welcomeTitleLabel.setText(I18n.format("home.welcome.back.named", displayName));
     }
 
     /**
@@ -284,11 +283,9 @@ public class HomeController {
             handleOpenStore();
         } else {
             Alert hint = new Alert(Alert.AlertType.INFORMATION);
-            hint.setTitle("Search");
+            hint.setTitle(I18n.get("home.search.help.title"));
             hint.setHeaderText(null);
-            hint.setContentText(
-                    "Type part of a keyword to filter tiles (e.g. team, player, match), then press Enter to open a module.\n"
-                            + "Examples: \"team\" -> Teams, \"joueur\" -> Players, \"match\" -> Matches.");
+            hint.setContentText(I18n.get("home.search.help.message"));
             hint.initOwner(homeSearchField.getScene() != null ? homeSearchField.getScene().getWindow() : null);
             hint.showAndWait();
         }
@@ -320,7 +317,7 @@ public class HomeController {
             return;
         }
         LocalDate today = LocalDate.now();
-        headerDateLabel.setText(HEADER_DATE_FORMAT.format(today));
+        headerDateLabel.setText(DateTimeFormatter.ofPattern("EEEE d MMM", I18n.getLocale()).format(today));
     }
 
     private void loadDashboardMetricsAsync() {

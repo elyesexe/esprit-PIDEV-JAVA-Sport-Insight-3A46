@@ -8,15 +8,19 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import tn.esprit.entities.User;
+import tn.esprit.i18n.I18n;
 import tn.esprit.security.AuthSession;
 
 import java.lang.reflect.Field;
@@ -26,6 +30,7 @@ import java.util.Locale;
 
 public final class UserNavbarMenu {
     private static final String SETTINGS_MENU_KEY = "sportInsight.settingsMenuInjected";
+    private static final String EXTRA_NAV_KEY = "sportInsight.extraNavKey";
     private static final String PROFILE_VIEW = "/tn/esprit/views/profile-view.fxml";
     private static final String PROFILE_CSS = "/tn/esprit/styles/profile-theme.css";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
@@ -110,7 +115,7 @@ public final class UserNavbarMenu {
     }
 
     private static Button createSettingsButton() {
-        Button settingsButton = new Button("Settings");
+        Button settingsButton = new Button(I18n.get("settings.title"));
         settingsButton.setMnemonicParsing(false);
         settingsButton.setContentDisplay(ContentDisplay.LEFT);
         settingsButton.setFocusTraversable(false);
@@ -156,7 +161,7 @@ public final class UserNavbarMenu {
 
         avatarShell.getChildren().addAll(imageView, initialsLabel);
         avatarButton.setGraphic(avatarShell);
-        avatarButton.setAccessibleText("Open profile");
+        avatarButton.setAccessibleText(I18n.get("profile.open"));
         return avatarButton;
     }
 
@@ -167,10 +172,10 @@ public final class UserNavbarMenu {
         ToggleButton menuThemeToggle = createThemeToggle();
         ThemeManager.bindToggle(menuThemeToggle);
 
-        Label lightLabel = new Label("Light");
+        Label lightLabel = new Label(I18n.get("theme.light"));
         lightLabel.getStyleClass().add("settings-menu-mode-label");
 
-        Label darkLabel = new Label("Dark");
+        Label darkLabel = new Label(I18n.get("theme.dark"));
         darkLabel.getStyleClass().add("settings-menu-mode-label");
 
         HBox themeRow = new HBox(12, lightLabel, menuThemeToggle, darkLabel);
@@ -180,23 +185,83 @@ public final class UserNavbarMenu {
         themeRow.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
         themeRow.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
         contextMenu.getItems().add(wrapNode(themeRow, false));
+        contextMenu.getItems().add(wrapNode(createLanguageRow(ownerButton, contextMenu), false));
 
         if (AuthSession.isAdmin()) {
             contextMenu.getItems().add(new SeparatorMenuItem());
-            contextMenu.getItems().add(wrapActionButton(createActionButton("Admin", false, () -> {
+            contextMenu.getItems().add(wrapActionButton(createActionButton(I18n.get("admin.title"), false, () -> {
                 contextMenu.hide();
                 AdminNavigation.openAdmin(ownerButton);
             }), true));
         }
 
         contextMenu.getItems().add(new SeparatorMenuItem());
-        contextMenu.getItems().add(wrapActionButton(createActionButton("Logout", true, () -> {
+        contextMenu.getItems().add(wrapActionButton(createActionButton(I18n.get("auth.logout"), true, () -> {
             contextMenu.hide();
             AuthSession.logout();
             SceneNavigator.switchScene(ownerButton, LOGIN_VIEW, AUTH_CSS, "Sport Insight | Sign in");
         }), true));
 
         return contextMenu;
+    }
+
+    private static HBox createLanguageRow(Button ownerButton, ContextMenu contextMenu) {
+        Label languageLabel = new Label(I18n.get("settings.language"));
+        languageLabel.getStyleClass().add("settings-menu-mode-label");
+
+        ToggleGroup languageGroup = new ToggleGroup();
+        ToggleButton frenchButton = createLanguageButton(I18n.get("settings.language.french"), languageGroup);
+        ToggleButton englishButton = createLanguageButton(I18n.get("settings.language.english"), languageGroup);
+
+        Locale currentLocale = I18n.getLocale();
+        if (Locale.ENGLISH.getLanguage().equalsIgnoreCase(currentLocale.getLanguage())) {
+            englishButton.setSelected(true);
+        } else {
+            frenchButton.setSelected(true);
+        }
+
+        frenchButton.setOnAction(event -> switchLanguage(Locale.FRENCH, ownerButton, contextMenu));
+        englishButton.setOnAction(event -> switchLanguage(Locale.ENGLISH, ownerButton, contextMenu));
+
+        HBox languageButtons = new HBox(8, frenchButton, englishButton);
+        languageButtons.setAlignment(Pos.CENTER_RIGHT);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox languageRow = new HBox(12, languageLabel, spacer, languageButtons);
+        languageRow.setAlignment(Pos.CENTER_LEFT);
+        languageRow.getStyleClass().add("settings-menu-row");
+        languageRow.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        languageRow.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        languageRow.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
+        return languageRow;
+    }
+
+    private static ToggleButton createLanguageButton(String text, ToggleGroup group) {
+        ToggleButton button = new ToggleButton(text);
+        button.setToggleGroup(group);
+        button.setMnemonicParsing(false);
+        button.setFocusTraversable(false);
+        button.setMinWidth(76);
+        button.setPrefWidth(76);
+        button.setMaxWidth(76);
+        button.getStyleClass().add("settings-menu-action");
+        button.getStyleClass().add("settings-language-toggle");
+        return button;
+    }
+
+    private static void switchLanguage(Locale locale, Button ownerButton, ContextMenu contextMenu) {
+        Locale normalizedLocale = I18n.normalize(locale);
+        if (normalizedLocale.equals(I18n.getLocale())) {
+            return;
+        }
+
+        I18n.setLocale(normalizedLocale);
+        contextMenu.hide();
+        if (ownerButton != null && ownerButton.getScene() != null && ownerButton.getScene().getWindow() instanceof javafx.stage.Stage stage) {
+            SceneNavigator.reloadCurrentScene(stage);
+        }
     }
 
     private static Button createActionButton(String text, boolean danger, Runnable action) {
@@ -279,14 +344,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-                .anyMatch(button -> "Entrainements".equalsIgnoreCase(button.getText()));
+                .anyMatch(button -> matchesButton(button, "training", "entrainements", "training"));
         if (exists) {
             return;
         }
 
-        Button trainingButton = new Button("Entrainements");
+        Button trainingButton = new Button(I18n.get("nav.training"));
         trainingButton.setMnemonicParsing(false);
         trainingButton.getStyleClass().add("navbar-nav-button");
+        trainingButton.getProperties().put(EXTRA_NAV_KEY, "training");
         trainingButton.setOnAction(event ->
                 SceneNavigator.switchScene(trainingButton, TRAINING_VIEW, TRAINING_CSS, "Entrainements | Sport Insight"));
 
@@ -313,17 +379,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-                .anyMatch(button -> {
-                    String label = button.getText() == null ? "" : button.getText().trim().toLowerCase();
-                    return "store".equals(label) || "product".equals(label) || "products".equals(label);
-                });
+                .anyMatch(button -> matchesButton(button, "store", "store", "products", "product", "boutique"));
         if (exists) {
             return;
         }
 
-        Button storeButton = new Button("Store");
+        Button storeButton = new Button(I18n.get("nav.store"));
         storeButton.setMnemonicParsing(false);
         storeButton.getStyleClass().add("navbar-nav-button");
+        storeButton.getProperties().put(EXTRA_NAV_KEY, "store");
         storeButton.setOnAction(event ->
                 SceneNavigator.switchScene(storeButton, STORE_VIEW, STORE_CSS, "Store | Sport Insight"));
 
@@ -350,14 +414,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-                .anyMatch(button -> "Sponsors".equalsIgnoreCase(button.getText()) || "Sponsoring".equalsIgnoreCase(button.getText()));
+                .anyMatch(button -> matchesButton(button, "sponsor", "sponsors", "sponsoring"));
         if (exists) {
             return;
         }
 
-        Button sponsorButton = new Button("Sponsors");
+        Button sponsorButton = new Button(I18n.get("nav.sponsors"));
         sponsorButton.setMnemonicParsing(false);
         sponsorButton.getStyleClass().add("navbar-nav-button");
+        sponsorButton.getProperties().put(EXTRA_NAV_KEY, "sponsor");
         sponsorButton.setOnAction(event ->
                 SceneNavigator.switchScene(sponsorButton, SPONSOR_VIEW, SPONSOR_CSS, "Sponsors | Sport Insight"));
 
@@ -384,17 +449,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-                .anyMatch(button -> {
-                    String label = button.getText() == null ? "" : button.getText().trim().toLowerCase(Locale.ROOT);
-                    return "sport insight news".equals(label) || "football news".equals(label) || "news".equals(label);
-                });
+                .anyMatch(button -> matchesButton(button, "news", "sport insight news", "football news", "news", "actualites"));
         if (exists) {
             return;
         }
 
-        Button newsButton = new Button("News");
+        Button newsButton = new Button(I18n.get("nav.news"));
         newsButton.setMnemonicParsing(false);
         newsButton.getStyleClass().add("navbar-nav-button");
+        newsButton.getProperties().put(EXTRA_NAV_KEY, "news");
         newsButton.setOnAction(event ->
                 SceneNavigator.switchScene(newsButton, FOOTBALL_NEWS_VIEW, FOOTBALL_NEWS_CSS, "Sport Insight News | Sport Insight"));
 
@@ -444,6 +507,23 @@ public final class UserNavbarMenu {
             }
         }
         return null;
+    }
+
+    private static boolean matchesButton(Button button, String extraNavKey, String... labels) {
+        if (button == null) {
+            return false;
+        }
+        Object propertyValue = button.getProperties().get(EXTRA_NAV_KEY);
+        if (extraNavKey.equals(propertyValue)) {
+            return true;
+        }
+        String normalizedText = button.getText() == null ? "" : button.getText().trim().toLowerCase(Locale.ROOT);
+        for (String label : labels) {
+            if (normalizedText.equals(label.toLowerCase(Locale.ROOT))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static <T> T getFieldValue(Object controller, String fieldName, Class<T> type) {

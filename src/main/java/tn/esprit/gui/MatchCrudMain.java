@@ -6,6 +6,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import tn.esprit.i18n.I18n;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class MatchCrudMain extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(MatchCrudMain.class.getResource("/tn/esprit/views/match-competitions-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(MatchCrudMain.class.getResource("/tn/esprit/views/match-competitions-view.fxml"), I18n.getBundle());
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         double width = Math.min(1420, visualBounds.getWidth() - 40);
         double height = Math.min(900, visualBounds.getHeight() - 40);
@@ -31,7 +32,7 @@ public class MatchCrudMain extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Base stylesheet is missing").toExternalForm());
 
         ThemeManager.registerScene(scene);
-        stage.setTitle("Matchs | Competitions");
+        stage.setTitle(I18n.getOrDefault("scene.title.match-competitions-view", "Matchs | Competitions"));
         stage.setMinWidth(960);
         stage.setMinHeight(700);
         stage.setScene(scene);

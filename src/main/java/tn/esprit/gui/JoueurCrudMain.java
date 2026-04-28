@@ -6,6 +6,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import tn.esprit.i18n.I18n;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class JoueurCrudMain extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(JoueurCrudMain.class.getResource("/tn/esprit/views/joueur-crud-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(JoueurCrudMain.class.getResource("/tn/esprit/views/joueur-crud-view.fxml"), I18n.getBundle());
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         double width = Math.min(1420, visualBounds.getWidth() - 40);
         double height = Math.min(900, visualBounds.getHeight() - 40);
@@ -31,7 +32,7 @@ public class JoueurCrudMain extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(stylesheet, "Joueur theme stylesheet is missing").toExternalForm());
 
         ThemeManager.registerScene(scene);
-        stage.setTitle("Joueurs | Sport Insight");
+        stage.setTitle(I18n.getOrDefault("scene.title.joueur-crud-view", "Joueurs | Sport Insight"));
         stage.setMinWidth(940);
         stage.setMinHeight(680);
         stage.setScene(scene);

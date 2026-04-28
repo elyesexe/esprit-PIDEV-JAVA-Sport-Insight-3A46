@@ -28,6 +28,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import tn.esprit.assistant.AssistantContextProvider;
+import tn.esprit.i18n.I18n;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
@@ -64,10 +65,6 @@ public class FootballNewsController implements AssistantContextProvider {
             + " radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%),"
             + " radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%),"
             + " linear-gradient(from 0% 0% to 100% 100%, #f8fffb 0%, #f0fdf4 38%, #f8fafc 100%);";
-    private static final DateTimeFormatter DETAIL_DATE_FORMATTER =
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
-                    .withLocale(Locale.ENGLISH)
-                    .withZone(ZoneId.systemDefault());
     private static final int INITIAL_CARD_LIMIT = 18;
     private static final int CARD_LIMIT_STEP = 12;
     private static final double LEAD_IMAGE_WIDTH = 430;
@@ -125,7 +122,7 @@ public class FootballNewsController implements AssistantContextProvider {
     private TopicFilter activeTopic = TopicFilter.ALL;
     private FootballNewsArticle heroArticle;
     private Instant lastLoadedAt;
-    private String lastLoadStatus = "Sport Insight news ready.";
+    private String lastLoadStatus = I18n.get("news.status.ready");
     private int visibleCardLimit = INITIAL_CARD_LIMIT;
 
     @FXML
@@ -383,7 +380,7 @@ public class FootballNewsController implements AssistantContextProvider {
     private void refreshNews() {
         resetVisibleCards();
         setLoading(true);
-        setStatus("Loading live Sport Insight news...");
+        setStatus(I18n.get("news.status.loading"));
 
         Task<List<FootballNewsArticle>> task = new Task<>() {
             @Override
@@ -397,7 +394,7 @@ public class FootballNewsController implements AssistantContextProvider {
             articles.sort(Comparator.comparing(FootballNewsArticle::publishedAt).reversed());
             allArticles.setAll(articles);
             lastLoadedAt = Instant.now();
-            lastLoadStatus = "Live Sport Insight news loaded.";
+            lastLoadStatus = I18n.get("news.status.loaded");
             setLoading(false);
             applyFilters();
         });
@@ -406,8 +403,8 @@ public class FootballNewsController implements AssistantContextProvider {
             allArticles.setAll(newsService.fallbackArticles());
             lastLoadedAt = Instant.now();
             lastLoadStatus = ex == null
-                    ? "Live feed unavailable. Showing offline fallback."
-                    : "Live feed unavailable. Showing offline fallback: " + shortMessage(ex.getMessage());
+                    ? I18n.get("news.status.offline")
+                    : I18n.format("news.status.offlineWithReason", shortMessage(ex.getMessage()));
             setLoading(false);
             applyFilters();
         });
@@ -456,10 +453,10 @@ public class FootballNewsController implements AssistantContextProvider {
             heroMetaLabel.setText(formatMeta(article));
         }
         if (heroTitleLabel != null) {
-            heroTitleLabel.setText(limitText(emptyToFallback(article.title(), "Sport Insight news"), 112));
+            heroTitleLabel.setText(limitText(emptyToFallback(article.title(), I18n.get("news.hero.title")), 112));
         }
         if (heroSummaryLabel != null) {
-            heroSummaryLabel.setText(limitText(emptyToFallback(article.summary(), "Open the story for more detail."), 160));
+            heroSummaryLabel.setText(limitText(emptyToFallback(article.summary(), I18n.get("news.hero.summaryFallback")), 160));
         }
         if (heroOpenButton != null) {
             heroOpenButton.setDisable(article.url() == null || article.url().isBlank());
@@ -484,7 +481,7 @@ public class FootballNewsController implements AssistantContextProvider {
         }
         rightRailBox.getChildren().clear();
         if (railArticles == null || railArticles.isEmpty()) {
-            rightRailBox.getChildren().add(createMutedLabel("No more stories match these filters."));
+            rightRailBox.getChildren().add(createMutedLabel(I18n.get("news.empty.latest")));
             return;
         }
         for (FootballNewsArticle article : railArticles) {
@@ -498,7 +495,7 @@ public class FootballNewsController implements AssistantContextProvider {
         }
         cardsPane.getChildren().clear();
         if (articles == null || articles.isEmpty()) {
-            cardsPane.getChildren().add(createMutedLabel("The top story is the only result for this filter."));
+            cardsPane.getChildren().add(createMutedLabel(I18n.get("news.empty.cards")));
             return;
         }
         List<FootballNewsArticle> stableArticles = List.copyOf(articles);
@@ -513,13 +510,13 @@ public class FootballNewsController implements AssistantContextProvider {
 
     private void renderEmptyState() {
         if (heroMetaLabel != null) {
-            heroMetaLabel.setText("Try a different filter");
+            heroMetaLabel.setText(I18n.get("news.empty.meta"));
         }
         if (heroTitleLabel != null) {
-            heroTitleLabel.setText("No football stories found");
+            heroTitleLabel.setText(I18n.get("news.empty.title"));
         }
         if (heroSummaryLabel != null) {
-            heroSummaryLabel.setText("Reset the filters or refresh the live feed.");
+            heroSummaryLabel.setText(I18n.get("news.empty.summary"));
         }
         if (heroImageView != null) {
             heroImageView.setImage(null);
@@ -531,10 +528,10 @@ public class FootballNewsController implements AssistantContextProvider {
         }
         refreshBookmarkButton(heroBookmarkButton, null);
         if (rightRailBox != null) {
-            rightRailBox.getChildren().setAll(createMutedLabel("No stories in the latest column."));
+            rightRailBox.getChildren().setAll(createMutedLabel(I18n.get("news.empty.latestColumn")));
         }
         if (cardsPane != null) {
-            cardsPane.getChildren().setAll(createMutedLabel("No cards to show."));
+            cardsPane.getChildren().setAll(createMutedLabel(I18n.get("news.empty.noCards")));
         }
     }
 
@@ -614,7 +611,7 @@ public class FootballNewsController implements AssistantContextProvider {
         refreshBookmarkButton(saveButton, article);
         saveButton.setOnAction(event -> toggleSaved(article));
 
-        Button openButton = new Button("Open");
+        Button openButton = new Button(I18n.get("news.action.open"));
         openButton.setMnemonicParsing(false);
         openButton.getStyleClass().add("news-primary-action-small");
         openButton.setOnAction(event -> openArticle(article));
@@ -632,7 +629,7 @@ public class FootballNewsController implements AssistantContextProvider {
     }
 
     private Node createShowMoreCard(List<FootballNewsArticle> articles, int remainingCount) {
-        Button button = new Button("Show more\n" + remainingCount + " more stories");
+        Button button = new Button(I18n.format("news.action.showMore", remainingCount));
         button.setMnemonicParsing(false);
         button.setFocusTraversable(false);
         button.getStyleClass().add("news-more-card");
@@ -670,7 +667,7 @@ public class FootballNewsController implements AssistantContextProvider {
         }
         button.setDisable(article == null);
         boolean saved = isSaved(article);
-        button.setText(saved ? "Saved" : "Save");
+        button.setText(saved ? I18n.get("news.saved") : I18n.get("common.action.save"));
         button.getStyleClass().removeAll("news-saved-action");
         if (saved) {
             button.getStyleClass().add("news-saved-action");
@@ -696,12 +693,12 @@ public class FootballNewsController implements AssistantContextProvider {
         }
         try {
             if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                showInfo("Open article", article.url());
+                showInfo(I18n.get("news.action.openStory"), article.url());
                 return;
             }
             Desktop.getDesktop().browse(URI.create(article.url()));
         } catch (Exception e) {
-            showInfo("Open article", article.url());
+            showInfo(I18n.get("news.action.openStory"), article.url());
         }
     }
 
@@ -767,9 +764,12 @@ public class FootballNewsController implements AssistantContextProvider {
         }
         return timeAgo(article.publishedAt())
                 + " | "
-                + readingTime(article)
-                + " min read | "
-                + DETAIL_DATE_FORMATTER.format(article.publishedAt());
+                + I18n.format("news.meta.readingTime", readingTime(article))
+                + " | "
+                + DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                .withLocale(I18n.getLocale())
+                .withZone(ZoneId.systemDefault())
+                .format(article.publishedAt());
     }
 
     private int readingTime(FootballNewsArticle article) {
@@ -780,19 +780,19 @@ public class FootballNewsController implements AssistantContextProvider {
 
     private String timeAgo(Instant instant) {
         if (instant == null) {
-            return "just now";
+            return I18n.get("news.meta.now");
         }
         Duration duration = Duration.between(instant, Instant.now());
         if (duration.isNegative() || duration.toMinutes() < 1) {
-            return "just now";
+            return I18n.get("news.meta.now");
         }
         if (duration.toMinutes() < 60) {
-            return duration.toMinutes() + " min ago";
+            return I18n.format("news.meta.minutesAgo", duration.toMinutes());
         }
         if (duration.toHours() < 24) {
-            return duration.toHours() + " hr ago";
+            return I18n.format("news.meta.hoursAgo", duration.toHours());
         }
-        return duration.toDays() + " day" + (duration.toDays() == 1 ? "" : "s") + " ago";
+        return I18n.format("news.meta.daysAgo", duration.toDays());
     }
 
     private void setActiveTopic(TopicFilter topic) {
@@ -826,7 +826,7 @@ public class FootballNewsController implements AssistantContextProvider {
 
     private void setStatus(String text) {
         if (statusLabel != null) {
-            statusLabel.setText(emptyToFallback(text, "Ready."));
+            statusLabel.setText(emptyToFallback(text, I18n.get("common.status.ready")));
         }
     }
 
@@ -933,7 +933,7 @@ public class FootballNewsController implements AssistantContextProvider {
 
     private static String shortMessage(String message) {
         if (message == null || message.isBlank()) {
-            return "Unknown error";
+            return I18n.get("common.value.unknown");
         }
         String cleaned = message.replace('\r', ' ').replace('\n', ' ').trim();
         return cleaned.length() <= 120 ? cleaned : cleaned.substring(0, 120) + "...";

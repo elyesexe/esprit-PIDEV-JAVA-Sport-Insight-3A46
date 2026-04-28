@@ -26,6 +26,7 @@ import javafx.stage.Window;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.entities.User;
+import tn.esprit.i18n.I18n;
 import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
@@ -53,10 +54,6 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ProfileController {
-    private static final DateTimeFormatter MEMBER_SINCE_FORMATTER =
-            DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter MATCH_KICKOFF_FORMATTER =
-            DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm", Locale.ENGLISH);
     private static final int MAX_MATCH_SUGGESTIONS = 6;
 
     @FXML
@@ -179,7 +176,7 @@ public class ProfileController {
         if (currentUser == null) {
             saveButton.setDisable(true);
             configureFavouriteControlsDisabled();
-            showStatus("Your session expired. Please sign in again.", "status-error");
+            showStatus(I18n.get("profile.status.sessionExpired"), "status-error");
             return;
         }
 
@@ -201,7 +198,7 @@ public class ProfileController {
             saveButton.setDisable(true);
             configureFavouriteControlsDisabled();
             populateProfile(currentUser);
-            showStatus("The profile service is unavailable right now.", "status-error");
+            showStatus(I18n.get("profile.status.serviceUnavailable"), "status-error");
         }
     }
 
@@ -310,7 +307,7 @@ public class ProfileController {
     @FXML
     private void handleBrowsePhoto() {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select a profile picture");
+        chooser.setTitle(I18n.get("profile.photo.dialogTitle"));
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif")
         );
@@ -329,11 +326,11 @@ public class ProfileController {
         hideStatus();
 
         if (currentUser == null) {
-            showStatus("No authenticated profile was found.", "status-error");
+            showStatus(I18n.get("profile.status.noAuthenticatedProfile"), "status-error");
             return;
         }
         if (userService == null) {
-            showStatus("The profile service is not available.", "status-error");
+            showStatus(I18n.get("profile.status.serviceUnavailable"), "status-error");
             return;
         }
 
@@ -346,31 +343,31 @@ public class ProfileController {
         String confirmPassword = confirmPasswordField.getText();
 
         if (email == null || prenom == null || nom == null) {
-            showStatus("Email, first name, and last name are required.", "status-error");
+            showStatus(I18n.get("profile.status.emailNameRequired"), "status-error");
             return;
         }
         if (telephone == null) {
-            showStatus("Telephone is required.", "status-error");
+            showStatus(I18n.get("common.validation.phoneRequired"), "status-error");
             return;
         }
         if (dateNaissancePicker.getValue() == null) {
-            showStatus("Birth date is required.", "status-error");
+            showStatus(I18n.get("common.validation.birthDateRequired"), "status-error");
             return;
         }
         if (newPassword != null && !newPassword.isBlank()) {
             if (newPassword.length() < 8) {
-                showStatus("New passwords must contain at least 8 characters.", "status-error");
+                showStatus(I18n.get("profile.status.passwordTooShort"), "status-error");
                 return;
             }
             if (!Objects.equals(newPassword, confirmPassword)) {
-                showStatus("Password confirmation does not match.", "status-error");
+                showStatus(I18n.get("common.validation.passwordMismatch"), "status-error");
                 return;
             }
         }
 
         try {
             if (userService.emailExists(email, currentUser.getId())) {
-                showStatus("Another account already uses this email address.", "status-error");
+                showStatus(I18n.get("profile.status.emailInUse"), "status-error");
                 return;
             }
 
@@ -397,9 +394,9 @@ public class ProfileController {
             passwordField.clear();
             confirmPasswordField.clear();
             populateProfile(currentUser);
-            showStatus("Your profile has been updated successfully.", "status-success");
+            showStatus(I18n.get("profile.status.updated"), "status-success");
         } catch (Exception ex) {
-            showStatus("The profile could not be updated. " + ex.getMessage(), "status-error");
+            showStatus(I18n.format("profile.status.updateFailed", ex.getMessage()), "status-error");
         }
     }
 
@@ -408,14 +405,14 @@ public class ProfileController {
         hideStatus();
 
         if (currentUser == null || currentUser.getId() == null || matchFollowTargetService == null) {
-            showStatus("Live alert preferences are not available right now.", "status-error");
+            showStatus(I18n.get("profile.alerts.statusUnavailable"), "status-error");
             return;
         }
 
         String selectedLabel = favouriteLeagueComboBox == null ? null : favouriteLeagueComboBox.getValue();
         String competitionCode = resolveCompetitionCode(selectedLabel);
         if (competitionCode == null) {
-            showStatus("Choose a league before adding it to your alerts.", "status-error");
+            showStatus(I18n.get("profile.alerts.chooseLeague"), "status-error");
             return;
         }
 
@@ -424,11 +421,11 @@ public class ProfileController {
             refreshFavouriteChips();
             LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
             showStatus(added
-                    ? selectedLabel + " was added to your live alerts."
-                    : selectedLabel + " is already in your live alerts.",
+                    ? I18n.format("profile.alerts.leagueAdded", selectedLabel)
+                    : I18n.format("profile.alerts.leagueAlreadyAdded", selectedLabel),
                     added ? "status-success" : "status-muted");
         } catch (Exception e) {
-            showStatus("The league could not be added. " + e.getMessage(), "status-error");
+            showStatus(I18n.format("profile.alerts.leagueAddFailed", e.getMessage()), "status-error");
         }
     }
 
@@ -437,13 +434,13 @@ public class ProfileController {
         hideStatus();
 
         if (currentUser == null || currentUser.getId() == null || matchFollowTargetService == null) {
-            showStatus("Live alert preferences are not available right now.", "status-error");
+            showStatus(I18n.get("profile.alerts.statusUnavailable"), "status-error");
             return;
         }
 
         EquipeSelectionItem selectedTeam = favouriteTeamComboBox == null ? null : favouriteTeamComboBox.getValue();
         if (selectedTeam == null || selectedTeam.teamId() == null) {
-            showStatus("Choose a team before adding it to your alerts.", "status-error");
+            showStatus(I18n.get("profile.alerts.chooseTeam"), "status-error");
             return;
         }
 
@@ -452,11 +449,11 @@ public class ProfileController {
             refreshFavouriteChips();
             LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
             showStatus(added
-                    ? selectedTeam.label() + " was added to your live alerts."
-                    : selectedTeam.label() + " is already in your live alerts.",
+                    ? I18n.format("profile.alerts.teamAdded", selectedTeam.label())
+                    : I18n.format("profile.alerts.teamAlreadyAdded", selectedTeam.label()),
                     added ? "status-success" : "status-muted");
         } catch (Exception e) {
-            showStatus("The team could not be added. " + e.getMessage(), "status-error");
+            showStatus(I18n.format("profile.alerts.teamAddFailed", e.getMessage()), "status-error");
         }
     }
 
@@ -499,7 +496,7 @@ public class ProfileController {
         }
 
         if (favouritesSummaryLabel != null) {
-            favouritesSummaryLabel.setText("Follow teams and leagues to receive live kickoff and incident popups.");
+            favouritesSummaryLabel.setText(I18n.get("profile.alerts.summary"));
         }
     }
 
@@ -517,13 +514,13 @@ public class ProfileController {
             addFavouriteTeamButton.setDisable(true);
         }
         if (favouriteMatchChipPane != null) {
-            favouriteMatchChipPane.getChildren().setAll(buildEmptyFavouriteChip("No followed matches yet."));
+            favouriteMatchChipPane.getChildren().setAll(buildEmptyFavouriteChip(I18n.get("profile.alerts.emptyMatches")));
         }
         if (matchSuggestionContainer != null) {
-            matchSuggestionContainer.getChildren().setAll(buildSuggestionEmptyLabel("Match suggestions are unavailable right now."));
+            matchSuggestionContainer.getChildren().setAll(buildSuggestionEmptyLabel(I18n.get("profile.alerts.emptySuggestionsUnavailable")));
         }
         if (favouritesSummaryLabel != null) {
-            favouritesSummaryLabel.setText("Live alert preferences are unavailable until the profile services are ready.");
+            favouritesSummaryLabel.setText(I18n.get("profile.alerts.disabledSummary"));
         }
     }
 
@@ -589,7 +586,7 @@ public class ProfileController {
 
         favouriteTeamChipPane.getChildren().clear();
         if (teamIds == null || teamIds.isEmpty()) {
-            favouriteTeamChipPane.getChildren().add(buildEmptyFavouriteChip("No followed teams yet."));
+            favouriteTeamChipPane.getChildren().add(buildEmptyFavouriteChip(I18n.get("profile.alerts.emptyTeams")));
             return;
         }
 
@@ -607,7 +604,7 @@ public class ProfileController {
 
         favouriteMatchChipPane.getChildren().clear();
         if (matchIds == null || matchIds.isEmpty()) {
-            favouriteMatchChipPane.getChildren().add(buildEmptyFavouriteChip("No followed matches yet."));
+            favouriteMatchChipPane.getChildren().add(buildEmptyFavouriteChip(I18n.get("profile.alerts.emptyMatches")));
             return;
         }
 
@@ -626,11 +623,11 @@ public class ProfileController {
 
         matchSuggestionContainer.getChildren().clear();
         if ((teamIds == null || teamIds.isEmpty()) && (competitionCodes == null || competitionCodes.isEmpty())) {
-            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel("Follow a team or league to see upcoming match suggestions."));
+            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel(I18n.get("profile.alerts.emptySuggestionsFollow")));
             return;
         }
         if (matchsService == null) {
-            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel("Upcoming match suggestions are unavailable right now."));
+            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel(I18n.get("profile.alerts.emptySuggestionsUnavailable")));
             return;
         }
 
@@ -646,7 +643,7 @@ public class ProfileController {
                 .toList();
 
         if (suggestions.isEmpty()) {
-            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel("No upcoming suggestions match your followed teams or leagues."));
+            matchSuggestionContainer.getChildren().add(buildSuggestionEmptyLabel(I18n.get("profile.alerts.emptySuggestionsNone")));
             return;
         }
 
@@ -659,7 +656,7 @@ public class ProfileController {
         Label textLabel = new Label(label);
         textLabel.getStyleClass().add("favorite-chip-label");
 
-        Button removeButton = new Button("Remove");
+        Button removeButton = new Button(I18n.get("profile.action.remove"));
         removeButton.getStyleClass().add("favorite-chip-remove");
         removeButton.setOnAction(event -> removeAction.run());
 
@@ -687,7 +684,8 @@ public class ProfileController {
     private HBox buildSuggestedMatchRow(Matchs match) {
         String label = labelForMatch(match);
 
-        Label titleLabel = new Label(teamLabel(match.getEquipeDomicileId(), "Home") + " vs " + teamLabel(match.getEquipeExterieurId(), "Away"));
+        Label titleLabel = new Label(teamLabel(match.getEquipeDomicileId(), I18n.get("profile.match.home")) + " vs "
+                + teamLabel(match.getEquipeExterieurId(), I18n.get("profile.match.away")));
         titleLabel.getStyleClass().add("match-suggestion-title");
         titleLabel.setWrapText(true);
 
@@ -698,7 +696,7 @@ public class ProfileController {
         VBox textBox = new VBox(3, titleLabel, metaLabel);
         HBox.setHgrow(textBox, Priority.ALWAYS);
 
-        Button addButton = new Button("Notify me");
+        Button addButton = new Button(I18n.get("profile.action.notify"));
         addButton.getStyleClass().add("favorite-chip-remove");
         addButton.setOnAction(event -> addSuggestedMatch(match.getId(), label));
 
@@ -713,11 +711,11 @@ public class ProfileController {
             boolean removed = matchFollowTargetService.removeCompetitionFavorite(currentUser.getId(), competitionCode);
             refreshFavouriteChips();
             showStatus(removed
-                    ? label + " was removed from your live alerts."
-                    : label + " was not in your live alerts.",
+                    ? I18n.format("profile.alerts.leagueRemoved", label)
+                    : I18n.format("profile.alerts.leagueMissing", label),
                     removed ? "status-success" : "status-muted");
         } catch (Exception e) {
-            showStatus("The league could not be removed. " + e.getMessage(), "status-error");
+            showStatus(I18n.format("profile.alerts.leagueRemoveFailed", e.getMessage()), "status-error");
         }
     }
 
@@ -726,11 +724,11 @@ public class ProfileController {
             boolean removed = matchFollowTargetService.removeTeamFavorite(currentUser.getId(), teamId);
             refreshFavouriteChips();
             showStatus(removed
-                    ? label + " was removed from your live alerts."
-                    : label + " was not in your live alerts.",
+                    ? I18n.format("profile.alerts.teamRemoved", label)
+                    : I18n.format("profile.alerts.teamMissing", label),
                     removed ? "status-success" : "status-muted");
         } catch (Exception e) {
-            showStatus("The team could not be removed. " + e.getMessage(), "status-error");
+            showStatus(I18n.format("profile.alerts.teamRemoveFailed", e.getMessage()), "status-error");
         }
     }
 
@@ -739,11 +737,11 @@ public class ProfileController {
             boolean removed = matchFollowTargetService.removeMatchFavorite(currentUser.getId(), matchId);
             refreshFavouriteChips();
             showStatus(removed
-                    ? label + " was removed from your match alerts."
-                    : label + " was not in your match alerts.",
+                    ? I18n.format("profile.alerts.matchRemoved", label)
+                    : I18n.format("profile.alerts.matchMissing", label),
                     removed ? "status-success" : "status-muted");
         } catch (Exception e) {
-            showStatus("The match could not be removed. " + e.getMessage(), "status-error");
+            showStatus(I18n.format("profile.alerts.matchRemoveFailed", e.getMessage()), "status-error");
         }
     }
 
@@ -753,11 +751,11 @@ public class ProfileController {
             refreshFavouriteChips();
             LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
             showStatus(added
-                    ? label + " was added to your match alerts."
-                    : label + " is already in your match alerts.",
+                    ? I18n.format("profile.alerts.matchAdded", label)
+                    : I18n.format("profile.alerts.matchAlreadyAdded", label),
                     added ? "status-success" : "status-muted");
         } catch (Exception e) {
-            showStatus("The match could not be added. " + e.getMessage(), "status-error");
+            showStatus(I18n.format("profile.alerts.matchAddFailed", e.getMessage()), "status-error");
         }
     }
 
@@ -775,8 +773,7 @@ public class ProfileController {
         int matchCount = favouriteMatchChipPane == null ? 0 : (int) favouriteMatchChipPane.getChildren().stream()
                 .filter(node -> node instanceof VBox)
                 .count();
-        favouritesSummaryLabel.setText("You are following " + leagueCount + " league(s), " + teamCount
-                + " team(s), and " + matchCount + " match(es) for live kickoff, score, card, and substitution alerts.");
+        favouritesSummaryLabel.setText(I18n.format("profile.alerts.summaryDynamic", leagueCount, teamCount, matchCount));
     }
 
     private String resolveCompetitionCode(String label) {
@@ -838,11 +835,11 @@ public class ProfileController {
 
     private String labelForMatch(Matchs match) {
         if (match == null) {
-            return "Match";
+            return I18n.get("profile.match.label");
         }
-        return teamLabel(match.getEquipeDomicileId(), "Home")
+        return teamLabel(match.getEquipeDomicileId(), I18n.get("profile.match.home"))
                 + " vs "
-                + teamLabel(match.getEquipeExterieurId(), "Away")
+                + teamLabel(match.getEquipeExterieurId(), I18n.get("profile.match.away"))
                 + " | "
                 + formatKickoff(match);
     }
@@ -857,7 +854,9 @@ public class ProfileController {
 
     private String formatKickoff(Matchs match) {
         LocalDateTime kickoff = kickoffOf(match);
-        return kickoff == null ? "Date TBC" : MATCH_KICKOFF_FORMATTER.format(kickoff);
+        return kickoff == null
+                ? I18n.get("profile.match.dateTbc")
+                : DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm", I18n.getLocale()).format(kickoff);
     }
 
     private boolean isFinishedStatus(String status) {
@@ -877,7 +876,7 @@ public class ProfileController {
             profileNameLabel.setText(displayName);
         }
         if (profileEmailLabel != null) {
-            profileEmailLabel.setText(emptyIfBlank(user.getEmail(), "No email"));
+            profileEmailLabel.setText(emptyIfBlank(user.getEmail(), I18n.get("profile.value.noEmail")));
         }
         if (roleValueLabel != null) {
             roleValueLabel.setText(roleDisplay);
@@ -887,16 +886,16 @@ public class ProfileController {
         }
         if (memberSinceValueLabel != null) {
             memberSinceValueLabel.setText(user.getDateInscription() == null
-                    ? "Unknown"
-                    : MEMBER_SINCE_FORMATTER.format(user.getDateInscription()));
+                    ? I18n.get("common.value.unknown")
+                    : DateTimeFormatter.ofPattern("dd MMM yyyy", I18n.getLocale()).format(user.getDateInscription()));
         }
         if (formTitleLabel != null) {
-            formTitleLabel.setText(AuthSession.isAdmin() ? "Admin profile" : "My profile");
+            formTitleLabel.setText(AuthSession.isAdmin() ? I18n.get("profile.form.titleAdmin") : I18n.get("profile.form.title"));
         }
         if (formSubtitleLabel != null) {
             formSubtitleLabel.setText(AuthSession.isAdmin()
-                    ? "Review your admin account, update your picture, and keep your contact details current."
-                    : "Review your account, update your picture, and keep your contact details current.");
+                    ? I18n.get("profile.form.subtitleAdmin")
+                    : I18n.get("profile.form.subtitleUser"));
         }
 
         emailField.setText(emptyIfBlank(user.getEmail(), ""));
@@ -921,7 +920,7 @@ public class ProfileController {
             profileNameLabel.setText(displayName);
         }
         if (profileEmailLabel != null) {
-            profileEmailLabel.setText(emptyIfBlank(emailField == null ? null : emailField.getText(), "No email"));
+            profileEmailLabel.setText(emptyIfBlank(emailField == null ? null : emailField.getText(), I18n.get("profile.value.noEmail")));
         }
         if (profileInitialsLabel != null) {
             profileInitialsLabel.setText(buildInitials(displayName));
@@ -1003,10 +1002,10 @@ public class ProfileController {
     private String normalizeStatus(String status) {
         String value = emptyIfBlank(status, "ACTIVE");
         if ("ACTIF".equalsIgnoreCase(value)) {
-            return "Active";
+            return I18n.get("common.status.active");
         }
         if ("INACTIF".equalsIgnoreCase(value)) {
-            return "Inactive";
+            return I18n.get("common.status.inactive");
         }
         String normalized = value.trim().toUpperCase(Locale.ROOT);
         return normalized.substring(0, 1) + normalized.substring(1).toLowerCase(Locale.ROOT);
@@ -1017,7 +1016,7 @@ public class ProfileController {
         if (!fullName.isBlank()) {
             return fullName;
         }
-        return emptyIfBlank(email, "Sport Insight user");
+        return emptyIfBlank(email, I18n.get("profile.user.fallback"));
     }
 
     private String buildInitials(String displayName) {

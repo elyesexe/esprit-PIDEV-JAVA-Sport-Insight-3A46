@@ -35,7 +35,7 @@
 
             <Button fx:id="adminNavButton"
                     onAction="#handleOpenAdmin"
-                    text="Admin"
+                    text="%nav.admin"
                     mnemonicParsing="false"
                     styleClass="navbar-admin-button"/>
 
@@ -57,7 +57,7 @@
                 <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
                     <Button fx:id="matchsNavButton"
                             onAction="#handleOpenMatchs"
-                            text="Matchs"
+                            text="%nav.matches"
                             styleClass="navbar-nav-button"/>
 
                     <HBox fx:id="sidebarModuleChildrenBox"
@@ -68,26 +68,26 @@
                           styleClass="navbar-submenu">
                         <Button fx:id="equipesNavButton"
                                 onAction="#handleOpenEquipes"
-                                text="Equipes"
+                                text="%nav.teams"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                         <Button fx:id="leaguesNavButton"
                                 onAction="#handleOpenLeagues"
-                                text="Leagues"
+                                text="%nav.leagues"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                         <Button fx:id="joueursNavButton"
                                 onAction="#handleOpenJoueurs"
-                                text="Joueurs"
+                                text="%nav.players"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                     </HBox>
 
                     <Button fx:id="annonceNavButton"
                             onAction="#handleOpenAnnonces"
-                            text="Annonce"
+                            text="%nav.announcements"
                             styleClass="navbar-nav-button"/>
 
                     <Button fx:id="footballNewsNavButton"
                             onAction="#handleOpenFootballNews"
-                            text="News"
+                            text="%nav.news"
                             styleClass="navbar-nav-button navbar-nav-button-active"/>
                 </HBox>
             </StackPane>
@@ -129,23 +129,23 @@
                                        styleClass="news-hero-image"/>
                             <Region styleClass="news-hero-overlay"/>
                             <VBox spacing="14" styleClass="news-hero-content">
-                                <Label text="Live newsroom" styleClass="news-hero-kicker"/>
-                                <Label text="Sport Insight News" wrapText="true" styleClass="news-hero-title"/>
-                                <Label text="Follow football headlines, filter by competition, save stories for this session, and open full reports when you need the details."
+                                <Label text="%news.hero.kicker" styleClass="news-hero-kicker"/>
+                                <Label text="%news.hero.title" wrapText="true" styleClass="news-hero-title"/>
+                                <Label text="%news.hero.subtitle"
                                        wrapText="true"
                                        styleClass="news-hero-subtitle"/>
 
                                 <HBox spacing="12" styleClass="news-stats-row news-hero-stats-row">
                                     <VBox spacing="4" styleClass="news-stat-card news-hero-stat-card">
-                                        <Label text="Stories" styleClass="news-stat-label"/>
+                                        <Label text="%news.stat.stories" styleClass="news-stat-label"/>
                                         <Label fx:id="totalCountLabel" text="0" styleClass="news-stat-value"/>
                                     </VBox>
                                     <VBox spacing="4" styleClass="news-stat-card news-hero-stat-card">
-                                        <Label text="Saved" styleClass="news-stat-label"/>
+                                        <Label text="%news.stat.saved" styleClass="news-stat-label"/>
                                         <Label fx:id="savedCountLabel" text="0" styleClass="news-stat-value"/>
                                     </VBox>
                                     <VBox spacing="4" styleClass="news-stat-card news-hero-stat-card">
-                                        <Label text="Updated" styleClass="news-stat-label"/>
+                                        <Label text="%news.stat.updated" styleClass="news-stat-label"/>
                                         <Label fx:id="latestTimeLabel" text="--" styleClass="news-stat-value"/>
                                     </VBox>
                                 </HBox>
@@ -154,22 +154,22 @@
 
                         <VBox spacing="14" styleClass="news-controls-panel">
                             <HBox spacing="12" alignment="CENTER_LEFT">
-                                <TextField fx:id="searchField"
-                                           promptText="Search Sport Insight news"
+                                           <TextField fx:id="searchField"
+                                           promptText="%news.search.prompt"
                                            HBox.hgrow="ALWAYS"
                                            styleClass="news-search-field"/>
                                 <ToggleButton fx:id="savedOnlyButton"
-                                              text="Saved"
+                                              text="%news.saved"
                                               onAction="#handleSavedOnly"
                                               mnemonicParsing="false"
                                               styleClass="news-filter-toggle"/>
                                 <Button fx:id="refreshButton"
-                                        text="Refresh"
+                                        text="%common.action.refresh"
                                         onAction="#handleRefresh"
                                         mnemonicParsing="false"
                                         styleClass="news-primary-action"/>
                                 <Button fx:id="resetButton"
-                                        text="Reset"
+                                        text="%common.action.reset"
                                         onAction="#handleResetFilters"
                                         mnemonicParsing="false"
                                         styleClass="news-secondary-action"/>
@@ -183,60 +183,60 @@
 
                             <HBox spacing="8" alignment="CENTER_LEFT" styleClass="news-topic-row">
                                 <ToggleButton fx:id="allTopicButton"
-                                              text="All"
+                                              text="%news.topic.all"
                                               selected="true"
                                               onAction="#handleTopicFilter"
                                               mnemonicParsing="false"
                                               styleClass="news-topic-button"/>
                                 <ToggleButton fx:id="premierLeagueButton"
-                                              text="Premier"
+                                              text="%news.topic.premier"
                                               onAction="#handleTopicFilter"
                                               mnemonicParsing="false"
                                               styleClass="news-topic-button"/>
                                 <ToggleButton fx:id="championsLeagueButton"
-                                              text="Champions"
+                                              text="%news.topic.champions"
                                               onAction="#handleTopicFilter"
                                               mnemonicParsing="false"
                                               styleClass="news-topic-button"/>
                                 <ToggleButton fx:id="transfersButton"
-                                              text="Transfers"
+                                              text="%news.topic.transfers"
                                               onAction="#handleTopicFilter"
                                               mnemonicParsing="false"
                                               styleClass="news-topic-button"/>
                                 <ToggleButton fx:id="womenButton"
-                                              text="Women"
+                                              text="%news.topic.women"
                                               onAction="#handleTopicFilter"
                                               mnemonicParsing="false"
                                               styleClass="news-topic-button"/>
                                 <ToggleButton fx:id="europeButton"
-                                              text="Europe"
+                                              text="%news.topic.europe"
                                               onAction="#handleTopicFilter"
                                               mnemonicParsing="false"
                                               styleClass="news-topic-button"/>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <Label fx:id="statusLabel" text="Sport Insight news ready." styleClass="news-status-pill"/>
+                                <Label fx:id="statusLabel" text="%news.status.ready" styleClass="news-status-pill"/>
                             </HBox>
                         </VBox>
 
                         <HBox spacing="24" alignment="TOP_LEFT" styleClass="news-lead-layout">
                             <VBox spacing="12" styleClass="news-lead-copy">
                                 <Label fx:id="heroTitleLabel"
-                                       text="Loading football headlines"
+                                       text="%news.hero.loadingTitle"
                                        wrapText="true"
                                        styleClass="news-lead-title"/>
                                 <Label fx:id="heroSummaryLabel"
-                                       text="Latest football stories will appear here."
+                                       text="%news.hero.loadingSummary"
                                        wrapText="true"
                                        styleClass="news-lead-summary"/>
-                                <Label fx:id="heroMetaLabel" text="just now" styleClass="news-lead-meta"/>
+                                <Label fx:id="heroMetaLabel" text="%news.meta.now" styleClass="news-lead-meta"/>
                                 <HBox spacing="10" alignment="CENTER_LEFT">
                                     <Button fx:id="heroOpenButton"
-                                            text="Open Story"
+                                            text="%news.action.openStory"
                                             onAction="#handleOpenHero"
                                             mnemonicParsing="false"
                                             styleClass="news-primary-action"/>
                                     <Button fx:id="heroBookmarkButton"
-                                            text="Save"
+                                            text="%common.action.save"
                                             onAction="#handleBookmarkHero"
                                             mnemonicParsing="false"
                                             styleClass="news-secondary-action"/>
@@ -253,13 +253,13 @@
                             </StackPane>
 
                             <VBox spacing="12" styleClass="news-right-rail">
-                                <Label text="Latest" styleClass="news-section-heading"/>
+                                <Label text="%news.section.latest" styleClass="news-section-heading"/>
                                 <VBox fx:id="rightRailBox" spacing="10" styleClass="news-right-rail-list"/>
                             </VBox>
                         </HBox>
 
                         <VBox spacing="14" styleClass="news-card-section">
-                            <Label text="More football stories" styleClass="news-section-heading"/>
+                            <Label text="%news.section.more" styleClass="news-section-heading"/>
                             <FlowPane fx:id="cardsPane"
                                       hgap="18"
                                       vgap="18"

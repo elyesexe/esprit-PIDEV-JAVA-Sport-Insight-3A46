@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import tn.esprit.Controller.MatchDetailController;
 import tn.esprit.entities.Matchs;
 import tn.esprit.entities.Notification;
+import tn.esprit.i18n.I18n;
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.MatchsService;
 import tn.esprit.services.NotificationService;
@@ -56,11 +57,11 @@ public final class NavbarNotificationCenter {
     private final Label badgeLabel = new Label();
     private final ContextMenu popupMenu = new ContextMenu();
     private final VBox popupPanel = new VBox(12);
-    private final Label summaryLabel = new Label("Loading...");
-    private final Button allFilterButton = new Button("All");
-    private final Button unreadFilterButton = new Button("Unread");
-    private final Button markAllReadButton = new Button("Mark all read");
-    private final Button seeAllButton = new Button("See all");
+    private final Label summaryLabel = new Label(I18n.get("notifications.menu.loading"));
+    private final Button allFilterButton = new Button(I18n.get("notifications.menu.filter.all"));
+    private final Button unreadFilterButton = new Button(I18n.get("notifications.menu.filter.unread"));
+    private final Button markAllReadButton = new Button(I18n.get("notifications.menu.markAllRead"));
+    private final Button seeAllButton = new Button(I18n.get("notifications.menu.seeAll"));
     private final VBox notificationListBox = new VBox(8);
     private final ScrollPane notificationScrollPane = new ScrollPane(notificationListBox);
 
@@ -102,7 +103,7 @@ public final class NavbarNotificationCenter {
         button.setMnemonicParsing(false);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.setFocusTraversable(false);
-        button.setAccessibleText("Notifications");
+        button.setAccessibleText(I18n.get("notifications.menu.title"));
         button.getStyleClass().add("navbar-bell-button");
 
         Label bellIconLabel = new Label("\uD83D\uDD14");
@@ -128,7 +129,7 @@ public final class NavbarNotificationCenter {
         popupMenu.setHideOnEscape(true);
         popupMenu.getStyleClass().add("navbar-notification-menu");
 
-        Label titleLabel = new Label("Notifications");
+        Label titleLabel = new Label(I18n.get("notifications.menu.title"));
         titleLabel.getStyleClass().add("navbar-notification-title");
 
         seeAllButton.getStyleClass().add("navbar-notification-header-action");
@@ -196,7 +197,7 @@ public final class NavbarNotificationCenter {
         popupMenu.getItems().setAll(menuItem);
         applyThemeClass();
         applyFilterButtonState();
-        renderLoadingState("Loading notifications...");
+        renderLoadingState(I18n.get("notifications.menu.loading"));
     }
 
     private void toggleMenu() {
@@ -205,7 +206,7 @@ public final class NavbarNotificationCenter {
             return;
         }
         applyThemeClass();
-        renderLoadingState("Loading notifications...");
+        renderLoadingState(I18n.get("notifications.menu.loading"));
         popupMenu.show(bellButton, Side.BOTTOM, 0, 10);
         positionPopupRightAligned();
         refreshMenuAsync(true);
@@ -217,12 +218,12 @@ public final class NavbarNotificationCenter {
             loadedNotifications = List.of();
             unreadCount = 0;
             updateBadge(0);
-            renderPlaceholder("Sign in to see your live alerts.");
+            renderPlaceholder(I18n.get("notifications.menu.signIn"));
             return;
         }
 
         if (showLoadingState) {
-            renderLoadingState("Loading notifications...");
+            renderLoadingState(I18n.get("notifications.menu.loading"));
         }
 
         long requestId = ++menuRefreshSequence;
@@ -251,7 +252,7 @@ public final class NavbarNotificationCenter {
                     if (requestId != menuRefreshSequence) {
                         return;
                     }
-                    renderPlaceholder("Notifications are unavailable right now.");
+                    renderPlaceholder(I18n.get("notifications.menu.unavailable"));
                 });
             }
         });
@@ -292,7 +293,7 @@ public final class NavbarNotificationCenter {
             return;
         }
 
-        renderLoadingState("Marking notifications as read...");
+        renderLoadingState(I18n.get("notifications.menu.markingRead"));
         DB_EXECUTOR.execute(() -> {
             try {
                 NotificationService notificationService = new NotificationService();
@@ -347,8 +348,8 @@ public final class NavbarNotificationCenter {
         notificationListBox.getChildren().clear();
         if (visibleNotifications.isEmpty()) {
             Label emptyLabel = new Label(FILTER_UNREAD.equals(activeFilter)
-                    ? "No unread notifications."
-                    : "You do not have notifications yet.");
+                    ? I18n.get("notifications.menu.emptyUnread")
+                    : I18n.get("notifications.menu.emptyAll"));
             emptyLabel.getStyleClass().add("navbar-notification-empty");
             emptyLabel.setWrapText(true);
             notificationListBox.getChildren().add(emptyLabel);
@@ -369,11 +370,11 @@ public final class NavbarNotificationCenter {
         logosRow.setAlignment(Pos.TOP_LEFT);
         logosRow.getStyleClass().add("navbar-notification-logos");
 
-        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), "Match alert"));
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), I18n.get("notifications.menu.matchAlert")));
         titleLabel.setWrapText(true);
         titleLabel.getStyleClass().add("navbar-notification-item-title");
 
-        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), "No additional details."));
+        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), I18n.get("notifications.menu.noDetails")));
         messageLabel.setWrapText(true);
         messageLabel.getStyleClass().add("navbar-notification-item-message");
 
@@ -384,7 +385,7 @@ public final class NavbarNotificationCenter {
         textBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(textBox, Priority.ALWAYS);
 
-        Button openButton = new Button("Open");
+        Button openButton = new Button(I18n.get("notifications.menu.open"));
         openButton.getStyleClass().add("navbar-notification-open-button");
         openButton.setFocusTraversable(false);
         boolean canOpenMatch = notification.getMatchId() != null;
@@ -506,10 +507,10 @@ public final class NavbarNotificationCenter {
 
     private void updateSummary() {
         if (unreadCount <= 0) {
-            summaryLabel.setText("No unread notifications");
+            summaryLabel.setText(I18n.get("notifications.menu.noUnread"));
             return;
         }
-        summaryLabel.setText(unreadCount + (unreadCount == 1 ? " unread notification" : " unread notifications"));
+        summaryLabel.setText(I18n.format("notifications.menu.unreadCount", unreadCount));
     }
 
     private void applyFilterButtonState() {
@@ -578,18 +579,18 @@ public final class NavbarNotificationCenter {
             segments.add(notification.getMinuteLabel().trim());
         }
         segments.add(formatRelativeTime(notification == null ? null : notification.getCreatedAt()));
-        return String.join("  •  ", segments);
+        return String.join(" | ", segments);
     }
 
     private String formatRelativeTime(LocalDateTime createdAt) {
         if (createdAt == null) {
-            return "Now";
+            return I18n.get("notifications.menu.now");
         }
 
         Duration duration = Duration.between(createdAt, LocalDateTime.now());
         long minutes = Math.max(0, duration.toMinutes());
         if (minutes < 1) {
-            return "Now";
+            return I18n.get("notifications.menu.now");
         }
         if (minutes < 60) {
             return minutes + "m";

@@ -50,6 +50,7 @@ tn\esprit\services\JoueurService.class
 tn\esprit\entities\Notification.class
 tn\esprit\Controller\StoreController.class
 tn\esprit\services\football\SportsCafeClient.class
+tn\esprit\gui\SceneNavigator$SceneState.class
 tn\esprit\Controller\OrderController$3.class
 tn\esprit\Controller\EquipeController$SqlRunnable.class
 tn\esprit\entities\ChatMessage.class
@@ -203,6 +204,7 @@ tn\esprit\services\football\ApiFootballInsightsService$CacheEntry.class
 tn\esprit\services\FootballDataSyncService$PlayerIdentityRow.class
 tn\esprit\security\AuthSession.class
 tn\esprit\Controller\ProductController.class
+tn\esprit\i18n\I18n.class
 tn\esprit\Controller\EntrainementAdminController.class
 tn\esprit\gui\JoueurCrudMain.class
 tn\esprit\Controller\ProductController$2.class

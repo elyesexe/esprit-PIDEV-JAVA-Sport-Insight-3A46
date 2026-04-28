@@ -80,9 +80,9 @@
                                     <Region styleClass="auth-hero-overlay"/>
 
                                     <VBox spacing="12" styleClass="auth-hero-content">
-                                        <Label text="Authentication" styleClass="auth-eyebrow"/>
-                                        <Label text="Welcome back to Sport Insight" styleClass="auth-hero-title"/>
-                                        <Label text="Sign in to continue with matches, players, training sessions, and announcements."
+                                        <Label text="%login.hero.kicker" styleClass="auth-eyebrow"/>
+                                        <Label text="%login.hero.title" styleClass="auth-hero-title"/>
+                                        <Label text="%login.hero.subtitle"
                                                wrapText="true"
                                                styleClass="auth-hero-text"/>
                                     </VBox>
@@ -91,31 +91,31 @@
 
                             <HBox spacing="18" styleClass="auth-panel">
                                 <VBox spacing="16" styleClass="auth-panel-aside" HBox.hgrow="ALWAYS">
-                                    <Label text="Secure access" styleClass="auth-panel-badge"/>
-                                    <Label text="Sign in fast and keep control." wrapText="true" styleClass="auth-panel-title"/>
-                                    <Label text="Use your account to sync your activity across the Sport Insight workspace."
+                                    <Label text="%login.panel.badge" styleClass="auth-panel-badge"/>
+                                    <Label text="%login.panel.title" wrapText="true" styleClass="auth-panel-title"/>
+                                    <Label text="%login.panel.copy"
                                            wrapText="true"
                                            styleClass="auth-panel-copy"/>
 
                                     <VBox spacing="10">
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
                                             <Region styleClass="auth-point-dot"/>
-                                            <Label text="Protected authentication flow" wrapText="true" styleClass="auth-point-text"/>
+                                            <Label text="%login.panel.point.auth" wrapText="true" styleClass="auth-point-text"/>
                                         </HBox>
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
                                             <Region styleClass="auth-point-dot"/>
-                                            <Label text="Continue with matches, teams, and announcements" wrapText="true" styleClass="auth-point-text"/>
+                                            <Label text="%login.panel.point.modules" wrapText="true" styleClass="auth-point-text"/>
                                         </HBox>
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
                                             <Region styleClass="auth-point-dot"/>
-                                            <Label text="Admin controls stay limited to admin accounts" wrapText="true" styleClass="auth-point-text"/>
+                                            <Label text="%login.panel.point.admin" wrapText="true" styleClass="auth-point-text"/>
                                         </HBox>
                                     </VBox>
                                 </VBox>
 
                                 <VBox spacing="14" styleClass="auth-panel-form" HBox.hgrow="ALWAYS">
-                                    <Label text="Sign in" styleClass="auth-form-title"/>
-                                    <Label text="Enter your credentials to access your account."
+                                    <Label text="%auth.login.button" styleClass="auth-form-title"/>
+                                    <Label text="%login.form.copy"
                                            wrapText="true"
                                            styleClass="auth-form-copy"/>
 
@@ -127,16 +127,16 @@
 
                                     <VBox spacing="12" styleClass="auth-form">
                                         <VBox spacing="6">
-                                            <Label text="Email" styleClass="auth-label"/>
+                                            <Label text="%common.field.email" styleClass="auth-label"/>
                                             <TextField fx:id="emailField"
-                                                       promptText="name@example.com"
+                                                       promptText="%common.prompt.email"
                                                        styleClass="auth-input"/>
                                         </VBox>
 
                                         <VBox spacing="6">
-                                            <Label text="Password" styleClass="auth-label"/>
+                                            <Label text="%common.field.password" styleClass="auth-label"/>
                                             <PasswordField fx:id="passwordField"
-                                                           promptText="Enter your password"
+                                                           promptText="%login.form.prompt.password"
                                                            onAction="#handleSignIn"
                                                            styleClass="auth-input"/>
                                         </VBox>
@@ -144,7 +144,7 @@
                                         <HBox spacing="10" styleClass="auth-actions">
                                             <Button fx:id="signInButton"
                                                     onAction="#handleSignIn"
-                                                    text="Sign in"
+                                                    text="%auth.login.button"
                                                     maxWidth="Infinity"
                                                     styleClass="auth-primary-button"
                                                     HBox.hgrow="ALWAYS"/>
@@ -152,9 +152,9 @@
                                     </VBox>
 
                                     <VBox spacing="8" styleClass="auth-switch">
-                                        <Label text="New here? Create your account." styleClass="auth-switch-copy"/>
+                                        <Label text="%login.switch.copy" styleClass="auth-switch-copy"/>
                                         <Button onAction="#handleOpenSignup"
-                                                text="Create account"
+                                                text="%auth.signup.button"
                                                 maxWidth="Infinity"
                                                 styleClass="auth-ghost-button"/>
                                     </VBox>

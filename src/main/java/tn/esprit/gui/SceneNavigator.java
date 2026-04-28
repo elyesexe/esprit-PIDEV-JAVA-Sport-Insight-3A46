@@ -9,6 +9,7 @@ import javafx.scene.control.Control;
 import javafx.stage.Stage;
 import tn.esprit.assistant.AssistantOverlay;
 import tn.esprit.assistant.AssistantService;
+import tn.esprit.i18n.I18n;
 import tn.esprit.security.AuthSession;
 
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public final class SceneNavigator {
+    private static final String CURRENT_SCENE_STATE_KEY = SceneNavigator.class.getName() + ".currentSceneState";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
     private static final String SIGNUP_VIEW = "/tn/esprit/views/signup-view.fxml";
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
@@ -83,11 +85,22 @@ public final class SceneNavigator {
         setSceneInternal(stage, fxmlPath, cssPath, title, controllerConfigurer);
     }
 
+    public static void reloadCurrentScene(Stage stage) {
+        if (stage == null) {
+            return;
+        }
+        Object stateObject = stage.getProperties().get(CURRENT_SCENE_STATE_KEY);
+        if (!(stateObject instanceof SceneState state)) {
+            return;
+        }
+        setSceneInternal(stage, state.fxmlPath(), state.cssPath(), state.title(), state.controllerConfigurer());
+    }
+
     private static void setSceneInternal(Stage stage, String fxmlPath, String cssPath, String title, Consumer<Object> controllerConfigurer) {
         double width = stage.getWidth() > 0 ? stage.getWidth() : 1180;
         double height = stage.getHeight() > 0 ? stage.getHeight() : 820;
         try {
-            FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource(fxmlPath), I18n.getBundle());
             Parent root = loader.load();
             if (controllerConfigurer != null) {
                 controllerConfigurer.accept(loader.getController());
@@ -117,13 +130,14 @@ public final class SceneNavigator {
                 configureSceneStylesheets(existingScene, pageStylesheet, assistantStylesheetUrl);
                 ThemeManager.registerScene(existingScene);
             }
-            stage.setTitle(title);
+            stage.setTitle(resolveSceneTitle(fxmlPath, title));
+            stage.getProperties().put(CURRENT_SCENE_STATE_KEY, new SceneState(fxmlPath, cssPath, title, controllerConfigurer));
             LiveMatchNotificationRuntime.getInstance().bindStage(stage, fxmlPath, publicView);
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Navigation");
+            alert.setTitle(I18n.get("nav.alert.title"));
             alert.setHeaderText(null);
-            alert.setContentText("Impossible d'ouvrir la page demandee.\n" + e.getMessage());
+            alert.setContentText(I18n.format("nav.alert.openError", e.getMessage()));
             alert.showAndWait();
         }
     }
@@ -158,14 +172,14 @@ public final class SceneNavigator {
         }
 
         if (!AuthSession.isAuthenticated()) {
-            showAccessAlert(stage, "Authentication required", "Please sign in to continue.");
+            showAccessAlert(stage, I18n.get("scene.access.authRequired.title"), I18n.get("scene.access.authRequired.message"));
             AuthSession.logout();
             setSceneInternal(stage, LOGIN_VIEW, AUTH_CSS, "Sport Insight | Sign in", null);
             return false;
         }
 
         if (ADMIN_VIEWS.contains(fxmlPath) && !AuthSession.isAdmin()) {
-            showAccessAlert(stage, "Access denied", "Only admins can access the dashboard and moderation views.");
+            showAccessAlert(stage, I18n.get("scene.access.adminOnly.title"), I18n.get("scene.access.adminOnly.message"));
             setSceneInternal(stage, HOME_VIEW, HOME_CSS, HOME_TITLE, null);
             return false;
         }
@@ -183,5 +197,16 @@ public final class SceneNavigator {
         alert.setContentText(message);
         alert.initOwner(stage);
         alert.showAndWait();
+    }
+
+    private static String resolveSceneTitle(String fxmlPath, String fallback) {
+        if (fxmlPath == null || fxmlPath.isBlank()) {
+            return fallback;
+        }
+        String fileName = fxmlPath.substring(fxmlPath.lastIndexOf('/') + 1).replace(".fxml", "");
+        return I18n.getOrDefault("scene.title." + fileName, fallback);
+    }
+
+    private record SceneState(String fxmlPath, String cssPath, String title, Consumer<Object> controllerConfigurer) {
     }
 }

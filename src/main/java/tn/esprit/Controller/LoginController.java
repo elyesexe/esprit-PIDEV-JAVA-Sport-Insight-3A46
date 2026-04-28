@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
+import tn.esprit.i18n.I18n;
 import tn.esprit.entities.User;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
@@ -49,7 +50,7 @@ public class LoginController {
         hideFeedback();
         Platform.runLater(this::applyAuthThemeChrome);
         userServiceLoading = true;
-        showFeedback("Preparing the authentication service...", "auth-feedback-muted");
+        showFeedback(I18n.get("auth.login.feedback.preparing"), "auth-feedback-muted");
         signInButton.setDisable(true);
         loadUserServiceAsync();
     }
@@ -62,17 +63,17 @@ public class LoginController {
         String password = passwordField.getText();
 
         if (email == null) {
-            showFeedback("Email is required.", "auth-feedback-error");
+            showFeedback(I18n.get("common.validation.emailRequired"), "auth-feedback-error");
             return;
         }
         if (password == null || password.isBlank()) {
-            showFeedback("Password is required.", "auth-feedback-error");
+            showFeedback(I18n.get("common.validation.passwordRequired"), "auth-feedback-error");
             return;
         }
         if (userService == null) {
             showFeedback(userServiceLoading
-                    ? "Authentication is still starting. Please wait a moment and try again."
-                    : "The authentication service is unavailable. Please check your database setup and try again.",
+                    ? I18n.get("auth.login.feedback.starting")
+                    : I18n.get("auth.login.feedback.unavailable"),
                     "auth-feedback-error");
             return;
         }
@@ -80,7 +81,7 @@ public class LoginController {
         try {
             User user = userService.authenticate(email, password);
             if (user == null) {
-                showFeedback("Invalid credentials or inactive account. Please try again.", "auth-feedback-error");
+                showFeedback(I18n.get("auth.login.feedback.invalidCredentials"), "auth-feedback-error");
                 return;
             }
 
@@ -90,7 +91,7 @@ public class LoginController {
                     "/tn/esprit/styles/home-theme.css",
                     "Sport Insight | Accueil");
         } catch (SQLException ex) {
-            showFeedback("Sign in failed because the user records could not be read.", "auth-feedback-error");
+            showFeedback(I18n.get("auth.login.feedback.readFailed"), "auth-feedback-error");
         }
     }
 
@@ -167,7 +168,7 @@ public class LoginController {
                     String reason = ex.getCause() != null && ex.getCause().getMessage() != null
                             ? ex.getCause().getMessage()
                             : ex.getMessage();
-                    showFeedback("Database connection failed: " + reason, "auth-feedback-error");
+                    showFeedback(I18n.format("common.error.databaseConnection", reason), "auth-feedback-error");
                 });
             }
         }, "login-user-service-loader");

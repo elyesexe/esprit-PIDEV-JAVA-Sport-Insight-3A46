@@ -20,6 +20,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.i18n.I18n;
 
 import java.io.IOException;
 import java.net.URL;
@@ -214,7 +215,7 @@ public class AdminShellController {
             return null;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(url);
+            FXMLLoader loader = new FXMLLoader(url, I18n.getBundle());
             Parent root = loader.load();
             if (stripCrudChrome && root instanceof BorderPane borderPane) {
                 borderPane.setTop(null);

@@ -32,7 +32,7 @@
 
             <Button fx:id="adminNavButton"
                     onAction="#handleOpenAdmin"
-                    text="Admin"
+                    text="%nav.admin"
                     mnemonicParsing="false"
                     styleClass="navbar-admin-button"/>
 
@@ -54,7 +54,7 @@
                 <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
                     <Button fx:id="matchsNavButton"
                             onAction="#handleOpenMatchs"
-                            text="Matchs +"
+                            text="%nav.matches.plus"
                             styleClass="navbar-nav-button"/>
 
                     <HBox fx:id="sidebarModuleChildrenBox"
@@ -65,21 +65,21 @@
                           styleClass="navbar-submenu">
                         <Button fx:id="equipesNavButton"
                                 onAction="#handleOpenEquipes"
-                                text="Equipes"
+                                text="%nav.teams"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                         <Button fx:id="leaguesNavButton"
                                 onAction="#handleOpenLeagues"
-                                text="Leagues"
+                                text="%nav.leagues"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                         <Button fx:id="joueursNavButton"
                                 onAction="#handleOpenJoueurs"
-                                text="Joueurs"
+                                text="%nav.players"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                     </HBox>
 
                     <Button fx:id="annonceNavButton"
                             onAction="#handleOpenAnnonces"
-                            text="Anonce"
+                            text="%nav.announcements"
                             styleClass="navbar-nav-button"/>
                 </HBox>
             </StackPane>
@@ -118,21 +118,21 @@
                             <Region styleClass="home-welcome-glow"/>
                             <VBox spacing="10" styleClass="home-welcome-content">
                                 <HBox alignment="CENTER_LEFT" spacing="12">
-                                    <Label text="Welcome" styleClass="home-kicker"/>
+                                    <Label text="%home.kicker" styleClass="home-kicker"/>
                                     <Region HBox.hgrow="ALWAYS"/>
                                     <Label fx:id="headerDateLabel" styleClass="home-date-chip"/>
                                 </HBox>
 
-                                <Label fx:id="welcomeTitleLabel" text="Welcome to Sport Insight" styleClass="home-title"/>
+                                <Label fx:id="welcomeTitleLabel" text="%home.title" styleClass="home-title"/>
 
-                                <Label text="Sport Insight is a simple workspace for managing teams, players, matches and announcements in one place."
+                                <Label text="%home.description"
                                        wrapText="true"
                                        styleClass="home-description"/>
                             </VBox>
                         </StackPane>
 
                         <VBox spacing="12" styleClass="home-links-section">
-                            <Label text="Open a module" styleClass="home-section-title"/>
+                            <Label text="%home.section.modules" styleClass="home-section-title"/>
 
                             <FlowPane hgap="18"
                                       vgap="18"
@@ -169,8 +169,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-teams"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Equipes" styleClass="home-link-title"/>
-                                                <Label text="Open the teams space"
+                                                <Label text="%home.card.teams.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.teams.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -207,8 +207,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-players"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Joueurs" styleClass="home-link-title"/>
-                                                <Label text="Open the players space"
+                                                <Label text="%home.card.players.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.players.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -245,8 +245,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-matches"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Matchs" styleClass="home-link-title"/>
-                                                <Label text="Open the matches space"
+                                                <Label text="%home.card.matches.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.matches.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -283,8 +283,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-news"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="News" styleClass="home-link-title"/>
-                                                <Label text="Open Sport Insight headlines"
+                                                <Label text="%home.card.news.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.news.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -321,8 +321,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-news"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Annonces" styleClass="home-link-title"/>
-                                                <Label text="Open the announcements space"
+                                                <Label text="%home.card.announcements.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.announcements.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -359,8 +359,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-training"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Entrainements" styleClass="home-link-title"/>
-                                                <Label text="Planifier les sessions"
+                                                <Label text="%home.card.training.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.training.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -397,8 +397,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-sponsors"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Sponsors" styleClass="home-link-title"/>
-                                                <Label text="Browse partnerships and contracts"
+                                                <Label text="%home.card.sponsors.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.sponsors.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
@@ -435,8 +435,8 @@
                                                     <Region styleClass="home-link-icon home-link-icon-store"/>
                                                 </StackPane>
                                                 <Region VBox.vgrow="ALWAYS"/>
-                                                <Label text="Store" styleClass="home-link-title"/>
-                                                <Label text="Shop products and confirm orders"
+                                                <Label text="%home.card.store.title" styleClass="home-link-title"/>
+                                                <Label text="%home.card.store.text"
                                                        wrapText="true"
                                                        styleClass="home-link-text"/>
                                             </VBox>
