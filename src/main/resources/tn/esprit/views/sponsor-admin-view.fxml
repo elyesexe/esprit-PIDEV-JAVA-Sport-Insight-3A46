@@ -108,9 +108,9 @@
                         <Label fx:id="overviewStatusLabel" text="Workspace ready" styleClass="status-muted"/>
                     </VBox>
 
-                    <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="sponsor-tab-pane">
+                    <TabPane fx:id="sponsorTabPane" tabClosingPolicy="UNAVAILABLE" styleClass="sponsor-tab-pane">
                         <tabs>
-                            <Tab text="Overview">
+                            <Tab fx:id="overviewTab" text="Overview">
                                 <content>
                                     <VBox spacing="18" styleClass="sponsor-overview-shell">
                                         <FlowPane hgap="16" vgap="16" prefWrapLength="1240" styleClass="sponsor-overview-grid">
@@ -167,7 +167,7 @@
                                 </content>
                             </Tab>
 
-                            <Tab text="Sponsors">
+                            <Tab fx:id="sponsorsTab" text="Sponsors">
                                 <content>
                                     <HBox spacing="18">
                                         <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
@@ -223,13 +223,16 @@
                                                 <Button text="Update" onAction="#handleUpdateSponsor" styleClass="ghost-button"/>
                                                 <Button text="Delete" onAction="#handleDeleteSponsor" styleClass="danger-button"/>
                                             </HBox>
-                                            <Button text="Clear" onAction="#handleClearSponsor" styleClass="ghost-button"/>
+                                            <HBox spacing="10">
+                                                <Button text="Clear" onAction="#handleClearSponsor" styleClass="ghost-button"/>
+                                                <Button text="View map" onAction="#handleOpenSponsorMap" styleClass="primary-button"/>
+                                            </HBox>
                                         </VBox>
                                     </HBox>
                                 </content>
                             </Tab>
 
-                            <Tab text="Contracts">
+                            <Tab fx:id="contractsTab" text="Contracts">
                                 <content>
                                     <HBox spacing="18">
                                         <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
@@ -287,6 +290,10 @@
                                             <HBox spacing="10">
                                                 <Button text="Clear" onAction="#handleClearContract" styleClass="ghost-button"/>
                                                 <Button text="Export PDF" onAction="#handleExportContractPdf" styleClass="primary-button"/>
+                                            </HBox>
+                                            <HBox spacing="10">
+                                                <Button text="Generate QR" onAction="#handleGenerateContractQr" styleClass="primary-button"/>
+                                                <Button text="Scan QR" onAction="#handleScanContractQr" styleClass="ghost-button"/>
                                             </HBox>
                                         </VBox>
                                     </HBox>

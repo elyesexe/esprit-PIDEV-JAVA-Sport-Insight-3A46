@@ -64,14 +64,14 @@ public class SponsoringWorkspaceService {
                 ));
 
         List<ContratSponsor> contrats = new ArrayList<>(contratSponsorService.getAll());
-        refreshExpiredContracts(contrats);
+        List<ContratSponsor> newlyExpiredContracts = refreshExpiredContracts(contrats);
         contrats.sort(Comparator
                 .comparing(ContratSponsor::getDateDebut, Comparator.nullsLast(LocalDate::compareTo))
                 .reversed()
                 .thenComparing(ContratSponsor::getId, Comparator.nullsLast(Integer::compareTo)));
 
         SponsoringStats stats = computeStats(sponsors, contrats);
-        return new SponsoringSnapshot(sponsors, contrats, sponsorsById, equipesById, stats);
+        return new SponsoringSnapshot(sponsors, contrats, sponsorsById, equipesById, stats, newlyExpiredContracts);
     }
 
     public boolean isExpired(ContratSponsor contratSponsor) {
@@ -118,13 +118,15 @@ public class SponsoringWorkspaceService {
         return builder.toString();
     }
 
-    private void refreshExpiredContracts(List<ContratSponsor> contrats) throws SQLException {
+    private List<ContratSponsor> refreshExpiredContracts(List<ContratSponsor> contrats) throws SQLException {
+        List<ContratSponsor> newlyExpiredContracts = new ArrayList<>();
         for (ContratSponsor contrat : contrats) {
             if (!isExpired(contrat)) {
                 continue;
             }
 
             boolean dirty = false;
+            boolean wasAlreadyNotified = contrat.isNotified();
             if (!equalsIgnoreCase(contrat.getStatut(), "EXPIRED") && !equalsIgnoreCase(contrat.getStatut(), "EXPIRE")) {
                 contrat.setStatut("EXPIRED");
                 dirty = true;
@@ -133,10 +135,14 @@ public class SponsoringWorkspaceService {
                 contrat.setNotified(true);
                 dirty = true;
             }
+            if (!wasAlreadyNotified) {
+                newlyExpiredContracts.add(contrat);
+            }
             if (dirty) {
                 contratSponsorService.update(contrat);
             }
         }
+        return newlyExpiredContracts;
     }
 
     private SponsoringStats computeStats(List<Sponsor> sponsors, List<ContratSponsor> contrats) {
@@ -206,7 +212,8 @@ public class SponsoringWorkspaceService {
             List<ContratSponsor> contrats,
             Map<Integer, Sponsor> sponsorsById,
             Map<Integer, Equipe> equipesById,
-            SponsoringStats stats
+            SponsoringStats stats,
+            List<ContratSponsor> newlyExpiredContracts
     ) {
         public Sponsor sponsorOf(ContratSponsor contrat) {
             if (contrat == null || contrat.getSponsorId() == null) {

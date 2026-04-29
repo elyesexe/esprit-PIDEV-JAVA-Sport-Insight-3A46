@@ -18,6 +18,8 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -33,7 +35,9 @@ import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.ContratSponsorService;
+import tn.esprit.services.ContractQrCodeService;
 import tn.esprit.services.SponsorService;
+import tn.esprit.services.SponsorMapViewService;
 import tn.esprit.services.SponsoringPdfService;
 import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.tools.SponsorAssets;
@@ -76,6 +80,10 @@ public class SponsorAdminController {
     @FXML private Label overviewStatusLabel;
     @FXML private BarChart<String, Number> budgetChart;
     @FXML private PieChart paymentChart;
+    @FXML private TabPane sponsorTabPane;
+    @FXML private Tab overviewTab;
+    @FXML private Tab sponsorsTab;
+    @FXML private Tab contractsTab;
 
     @FXML private TextField sponsorSearchField;
     @FXML private ComboBox<String> sponsorSortComboBox;
@@ -127,6 +135,8 @@ public class SponsorAdminController {
 
     private SponsoringWorkspaceService workspaceService;
     private SponsoringPdfService pdfService;
+    private ContractQrCodeService qrCodeService;
+    private SponsorMapViewService sponsorMapViewService;
     private SponsorService sponsorService;
     private ContratSponsorService contratSponsorService;
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
@@ -137,6 +147,8 @@ public class SponsorAdminController {
     public void initialize() {
         ThemeManager.bindToggle(themeToggleButton);
         pdfService = new SponsoringPdfService();
+        qrCodeService = new ContractQrCodeService();
+        sponsorMapViewService = new SponsorMapViewService();
         configureOverview();
         configureSponsorTable();
         configureContractTable();
@@ -386,6 +398,20 @@ public class SponsorAdminController {
     }
 
     @FXML
+    private void handleOpenSponsorMap() {
+        Sponsor sponsor = selectedSponsorRow == null ? buildSponsorPreviewFromForm() : selectedSponsorRow.sponsor();
+        if (sponsor == null) {
+            showSponsorValidation("Select a sponsor or fill in the sponsor address first.");
+            return;
+        }
+        sponsorMapViewService.showMap(
+                sponsorNameField.getScene() == null ? null : sponsorNameField.getScene().getWindow(),
+                sponsor.getNom(),
+                sponsor.getAdresse()
+        );
+    }
+
+    @FXML
     private void handleRefreshContracts() {
         refreshWorkspace("Contracts refreshed.");
     }
@@ -483,6 +509,123 @@ public class SponsorAdminController {
         }
     }
 
+    @FXML
+    private void handleGenerateContractQr() {
+        clearContractValidation();
+        if (selectedContractRow == null) {
+            showContractValidation("Select a contract before generating a QR code.");
+            return;
+        }
+
+        String sponsorName = safeSlug(selectedContractRow.sponsorName().isBlank() ? "contract" : selectedContractRow.sponsorName());
+        Path target = chooseImageTarget(sponsorName + "-contract-qr.png");
+        if (target == null) {
+            return;
+        }
+
+        try {
+            qrCodeService.generateQrCode(
+                    target,
+                    selectedContractRow.contrat(),
+                    snapshot.sponsorOf(selectedContractRow.contrat()),
+                    snapshot.equipeOf(selectedContractRow.contrat())
+            );
+            openFile(target);
+            showContractStatus("Contract QR code generated.", "status-success");
+        } catch (IOException e) {
+            showContractStatus("QR generation failed.", "status-error");
+            showError("QR Code", "Could not generate the contract QR code.\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleScanContractQr() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select QR code image");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif"));
+        File selected = chooser.showOpenDialog(contractTableView.getScene() == null ? null : contractTableView.getScene().getWindow());
+        if (selected == null) {
+            return;
+        }
+
+        try {
+            ContractQrCodeService.SponsorQrData qrData = qrCodeService.decodeQrCode(selected.toPath());
+            String sponsorName = fallbackText(qrData.sponsorName(), "Unknown sponsor");
+            String teamName = fallbackText(qrData.teamName(), "Unknown team");
+            String contractId = qrData.contractId() == null ? "-" : String.valueOf(qrData.contractId());
+            String endDate = fallbackText(qrData.endDate(), "-");
+
+            boolean openedSponsor = openSponsorFromQr(qrData);
+
+            showInfo(
+                    "QR Scan Result",
+                    "Sponsor: " + sponsorName
+                            + "\nTeam: " + teamName
+                            + "\nContract ID: " + contractId
+                            + "\nEnd date: " + endDate
+                            + "\nOpened sponsor: " + (openedSponsor ? "Yes" : "No")
+            );
+            if (openedSponsor) {
+                showContractStatus("QR scanned and sponsor " + sponsorName + " opened.", "status-success");
+            } else {
+                showContractStatus("QR scanned successfully for sponsor " + sponsorName + ".", "status-success");
+            }
+        } catch (IOException e) {
+            showContractStatus("QR scan failed.", "status-error");
+            showError("QR Code", "Could not scan the selected QR code.\n" + e.getMessage());
+        }
+    }
+
+    private boolean openSponsorFromQr(ContractQrCodeService.SponsorQrData qrData) {
+        if (snapshot == null) {
+            return false;
+        }
+
+        Sponsor matchingSponsor = snapshot.sponsors().stream()
+                .filter(sponsor -> qrMatchesSponsor(qrData, sponsor))
+                .findFirst()
+                .orElse(null);
+
+        if (matchingSponsor == null) {
+            return false;
+        }
+
+        sponsorSearchField.clear();
+        applySponsorFilters();
+
+        SponsorRow matchingRow = sponsorRows.stream()
+                .filter(row -> Objects.equals(row.sponsor().getId(), matchingSponsor.getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (matchingRow == null) {
+            return false;
+        }
+
+        if (sponsorTabPane != null && sponsorsTab != null) {
+            sponsorTabPane.getSelectionModel().select(sponsorsTab);
+        }
+
+        sponsorTableView.getSelectionModel().select(matchingRow);
+        sponsorTableView.scrollTo(matchingRow);
+        populateSponsorForm(matchingRow.sponsor());
+        selectedSponsorRow = matchingRow;
+        sponsorFormHintLabel.setText("Editing sponsor #" + matchingRow.sponsor().getId());
+        return true;
+    }
+
+    private boolean qrMatchesSponsor(ContractQrCodeService.SponsorQrData qrData, Sponsor sponsor) {
+        if (qrData == null || sponsor == null) {
+            return false;
+        }
+        if (qrData.sponsorId() != null && Objects.equals(qrData.sponsorId(), sponsor.getId())) {
+            return true;
+        }
+        String qrName = normalize(qrData.sponsorName());
+        String sponsorName = normalize(sponsor.getNom());
+        return qrName != null && Objects.equals(qrName, sponsorName);
+    }
+
     private void refreshWorkspace(String overviewMessage) {
         if (workspaceService == null) {
             return;
@@ -494,6 +637,7 @@ public class SponsorAdminController {
             applySponsorFilters();
             applyContractFilters();
             showOverviewStatus(overviewMessage, "status-success");
+            showExpiredContractNotifications();
         } catch (SQLException e) {
             showOverviewStatus("Refresh failed.", "status-error");
             showError("Sponsoring", "Could not refresh sponsor data.\n" + e.getMessage());
@@ -561,6 +705,26 @@ public class SponsorAdminController {
         stats.paymentBreakdown().forEach((label, value) -> paymentData.add(new PieChart.Data(label + " (" + value + ")", value)));
         paymentChart.setData(paymentData);
         Platform.runLater(() -> applyPieChartTheme(paymentChart, isDarkModeEnabled()));
+    }
+
+    private void showExpiredContractNotifications() {
+        if (snapshot == null || snapshot.newlyExpiredContracts() == null || snapshot.newlyExpiredContracts().isEmpty()) {
+            return;
+        }
+
+        StringBuilder message = new StringBuilder("Expired contract notification:");
+        for (ContratSponsor contrat : snapshot.newlyExpiredContracts()) {
+            Sponsor sponsor = snapshot.sponsorOf(contrat);
+            message.append("\n- Sponsor: ")
+                    .append(fallbackText(sponsor == null ? null : sponsor.getNom(), "Sponsor"))
+                    .append(" | Contract #")
+                    .append(contrat.getId() == null ? "-" : contrat.getId())
+                    .append(" | End date: ")
+                    .append(formatDate(contrat.getDateFin()));
+        }
+
+        showInfo("Expired contracts", message.toString());
+        showContractStatus("Expired contract notifications were generated.", "status-warning");
     }
 
     private void applySponsorFilters() {
@@ -670,6 +834,18 @@ public class SponsorAdminController {
         sponsor.setAdresse(address);
         sponsor.setLogoName(optionalText(sponsorLogoField.getText()));
         sponsor.setUpdatedAt(LocalDateTime.now());
+        return sponsor;
+    }
+
+    private Sponsor buildSponsorPreviewFromForm() {
+        String name = optionalText(sponsorNameField.getText());
+        String address = optionalText(sponsorAddressField.getText());
+        if (name == null && address == null) {
+            return null;
+        }
+        Sponsor sponsor = new Sponsor();
+        sponsor.setNom(fallbackText(name, "Sponsor"));
+        sponsor.setAdresse(address);
         return sponsor;
     }
 
@@ -896,6 +1072,17 @@ public class SponsorAdminController {
         chooser.setInitialFileName(suggestedName);
         File selected = chooser.showSaveDialog(
                 sponsorTableView.getScene() == null ? null : sponsorTableView.getScene().getWindow()
+        );
+        return selected == null ? null : selected.toPath();
+    }
+
+    private Path chooseImageTarget(String suggestedName) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Save QR code image");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG image", "*.png"));
+        chooser.setInitialFileName(suggestedName);
+        File selected = chooser.showSaveDialog(
+                contractTableView.getScene() == null ? null : contractTableView.getScene().getWindow()
         );
         return selected == null ? null : selected.toPath();
     }
