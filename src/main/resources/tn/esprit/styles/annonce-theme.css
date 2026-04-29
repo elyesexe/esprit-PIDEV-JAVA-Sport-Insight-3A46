@@ -179,6 +179,7 @@
 
 .form-text-field,
 .glass-combo,
+.annonce-date-picker,
 .annonce-text-area {
     -fx-background-color: rgba(255, 255, 255, 0.96);
     -fx-background-radius: 16;
@@ -196,6 +197,10 @@
     -fx-padding: 6 10 6 10;
 }
 
+.annonce-date-picker {
+    -fx-padding: 6 10 6 10;
+}
+
 .annonce-text-area {
     -fx-font-size: 13px;
 }
@@ -207,7 +212,8 @@
 
 .primary-button,
 .ghost-button,
-.soft-button {
+.soft-button,
+.danger-button {
     -fx-background-radius: 16;
     -fx-border-radius: 16;
     -fx-padding: 10 16 10 16;
@@ -235,6 +241,23 @@
 .ghost-button:hover,
 .soft-button:hover {
     -fx-background-color: rgba(226, 232, 240, 0.96);
+}
+
+.danger-button {
+    -fx-background-color: rgba(239, 68, 68, 0.96);
+    -fx-text-fill: white;
+}
+
+.danger-button:hover {
+    -fx-opacity: 0.92;
+}
+
+.annonce-cv-search-card {
+    -fx-border-color: rgba(16, 185, 129, 0.22);
+}
+
+.annonce-cv-results {
+    -fx-spacing: 10;
 }
 
 .annonce-urgent-check {

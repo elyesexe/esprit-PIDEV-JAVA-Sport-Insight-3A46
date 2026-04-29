@@ -1,66 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 
-<!--
-  google_login.fxml
-  Controller: tn.esprit.Controller.GoogleLoginController
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-  This screen appears while the browser is open for Google sign-in.
-  The OAuth flow starts automatically in initialize().
--->
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="tn.esprit.Controller.GoogleLoginController"
-      alignment="CENTER"
-      spacing="0"
-      style="-fx-background-color: #1a1a2e;">
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.Controller.GoogleLoginController"
+           styleClass="page-root auth-page-root auth-feature-root">
+    <Region styleClass="auth-scene-backdrop"/>
 
-    <VBox alignment="CENTER" spacing="20" maxWidth="380"
-          style="-fx-background-color: #16213e;
-                 -fx-background-radius: 14;
-                 -fx-padding: 48 40 36 40;">
+    <BorderPane styleClass="auth-layout">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="auth-topbar" BorderPane.alignment="CENTER">
+                <padding>
+                    <Insets top="14" right="24" bottom="8" left="24"/>
+                </padding>
+                <StackPane styleClass="auth-logo-shell">
+                    <ImageView fitWidth="156" fitHeight="52" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </top>
 
-        <Label text="Sport Insight"
-               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e0e0e0;"/>
+        <center>
+            <StackPane styleClass="auth-feature-center">
+                <VBox alignment="CENTER" spacing="18" maxWidth="440" styleClass="auth-feature-card auth-google-card">
+                    <VBox alignment="CENTER" spacing="6" styleClass="auth-feature-heading">
+                        <Label text="Google login" styleClass="auth-form-title"/>
+                        <Label text="A browser window will open. Sign in, then return here."
+                               wrapText="true"
+                               textAlignment="CENTER"
+                               styleClass="auth-form-copy"/>
+                    </VBox>
 
-        <!-- Google logo-style G pill -->
-        <HBox alignment="CENTER" spacing="10"
-              style="-fx-background-color: #ffffff;
-                     -fx-background-radius: 8;
-                     -fx-padding: 10 24 10 24;">
-            <Label text="G" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4285F4;"/>
-            <Label text="Connecting with Google…" style="-fx-font-size: 13px; -fx-text-fill: #333;"/>
-        </HBox>
+                    <HBox alignment="CENTER" spacing="10" maxWidth="330" styleClass="auth-google-pill">
+                        <Label text="G" styleClass="auth-google-mark"/>
+                        <Label text="Connecting with Google..." styleClass="auth-google-text"/>
+                    </HBox>
 
-        <ProgressIndicator fx:id="spinner" prefWidth="44" prefHeight="44"/>
+                    <ProgressIndicator fx:id="spinner"
+                                       prefWidth="40"
+                                       prefHeight="40"
+                                       styleClass="auth-spinner"/>
 
-        <Label fx:id="statusLabel"
-               text="Opening browser…"
-               wrapText="true"
-               styleClass="status-muted"
-               style="-fx-font-size: 13px; -fx-text-alignment: center;"/>
+                    <Label fx:id="statusLabel"
+                           text="Opening browser..."
+                           wrapText="true"
+                           textAlignment="CENTER"
+                           styleClass="auth-status-label status-muted"/>
 
-        <Label text="A browser window will open. Sign in with your Google account, then return here."
-               wrapText="true"
-               style="-fx-font-size: 11px; -fx-text-fill: #6a6a8a; -fx-text-alignment: center;"/>
+                    <Button fx:id="retryBtn"
+                            text="Try again"
+                            onAction="#onRetry"
+                            visible="false"
+                            maxWidth="330"
+                            styleClass="auth-primary-button"/>
 
-        <Button fx:id="retryBtn"
-                text="Try again"
-                onAction="#onRetry"
-                visible="false"
-                style="-fx-background-color: #5865f2;
-                       -fx-text-fill: white;
-                       -fx-font-size: 13px;
-                       -fx-background-radius: 7;
-                       -fx-padding: 9 32 9 32;"/>
-
-        <Button fx:id="cancelBtn"
-                text="Cancel"
-                onAction="#onCancel"
-                style="-fx-background-color: transparent;
-                       -fx-text-fill: #7289da;
-                       -fx-font-size: 12px;
-                       -fx-underline: true;"/>
-    </VBox>
-</VBox>
+                    <Button fx:id="cancelBtn"
+                            text="Cancel"
+                            onAction="#onCancel"
+                            maxWidth="330"
+                            styleClass="auth-ghost-button"/>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

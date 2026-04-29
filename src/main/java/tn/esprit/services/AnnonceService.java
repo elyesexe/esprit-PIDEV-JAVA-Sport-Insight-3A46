@@ -14,21 +14,26 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AnnonceService implements IService<Annonce> {
     private final Connection connection;
+    private final NotificationService notificationService;
 
     public AnnonceService() throws SQLException {
         this.connection = MyConnection.getInstance().getConnection();
+        this.notificationService = new NotificationService(this.connection);
     }
 
     public AnnonceService(Connection connection) {
         this.connection = connection;
+        this.notificationService = new NotificationService(connection);
     }
 
     @Override
     public void add(Annonce annonce) throws SQLException {
         validateCoachAuthor(annonce);
+        boolean inserted = false;
         String query = """
                 INSERT INTO annonce (
                     titre, description, poste_recherche, niveau_requis,
@@ -38,6 +43,7 @@ public class AnnonceService implements IService<Annonce> {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             fillStatement(statement, annonce, false);
             statement.executeUpdate();
+            inserted = true;
         } catch (SQLException ignored) {
             String fallback = """
                     INSERT INTO annonce (
@@ -48,7 +54,12 @@ public class AnnonceService implements IService<Annonce> {
             try (PreparedStatement statement = connection.prepareStatement(fallback)) {
                 fillStatement(statement, annonce, true);
                 statement.executeUpdate();
+                inserted = true;
             }
+        }
+
+        if (inserted) {
+            notifyPlayersForUrgentAnnonce(annonce);
         }
     }
 
@@ -277,6 +288,117 @@ public class AnnonceService implements IService<Annonce> {
             }
         }
         return null;
+    }
+
+    private void notifyPlayersForUrgentAnnonce(Annonce annonce) {
+        if (annonce == null || !Boolean.TRUE.equals(annonce.getUrgent())) {
+            return;
+        }
+        Integer coachId = annonce.getEntraineurId();
+        if (coachId == null) {
+            return;
+        }
+
+        try {
+            CoachNotificationProfile coachProfile = resolveCoachNotificationProfile(coachId);
+            Integer annonceId = resolveLatestAnnonceIdForCoach(annonce, coachId);
+            List<Integer> recipientIds = resolveUrgentNotificationRecipients(coachId);
+            for (Integer recipientId : recipientIds) {
+                notificationService.addUrgentAnnonceNotification(
+                        recipientId,
+                        coachId,
+                        annonceId,
+                        annonce.getTitre(),
+                        coachProfile.displayName(),
+                        coachProfile.photo()
+                );
+            }
+        } catch (SQLException ignored) {
+            // Publishing an announcement should not fail because notification delivery failed.
+        }
+    }
+
+    private Integer resolveLatestAnnonceIdForCoach(Annonce annonce, Integer coachId) throws SQLException {
+        if (annonce.getId() != null) {
+            return annonce.getId();
+        }
+        String query = """
+                SELECT id FROM annonce
+                WHERE entraineur_id = ?
+                ORDER BY id DESC
+                LIMIT 1
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, coachId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<Integer> resolveUrgentNotificationRecipients(Integer coachId) throws SQLException {
+        List<Integer> recipientIds = new ArrayList<>();
+        String query = """
+                SELECT id, roles, statut
+                FROM `user`
+                WHERE id <> ?
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, coachId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int userId = resultSet.getInt("id");
+                    String roles = resultSet.getString("roles");
+                    String status = resultSet.getString("statut");
+                    if (isEligibleUrgentRecipient(roles, status)) {
+                        recipientIds.add(userId);
+                    }
+                }
+            }
+        }
+        return recipientIds;
+    }
+
+    private boolean isEligibleUrgentRecipient(String roles, String status) {
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase(Locale.ROOT);
+        boolean activeAccount = normalizedStatus.isEmpty()
+                || "ACTIVE".equals(normalizedStatus)
+                || "ACTIF".equals(normalizedStatus)
+                || "ENABLED".equals(normalizedStatus);
+        if (!activeAccount) {
+            return false;
+        }
+        return UserRoles.hasRole(roles, UserRoles.ROLE_JOUEUR) || UserRoles.hasRole(roles, UserRoles.ROLE_USER);
+    }
+
+    private CoachNotificationProfile resolveCoachNotificationProfile(Integer coachId) throws SQLException {
+        String query = "SELECT prenom, nom, email, photo FROM `user` WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, coachId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return new CoachNotificationProfile("Un entraineur", null);
+                }
+                String firstName = resultSet.getString("prenom");
+                String lastName = resultSet.getString("nom");
+                String fullName = ((firstName == null ? "" : firstName.trim()) + " " + (lastName == null ? "" : lastName.trim())).trim();
+                String displayName;
+                if (!fullName.isBlank()) {
+                    displayName = fullName;
+                } else {
+                    String email = resultSet.getString("email");
+                    displayName = (email == null || email.isBlank()) ? "Un entraineur" : email;
+                }
+                String photo = resultSet.getString("photo");
+                return new CoachNotificationProfile(displayName, photo == null || photo.isBlank() ? null : photo.trim());
+            }
+        }
+    }
+
+    private record CoachNotificationProfile(String displayName, String photo) {
     }
 
     private List<Annonce> executeListQuery(String query) throws SQLException {

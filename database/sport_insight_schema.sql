@@ -8,6 +8,8 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `contrat_sponsor`;
+DROP TABLE IF EXISTS `comment_favorite`;
+DROP TABLE IF EXISTS `comment_reaction`;
 DROP TABLE IF EXISTS `commentaire`;
 DROP TABLE IF EXISTS `annonce`;
 DROP TABLE IF EXISTS `participation`;
@@ -20,6 +22,7 @@ DROP TABLE IF EXISTS `match_follow_target`;
 DROP TABLE IF EXISTS `matchs`;
 DROP TABLE IF EXISTS `joueur`;
 DROP TABLE IF EXISTS `sponsor`;
+DROP TABLE IF EXISTS `face_profile`;
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `equipe`;
 
@@ -72,6 +75,18 @@ CREATE TABLE `password_reset_token` (
     CONSTRAINT `fk_password_reset_user`
         FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `face_profile` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `embedding_json` LONGTEXT NOT NULL,
+    `model_name` VARCHAR(80) NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_face_profile_user` (`user_id`),
+    CONSTRAINT `fk_face_profile_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `sponsor` (
@@ -258,19 +273,43 @@ CREATE TABLE `commentaire` (
     `joueur_id` INT NULL,
     `annonce_id` INT NULL,
     `auteur_anonyme` VARCHAR(100) NULL,
+    `cv_name` VARCHAR(255) NULL,
+    `cv_title` VARCHAR(255) NULL,
     `nb_likes` INT NOT NULL DEFAULT 0,
+    `nb_dislikes` INT NOT NULL DEFAULT 0,
     `moderation_status` VARCHAR(32) NOT NULL DEFAULT 'PENDING',
     `moderation_reason` TEXT NULL,
+    `author_user_id` INT NULL,
+    `author_role` VARCHAR(32) NULL,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_commentaire_annonce_id` (`annonce_id`),
     KEY `idx_commentaire_joueur_id` (`joueur_id`),
+    KEY `idx_commentaire_author_user_id` (`author_user_id`),
     KEY `idx_commentaire_date_commentaire` (`date_commentaire`),
     KEY `idx_commentaire_moderation_status` (`moderation_status`),
     CONSTRAINT `fk_commentaire_annonce`
         FOREIGN KEY (`annonce_id`) REFERENCES `annonce` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `comment_reaction` (
+    `user_id` INT NOT NULL,
+    `commentaire_id` INT NOT NULL,
+    `reaction_type` VARCHAR(16) NOT NULL,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`user_id`, `commentaire_id`),
+    KEY `idx_comment_reaction_commentaire` (`commentaire_id`),
+    KEY `idx_comment_reaction_type` (`reaction_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `comment_favorite` (
+    `user_id` INT NOT NULL,
+    `commentaire_id` INT NOT NULL,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`user_id`, `commentaire_id`),
+    KEY `idx_comment_favorite_commentaire` (`commentaire_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `contrat_sponsor` (
@@ -329,6 +368,7 @@ CREATE TABLE `notification` (
     `home_team_logo` VARCHAR(255) NULL,
     `away_team_logo` VARCHAR(255) NULL,
     `actor_name` VARCHAR(255) NULL,
+    `actor_image` VARCHAR(255) NULL,
     `minute_label` VARCHAR(32) NULL,
     `accent_tone` VARCHAR(32) NULL,
     PRIMARY KEY (`id`),

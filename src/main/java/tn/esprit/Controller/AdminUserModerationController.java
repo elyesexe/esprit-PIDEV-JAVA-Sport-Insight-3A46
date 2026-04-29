@@ -31,6 +31,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import tn.esprit.entities.User;
 import tn.esprit.face.FaceRecognitionService;
+import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.UserPdfExportService;
@@ -388,13 +389,22 @@ public class AdminUserModerationController {
             modal.setTitle("Register Face | " + selectedUser.getDisplayName());
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(userTableView.getScene().getWindow());
-            modal.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            ThemeManager.registerScene(scene);
+            modal.setScene(scene);
             modal.setResizable(false);
             modal.showAndWait();
 
-            refreshFaceLabel(selectedUser);
-            updateFaceButtonState(selectedUser);
-            showStatus("Face registration completed for " + selectedUser.getDisplayName() + ".", "status-success");
+            if (controller.wasRegistrationSucceeded()) {
+                refreshFaceLabel(selectedUser);
+                updateFaceButtonState(selectedUser);
+                refreshUsersAsync(selectedUser.getId(),
+                        "Face registration completed for " + selectedUser.getDisplayName() + ".",
+                        "status-success");
+            } else {
+                updateFaceButtonState(selectedUser);
+                showStatus("Face registration was not completed.", "status-muted");
+            }
         } catch (Exception ex) {
             showValidation("Could not open face registration. " + ex.getMessage());
         }

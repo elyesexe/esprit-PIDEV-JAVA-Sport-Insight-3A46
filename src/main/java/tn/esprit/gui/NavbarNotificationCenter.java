@@ -388,6 +388,10 @@ public final class NavbarNotificationCenter {
     }
 
     private HBox buildNotificationRow(Notification notification) {
+        if (isUrgentAnnonce(notification)) {
+            return buildUrgentAnnonceRow(notification);
+        }
+
         HBox logosRow = new HBox(-8,
                 buildTeamLogo(notification.getHomeTeamLogo(), notification.getHomeTeamName()),
                 buildTeamLogo(notification.getAwayTeamLogo(), notification.getAwayTeamName()));
@@ -439,6 +443,42 @@ public final class NavbarNotificationCenter {
         return row;
     }
 
+    private HBox buildUrgentAnnonceRow(Notification notification) {
+        StackPane coachLogo = buildActorLogo(notification.getActorImage(), notification.getActorName());
+
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), I18n.get("notifications.menu.matchAlert")));
+        titleLabel.setWrapText(true);
+        titleLabel.getStyleClass().add("navbar-notification-item-title");
+
+        Label coachLabel = new Label(emptyToFallback(notification.getActorName(), "Coach"));
+        coachLabel.setWrapText(true);
+        coachLabel.getStyleClass().add("navbar-notification-item-message");
+
+        Label metaLabel = new Label("Annonce urgente | " + buildMetaLine(notification));
+        metaLabel.getStyleClass().add("navbar-notification-item-meta");
+
+        VBox textBox = new VBox(4, titleLabel, coachLabel, metaLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        Label unreadDot = new Label();
+        unreadDot.getStyleClass().add("navbar-notification-dot");
+        unreadDot.setManaged(!notification.isRead());
+        unreadDot.setVisible(!notification.isRead());
+
+        VBox rightBox = new VBox(8, unreadDot);
+        rightBox.setAlignment(Pos.TOP_RIGHT);
+
+        HBox row = new HBox(12, coachLogo, textBox, rightBox);
+        row.setAlignment(Pos.TOP_LEFT);
+        row.getStyleClass().add("navbar-notification-row");
+        if (!notification.isRead()) {
+            row.getStyleClass().add("navbar-notification-row-unread");
+        }
+        row.setOnMouseClicked(event -> replayNotification(notification));
+        return row;
+    }
+
     private StackPane buildTeamLogo(String logoPath, String teamName) {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(24);
@@ -452,6 +492,31 @@ public final class NavbarNotificationCenter {
         imageView.setVisible(hasImage);
 
         Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(teamName, "SI"));
+        fallbackLabel.getStyleClass().add("navbar-notification-logo-fallback");
+        fallbackLabel.setManaged(!hasImage);
+        fallbackLabel.setVisible(!hasImage);
+
+        StackPane shell = new StackPane(imageView, fallbackLabel);
+        shell.getStyleClass().add("navbar-notification-logo-shell");
+        shell.setMinSize(34, 34);
+        shell.setPrefSize(34, 34);
+        shell.setMaxSize(34, 34);
+        return shell;
+    }
+
+    private StackPane buildActorLogo(String imagePath, String actorName) {
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(26);
+        imageView.setFitHeight(26);
+        imageView.setPreserveRatio(false);
+
+        Image image = EquipeUiSupport.loadEquipeImage(imagePath);
+        boolean hasImage = image != null;
+        imageView.setImage(image);
+        imageView.setManaged(hasImage);
+        imageView.setVisible(hasImage);
+
+        Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(actorName, "C"));
         fallbackLabel.getStyleClass().add("navbar-notification-logo-fallback");
         fallbackLabel.setManaged(!hasImage);
         fallbackLabel.setVisible(!hasImage);
@@ -635,6 +700,11 @@ public final class NavbarNotificationCenter {
 
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private boolean isUrgentAnnonce(Notification notification) {
+        return notification != null
+                && NotificationService.TYPE_URGENT_ANNONCE.equalsIgnoreCase(emptyToFallback(notification.getType(), ""));
     }
 
     private static ThreadFactory daemonFactory(String threadName) {

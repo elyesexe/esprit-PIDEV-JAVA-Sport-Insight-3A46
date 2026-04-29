@@ -1,82 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
 
-<!--
-  face_register.fxml
-  Controller: tn.esprit.Controller.FaceRegisterController
-  Opened as a modal stage from AdminUserModerationController.
--->
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="tn.esprit.Controller.FaceRegisterController"
-      alignment="CENTER"
-      spacing="12"
-      style="-fx-background-color: #1a1a2e; -fx-padding: 24;">
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-    <Label text="Register Face"
-           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #e0e0e0;"/>
-    <Label text="Capture 20 samples — move your head slowly for best accuracy"
-           style="-fx-font-size: 12px; -fx-text-fill: #8a8aaa;"/>
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.Controller.FaceRegisterController"
+           styleClass="page-root auth-page-root auth-feature-root">
+    <stylesheets>
+        <URL value="@../styles/auth-theme.css"/>
+    </stylesheets>
 
-    <!-- Camera frame -->
-    <StackPane maxWidth="480" maxHeight="360"
-               style="-fx-background-color: #0d0d1f;
-                      -fx-border-color: #3a3a6e;
-                      -fx-border-width: 2;
-                      -fx-border-radius: 8;
-                      -fx-background-radius: 8;">
-        <ImageView fx:id="cameraPreview"
-                   fitWidth="480" fitHeight="360"
-                   preserveRatio="true"/>
-    </StackPane>
+    <Region styleClass="auth-scene-backdrop"/>
 
-    <!-- Instruction -->
-    <Label fx:id="instructionLabel"
-           text="Press Start, then slowly move your head"
-           style="-fx-font-size: 12px; -fx-text-fill: #8a8aaa;"/>
+    <VBox alignment="CENTER" spacing="14" maxWidth="580" styleClass="auth-feature-card auth-face-card">
+        <VBox alignment="CENTER" spacing="6" styleClass="auth-feature-heading">
+            <Label text="Register face" styleClass="auth-form-title"/>
+            <Label text="Capture 20 samples. Move your head slowly for best accuracy."
+                   wrapText="true"
+                   textAlignment="CENTER"
+                   styleClass="auth-form-copy"/>
+        </VBox>
 
-    <!-- Sample counter -->
-    <HBox alignment="CENTER" spacing="10">
-        <Label text="Samples:" style="-fx-text-fill: #8a8aaa; -fx-font-size: 12px;"/>
-        <Label fx:id="sampleCountLabel"
-               text="0 / 20"
-               style="-fx-text-fill: #e0e0e0; -fx-font-weight: bold; -fx-font-size: 13px;"/>
-    </HBox>
-    <ProgressBar fx:id="sampleBar"
-                 prefWidth="480" prefHeight="8"
-                 progress="0"
-                 style="-fx-accent: #5865f2;"/>
+        <StackPane maxWidth="480" maxHeight="360" styleClass="auth-camera-frame">
+            <ImageView fx:id="cameraPreview"
+                       fitWidth="480"
+                       fitHeight="360"
+                       preserveRatio="true"/>
+        </StackPane>
 
-    <!-- Status -->
-    <Label fx:id="statusLabel"
-           text="Ready"
-           styleClass="status-muted"
-           style="-fx-font-size: 12px;"/>
+        <Label fx:id="instructionLabel"
+               text="Press Start, then slowly move your head"
+               wrapText="true"
+               textAlignment="CENTER"
+               styleClass="auth-form-copy"/>
 
-    <!-- Training spinner -->
-    <ProgressIndicator fx:id="trainingSpinner" prefWidth="30" prefHeight="30"/>
+        <HBox alignment="CENTER" spacing="10" styleClass="auth-inline-row">
+            <Label text="Samples" styleClass="auth-label"/>
+            <Label fx:id="sampleCountLabel" text="0 / 20" styleClass="auth-count-label"/>
+        </HBox>
 
-    <!-- Buttons -->
-    <HBox alignment="CENTER" spacing="12">
-        <Button fx:id="startBtn"
-                text="▶  Start Capture"
-                onAction="#onStart"
-                style="-fx-background-color: #5865f2;
-                       -fx-text-fill: white;
-                       -fx-font-size: 13px;
-                       -fx-background-radius: 6;
-                       -fx-padding: 7 24 7 24;"/>
-        <Button fx:id="cancelBtn"
-                text="Cancel"
-                onAction="#onCancel"
-                style="-fx-background-color: #2e2e4e;
-                       -fx-text-fill: #bdbdbd;
-                       -fx-font-size: 12px;
-                       -fx-background-radius: 6;
-                       -fx-padding: 7 16 7 16;"/>
-    </HBox>
+        <ProgressBar fx:id="sampleBar"
+                     prefWidth="480"
+                     prefHeight="8"
+                     progress="0"
+                     styleClass="auth-progress"/>
 
-</VBox>
+        <Label fx:id="statusLabel"
+               text="Ready"
+               wrapText="true"
+               textAlignment="CENTER"
+               styleClass="auth-status-label status-muted"/>
+
+        <ProgressIndicator fx:id="trainingSpinner"
+                           prefWidth="30"
+                           prefHeight="30"
+                           styleClass="auth-spinner"/>
+
+        <HBox alignment="CENTER" spacing="12" styleClass="auth-actions">
+            <Button fx:id="startBtn"
+                    text="Start capture"
+                    onAction="#onStart"
+                    styleClass="auth-primary-button"/>
+            <Button fx:id="cancelBtn"
+                    text="Cancel"
+                    onAction="#onCancel"
+                    styleClass="auth-ghost-button"/>
+        </HBox>
+    </VBox>
+</StackPane>

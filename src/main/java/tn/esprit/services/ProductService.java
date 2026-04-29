@@ -203,6 +203,90 @@ public class ProductService implements IService<Product> {
         return products;
     }
 
+    public List<Product> advancedSearch(
+            String keyword,
+            String category,
+            String brand,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Integer minStock,
+            String size,
+            boolean inStockOnly
+    ) throws SQLException {
+        StringBuilder sql = new StringBuilder("""
+                SELECT id, name, category, price, stock, size, brand, image
+                FROM product
+                WHERE 1 = 1
+                """);
+        List<Object> params = new ArrayList<>();
+
+        String normalizedKeyword = trimToNull(keyword);
+        if (normalizedKeyword != null) {
+            sql.append("""
+                     AND (LOWER(COALESCE(name, '')) LIKE ?
+                       OR LOWER(COALESCE(category, '')) LIKE ?
+                       OR LOWER(COALESCE(brand, '')) LIKE ?)
+                    """);
+            String pattern = "%" + normalizedKeyword.toLowerCase(Locale.ROOT) + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        String normalizedCategory = trimToNull(category);
+        if (normalizedCategory != null) {
+            sql.append(" AND LOWER(COALESCE(category, '')) = ?");
+            params.add(normalizedCategory.toLowerCase(Locale.ROOT));
+        }
+
+        String normalizedBrand = trimToNull(brand);
+        if (normalizedBrand != null) {
+            sql.append(" AND LOWER(COALESCE(brand, '')) = ?");
+            params.add(normalizedBrand.toLowerCase(Locale.ROOT));
+        }
+
+        if (minPrice != null) {
+            sql.append(" AND price >= ?");
+            params.add(minPrice);
+        }
+
+        if (maxPrice != null) {
+            sql.append(" AND price <= ?");
+            params.add(maxPrice);
+        }
+
+        if (minStock != null) {
+            sql.append(" AND stock >= ?");
+            params.add(minStock);
+        }
+
+        String normalizedSize = trimToNull(size);
+        if (normalizedSize != null) {
+            sql.append(" AND LOWER(COALESCE(size, '')) = ?");
+            params.add(normalizedSize.toLowerCase(Locale.ROOT));
+        }
+
+        if (inStockOnly) {
+            sql.append(" AND stock > 0");
+        }
+
+        sql.append(" ORDER BY name ASC, id ASC");
+
+        List<Product> products = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    products.add(mapRow(resultSet));
+                }
+            }
+        }
+        return products;
+    }
+
     public List<Product> getAllSorted(String sortField, boolean ascending) throws SQLException {
         String sql = """
                 SELECT id, name, category, price, stock, size, brand, image

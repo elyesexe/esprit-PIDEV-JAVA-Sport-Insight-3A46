@@ -112,4 +112,43 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertNull(productSupprime);
         assertFalse(existeEncore);
     }
+
+    @Test
+    @Order(4)
+    void testAdvancedSearchProduct() throws SQLException {
+        Product matchingProduct = new Product(
+                TEST_PREFIX + "ADV_ALPHA",
+                "Boots",
+                new BigDecimal("120.00"),
+                7,
+                "42",
+                "Nike",
+                "advanced-alpha.png"
+        );
+        Product otherProduct = new Product(
+                TEST_PREFIX + "ADV_BETA",
+                "Jersey",
+                new BigDecimal("250.00"),
+                0,
+                "L",
+                "Adidas",
+                "advanced-beta.png"
+        );
+        productService.add(matchingProduct);
+        productService.add(otherProduct);
+
+        var results = productService.advancedSearch(
+                "adv",
+                "Boots",
+                "Nike",
+                new BigDecimal("100.00"),
+                new BigDecimal("130.00"),
+                5,
+                "42",
+                true
+        );
+
+        assertEquals(1, results.size());
+        assertEquals(TEST_PREFIX + "ADV_ALPHA", results.get(0).getName());
+    }
 }

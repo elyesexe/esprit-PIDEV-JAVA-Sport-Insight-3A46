@@ -18,6 +18,7 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import tn.esprit.entities.Notification;
+import tn.esprit.services.NotificationService;
 
 import java.awt.Toolkit;
 import java.util.ArrayList;
@@ -88,6 +89,10 @@ public final class MatchAlertPopupManager {
     }
 
     private VBox buildPopupContent(Notification notification, boolean dark) {
+        if (isUrgentAnnonce(notification)) {
+            return buildUrgentAnnoncePopupContent(notification, dark);
+        }
+
         String cardBackground = dark
                 ? "linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)"
                 : "linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.98) 100%)";
@@ -175,11 +180,119 @@ public final class MatchAlertPopupManager {
         return root;
     }
 
+    private VBox buildUrgentAnnoncePopupContent(Notification notification, boolean dark) {
+        String cardBackground = dark
+                ? "linear-gradient(from 0% 0% to 100% 100%, rgba(69, 10, 10, 0.98) 0%, rgba(127, 29, 29, 0.96) 100%)"
+                : "linear-gradient(from 0% 0% to 100% 100%, rgba(255, 245, 245, 0.99) 0%, rgba(255, 255, 255, 0.98) 100%)";
+        String borderColor = dark ? "rgba(248, 113, 113, 0.46)" : "rgba(220, 38, 38, 0.28)";
+        String primaryText = dark ? "#fff7ed" : "#111827";
+        String secondaryText = dark ? "#fecaca" : "#7f1d1d";
+        String accent = resolveAccentColor(notification.getAccentTone(), dark);
+
+        Label badgeLabel = new Label("URGENT POST");
+        badgeLabel.setStyle(
+                "-fx-background-color: " + accent + ";" +
+                        "-fx-background-radius: 999;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-padding: 6 10 6 10;"
+        );
+
+        Label timeLabel = new Label(resolveMinuteLabel(notification));
+        timeLabel.setStyle(
+                "-fx-background-color: " + (dark ? "rgba(248, 113, 113, 0.18)" : "rgba(220, 38, 38, 0.10)") + ";" +
+                        "-fx-background-radius: 999;" +
+                        "-fx-text-fill: " + primaryText + ";" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: 700;" +
+                        "-fx-padding: 6 10 6 10;"
+        );
+        timeLabel.setManaged(!timeLabel.getText().isBlank());
+        timeLabel.setVisible(!timeLabel.getText().isBlank());
+
+        Region topSpacer = new Region();
+        HBox.setHgrow(topSpacer, Priority.ALWAYS);
+        HBox topRow = new HBox(8, badgeLabel, timeLabel, topSpacer);
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+        String coachName = empty(notification.getActorName(), "Coach");
+        StackPane coachAvatar = buildActorAvatar(notification.getActorImage(), coachName, dark, 58.0, 42.0);
+
+        Label coachLabel = new Label(coachName);
+        coachLabel.setStyle("-fx-text-fill: " + primaryText + "; -fx-font-size: 14px; -fx-font-weight: 900;");
+
+        Label actorRoleLabel = new Label("Coach");
+        actorRoleLabel.setStyle("-fx-text-fill: " + secondaryText + "; -fx-font-size: 11px; -fx-font-weight: 800;");
+
+        VBox coachText = new VBox(2, coachLabel, actorRoleLabel);
+        coachText.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(coachText, Priority.ALWAYS);
+
+        HBox coachRow = new HBox(12, coachAvatar, coachText);
+        coachRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label titleLabel = new Label(empty(notification.getTitle(), "Urgent post"));
+        titleLabel.setWrapText(true);
+        titleLabel.setStyle("-fx-text-fill: " + primaryText + "; -fx-font-size: 17px; -fx-font-weight: 900;");
+
+        Label messageLabel = new Label(empty(notification.getMessage(), "A coach published an urgent announcement."));
+        messageLabel.setWrapText(true);
+        messageLabel.setStyle("-fx-text-fill: " + secondaryText + "; -fx-font-size: 12px; -fx-font-weight: 700;");
+
+        VBox root = new VBox(12, topRow, coachRow, titleLabel, messageLabel);
+        root.setPrefWidth(360);
+        root.setMaxWidth(360);
+        root.setPadding(new Insets(16, 16, 16, 16));
+        root.setStyle(
+                "-fx-background-color: " + cardBackground + ";" +
+                        "-fx-background-radius: 22;" +
+                        "-fx-border-color: " + borderColor + ";" +
+                        "-fx-border-radius: 22;" +
+                        "-fx-border-width: 1.1;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.34), 26, 0.22, 0, 10);"
+        );
+        return root;
+    }
+
     private VBox createTeamTextColumn(Label teamName, boolean homeSide) {
         VBox box = new VBox(teamName);
         box.setAlignment(homeSide ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
         HBox.setHgrow(box, Priority.ALWAYS);
         return box;
+    }
+
+    private StackPane buildActorAvatar(String imagePath, String actorName, boolean dark, double shellSize, double imageSize) {
+        StackPane shell = new StackPane();
+        shell.setMinSize(shellSize, shellSize);
+        shell.setPrefSize(shellSize, shellSize);
+        shell.setMaxSize(shellSize, shellSize);
+        shell.setStyle(
+                "-fx-background-color: " + (dark ? "rgba(30, 41, 59, 0.96)" : "rgba(255, 255, 255, 0.98)") + ";" +
+                        "-fx-background-radius: 999;" +
+                        "-fx-border-color: " + (dark ? "rgba(248, 113, 113, 0.36)" : "rgba(220, 38, 38, 0.22)") + ";" +
+                        "-fx-border-radius: 999;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.16), 14, 0.12, 0, 5);"
+        );
+
+        Image image = EquipeUiSupport.loadEquipeImage(imagePath);
+        if (image != null) {
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(imageSize);
+            imageView.setFitHeight(imageSize);
+            imageView.setPreserveRatio(false);
+            shell.getChildren().add(imageView);
+            return shell;
+        }
+
+        Label fallback = new Label(EquipeUiSupport.buildInitials(actorName, "C"));
+        fallback.setStyle(
+                "-fx-text-fill: " + (dark ? "#fef2f2" : "#7f1d1d") + ";" +
+                        "-fx-font-size: 15px;" +
+                        "-fx-font-weight: 900;"
+        );
+        shell.getChildren().add(fallback);
+        return shell;
     }
 
     private StackPane buildLogo(String logoPath, String teamName, boolean dark) {
@@ -304,6 +417,11 @@ public final class MatchAlertPopupManager {
             return matcher.group(1).replace(':', '-');
         }
         return "VS";
+    }
+
+    private boolean isUrgentAnnonce(Notification notification) {
+        return notification != null
+                && NotificationService.TYPE_URGENT_ANNONCE.equalsIgnoreCase(empty(notification.getType(), ""));
     }
 
     private String empty(String value, String fallback) {

@@ -18,6 +18,7 @@ public class Notification {
     private String homeTeamLogo;
     private String awayTeamLogo;
     private String actorName;
+    private String actorImage;
     private String minuteLabel;
     private String accentTone;
 
@@ -184,6 +185,14 @@ public class Notification {
         this.actorName = actorName;
     }
 
+    public String getActorImage() {
+        return actorImage;
+    }
+
+    public void setActorImage(String actorImage) {
+        this.actorImage = actorImage;
+    }
+
     public String getMinuteLabel() {
         return minuteLabel;
     }
@@ -216,6 +225,7 @@ public class Notification {
                 ", homeTeamName='" + homeTeamName + '\'' +
                 ", awayTeamName='" + awayTeamName + '\'' +
                 ", actorName='" + actorName + '\'' +
+                ", actorImage='" + actorImage + '\'' +
                 ", minuteLabel='" + minuteLabel + '\'' +
                 ", accentTone='" + accentTone + '\'' +
                 '}';

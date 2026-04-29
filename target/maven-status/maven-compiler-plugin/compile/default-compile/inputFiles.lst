@@ -137,6 +137,7 @@ C:\PI Java\src\main\java\tn\esprit\services\AIRecommendationService.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnoncePdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
+C:\PI Java\src\main\java\tn\esprit\services\CommentCvStorageService.java
 C:\PI Java\src\main\java\tn\esprit\services\ContratSponsorService.java
 C:\PI Java\src\main\java\tn\esprit\services\DailyNutritionSummaryService.java
 C:\PI Java\src\main\java\tn\esprit\services\EmailService.java
@@ -145,6 +146,7 @@ C:\PI Java\src\main\java\tn\esprit\services\EquipeService.java
 C:\PI Java\src\main\java\tn\esprit\services\EvaluationNotificationService.java
 C:\PI Java\src\main\java\tn\esprit\services\EvaluationService.java
 C:\PI Java\src\main\java\tn\esprit\services\ExercisePlanGenerator.java
+C:\PI Java\src\main\java\tn\esprit\services\faceid\FaceIdApiClient.java
 C:\PI Java\src\main\java\tn\esprit\services\FoodLogService.java
 C:\PI Java\src\main\java\tn\esprit\services\FootballDataSyncService.java
 C:\PI Java\src\main\java\tn\esprit\services\FootballDataSyncSummary.java
@@ -203,6 +205,7 @@ C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataApiClient.java
 C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataPlayerImageService.java
 C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataSparqlClient.java
 C:\PI Java\src\main\java\tn\esprit\tools\ApiFootballConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\FaceIdConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\FootballDataConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\JoueurAvatarGenerator.java
 C:\PI Java\src\main\java\tn\esprit\tools\MyConnection.java

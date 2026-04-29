@@ -32,6 +32,7 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.AnnoncePdfExportService;
 import tn.esprit.services.AnnonceService;
+import tn.esprit.services.CommentCvStorageService;
 import tn.esprit.services.CommentaireService;
 
 import java.io.File;
@@ -143,6 +144,7 @@ public class AnnonceController {
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+    private CommentCvStorageService commentCvStorageService;
     private AnnoncePdfExportService annoncePdfExportService;
     private Annonce selectedAnnonce;
     private Commentaire selectedCommentaire;
@@ -161,6 +163,7 @@ public class AnnonceController {
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+            commentCvStorageService = new CommentCvStorageService();
             annoncePdfExportService = new AnnoncePdfExportService();
             serviceReady = true;
             refreshData(null, null, "Loading announcement workspace...", "status-muted");
@@ -352,6 +355,9 @@ public class AnnonceController {
         }
 
         try {
+            if (commentCvStorageService != null) {
+                commentCvStorageService.deleteQuietly(selectedCommentaire.getCvName());
+            }
             commentaireService.delete(selectedCommentaire.getId());
             refreshData(getSelectedAnnonceId(), null, "Comment deleted.", "status-success");
             clearCommentFormFields();
@@ -840,16 +846,24 @@ public class AnnonceController {
             return null;
         }
 
-        return new Commentaire(
+        Commentaire commentaire = new Commentaire(
                 contenu,
                 commentDate,
                 joueurId,
                 annonceId,
                 auteur,
+                updateMode && selectedCommentaire != null ? selectedCommentaire.getCvName() : null,
+                updateMode && selectedCommentaire != null ? selectedCommentaire.getCvTitle() : null,
                 likes == null ? 0 : likes,
                 moderationStatus,
-                moderationReason
+                moderationReason,
+                updateMode && selectedCommentaire != null ? selectedCommentaire.getAuthorUserId() : joueurId,
+                updateMode && selectedCommentaire != null ? selectedCommentaire.getAuthorRole() : null
         );
+        if (updateMode && selectedCommentaire != null) {
+            commentaire.setNbDislikes(selectedCommentaire.getNbDislikes());
+        }
+        return commentaire;
     }
 
     private void updateMetrics() {

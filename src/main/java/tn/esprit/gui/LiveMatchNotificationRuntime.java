@@ -313,7 +313,10 @@ public final class LiveMatchNotificationRuntime {
                 return;
             }
             try {
-                Platform.runLater(() -> MatchAlertPopupManager.getInstance().show(stage, created));
+                Platform.runLater(() -> {
+                    MatchAlertPopupManager.getInstance().show(stage, created);
+                    markPopupNotificationAsDelivered(created);
+                });
             } catch (IllegalStateException ignored) {
                 // No JavaFX toolkit is available yet; the stored notification will be shown in the bell center.
             }
@@ -359,12 +362,35 @@ public final class LiveMatchNotificationRuntime {
                     }
                     for (Notification notification : queued) {
                         MatchAlertPopupManager.getInstance().show(stage, notification);
+                        markPopupNotificationAsDelivered(notification);
                     }
                 });
             } catch (IllegalStateException ignored) {
                 // The notifications remain in the bell center if JavaFX is not ready yet.
             }
         }, 900, TimeUnit.MILLISECONDS);
+    }
+
+    private void markPopupNotificationAsDelivered(Notification notification) {
+        if (notification == null || notification.getId() == null || notification.isRead()) {
+            return;
+        }
+
+        scheduler.execute(() -> {
+            try {
+                ensureServices();
+                if (notificationService.markAsRead(notification.getId())) {
+                    notification.setRead(true);
+                    try {
+                        NavbarNotificationCenter.requestRefreshAll();
+                    } catch (IllegalStateException ignored) {
+                        // Notification persistence matters more than an immediate JavaFX refresh.
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Popup notification delivery state could not be stored: " + e.getMessage());
+            }
+        });
     }
 
     private Notification buildKickoffNotification(User user, Matchs match, Equipe homeTeam, Equipe awayTeam, ApiFootballFixtureSnapshot snapshot) {

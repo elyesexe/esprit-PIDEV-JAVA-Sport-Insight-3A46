@@ -59,6 +59,7 @@ public final class SchemaMigration {
 
         ensureAnnonceSchema(connection);
         ensureUserSchema(connection);
+        ensureFaceIdSchema(connection);
         ensureMatchLiveSchema(connection);
         ensureTrainingUserLinks(connection);
         ensureNutritionSchema(connection);
@@ -223,23 +224,79 @@ public final class SchemaMigration {
                             joueur_id INT NULL,
                             annonce_id INT NULL,
                             auteur_anonyme VARCHAR(100),
+                            cv_name VARCHAR(255) NULL,
+                            cv_title VARCHAR(255) NULL,
                             nb_likes INT DEFAULT 0,
+                            nb_dislikes INT DEFAULT 0,
                             moderation_status VARCHAR(32) DEFAULT 'PENDING',
                             moderation_reason TEXT,
+                            author_user_id INT NULL,
+                            author_role VARCHAR(32) NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         )
                         """);
             }
 
+            addColumnIfMissing(metaData, catalog, statement, "commentaire", "cv_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "commentaire", "cv_title", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "commentaire", "nb_dislikes", "INT NOT NULL DEFAULT 0");
+            addColumnIfMissing(metaData, catalog, statement, "commentaire", "author_user_id", "INT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "commentaire", "author_role", "VARCHAR(32) NULL");
             addIndexIfMissing(metaData, catalog, statement, "commentaire", "idx_commentaire_annonce_id",
                     "CREATE INDEX idx_commentaire_annonce_id ON commentaire (annonce_id)");
             addIndexIfMissing(metaData, catalog, statement, "commentaire", "idx_commentaire_joueur_id",
                     "CREATE INDEX idx_commentaire_joueur_id ON commentaire (joueur_id)");
+            addIndexIfMissing(metaData, catalog, statement, "commentaire", "idx_commentaire_author_user_id",
+                    "CREATE INDEX idx_commentaire_author_user_id ON commentaire (author_user_id)");
             addIndexIfMissing(metaData, catalog, statement, "commentaire", "idx_commentaire_date_commentaire",
                     "CREATE INDEX idx_commentaire_date_commentaire ON commentaire (date_commentaire)");
             addIndexIfMissing(metaData, catalog, statement, "commentaire", "idx_commentaire_moderation_status",
                     "CREATE INDEX idx_commentaire_moderation_status ON commentaire (moderation_status)");
+
+            if (!tableExists(metaData, catalog, "comment_reaction")) {
+                statement.executeUpdate("""
+                        CREATE TABLE comment_reaction (
+                            user_id INT NOT NULL,
+                            commentaire_id INT NOT NULL,
+                            reaction_type VARCHAR(16) NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            PRIMARY KEY (user_id, commentaire_id)
+                        )
+                        """);
+            }
+            addIndexIfMissing(metaData, catalog, statement, "comment_reaction", "idx_comment_reaction_commentaire",
+                    "CREATE INDEX idx_comment_reaction_commentaire ON comment_reaction (commentaire_id)");
+            addIndexIfMissing(metaData, catalog, statement, "comment_reaction", "idx_comment_reaction_type",
+                    "CREATE INDEX idx_comment_reaction_type ON comment_reaction (reaction_type)");
+
+            if (!tableExists(metaData, catalog, "comment_favorite")) {
+                statement.executeUpdate("""
+                        CREATE TABLE comment_favorite (
+                            user_id INT NOT NULL,
+                            commentaire_id INT NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            PRIMARY KEY (user_id, commentaire_id)
+                        )
+                        """);
+            }
+            addIndexIfMissing(metaData, catalog, statement, "comment_favorite", "idx_comment_favorite_commentaire",
+                    "CREATE INDEX idx_comment_favorite_commentaire ON comment_favorite (commentaire_id)");
+
+            try {
+                statement.executeUpdate("""
+                        UPDATE commentaire
+                        SET author_user_id = joueur_id
+                        WHERE author_user_id IS NULL AND joueur_id IS NOT NULL
+                        """);
+                statement.executeUpdate("""
+                        UPDATE commentaire
+                        SET author_role = 'ROLE_JOUEUR'
+                        WHERE author_role IS NULL AND joueur_id IS NOT NULL
+                        """);
+            } catch (SQLException ignored) {
+                // Best-effort backfill for legacy rows.
+            }
         }
     }
 
@@ -305,6 +362,38 @@ public final class SchemaMigration {
         }
     }
 
+    private static void ensureFaceIdSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            if (!tableExists(metaData, catalog, "face_profile")) {
+                statement.executeUpdate("""
+                        CREATE TABLE face_profile (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            embedding_json LONGTEXT NOT NULL,
+                            model_name VARCHAR(80) NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            CONSTRAINT uk_face_profile_user UNIQUE (user_id),
+                            CONSTRAINT fk_face_profile_user FOREIGN KEY (user_id) REFERENCES `user` (id)
+                                ON DELETE CASCADE
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "face_profile", "user_id", "INT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "face_profile", "embedding_json", "LONGTEXT NOT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "face_profile", "model_name", "VARCHAR(80) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "face_profile", "created_at",
+                    "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+            addColumnIfMissing(metaData, catalog, statement, "face_profile", "updated_at",
+                    "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            addIndexIfMissing(metaData, catalog, statement, "face_profile", "uk_face_profile_user",
+                    "CREATE UNIQUE INDEX uk_face_profile_user ON face_profile (user_id)");
+        }
+    }
+
     private static void ensureMatchLiveSchema(Connection connection) throws SQLException {
         DatabaseMetaData metaData = connection.getMetaData();
         String catalog = currentCatalog(connection);
@@ -363,6 +452,7 @@ public final class SchemaMigration {
                             home_team_logo VARCHAR(255) NULL,
                             away_team_logo VARCHAR(255) NULL,
                             actor_name VARCHAR(255) NULL,
+                            actor_image VARCHAR(255) NULL,
                             minute_label VARCHAR(32) NULL,
                             accent_tone VARCHAR(32) NULL
                         )
@@ -379,6 +469,7 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "notification", "home_team_logo", "VARCHAR(255) NULL");
             addColumnIfMissing(metaData, catalog, statement, "notification", "away_team_logo", "VARCHAR(255) NULL");
             addColumnIfMissing(metaData, catalog, statement, "notification", "actor_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "notification", "actor_image", "VARCHAR(255) NULL");
             addColumnIfMissing(metaData, catalog, statement, "notification", "minute_label", "VARCHAR(32) NULL");
             addColumnIfMissing(metaData, catalog, statement, "notification", "accent_tone", "VARCHAR(32) NULL");
 

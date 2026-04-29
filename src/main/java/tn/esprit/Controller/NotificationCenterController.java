@@ -359,6 +359,10 @@ public class NotificationCenterController {
     }
 
     private VBox buildNotificationCard(Notification notification) {
+        if (isUrgentAnnonce(notification)) {
+            return buildUrgentAnnonceCard(notification);
+        }
+
         Label unreadChip = new Label(notification.isRead() ? "Lue" : "Nouveau");
         unreadChip.getStyleClass().addAll("notification-meta-chip", notification.isRead() ? "notification-meta-chip-read" : "notification-meta-chip-unread");
 
@@ -454,6 +458,77 @@ public class NotificationCenterController {
         return card;
     }
 
+    private VBox buildUrgentAnnonceCard(Notification notification) {
+        Label unreadChip = new Label(notification.isRead() ? "Lue" : "Nouveau");
+        unreadChip.getStyleClass().addAll("notification-meta-chip", notification.isRead() ? "notification-meta-chip-read" : "notification-meta-chip-unread");
+
+        Label typeChip = new Label("Annonce urgente");
+        typeChip.getStyleClass().add("notification-meta-chip");
+
+        Label timeLabel = new Label(formatCreatedAt(notification.getCreatedAt()));
+        timeLabel.getStyleClass().add("notification-time-label");
+
+        Region topSpacer = new Region();
+        HBox.setHgrow(topSpacer, Priority.ALWAYS);
+
+        HBox topRow = new HBox(8, unreadChip, typeChip, topSpacer, timeLabel);
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+        StackPane coachAvatar = createActorLogo(notification.getActorImage(), notification.getActorName());
+
+        Label coachNameLabel = new Label(emptyToFallback(notification.getActorName(), "Coach"));
+        coachNameLabel.getStyleClass().add("notification-team-name");
+
+        Label coachRoleLabel = new Label("Coach");
+        coachRoleLabel.getStyleClass().add("notification-score-caption");
+
+        VBox coachText = new VBox(3, coachNameLabel, coachRoleLabel);
+        coachText.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(coachText, Priority.ALWAYS);
+
+        HBox actorRow = new HBox(12, coachAvatar, coachText);
+        actorRow.setAlignment(Pos.CENTER_LEFT);
+        actorRow.getStyleClass().add("notification-teams-row");
+
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), "Annonce urgente"));
+        titleLabel.getStyleClass().add("notification-title");
+        titleLabel.setWrapText(true);
+
+        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), "Un coach a publie une annonce urgente."));
+        messageLabel.getStyleClass().add("notification-message");
+        messageLabel.setWrapText(true);
+
+        Button replayButton = new Button("Rejouer l'alerte");
+        replayButton.getStyleClass().add("soft-button");
+        replayButton.setFocusTraversable(false);
+        replayButton.setOnAction(event -> {
+            event.consume();
+            replayNotification(notification);
+        });
+
+        Button markReadButton = new Button(notification.isRead() ? "Deja lue" : "Marquer comme lue");
+        markReadButton.getStyleClass().add("ghost-button");
+        markReadButton.setDisable(notification.isRead());
+        markReadButton.setFocusTraversable(false);
+        markReadButton.setOnAction(event -> {
+            event.consume();
+            markNotificationAsRead(notification, true);
+        });
+
+        HBox actionsRow = new HBox(10, replayButton, markReadButton);
+        actionsRow.setAlignment(Pos.CENTER_LEFT);
+        actionsRow.getStyleClass().add("notification-actions-row");
+
+        VBox card = new VBox(14, topRow, actorRow, titleLabel, messageLabel, actionsRow);
+        card.setPadding(new Insets(16, 18, 18, 18));
+        card.getStyleClass().add("notification-card");
+        if (!notification.isRead()) {
+            card.getStyleClass().add("notification-card-unread");
+        }
+        card.setOnMouseClicked(event -> replayNotification(notification));
+        return card;
+    }
+
     private StackPane createLogo(String logoPath, String teamName) {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(40);
@@ -476,6 +551,31 @@ public class NotificationCenterController {
         shell.setMinSize(52, 52);
         shell.setPrefSize(52, 52);
         shell.setMaxSize(52, 52);
+        return shell;
+    }
+
+    private StackPane createActorLogo(String imagePath, String actorName) {
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(44);
+        imageView.setFitHeight(44);
+        imageView.setPreserveRatio(false);
+
+        Image image = EquipeUiSupport.loadEquipeImage(imagePath);
+        boolean hasImage = image != null;
+        imageView.setImage(image);
+        imageView.setManaged(hasImage);
+        imageView.setVisible(hasImage);
+
+        Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(actorName, "C"));
+        fallbackLabel.getStyleClass().add("notification-logo-fallback");
+        fallbackLabel.setManaged(!hasImage);
+        fallbackLabel.setVisible(!hasImage);
+
+        StackPane shell = new StackPane(imageView, fallbackLabel);
+        shell.getStyleClass().add("notification-logo-shell");
+        shell.setMinSize(56, 56);
+        shell.setPrefSize(56, 56);
+        shell.setMaxSize(56, 56);
         return shell;
     }
 
@@ -604,6 +704,11 @@ public class NotificationCenterController {
     private String resolveCompetitionLabel(String competitionCode) {
         String normalizedCode = FootballDataCompetitions.normalizeCode(competitionCode);
         return normalizedCode == null ? "Match alert" : FootballDataCompetitions.labelOf(normalizedCode);
+    }
+
+    private boolean isUrgentAnnonce(Notification notification) {
+        return notification != null
+                && NotificationService.TYPE_URGENT_ANNONCE.equalsIgnoreCase(emptyToFallback(notification.getType(), ""));
     }
 
     private Integer currentUserId() {

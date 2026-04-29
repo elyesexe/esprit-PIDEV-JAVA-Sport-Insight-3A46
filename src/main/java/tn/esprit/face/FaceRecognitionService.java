@@ -108,6 +108,28 @@ public class FaceRecognitionService {
 
     // ── Registration ──────────────────────────────────────────────────────────
 
+    public String recognizeEmailFromImage(Path imagePath) {
+        if (imagePath == null) {
+            return null;
+        }
+        Mat frame = imread(imagePath.toAbsolutePath().toString(), IMREAD_COLOR);
+        if (frame == null || frame.empty()) {
+            return null;
+        }
+        Rect[] faces = detectFaces(frame);
+        if (faces.length == 0) {
+            return null;
+        }
+
+        Rect best = faces[0];
+        for (Rect face : faces) {
+            if (face.width() * face.height() > best.width() * best.height()) {
+                best = face;
+            }
+        }
+        return recognizeEmail(new Mat(frame, best));
+    }
+
     public boolean registerFace(int userId, String email, List<Mat> samples) {
         String userDir = FACE_DATA_DIR + userId + "/";
         new File(userDir).mkdirs();

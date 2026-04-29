@@ -1,82 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
 
-<!--
-  face_login.fxml
-  Controller: tn.esprit.Controller.FaceLoginController
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-  Place this file alongside your other FXML files, e.g.:
-    src/main/resources/fxml/face_login.fxml
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="tn.esprit.Controller.FaceLoginController"
+           styleClass="page-root auth-page-root auth-feature-root">
+    <Region styleClass="auth-scene-backdrop"/>
 
-  Add a stylesheet link to your main CSS or inline styles below
-  if you want to use your existing Sport Insight theme variables.
--->
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="tn.esprit.Controller.FaceLoginController"
-      alignment="CENTER"
-      spacing="14"
-      styleClass="face-auth-root"
-      style="-fx-background-color: #1a1a2e; -fx-padding: 28;">
+    <BorderPane styleClass="auth-layout">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="auth-topbar" BorderPane.alignment="CENTER">
+                <padding>
+                    <Insets top="14" right="24" bottom="8" left="24"/>
+                </padding>
+                <StackPane styleClass="auth-logo-shell">
+                    <ImageView fitWidth="156" fitHeight="52" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </top>
 
-    <!-- Header -->
-    <Label text="Sport Insight"
-           style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #e0e0e0;"/>
-    <Label text="Face Authentication"
-           style="-fx-font-size: 13px; -fx-text-fill: #8a8aaa;"/>
+        <center>
+            <StackPane styleClass="auth-feature-center">
+                <VBox alignment="CENTER" spacing="16" maxWidth="660" styleClass="auth-feature-card auth-face-card">
+                    <VBox alignment="CENTER" spacing="6" styleClass="auth-feature-heading">
+                        <Label text="Face authentication" styleClass="auth-form-title"/>
+                        <Label text="Look at the camera to continue to Sport Insight."
+                               wrapText="true"
+                               textAlignment="CENTER"
+                               styleClass="auth-form-copy"/>
+                    </VBox>
 
-    <!-- Camera frame -->
-    <StackPane maxWidth="560" maxHeight="420"
-               style="-fx-background-color: #0d0d1f;
-                      -fx-border-color: #3a3a6e;
-                      -fx-border-width: 2;
-                      -fx-border-radius: 10;
-                      -fx-background-radius: 10;">
-        <ImageView fx:id="cameraPreview"
-                   fitWidth="560" fitHeight="420"
-                   preserveRatio="true"/>
-    </StackPane>
+                    <StackPane maxWidth="560" maxHeight="420" styleClass="auth-camera-frame">
+                        <ImageView fx:id="cameraPreview"
+                                   fitWidth="560"
+                                   fitHeight="420"
+                                   preserveRatio="true"/>
+                    </StackPane>
 
-    <!-- Instruction hint -->
-    <Label fx:id="instructionLabel"
-           text="Centre your face within the frame"
-           style="-fx-font-size: 12px; -fx-text-fill: #8a8aaa;"/>
+                    <Label fx:id="instructionLabel"
+                           text="Centre your face within the frame"
+                           wrapText="true"
+                           textAlignment="CENTER"
+                           styleClass="auth-form-copy"/>
 
-    <!-- Confirmation progress -->
-    <ProgressBar fx:id="confirmBar"
-                 prefWidth="560" prefHeight="7"
-                 progress="0"
-                 style="-fx-accent: #5865f2;"/>
+                    <ProgressBar fx:id="confirmBar"
+                                 prefWidth="560"
+                                 prefHeight="8"
+                                 progress="0"
+                                 styleClass="auth-progress"/>
 
-    <!-- Status -->
-    <Label fx:id="statusLabel"
-           text="Initialising camera…"
-           styleClass="status-muted"
-           style="-fx-font-size: 13px;"/>
+                    <Label fx:id="statusLabel"
+                           text="Initialising camera..."
+                           wrapText="true"
+                           textAlignment="CENTER"
+                           styleClass="auth-status-label status-muted"/>
 
-    <!-- Spinner (API call) -->
-    <ProgressIndicator fx:id="spinner" prefWidth="30" prefHeight="30"/>
+                    <ProgressIndicator fx:id="spinner"
+                                       prefWidth="30"
+                                       prefHeight="30"
+                                       styleClass="auth-spinner"/>
 
-    <!-- Action buttons -->
-    <HBox alignment="CENTER" spacing="14">
-        <Button fx:id="retryBtn"
-                text="Try Again"
-                onAction="#onRetry"
-                style="-fx-background-color: #5865f2;
-                       -fx-text-fill: white;
-                       -fx-font-size: 13px;
-                       -fx-background-radius: 6;
-                       -fx-padding: 7 22 7 22;"/>
-        <Button fx:id="passwordBtn"
-                text="Use Password Instead"
-                onAction="#onPasswordLogin"
-                style="-fx-background-color: transparent;
-                       -fx-text-fill: #7289da;
-                       -fx-font-size: 12px;
-                       -fx-underline: true;"/>
-    </HBox>
-
-</VBox>
+                    <HBox alignment="CENTER" spacing="12" styleClass="auth-actions">
+                        <Button fx:id="retryBtn"
+                                text="Try again"
+                                onAction="#onRetry"
+                                styleClass="auth-primary-button"/>
+                        <Button fx:id="passwordBtn"
+                                text="Use password instead"
+                                onAction="#onPasswordLogin"
+                                styleClass="auth-ghost-button"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

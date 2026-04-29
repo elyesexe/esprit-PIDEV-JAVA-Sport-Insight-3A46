@@ -144,6 +144,7 @@ tn\esprit\services\FootballDataSyncService$PlayerUpsertOutcome.class
 tn\esprit\mains\LauncherMain.class
 tn\esprit\entities\ContratSponsor.class
 tn\esprit\Controller\MatchFormController$1.class
+tn\esprit\services\AnnonceService$CoachNotificationProfile.class
 tn\esprit\services\FootballDataSyncService.class
 tn\esprit\Controller\AdminDashboardController$MatchResult.class
 tn\esprit\services\OrderService.class

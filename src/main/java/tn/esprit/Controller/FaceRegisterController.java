@@ -12,10 +12,12 @@ import org.slf4j.LoggerFactory;
 import tn.esprit.entities.User;
 import tn.esprit.face.FaceRecognitionService;
 import tn.esprit.face.WebcamService;
+import tn.esprit.security.AuthSession;
 import tn.esprit.services.UserService;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -53,6 +55,7 @@ public class FaceRegisterController implements Initializable {
     private FaceRecognitionService faceService;
     private UserService            userService;
     private User                   targetUser;
+    private volatile boolean       registrationSucceeded = false;
 
     // ── State ─────────────────────────────────────────────────────────────────
     private final List<Mat> samples   = new ArrayList<>();
@@ -66,6 +69,10 @@ public class FaceRegisterController implements Initializable {
      * Must be called after loader.load() and before showAndWait().
      * This method enables the Start button and shows the user's name in the UI.
      */
+    public boolean wasRegistrationSucceeded() {
+        return registrationSucceeded;
+    }
+
     public void setTargetUser(User user) {
         this.targetUser = user;
 
@@ -91,11 +98,14 @@ public class FaceRegisterController implements Initializable {
         sampleBar.setProgress(0);
         sampleCountLabel.setText("0 / " + REQUIRED_SAMPLES);
 
-        // Start button stays DISABLED until setTargetUser() is called with a valid user.
-        // This prevents clicking Start before the controller knows who to register.
-        startBtn.setDisable(true);
-        setStatus("Waiting for user selection…", "status-muted");
-        setInstruction("This window must be opened from the user table");
+        User currentUser = AuthSession.getCurrentUser();
+        if (currentUser != null && currentUser.getId() != null) {
+            setTargetUser(currentUser);
+        } else {
+            startBtn.setDisable(true);
+            setStatus("Sign in before registering face recognition.", "status-muted");
+            setInstruction("Open this page from your signed-in account");
+        }
 
         webcam = new WebcamService(cameraPreview);
         webcam.onFrame(this::processFrame);
@@ -140,6 +150,7 @@ public class FaceRegisterController implements Initializable {
             return;
         }
         samples.clear();
+        registrationSucceeded = false;
         capturing = true;
         startBtn.setDisable(true);
         setStatus("Capturing… slowly move your head", "status-info");
@@ -166,22 +177,22 @@ public class FaceRegisterController implements Initializable {
                     targetUser.getId(),
                     targetUser.getEmail(),
                     samples);
+            boolean persisted = ok && persistTargetUserFaceFlag();
 
             Platform.runLater(() -> {
                 trainingSpinner.setVisible(false);
                 if (ok) {
-                    // Persist face_registered flag if your schema has it
-                    if (userService != null) {
-                        try {
-                            // Uncomment after adding face_registered column:
-                            // targetUser.setFaceRegistered(true);
-                            // userService.update(targetUser);
-                        } catch (Exception ignored) {}
-                    }
+                    registrationSucceeded = true;
                     sampleBar.setProgress(1.0);
-                    setStatus("Face registered! " + targetUser.getDisplayName()
-                            + " can now log in with their face.", "status-success");
-                    scheduleClose(2200);
+                    if (persisted) {
+                        setStatus("Face registered! " + targetUser.getDisplayName()
+                                + " can now log in with their face.", "status-success");
+                        scheduleClose(2200);
+                    } else {
+                        setStatus("Face samples were saved, but the user record could not be refreshed.",
+                                "status-warning");
+                        scheduleClose(3200);
+                    }
                 } else {
                     setStatus("Registration failed — not enough clear face samples. Try again.", "status-error");
                     startBtn.setDisable(false);
@@ -195,6 +206,30 @@ public class FaceRegisterController implements Initializable {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private boolean persistTargetUserFaceFlag() {
+        if (targetUser == null || targetUser.getId() == null || userService == null) {
+            return false;
+        }
+        try {
+            User latestUser = userService.getById(targetUser.getId());
+            if (latestUser == null) {
+                return false;
+            }
+
+            LocalDateTime updatedAt = LocalDateTime.now();
+            latestUser.setFaceRegistered(true);
+            latestUser.setUpdatedAt(updatedAt);
+            userService.update(latestUser);
+
+            targetUser.setFaceRegistered(true);
+            targetUser.setUpdatedAt(updatedAt);
+            return true;
+        } catch (SQLException | IllegalArgumentException ex) {
+            log.error("Could not persist face registration for userId={}", targetUser.getId(), ex);
+            return false;
+        }
+    }
 
     private void scheduleClose(long ms) {
         ScheduledExecutorService s = Executors.newSingleThreadScheduledExecutor();

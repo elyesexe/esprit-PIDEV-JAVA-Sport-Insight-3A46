@@ -1,5 +1,8 @@
 package tn.esprit.Controller;
 
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamResolution;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -7,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -27,6 +31,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Commentaire;
 import tn.esprit.entities.User;
@@ -37,9 +43,14 @@ import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.AnnonceService;
+import tn.esprit.services.CommentCvStorageService;
 import tn.esprit.services.CommentaireService;
 import tn.esprit.services.UserService;
+import tn.esprit.services.faceid.FaceIdApiClient;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -53,7 +64,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 
 public class AnnonceUserController {
     private static final DateTimeFormatter DATE_FORMATTER =
@@ -101,17 +114,36 @@ public class AnnonceUserController {
     @FXML private CheckBox urgentPostCheck;
     @FXML private Button publishPostButton;
     @FXML private Button clearPostButton;
+    @FXML private VBox cvSearchCard;
+    @FXML private TextField cvSearchField;
+    @FXML private DatePicker cvSearchDatePicker;
+    @FXML private Label cvSearchSummaryLabel;
+    @FXML private VBox cvResultsPane;
 
     private final List<Annonce> annonces = new ArrayList<>();
     private final List<Commentaire> commentaires = new ArrayList<>();
     private final List<Annonce> visibleAnnonces = new ArrayList<>();
     private final HashMap<Integer, Integer> commentCounts = new HashMap<>();
     private final Map<Integer, User> userCache = new HashMap<>();
+    private final Map<Integer, TextArea> chatInputsByAnnonce = new HashMap<>();
+    private final Map<Integer, TextArea> publicCommentInputsByAnnonce = new HashMap<>();
+    private final Map<Integer, String> privateMessageDraftByAnnonce = new HashMap<>();
+    private final Map<Integer, String> privateCvTitleDraftByAnnonce = new HashMap<>();
+    private final Map<Integer, String> publicCommentDraftByAnnonce = new HashMap<>();
+    private final Map<Integer, String> reactionByCommentId = new HashMap<>();
+    private final Set<Integer> favoriteCommentIds = new LinkedHashSet<>();
+    private Integer activeConversationAnnonceId;
+    private Integer activeConversationPlayerUserId;
+    private Integer activePublicCommentAnnonceId;
+    private Integer pendingFocusAnnonceId;
+    private Integer pendingPublicFocusAnnonceId;
 
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+    private CommentCvStorageService commentCvStorageService;
     private UserService userService;
+    private FaceIdApiClient faceIdApiClient;
     private boolean serviceReady;
 
     @FXML
@@ -125,11 +157,14 @@ public class AnnonceUserController {
             themeToggleButton.selectedProperty().addListener((obs, oldValue, selected) -> applyThemeState(selected));
         }
         configureFilters();
+        configureCvSearch();
 
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+            commentCvStorageService = new CommentCvStorageService();
             userService = new UserService();
+            faceIdApiClient = new FaceIdApiClient();
             serviceReady = true;
             refreshData();
             updateComposerState();
@@ -346,6 +381,15 @@ public class AnnonceUserController {
         sortComboBox.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
     }
 
+    private void configureCvSearch() {
+        if (cvSearchField != null) {
+            cvSearchField.textProperty().addListener((obs, oldValue, newValue) -> renderCvResults());
+        }
+        if (cvSearchDatePicker != null) {
+            cvSearchDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> renderCvResults());
+        }
+    }
+
     private void refreshData() {
         if (!serviceReady || annonceService == null || commentaireService == null) {
             return;
@@ -364,11 +408,19 @@ public class AnnonceUserController {
                 userCache.put(currentUser.getId(), currentUser);
             }
 
+            reactionByCommentId.clear();
+            favoriteCommentIds.clear();
+            if (currentUser != null && currentUser.getId() != null) {
+                reactionByCommentId.putAll(commentaireService.getReactionMapForUser(currentUser.getId()));
+                favoriteCommentIds.addAll(commentaireService.getFavoriteCommentIdsByUser(currentUser.getId()));
+            }
+
             rebuildCommentCounts();
             rebuildLevelFilterItems();
             updateMetrics();
             updateComposerState();
             applyFilters();
+            renderCvResults();
         } catch (SQLException e) {
             showErrorStatus("Could not refresh announcements.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Refresh failed.\n" + e.getMessage());
@@ -383,6 +435,10 @@ public class AnnonceUserController {
         if (composerCard != null) {
             composerCard.setManaged(enabled);
             composerCard.setVisible(enabled);
+        }
+        if (cvSearchCard != null) {
+            cvSearchCard.setManaged(isCoach);
+            cvSearchCard.setVisible(isCoach);
         }
 
         if (composerIdentityLabel != null) {
@@ -496,6 +552,8 @@ public class AnnonceUserController {
 
     private void renderFeed() {
         annonceCardsPane.getChildren().clear();
+        chatInputsByAnnonce.clear();
+        publicCommentInputsByAnnonce.clear();
 
         if (visibleAnnonces.isEmpty()) {
             VBox emptyState = new VBox(8);
@@ -517,6 +575,202 @@ public class AnnonceUserController {
         for (Annonce annonce : visibleAnnonces) {
             annonceCardsPane.getChildren().add(buildPostCard(annonce));
         }
+        focusPendingConversationInput();
+        focusPendingPublicCommentInput();
+    }
+
+    private void renderCvResults() {
+        if (cvResultsPane == null || cvSearchSummaryLabel == null) {
+            return;
+        }
+
+        cvResultsPane.getChildren().clear();
+        if (!isCurrentUserCoach()) {
+            cvSearchSummaryLabel.setText("CV search available for coaches");
+            return;
+        }
+
+        String titleQuery = normalize(cvSearchField == null ? null : cvSearchField.getText());
+        LocalDate dateFilter = cvSearchDatePicker == null ? null : cvSearchDatePicker.getValue();
+
+        List<Commentaire> cvCommentaires = commentaires.stream()
+                .filter(commentaire -> emptyToNull(commentaire.getCvName()) != null)
+                .filter(commentaire -> matchesCvFilters(commentaire, titleQuery, dateFilter))
+                .sorted(buildCvSearchComparator(titleQuery, dateFilter))
+                .toList();
+
+        cvSearchSummaryLabel.setText(cvCommentaires.size() + " CV result(s)");
+        if (cvCommentaires.isEmpty()) {
+            VBox emptyState = new VBox(6);
+            emptyState.getStyleClass().add("annonce-comment-card");
+            Label title = new Label("No CV matches");
+            title.getStyleClass().add("section-title");
+            Label hint = new Label("Search by CV title, player, post, message, or sent date.");
+            hint.setWrapText(true);
+            hint.getStyleClass().add("section-subtitle");
+            emptyState.getChildren().addAll(title, hint);
+            cvResultsPane.getChildren().add(emptyState);
+            return;
+        }
+
+        for (Commentaire commentaire : cvCommentaires) {
+            cvResultsPane.getChildren().add(buildCvResultCard(commentaire));
+        }
+    }
+
+    private boolean matchesCvFilters(Commentaire commentaire, String titleQuery, LocalDate dateFilter) {
+        boolean matchesTitle = titleQuery == null
+                || containsNormalized(resolveCvTitle(commentaire), titleQuery)
+                || containsNormalized(resolveCommentAuthorName(commentaire), titleQuery)
+                || containsNormalized(resolveAnnonceTitle(commentaire.getAnnonceId()), titleQuery)
+                || containsNormalized(commentaire.getContenu(), titleQuery);
+        boolean matchesDate = dateFilter == null || Objects.equals(commentaire.getDateCommentaire(), dateFilter);
+        return matchesTitle && matchesDate;
+    }
+
+    private Comparator<Commentaire> buildCvSearchComparator(String titleQuery, LocalDate dateFilter) {
+        return Comparator
+                .comparingInt((Commentaire commentaire) -> scoreCvMatch(commentaire, titleQuery, dateFilter))
+                .reversed()
+                .thenComparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(Commentaire::getId, Comparator.nullsLast(Comparator.reverseOrder()));
+    }
+
+    private int scoreCvMatch(Commentaire commentaire, String titleQuery, LocalDate dateFilter) {
+        int score = 0;
+        if (commentaire == null) {
+            return score;
+        }
+
+        if (titleQuery != null) {
+            score += computeTextScore(resolveCvTitle(commentaire), titleQuery, 7);
+            score += computeTextScore(resolveCommentAuthorName(commentaire), titleQuery, 4);
+            score += computeTextScore(resolveAnnonceTitle(commentaire.getAnnonceId()), titleQuery, 3);
+            score += computeTextScore(commentaire.getContenu(), titleQuery, 2);
+        }
+        if (dateFilter != null && Objects.equals(commentaire.getDateCommentaire(), dateFilter)) {
+            score += 10;
+        }
+        return score;
+    }
+
+    private int computeTextScore(String source, String query, int exactWeight) {
+        String normalizedSource = normalize(source);
+        if (normalizedSource == null || query == null) {
+            return 0;
+        }
+        if (Objects.equals(normalizedSource, query)) {
+            return exactWeight * 3;
+        }
+        if (normalizedSource.startsWith(query)) {
+            return exactWeight * 2;
+        }
+        if (normalizedSource.contains(query)) {
+            return exactWeight;
+        }
+
+        int tokenMatches = 0;
+        for (String token : query.split("\\s+")) {
+            if (!token.isBlank() && normalizedSource.contains(token)) {
+                tokenMatches++;
+            }
+        }
+        return tokenMatches;
+    }
+
+    private VBox buildCvResultCard(Commentaire commentaire) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("annonce-comment-card");
+
+        Label title = new Label(resolveCvTitle(commentaire));
+        title.getStyleClass().add("section-title");
+
+        FlowPane meta = new FlowPane();
+        meta.setHgap(8);
+        meta.setVgap(8);
+        meta.getChildren().addAll(
+                createMetaChip("Date: " + formatDate(commentaire.getDateCommentaire())),
+                createMetaChip("Player: " + resolveCommentAuthorName(commentaire)),
+                createMetaChip("Post: " + resolveAnnonceTitle(commentaire.getAnnonceId()))
+        );
+
+        Label excerpt = new Label(fallbackText(commentaire.getContenu(), "CV attached without a message."));
+        excerpt.setWrapText(true);
+        excerpt.getStyleClass().add("annonce-comment-body");
+
+        Button openCvButton = new Button("Open CV");
+        openCvButton.getStyleClass().add("primary-button");
+        openCvButton.setOnAction(event -> openCommentCv(commentaire));
+
+        card.getChildren().addAll(title, meta, excerpt, openCvButton);
+        return card;
+    }
+
+    private void openConversation(Integer annonceId) {
+        openConversation(annonceId, resolveInitialConversationPlayerUserId(annonceId));
+    }
+
+    private void openConversation(Integer annonceId, Integer playerUserId) {
+        if (annonceId == null) {
+            return;
+        }
+        activeConversationAnnonceId = annonceId;
+        activeConversationPlayerUserId = playerUserId;
+        pendingFocusAnnonceId = annonceId;
+        renderFeed();
+    }
+
+    private void openPublicCommentForm(Integer annonceId) {
+        if (annonceId == null) {
+            return;
+        }
+        activePublicCommentAnnonceId = annonceId;
+        pendingPublicFocusAnnonceId = annonceId;
+        renderFeed();
+    }
+
+    private boolean isConversationOpen(Annonce annonce) {
+        return annonce != null
+                && annonce.getId() != null
+                && Objects.equals(activeConversationAnnonceId, annonce.getId());
+    }
+
+    private boolean isPublicCommentOpen(Annonce annonce) {
+        return annonce != null
+                && annonce.getId() != null
+                && Objects.equals(activePublicCommentAnnonceId, annonce.getId());
+    }
+
+    private void focusPendingConversationInput() {
+        Integer annonceId = pendingFocusAnnonceId;
+        if (annonceId == null) {
+            return;
+        }
+        TextArea target = chatInputsByAnnonce.get(annonceId);
+        if (target == null) {
+            return;
+        }
+        pendingFocusAnnonceId = null;
+        Platform.runLater(() -> {
+            target.requestFocus();
+            target.positionCaret(target.getLength());
+        });
+    }
+
+    private void focusPendingPublicCommentInput() {
+        Integer annonceId = pendingPublicFocusAnnonceId;
+        if (annonceId == null) {
+            return;
+        }
+        TextArea target = publicCommentInputsByAnnonce.get(annonceId);
+        if (target == null) {
+            return;
+        }
+        pendingPublicFocusAnnonceId = null;
+        Platform.runLater(() -> {
+            target.requestFocus();
+            target.positionCaret(target.getLength());
+        });
     }
 
     private VBox buildPostCard(Annonce annonce) {
@@ -525,6 +779,8 @@ public class AnnonceUserController {
         if (Boolean.TRUE.equals(annonce.getUrgent())) {
             card.getStyleClass().add("annonce-post-card-urgent");
         }
+        List<Commentaire> publicComments = resolvePublicCommentsForAnnonce(annonce);
+        List<Commentaire> privateComments = resolveVisibleConversationCommentsForAnnonce(annonce);
 
         User author = resolveAnnonceAuthor(annonce);
         String authorName = resolveAnnonceAuthorName(annonce);
@@ -569,8 +825,23 @@ public class AnnonceUserController {
         metaFlow.getChildren().addAll(
                 createMetaChip("Role: " + fallbackText(annonce.getPosteRecherche(), "Not specified")),
                 createMetaChip("Level: " + fallbackText(annonce.getNiveauRequis(), "Not specified")),
-                createMetaChip(commentCounts.getOrDefault(annonce.getId(), 0) + " comment(s)")
+                createMetaChip(publicComments.size() + " public comment(s)")
         );
+
+        HBox contactRow = new HBox(10);
+        contactRow.setAlignment(Pos.CENTER_LEFT);
+
+        Button commentButton = new Button("Comment");
+        commentButton.getStyleClass().add("ghost-button");
+        commentButton.setOnAction(event -> openPublicCommentForm(annonce.getId()));
+
+        Button contactManagerButton = new Button(isCoachOrAdminCurrentUser()
+                ? "Open private conversation"
+                : "Contact manager");
+        contactManagerButton.getStyleClass().add("primary-button");
+        contactManagerButton.setOnAction(event ->
+                openConversation(annonce.getId(), resolveInitialConversationPlayerUserId(annonce.getId())));
+        contactRow.getChildren().addAll(commentButton, contactManagerButton);
 
         VBox descriptionBox = new VBox(6);
         descriptionBox.getStyleClass().add("annonce-user-description-box");
@@ -579,39 +850,269 @@ public class AnnonceUserController {
         descriptionLabel.getStyleClass().add("annonce-user-description-text");
         descriptionBox.getChildren().add(descriptionLabel);
 
-        VBox commentsSection = new VBox(10);
-        Label commentsTitle = new Label("Comments");
-        commentsTitle.getStyleClass().add("annonce-comments-title");
+        VBox commentsSection = new VBox(12);
+        Label publicCommentsTitle = new Label("Public comments");
+        publicCommentsTitle.getStyleClass().add("annonce-comments-title");
 
-        VBox commentsStack = new VBox(10);
-        commentsStack.getStyleClass().add("annonce-comment-stack");
+        VBox publicCommentsStack = new VBox(10);
+        publicCommentsStack.getStyleClass().add("annonce-comment-stack");
 
-        List<Commentaire> postComments = commentaires.stream()
-                .filter(commentaire -> Objects.equals(commentaire.getAnnonceId(), annonce.getId()))
-                .sorted(Comparator.comparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder())))
-                .toList();
-
-        if (postComments.isEmpty()) {
+        if (publicComments.isEmpty()) {
             Label emptyComments = new Label(
                     isCommentsEnabled(annonce)
-                            ? "No comments yet. Players can start the discussion."
+                            ? "No public comments yet. Players can start the discussion."
                             : "Comments are disabled for this announcement."
             );
             emptyComments.getStyleClass().add("annonce-comment-empty");
-            commentsStack.getChildren().add(emptyComments);
+            publicCommentsStack.getChildren().add(emptyComments);
         } else {
-            for (Commentaire commentaire : postComments) {
-                commentsStack.getChildren().add(buildCommentCard(commentaire));
+            for (Commentaire commentaire : publicComments) {
+                publicCommentsStack.getChildren().add(buildCommentCard(commentaire, false));
             }
         }
 
-        VBox addCommentSection = buildInlineCommentForm(annonce);
-        commentsSection.getChildren().addAll(commentsTitle, commentsStack);
-        if (addCommentSection != null) {
-            commentsSection.getChildren().add(addCommentSection);
+        VBox publicCommentForm = buildInlinePublicCommentForm(annonce);
+        commentsSection.getChildren().addAll(publicCommentsTitle, publicCommentsStack);
+        if (publicCommentForm != null) {
+            commentsSection.getChildren().add(publicCommentForm);
         }
-        card.getChildren().addAll(identityRow, titleLabel, metaFlow, descriptionBox, commentsSection);
+
+        Label privateCommentsTitle = new Label("Private player / manager conversation");
+        privateCommentsTitle.getStyleClass().add("annonce-comments-title");
+        VBox privateCommentsStack = new VBox(10);
+        privateCommentsStack.getStyleClass().add("annonce-comment-stack");
+        if (privateComments.isEmpty()) {
+            String emptyMessage;
+            if (!isCommentsEnabled(annonce)) {
+                emptyMessage = "Private conversation is disabled for this announcement.";
+            } else if (isCoachOrAdminCurrentUser() && !isConversationOpen(annonce)) {
+                emptyMessage = "No private conversation selected. Click Contact manager or Reply.";
+            } else {
+                emptyMessage = "No private messages yet.";
+            }
+            Label emptyComments = new Label(emptyMessage);
+            emptyComments.getStyleClass().add("annonce-comment-empty");
+            privateCommentsStack.getChildren().add(emptyComments);
+        } else {
+            for (Commentaire commentaire : privateComments) {
+                privateCommentsStack.getChildren().add(buildCommentCard(commentaire, true));
+            }
+        }
+
+        VBox privateConversationForm = buildInlineCommentForm(annonce);
+        commentsSection.getChildren().addAll(privateCommentsTitle, privateCommentsStack);
+        if (privateConversationForm != null) {
+            commentsSection.getChildren().add(privateConversationForm);
+        }
+
+        card.getChildren().addAll(identityRow, titleLabel, metaFlow, contactRow, descriptionBox, commentsSection);
         return card;
+    }
+
+    private VBox buildInlinePublicCommentForm(Annonce annonce) {
+        User currentUser = getCurrentUser();
+        boolean playerAuthor = isPlayerRole(currentUser);
+        boolean canComment = serviceReady
+                && isCommentsEnabled(annonce)
+                && currentUser != null
+                && currentUser.getId() != null
+                && (playerAuthor || isCoachOrAdminCurrentUser());
+        if (!canComment) {
+            return null;
+        }
+
+        boolean open = isPublicCommentOpen(annonce);
+        VBox formBox = new VBox(10);
+        formBox.getStyleClass().add("annonce-post-comment-form");
+        formBox.setManaged(open);
+        formBox.setVisible(open);
+        if (!open) {
+            return formBox;
+        }
+
+        Label hint = new Label("Public comment");
+        hint.getStyleClass().add("annonce-section-note");
+
+        TextArea commentaireArea = new TextArea();
+        commentaireArea.setPromptText("Write a public comment as " + buildDisplayName(currentUser) + "...");
+        commentaireArea.setWrapText(true);
+        commentaireArea.setPrefRowCount(3);
+        commentaireArea.getStyleClass().add("annonce-text-area");
+        if (Boolean.TRUE.equals(annonce.getUrgent())) {
+            formBox.getStyleClass().add("annonce-post-comment-form-urgent");
+            commentaireArea.getStyleClass().add("annonce-urgent-comment-field");
+        }
+
+        Integer annonceId = annonce == null ? null : annonce.getId();
+        if (annonceId != null) {
+            publicCommentInputsByAnnonce.put(annonceId, commentaireArea);
+            commentaireArea.setText(emptyIfNull(publicCommentDraftByAnnonce.get(annonceId)));
+            commentaireArea.textProperty().addListener((obs, oldValue, newValue) ->
+                    publicCommentDraftByAnnonce.put(annonceId, emptyIfNull(newValue)));
+        }
+
+        TextField cvTitleField = new TextField();
+        cvTitleField.setPromptText("CV title, for example Senior defender CV");
+        cvTitleField.getStyleClass().add("form-text-field");
+        cvTitleField.setManaged(playerAuthor);
+        cvTitleField.setVisible(playerAuthor);
+
+        Label cvLabel = new Label("No CV attached");
+        cvLabel.getStyleClass().add("annonce-section-note");
+        cvLabel.setManaged(playerAuthor);
+        cvLabel.setVisible(playerAuthor);
+
+        Label validationLabel = new Label();
+        validationLabel.getStyleClass().add("annonce-section-note");
+        validationLabel.setManaged(false);
+        validationLabel.setVisible(false);
+
+        HBox actions = new HBox(10);
+        Path[] selectedCvPath = new Path[1];
+
+        Button attachCvButton = new Button("Attach CV");
+        attachCvButton.getStyleClass().add("soft-button");
+        attachCvButton.setManaged(playerAuthor);
+        attachCvButton.setVisible(playerAuthor);
+
+        Button removeCvButton = new Button("Remove CV");
+        removeCvButton.getStyleClass().add("ghost-button");
+        removeCvButton.setDisable(true);
+        removeCvButton.setManaged(playerAuthor);
+        removeCvButton.setVisible(playerAuthor);
+
+        Button postButton = new Button("Post comment");
+        postButton.getStyleClass().add("primary-button");
+
+        Button clearButton = new Button("Clear");
+        clearButton.getStyleClass().add("ghost-button");
+
+        actions.getChildren().addAll(attachCvButton, removeCvButton, postButton, clearButton);
+
+        attachCvButton.setOnAction(event -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Choose CV");
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files", "*.pdf"));
+            File selectedFile = chooser.showOpenDialog(resolveWindow(formBox));
+            if (selectedFile == null) {
+                return;
+            }
+
+            selectedCvPath[0] = selectedFile.toPath();
+            cvLabel.setText("CV attached: " + selectedFile.getName());
+            if (emptyToNull(cvTitleField.getText()) == null) {
+                cvTitleField.setText(deriveCvTitleFromPath(selectedCvPath[0]));
+            }
+            removeCvButton.setDisable(false);
+        });
+
+        removeCvButton.setOnAction(event -> {
+            selectedCvPath[0] = null;
+            cvTitleField.clear();
+            cvLabel.setText("No CV attached");
+            removeCvButton.setDisable(true);
+        });
+
+        clearButton.setOnAction(event -> {
+            commentaireArea.clear();
+            cvTitleField.clear();
+            selectedCvPath[0] = null;
+            if (annonceId != null) {
+                publicCommentDraftByAnnonce.remove(annonceId);
+            }
+            cvLabel.setText("No CV attached");
+            removeCvButton.setDisable(true);
+            validationLabel.setText("");
+            validationLabel.setManaged(false);
+            validationLabel.setVisible(false);
+            clearFieldError(commentaireArea);
+            clearFieldError(cvTitleField);
+        });
+
+        postButton.setOnAction(event -> {
+            validationLabel.setText("");
+            validationLabel.setManaged(false);
+            validationLabel.setVisible(false);
+            clearFieldError(commentaireArea);
+            clearFieldError(cvTitleField);
+
+            String contenu = emptyToNull(commentaireArea.getText());
+            if (contenu == null) {
+                markFieldInvalid(commentaireArea);
+                validationLabel.setText("Comment content is required.");
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
+            if (!currentUser.isActiveAccount()) {
+                markFieldInvalid(commentaireArea);
+                validationLabel.setText("Your account is blocked. Comment cannot be posted.");
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
+            if (playerAuthor && !ensureFaceIdVerified(currentUser, resolveWindow(formBox))) {
+                validationLabel.setText("Face ID verification is required before posting.");
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
+
+            String storedCvName = null;
+            String cvTitle = emptyToNull(cvTitleField.getText());
+            try {
+                if (playerAuthor && selectedCvPath[0] != null) {
+                    if (commentCvStorageService == null) {
+                        throw new IOException("CV storage is not ready.");
+                    }
+                    storedCvName = commentCvStorageService.store(selectedCvPath[0]);
+                    if (cvTitle == null) {
+                        cvTitle = deriveCvTitleFromPath(selectedCvPath[0]);
+                    }
+                }
+                if (storedCvName == null) {
+                    cvTitle = null;
+                }
+            } catch (IOException e) {
+                validationLabel.setText("CV could not be attached. " + e.getMessage());
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
+
+            Commentaire commentaire = new Commentaire(
+                    contenu,
+                    LocalDate.now(),
+                    playerAuthor ? currentUser.getId() : null,
+                    annonce.getId(),
+                    buildDisplayName(currentUser),
+                    storedCvName,
+                    cvTitle,
+                    0,
+                    "PENDING",
+                    null,
+                    currentUser.getId(),
+                    currentUser.getPrimaryRole()
+            );
+
+            try {
+                commentaireService.add(commentaire);
+                if (annonceId != null) {
+                    publicCommentDraftByAnnonce.remove(annonceId);
+                }
+                refreshData();
+                showSuccessStatus("Comment posted.");
+            } catch (SQLException e) {
+                if (commentCvStorageService != null) {
+                    commentCvStorageService.deleteQuietly(storedCvName);
+                }
+                showErrorStatus("Could not post the comment.");
+                showAlert(Alert.AlertType.ERROR, "Comments", "Add failed.\n" + e.getMessage());
+            }
+        });
+
+        formBox.getChildren().addAll(hint, commentaireArea, cvTitleField, cvLabel, validationLabel, actions);
+        return formBox;
     }
 
     private VBox buildInlineCommentForm(Annonce annonce) {
@@ -619,10 +1120,22 @@ public class AnnonceUserController {
         formBox.getStyleClass().add("annonce-post-comment-form");
 
         User currentUser = getCurrentUser();
-        boolean canComment = serviceReady && isCurrentUserJoueur() && isCommentsEnabled(annonce)
+        boolean playerAuthor = isPlayerRole(currentUser);
+        boolean managerAuthor = isCoachOrAdminCurrentUser();
+        Integer targetPlayerUserId = playerAuthor
+                ? currentUser.getId()
+                : resolveInitialConversationPlayerUserId(annonce == null ? null : annonce.getId());
+        boolean canComment = serviceReady && (playerAuthor || managerAuthor) && isCommentsEnabled(annonce)
                 && currentUser != null && currentUser.getId() != null;
         if (!canComment) {
             return null;
+        }
+
+        boolean conversationOpen = isConversationOpen(annonce);
+        formBox.setManaged(conversationOpen);
+        formBox.setVisible(conversationOpen);
+        if (!conversationOpen) {
+            return formBox;
         }
 
         HBox authorRow = new HBox(10);
@@ -634,7 +1147,12 @@ public class AnnonceUserController {
         );
 
         TextArea commentaireArea = new TextArea();
-        commentaireArea.setPromptText("Write a comment as " + buildDisplayName(currentUser) + "...");
+        Label messageLabel = new Label("Private message");
+        messageLabel.getStyleClass().add("field-label");
+        commentaireArea.setPromptText((managerAuthor
+                ? "Reply to the player as "
+                : "Send a private message to the manager as ")
+                + buildDisplayName(currentUser) + "...");
         commentaireArea.setWrapText(true);
         commentaireArea.setPrefRowCount(3);
         commentaireArea.getStyleClass().add("annonce-text-area");
@@ -642,6 +1160,29 @@ public class AnnonceUserController {
             formBox.getStyleClass().add("annonce-post-comment-form-urgent");
             commentaireArea.getStyleClass().add("annonce-urgent-comment-field");
         }
+        Integer annonceId = annonce == null ? null : annonce.getId();
+        if (annonceId != null) {
+            chatInputsByAnnonce.put(annonceId, commentaireArea);
+            commentaireArea.setText(emptyIfNull(privateMessageDraftByAnnonce.get(annonceId)));
+            commentaireArea.textProperty().addListener((obs, oldValue, newValue) ->
+                    privateMessageDraftByAnnonce.put(annonceId, emptyIfNull(newValue)));
+        }
+
+        TextField cvTitleField = new TextField();
+        cvTitleField.setPromptText("CV title, for example Senior defender CV");
+        cvTitleField.getStyleClass().add("form-text-field");
+        cvTitleField.setManaged(playerAuthor);
+        cvTitleField.setVisible(playerAuthor);
+        if (annonceId != null) {
+            cvTitleField.setText(emptyIfNull(privateCvTitleDraftByAnnonce.get(annonceId)));
+            cvTitleField.textProperty().addListener((obs, oldValue, newValue) ->
+                    privateCvTitleDraftByAnnonce.put(annonceId, emptyIfNull(newValue)));
+        }
+
+        Label cvLabel = new Label("No CV attached");
+        cvLabel.getStyleClass().add("annonce-section-note");
+        cvLabel.setManaged(playerAuthor);
+        cvLabel.setVisible(playerAuthor);
 
         Label validationLabel = new Label();
         validationLabel.getStyleClass().add("annonce-section-note");
@@ -649,20 +1190,73 @@ public class AnnonceUserController {
         validationLabel.setVisible(false);
 
         HBox actions = new HBox(10);
-        Button postButton = new Button("Post comment");
+        Path[] selectedCvPath = new Path[1];
+
+        Button attachCvButton = new Button("Attach CV");
+        attachCvButton.getStyleClass().add("soft-button");
+        attachCvButton.setManaged(playerAuthor);
+        attachCvButton.setVisible(playerAuthor);
+
+        Button removeCvButton = new Button("Remove CV");
+        removeCvButton.getStyleClass().add("ghost-button");
+        removeCvButton.setDisable(true);
+        removeCvButton.setManaged(playerAuthor);
+        removeCvButton.setVisible(playerAuthor);
+
+        Button postButton = new Button("Send");
         postButton.getStyleClass().add("primary-button");
 
         Button clearButton = new Button("Clear");
         clearButton.getStyleClass().add("ghost-button");
 
-        actions.getChildren().addAll(postButton, clearButton);
+        actions.getChildren().addAll(attachCvButton, removeCvButton, postButton, clearButton);
+
+        if (managerAuthor && targetPlayerUserId == null) {
+            validationLabel.setText("Select a player message before replying in a private conversation.");
+            validationLabel.setManaged(true);
+            validationLabel.setVisible(true);
+            postButton.setDisable(true);
+        }
+
+        attachCvButton.setOnAction(event -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Choose CV");
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files", "*.pdf"));
+            File selectedFile = chooser.showOpenDialog(resolveWindow(formBox));
+            if (selectedFile == null) {
+                return;
+            }
+
+            selectedCvPath[0] = selectedFile.toPath();
+            cvLabel.setText("CV attached: " + selectedFile.getName());
+            if (emptyToNull(cvTitleField.getText()) == null) {
+                cvTitleField.setText(deriveCvTitleFromPath(selectedCvPath[0]));
+            }
+            removeCvButton.setDisable(false);
+        });
+
+        removeCvButton.setOnAction(event -> {
+            selectedCvPath[0] = null;
+            cvTitleField.clear();
+            cvLabel.setText("No CV attached");
+            removeCvButton.setDisable(true);
+        });
 
         clearButton.setOnAction(event -> {
             commentaireArea.clear();
+            cvTitleField.clear();
+            selectedCvPath[0] = null;
+            if (annonceId != null) {
+                privateMessageDraftByAnnonce.remove(annonceId);
+                privateCvTitleDraftByAnnonce.remove(annonceId);
+            }
+            cvLabel.setText("No CV attached");
+            removeCvButton.setDisable(true);
             validationLabel.setText("");
             validationLabel.setManaged(false);
             validationLabel.setVisible(false);
             clearFieldError(commentaireArea);
+            clearFieldError(cvTitleField);
         });
 
         postButton.setOnAction(event -> {
@@ -670,6 +1264,7 @@ public class AnnonceUserController {
             validationLabel.setManaged(false);
             validationLabel.setVisible(false);
             clearFieldError(commentaireArea);
+            clearFieldError(cvTitleField);
 
             String contenu = emptyToNull(commentaireArea.getText());
             if (contenu == null) {
@@ -679,42 +1274,92 @@ public class AnnonceUserController {
                 validationLabel.setVisible(true);
                 return;
             }
+            if (!currentUser.isActiveAccount()) {
+                markFieldInvalid(commentaireArea);
+                validationLabel.setText("Your account is blocked. Message cannot be sent.");
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
+            if (playerAuthor && !ensureFaceIdVerified(currentUser, resolveWindow(formBox))) {
+                validationLabel.setText("Face ID verification is required before sending.");
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
+
+            String storedCvName = null;
+            String cvTitle = emptyToNull(cvTitleField.getText());
+            try {
+                if (playerAuthor && selectedCvPath[0] != null) {
+                    if (commentCvStorageService == null) {
+                        throw new IOException("CV storage is not ready.");
+                    }
+                    storedCvName = commentCvStorageService.store(selectedCvPath[0]);
+                    if (cvTitle == null) {
+                        cvTitle = deriveCvTitleFromPath(selectedCvPath[0]);
+                    }
+                }
+                if (storedCvName == null) {
+                    cvTitle = null;
+                }
+            } catch (IOException e) {
+                validationLabel.setText("CV could not be attached. " + e.getMessage());
+                validationLabel.setManaged(true);
+                validationLabel.setVisible(true);
+                return;
+            }
 
             Commentaire commentaire = new Commentaire(
                     contenu,
                     LocalDate.now(),
-                    currentUser.getId(),
+                    targetPlayerUserId,
                     annonce.getId(),
                     buildDisplayName(currentUser),
+                    storedCvName,
+                    cvTitle,
                     0,
-                    "PENDING",
-                    null
+                    "PRIVATE",
+                    null,
+                    currentUser.getId(),
+                    currentUser.getPrimaryRole()
             );
 
             try {
                 commentaireService.add(commentaire);
+                if (annonceId != null) {
+                    privateMessageDraftByAnnonce.remove(annonceId);
+                    privateCvTitleDraftByAnnonce.remove(annonceId);
+                }
                 refreshData();
-                showSuccessStatus("Comment posted.");
+                showSuccessStatus("Private message sent.");
             } catch (SQLException e) {
-                showErrorStatus("Could not post the comment.");
+                if (commentCvStorageService != null) {
+                    commentCvStorageService.deleteQuietly(storedCvName);
+                }
+                showErrorStatus("Could not send the private message.");
                 showAlert(Alert.AlertType.ERROR, "Comments", "Add failed.\n" + e.getMessage());
             }
         });
 
-        formBox.getChildren().addAll(authorRow, commentaireArea, validationLabel, actions);
+        formBox.getChildren().addAll(authorRow, messageLabel, commentaireArea, cvTitleField, cvLabel, validationLabel, actions);
         return formBox;
     }
 
     private VBox buildInlineAuthorInfo(User currentUser, boolean canComment, Annonce annonce) {
         VBox infoBox = new VBox(3);
+        boolean manager = currentUser != null
+                && (currentUser.hasRole(UserRoles.ROLE_ENTRAINEUR) || currentUser.hasRole(UserRoles.ROLE_ADMIN));
 
         Label authorLabel = new Label(buildDisplayName(currentUser));
         authorLabel.getStyleClass().add("annonce-comment-author");
 
         Label hint = new Label(canComment
-                ? "Commenting on " + fallbackText(annonce.getTitre(), "this post")
+                ? (manager
+                ? "Replying on " + fallbackText(annonce.getTitre(), "this post")
+                : "Commenting on " + fallbackText(annonce.getTitre(), "this post") + ". Face ID is required before sending.")
                 : isCommentsEnabled(annonce)
-                ? "Only player accounts can comment on announcements."
+                ? "Only player and manager accounts can use announcement comments."
                 : "Comments are disabled for this post.");
         hint.setWrapText(true);
         hint.getStyleClass().add("annonce-section-note");
@@ -724,6 +1369,10 @@ public class AnnonceUserController {
     }
 
     private VBox buildCommentCard(Commentaire commentaire) {
+        return buildCommentCard(commentaire, false);
+    }
+
+    private VBox buildCommentCard(Commentaire commentaire, boolean privateConversationCard) {
         VBox card = new VBox(10);
         card.getStyleClass().add("annonce-comment-card");
 
@@ -750,8 +1399,9 @@ public class AnnonceUserController {
                 humanizeStatus(commentaire.getModerationStatus()),
                 resolveCommentStatusStyle(commentaire.getModerationStatus())
         );
+        Label rolePill = createMetaChip(resolveCommentRoleLabel(commentaire));
 
-        header.getChildren().addAll(avatar, authorBox, spacer, statusPill);
+        header.getChildren().addAll(avatar, authorBox, spacer, rolePill, statusPill);
 
         Label bodyLabel = new Label(fallbackText(commentaire.getContenu(), ""));
         bodyLabel.setWrapText(true);
@@ -761,8 +1411,47 @@ public class AnnonceUserController {
         footer.setHgap(8);
         footer.setVgap(8);
         footer.getChildren().add(createMetaChip(commentaire.getNbLikes() + " like(s)"));
+        footer.getChildren().add(createMetaChip(commentaire.getNbDislikes() + " dislike(s)"));
+        User currentUser = getCurrentUser();
+        if (serviceReady && currentUser != null && currentUser.getId() != null && commentaire.getId() != null) {
+            String activeReaction = reactionByCommentId.get(commentaire.getId());
+            boolean liked = CommentaireService.REACTION_LIKE.equalsIgnoreCase(activeReaction);
+            boolean disliked = CommentaireService.REACTION_DISLIKE.equalsIgnoreCase(activeReaction);
+            boolean favorite = favoriteCommentIds.contains(commentaire.getId());
+
+            Button likeButton = new Button("Like");
+            likeButton.getStyleClass().add(liked ? "primary-button" : "ghost-button");
+            likeButton.setOnAction(event -> handleCommentReaction(commentaire, CommentaireService.REACTION_LIKE));
+
+            Button dislikeButton = new Button("Dislike");
+            dislikeButton.getStyleClass().add(disliked ? "danger-button" : "ghost-button");
+            dislikeButton.setOnAction(event -> handleCommentReaction(commentaire, CommentaireService.REACTION_DISLIKE));
+
+            Button favoriteButton = new Button(favorite ? "Favorited" : "Favorite");
+            favoriteButton.getStyleClass().add(favorite ? "primary-button" : "soft-button");
+            favoriteButton.setOnAction(event -> handleToggleFavorite(commentaire));
+
+            footer.getChildren().addAll(likeButton, dislikeButton, favoriteButton);
+        }
         if (emptyToNull(commentaire.getModerationReason()) != null) {
             footer.getChildren().add(createMetaChip(commentaire.getModerationReason()));
+        }
+        if (emptyToNull(commentaire.getCvName()) != null) {
+            footer.getChildren().add(createMetaChip(resolveCvTitle(commentaire)));
+            footer.getChildren().add(createMetaChip("CV attached"));
+            Button openCvButton = new Button("Open CV");
+            openCvButton.getStyleClass().add("soft-button");
+            openCvButton.setOnAction(event -> openCommentCv(commentaire));
+            footer.getChildren().add(openCvButton);
+        }
+        if (privateConversationCard && isCoachOrAdminCurrentUser() && commentaire.getAnnonceId() != null) {
+            Integer playerUserId = resolveConversationPlayerUserId(commentaire);
+            if (playerUserId != null) {
+                Button replyButton = new Button("Reply");
+                replyButton.getStyleClass().add("ghost-button");
+                replyButton.setOnAction(event -> openConversation(commentaire.getAnnonceId(), playerUserId));
+                footer.getChildren().add(replyButton);
+            }
         }
 
         VBox editSection = buildInlineCommentEditor(commentaire, bodyLabel, footer);
@@ -841,10 +1530,15 @@ public class AnnonceUserController {
                     commentaire.getJoueurId(),
                     commentaire.getAnnonceId(),
                     commentaire.getAuteurAnonyme(),
+                    commentaire.getCvName(),
+                    commentaire.getCvTitle(),
                     commentaire.getNbLikes(),
                     commentaire.getModerationStatus(),
-                    commentaire.getModerationReason()
+                    commentaire.getModerationReason(),
+                    commentaire.getAuthorUserId(),
+                    commentaire.getAuthorRole()
             );
+            updated.setNbDislikes(commentaire.getNbDislikes());
 
             try {
                 commentaireService.update(updated);
@@ -867,6 +1561,9 @@ public class AnnonceUserController {
             }
 
             try {
+                if (commentCvStorageService != null) {
+                    commentCvStorageService.deleteQuietly(commentaire.getCvName());
+                }
                 commentaireService.delete(commentaire.getId());
                 refreshData();
                 showSuccessStatus("Comment deleted.");
@@ -878,6 +1575,163 @@ public class AnnonceUserController {
 
         editorBox.getChildren().addAll(editorArea, validationLabel, editorActions);
         return editorBox;
+    }
+
+    private void handleCommentReaction(Commentaire commentaire, String reactionType) {
+        User currentUser = getCurrentUser();
+        if (commentaire == null || commentaire.getId() == null || currentUser == null || currentUser.getId() == null) {
+            return;
+        }
+        try {
+            commentaireService.reactToComment(commentaire.getId(), currentUser.getId(), reactionType);
+            refreshData();
+            showSuccessStatus("Reaction saved.");
+        } catch (SQLException e) {
+            showErrorStatus("Could not save the reaction.");
+            showAlert(Alert.AlertType.ERROR, "Comments", "Reaction failed.\n" + e.getMessage());
+        }
+    }
+
+    private void handleToggleFavorite(Commentaire commentaire) {
+        User currentUser = getCurrentUser();
+        if (commentaire == null || commentaire.getId() == null || currentUser == null || currentUser.getId() == null) {
+            return;
+        }
+        try {
+            boolean favorited = commentaireService.toggleFavorite(commentaire.getId(), currentUser.getId());
+            refreshData();
+            showSuccessStatus(favorited ? "Comment added to favorites." : "Comment removed from favorites.");
+        } catch (SQLException e) {
+            showErrorStatus("Could not update favorite.");
+            showAlert(Alert.AlertType.ERROR, "Comments", "Favorite failed.\n" + e.getMessage());
+        }
+    }
+
+    private boolean ensureFaceIdVerified(User currentUser, Window owner) {
+        if (currentUser == null || currentUser.getId() == null || !isPlayerRole(currentUser)) {
+            return true;
+        }
+        if (faceIdApiClient == null) {
+            faceIdApiClient = new FaceIdApiClient();
+        }
+        return performFaceIdVerification(currentUser, owner);
+    }
+
+    private boolean performFaceIdVerification(User currentUser, Window owner) {
+        Path verifySelfie = captureFaceSnapshot(owner, "Face ID - Verification", "Place your face in front of the camera, then start capture.");
+        if (verifySelfie == null) {
+            return false;
+        }
+        try {
+            FaceIdApiClient.FaceVerificationResult verification = faceIdApiClient.verify(currentUser.getId(), verifySelfie);
+            if (verification.verified()) {
+                showSuccessStatus("Face ID verified.");
+                return true;
+            }
+
+            if (verification.profileMissing()) {
+                Alert enrollPrompt = new Alert(Alert.AlertType.CONFIRMATION);
+                if (owner != null) {
+                    enrollPrompt.initOwner(owner);
+                }
+                enrollPrompt.setTitle("Face ID");
+                enrollPrompt.setHeaderText("No Face ID profile found");
+                enrollPrompt.setContentText("Do you want to enroll your face now?");
+                if (enrollPrompt.showAndWait().orElse(javafx.scene.control.ButtonType.CANCEL) != javafx.scene.control.ButtonType.OK) {
+                    return false;
+                }
+
+                Path enrollSelfie = captureFaceSnapshot(owner, "Face ID - Enrollment", "Capture your reference selfie.");
+                if (enrollSelfie == null) {
+                    return false;
+                }
+                FaceIdApiClient.FaceEnrollResult enrollResult = faceIdApiClient.enroll(currentUser.getId(), enrollSelfie);
+                if (!enrollResult.enrolled()) {
+                    showAlert(Alert.AlertType.WARNING, "Face ID",
+                            fallbackText(enrollResult.message(), "Face ID enrollment was rejected."));
+                    return false;
+                }
+
+                showSuccessStatus("Face ID enrolled and verified.");
+                return true;
+            }
+
+            showAlert(Alert.AlertType.WARNING, "Face ID",
+                    fallbackText(verification.message(), "Face ID verification failed."));
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            showAlert(Alert.AlertType.WARNING, "Face ID", "Face ID verification was interrupted.");
+            return false;
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.WARNING, "Face ID",
+                    "Face ID service is unavailable.\n" + fallbackText(e.getMessage(), "Unknown error."));
+            return false;
+        }
+    }
+
+    private Path captureFaceSnapshot(Window owner, String title, String contentText) {
+        Alert instruction = new Alert(Alert.AlertType.CONFIRMATION);
+        if (owner != null) {
+            instruction.initOwner(owner);
+        }
+        instruction.setTitle(fallbackText(title, "Face ID"));
+        instruction.setHeaderText(null);
+        instruction.setGraphic(null);
+        instruction.setContentText(
+                "Face ID verification\n\n"
+                        + contentText
+                        + "\n\nTip: look at the camera and stay still for two seconds."
+        );
+
+        javafx.scene.control.ButtonType captureButton =
+                new javafx.scene.control.ButtonType("Start", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        javafx.scene.control.ButtonType cancelButton =
+                new javafx.scene.control.ButtonType("Cancel", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+        instruction.getDialogPane().getButtonTypes().setAll(captureButton, cancelButton);
+        instruction.getDialogPane().setMinWidth(460);
+
+        if (instruction.showAndWait().orElse(cancelButton) != captureButton) {
+            return null;
+        }
+
+        Webcam webcam = Webcam.getDefault();
+        if (webcam == null) {
+            showAlert(Alert.AlertType.WARNING, "Face ID", "No camera detected.");
+            return null;
+        }
+
+        Path snapshotPath = null;
+        try {
+            webcam.setViewSize(WebcamResolution.VGA.getSize());
+            webcam.open();
+            var image = webcam.getImage();
+            if (image == null) {
+                showAlert(Alert.AlertType.WARNING, "Face ID", "Camera capture failed.");
+                return null;
+            }
+
+            snapshotPath = Files.createTempFile("faceid-capture-", ".jpg");
+            ImageIO.write(image, "jpg", snapshotPath.toFile());
+            snapshotPath.toFile().deleteOnExit();
+            return snapshotPath;
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.WARNING, "Face ID", "Camera capture error.");
+            if (snapshotPath != null) {
+                try {
+                    Files.deleteIfExists(snapshotPath);
+                } catch (IOException ignored) {
+                    // Ignore cleanup failure.
+                }
+            }
+            return null;
+        } finally {
+            try {
+                webcam.close();
+            } catch (Exception ignored) {
+                // Ignore camera cleanup failure.
+            }
+        }
     }
 
     private Button createIconButton(String accessibleText, String iconPath, String styleClass) {
@@ -1069,6 +1923,7 @@ public class AnnonceUserController {
         return switch (statut.toUpperCase(Locale.ROOT)) {
             case "APPROVED" -> "status-success";
             case "PENDING" -> "status-warning";
+            case "PRIVATE" -> "status-muted";
             case "REJECTED", "BLOCKED" -> "status-error";
             default -> "status-muted";
         };
@@ -1099,21 +1954,101 @@ public class AnnonceUserController {
 
     private boolean isCurrentUserJoueur() {
         User currentUser = getCurrentUser();
-        return currentUser != null && currentUser.hasRole(UserRoles.ROLE_JOUEUR);
+        return isPlayerRole(currentUser);
     }
 
     private boolean canCurrentUserManageComment(Commentaire commentaire) {
         User currentUser = getCurrentUser();
         return commentaire != null
                 && currentUser != null
-                && currentUser.hasRole(UserRoles.ROLE_JOUEUR)
                 && currentUser.getId() != null
-                && Objects.equals(currentUser.getId(), commentaire.getJoueurId());
+                && Objects.equals(currentUser.getId(), resolveCommentAuthorUserId(commentaire));
     }
 
     private boolean isCurrentUserCoach() {
         User currentUser = getCurrentUser();
         return currentUser != null && currentUser.hasRole(UserRoles.ROLE_ENTRAINEUR);
+    }
+
+    private boolean isCurrentUserAdmin() {
+        User currentUser = getCurrentUser();
+        return currentUser != null && currentUser.hasRole(UserRoles.ROLE_ADMIN);
+    }
+
+    private boolean isCoachOrAdminCurrentUser() {
+        return isCurrentUserCoach() || isCurrentUserAdmin();
+    }
+
+    private boolean isPlayerRole(User user) {
+        return user != null && (user.hasRole(UserRoles.ROLE_JOUEUR) || user.hasRole(UserRoles.ROLE_USER));
+    }
+
+    private Integer resolveInitialConversationPlayerUserId(Integer annonceId) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null) {
+            return null;
+        }
+        if (!isCoachOrAdminCurrentUser()) {
+            return currentUser.getId();
+        }
+        if (Objects.equals(activeConversationAnnonceId, annonceId) && activeConversationPlayerUserId != null) {
+            return activeConversationPlayerUserId;
+        }
+        return commentaires.stream()
+                .filter(commentaire -> Objects.equals(commentaire.getAnnonceId(), annonceId))
+                .filter(this::isPrivateComment)
+                .sorted(Comparator.comparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(this::resolveConversationPlayerUserId)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private List<Commentaire> resolvePublicCommentsForAnnonce(Annonce annonce) {
+        if (annonce == null || annonce.getId() == null) {
+            return List.of();
+        }
+        return commentaires.stream()
+                .filter(commentaire -> Objects.equals(commentaire.getAnnonceId(), annonce.getId()))
+                .filter(commentaire -> !isPrivateComment(commentaire))
+                .sorted(Comparator.comparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+    }
+
+    private List<Commentaire> resolveVisibleConversationCommentsForAnnonce(Annonce annonce) {
+        if (annonce == null || annonce.getId() == null) {
+            return List.of();
+        }
+
+        List<Commentaire> annonceComments = commentaires.stream()
+                .filter(commentaire -> Objects.equals(commentaire.getAnnonceId(), annonce.getId()))
+                .filter(this::isPrivateComment)
+                .sorted(Comparator.comparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        Integer scopedPlayerId;
+        if (isCoachOrAdminCurrentUser()) {
+            if (!isConversationOpen(annonce)) {
+                return List.of();
+            }
+            scopedPlayerId = activeConversationPlayerUserId;
+        } else {
+            User currentUser = getCurrentUser();
+            scopedPlayerId = currentUser == null ? null : currentUser.getId();
+        }
+
+        if (scopedPlayerId == null) {
+            return List.of();
+        }
+
+        Integer finalScopedPlayerId = scopedPlayerId;
+        return annonceComments.stream()
+                .filter(commentaire -> Objects.equals(resolveConversationPlayerUserId(commentaire), finalScopedPlayerId))
+                .toList();
+    }
+
+    private boolean isPrivateComment(Commentaire commentaire) {
+        return commentaire != null && "PRIVATE".equalsIgnoreCase(emptyToNull(commentaire.getModerationStatus()));
     }
 
     private User resolveAnnonceAuthor(Annonce annonce) {
@@ -1135,10 +2070,11 @@ public class AnnonceUserController {
     }
 
     private User resolveCommentAuthor(Commentaire commentaire) {
-        if (commentaire == null || commentaire.getJoueurId() == null) {
+        Integer authorUserId = resolveCommentAuthorUserId(commentaire);
+        if (commentaire == null || authorUserId == null) {
             return null;
         }
-        return resolveUserById(commentaire.getJoueurId());
+        return resolveUserById(authorUserId);
     }
 
     private String resolveCommentAuthorName(Commentaire commentaire) {
@@ -1147,6 +2083,133 @@ public class AnnonceUserController {
             return buildDisplayName(author);
         }
         return fallbackText(commentaire == null ? null : commentaire.getAuteurAnonyme(), "Anonymous");
+    }
+
+    private Integer resolveCommentAuthorUserId(Commentaire commentaire) {
+        if (commentaire == null) {
+            return null;
+        }
+        return commentaire.getAuthorUserId() != null ? commentaire.getAuthorUserId() : commentaire.getJoueurId();
+    }
+
+    private Integer resolveConversationPlayerUserId(Commentaire commentaire) {
+        if (commentaire == null) {
+            return null;
+        }
+        if (commentaire.getJoueurId() != null) {
+            return commentaire.getJoueurId();
+        }
+
+        Integer authorUserId = resolveCommentAuthorUserId(commentaire);
+        if (authorUserId == null) {
+            return null;
+        }
+
+        String authorRole = emptyToNull(commentaire.getAuthorRole());
+        if (authorRole != null) {
+            String normalized = authorRole.trim().toUpperCase(Locale.ROOT);
+            if (UserRoles.ROLE_JOUEUR.equals(normalized) || UserRoles.ROLE_USER.equals(normalized)) {
+                return authorUserId;
+            }
+            return null;
+        }
+
+        User author = resolveCommentAuthor(commentaire);
+        return isPlayerRole(author) ? authorUserId : null;
+    }
+
+    private String resolveCommentRoleLabel(Commentaire commentaire) {
+        if (commentaire == null) {
+            return "User";
+        }
+
+        String authorRole = emptyToNull(commentaire.getAuthorRole());
+        if (authorRole != null) {
+            return UserRoles.displayName(authorRole);
+        }
+
+        User author = resolveCommentAuthor(commentaire);
+        if (author != null) {
+            return UserRoles.displayName(author.getPrimaryRole());
+        }
+        return commentaire.getJoueurId() != null ? "Player" : "User";
+    }
+
+    private String resolveCvTitle(Commentaire commentaire) {
+        String explicitTitle = emptyToNull(commentaire == null ? null : commentaire.getCvTitle());
+        if (explicitTitle != null) {
+            return explicitTitle;
+        }
+        String cvName = emptyToNull(commentaire == null ? null : commentaire.getCvName());
+        if (cvName == null) {
+            return "CV";
+        }
+        try {
+            String filename = Path.of(cvName).getFileName().toString();
+            int dashIndex = filename.indexOf('-');
+            if (dashIndex >= 0 && dashIndex + 1 < filename.length()) {
+                filename = filename.substring(dashIndex + 1);
+            }
+            int dotIndex = filename.lastIndexOf('.');
+            if (dotIndex > 0) {
+                filename = filename.substring(0, dotIndex);
+            }
+            return filename.replace('_', ' ');
+        } catch (Exception ignored) {
+            return cvName;
+        }
+    }
+
+    private String deriveCvTitleFromPath(Path path) {
+        if (path == null || path.getFileName() == null) {
+            return "CV";
+        }
+        String filename = path.getFileName().toString();
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex > 0) {
+            filename = filename.substring(0, dotIndex);
+        }
+        return filename.replace('_', ' ');
+    }
+
+    private String resolveAnnonceTitle(Integer annonceId) {
+        if (annonceId == null) {
+            return "Announcement";
+        }
+        return annonces.stream()
+                .filter(annonce -> Objects.equals(annonce.getId(), annonceId))
+                .map(Annonce::getTitre)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse("Announcement #" + annonceId);
+    }
+
+    private Window resolveWindow(Region region) {
+        return region == null || region.getScene() == null ? null : region.getScene().getWindow();
+    }
+
+    private void openCommentCv(Commentaire commentaire) {
+        if (commentCvStorageService == null) {
+            showAlert(Alert.AlertType.WARNING, "Comments", "CV storage is not ready.");
+            return;
+        }
+
+        Path cvPath = commentCvStorageService.resolve(commentaire == null ? null : commentaire.getCvName());
+        if (cvPath == null || !Files.exists(cvPath)) {
+            showAlert(Alert.AlertType.WARNING, "Comments", "The attached CV could not be found.");
+            return;
+        }
+
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(cvPath.toFile());
+                return;
+            } catch (IOException ignored) {
+                // Fall through to a path alert.
+            }
+        }
+
+        showAlert(Alert.AlertType.INFORMATION, "Comments", "CV location: " + cvPath.toAbsolutePath());
     }
 
     private User resolveUserById(Integer userId) {

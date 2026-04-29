@@ -483,7 +483,16 @@ public class HomeController {
 
     @FXML
     private void handleRegisterFace() {
-        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/face_register.fxml", "/tn/esprit/styles/auth-theme.css", "Register Face | Sport Insight");
+        User currentUser = AuthSession.getCurrentUser();
+        SceneNavigator.switchScene(sidebarBrandBox,
+                "/tn/esprit/views/face_register.fxml",
+                "/tn/esprit/styles/auth-theme.css",
+                "Register Face | Sport Insight",
+                controller -> {
+                    if (controller instanceof FaceRegisterController faceRegisterController && currentUser != null) {
+                        faceRegisterController.setTargetUser(currentUser);
+                    }
+                });
     }
 
     @FXML
