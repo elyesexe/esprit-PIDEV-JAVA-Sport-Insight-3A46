@@ -53,9 +53,25 @@ CREATE TABLE `user` (
     `date_inscription` DATETIME NOT NULL,
     `cv_name` VARCHAR(255) NULL,
     `updated_at` DATETIME NULL,
+    `face_registered` TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     KEY `idx_user_email` (`email`),
     KEY `idx_user_status` (`statut`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `password_reset_token` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `token` VARCHAR(16) NOT NULL,
+    `expires_at` DATETIME NOT NULL,
+    `used` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_password_reset_user` (`user_id`),
+    KEY `idx_password_reset_token` (`token`),
+    CONSTRAINT `fk_password_reset_user`
+        FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+        ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `sponsor` (

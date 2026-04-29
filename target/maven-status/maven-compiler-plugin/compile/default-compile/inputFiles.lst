@@ -38,8 +38,12 @@ C:\PI Java\src\main\java\tn\esprit\Controller\EquipeController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\EquipeDetailController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\EquipeFormController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\EquipeListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FaceLoginController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FaceRegisterController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\FoodTrackingController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\FootballNewsController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\ForgotPasswordController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\GoogleLoginController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\HomeController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\JoueurCompetitionController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\JoueurController.java
@@ -89,6 +93,8 @@ C:\PI Java\src\main\java\tn\esprit\entities\Participation.java
 C:\PI Java\src\main\java\tn\esprit\entities\Product.java
 C:\PI Java\src\main\java\tn\esprit\entities\Sponsor.java
 C:\PI Java\src\main\java\tn\esprit\entities\User.java
+C:\PI Java\src\main\java\tn\esprit\face\FaceRecognitionService.java
+C:\PI Java\src\main\java\tn\esprit\face\WebcamService.java
 C:\PI Java\src\main\java\tn\esprit\gui\AdminNavigation.java
 C:\PI Java\src\main\java\tn\esprit\gui\AdminTableButtons.java
 C:\PI Java\src\main\java\tn\esprit\gui\AdminTableScrollSupport.java
@@ -133,6 +139,7 @@ C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
 C:\PI Java\src\main\java\tn\esprit\services\ContratSponsorService.java
 C:\PI Java\src\main\java\tn\esprit\services\DailyNutritionSummaryService.java
+C:\PI Java\src\main\java\tn\esprit\services\EmailService.java
 C:\PI Java\src\main\java\tn\esprit\services\EntrainementService.java
 C:\PI Java\src\main\java\tn\esprit\services\EquipeService.java
 C:\PI Java\src\main\java\tn\esprit\services\EvaluationNotificationService.java
@@ -167,6 +174,7 @@ C:\PI Java\src\main\java\tn\esprit\services\football\TheSportsDbClient.java
 C:\PI Java\src\main\java\tn\esprit\services\football\TheSportsDbCompetitionMappings.java
 C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeService.java
 C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeVideo.java
+C:\PI Java\src\main\java\tn\esprit\services\GoogleOAuthService.java
 C:\PI Java\src\main\java\tn\esprit\services\IService.java
 C:\PI Java\src\main\java\tn\esprit\services\JoueurService.java
 C:\PI Java\src\main\java\tn\esprit\services\MatchApiServer.java
@@ -181,6 +189,7 @@ C:\PI Java\src\main\java\tn\esprit\services\NutritionApiService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderPdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderService.java
 C:\PI Java\src\main\java\tn\esprit\services\ParticipationService.java
+C:\PI Java\src\main\java\tn\esprit\services\PasswordResetService.java
 C:\PI Java\src\main\java\tn\esprit\services\PerformanceAnalyticsService.java
 C:\PI Java\src\main\java\tn\esprit\services\PlayerPortraitService.java
 C:\PI Java\src\main\java\tn\esprit\services\ProductPdfExportService.java

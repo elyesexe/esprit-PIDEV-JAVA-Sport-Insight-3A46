@@ -21,6 +21,9 @@ public final class SceneNavigator {
     private static final String CURRENT_SCENE_STATE_KEY = SceneNavigator.class.getName() + ".currentSceneState";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
     private static final String SIGNUP_VIEW = "/tn/esprit/views/signup-view.fxml";
+    private static final String FACE_LOGIN_VIEW = "/tn/esprit/views/face_login.fxml";
+    private static final String FORGOT_PASSWORD_VIEW = "/tn/esprit/views/forgot_password.fxml";
+    private static final String GOOGLE_LOGIN_VIEW = "/tn/esprit/views/google_login.fxml";
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
     private static final String HOME_VIEW = "/tn/esprit/views/home-view.fxml";
     private static final String HOME_CSS = "/tn/esprit/styles/home-theme.css";
@@ -29,7 +32,13 @@ public final class SceneNavigator {
     private static final String POPUP_DARK_CSS = "popup-dark.css";
     private static final String POPUP_LIGHT_CSS = "popup-light.css";
 
-    private static final Set<String> PUBLIC_VIEWS = Set.of(LOGIN_VIEW, SIGNUP_VIEW);
+    private static final Set<String> PUBLIC_VIEWS = Set.of(
+            LOGIN_VIEW,
+            SIGNUP_VIEW,
+            FACE_LOGIN_VIEW,
+            FORGOT_PASSWORD_VIEW,
+            GOOGLE_LOGIN_VIEW
+    );
     private static final Set<String> ADMIN_VIEWS = Set.of(
             "/tn/esprit/views/admin-shell.fxml",
             "/tn/esprit/views/admin-dashboard.fxml",

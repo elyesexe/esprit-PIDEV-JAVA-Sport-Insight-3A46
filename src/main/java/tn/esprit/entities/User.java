@@ -22,7 +22,7 @@ public class User {
     private LocalDateTime dateInscription;
     private String cvName;
     private LocalDateTime updatedAt;
-
+    private boolean faceRegistered = false;
     public User() {
     }
 
@@ -196,5 +196,13 @@ public class User {
                 ", cvName='" + cvName + '\'' +
                 ", updatedAt=" + updatedAt +
                 '}';
+    }
+
+    public boolean isFaceRegistered() {
+        return faceRegistered;
+    }
+
+    public void setFaceRegistered(boolean faceRegistered) {
+        this.faceRegistered = faceRegistered;
     }
 }

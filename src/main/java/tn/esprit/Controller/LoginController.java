@@ -34,6 +34,8 @@ public class LoginController {
     private Label feedbackLabel;
     @FXML
     private Button signInButton;
+    @FXML
+    private Button faceLoginButton;
 
     private volatile UserService userService;
     private volatile boolean userServiceLoading;
@@ -103,6 +105,21 @@ public class LoginController {
                 "Sport Insight | Create account");
     }
 
+    @FXML
+    private void onFaceLogin() {
+        openAuthFeature("/tn/esprit/views/face_login.fxml", "Sport Insight | Face Login");
+    }
+
+    @FXML
+    private void onForgotPassword() {
+        openAuthFeature("/tn/esprit/views/forgot_password.fxml", "Sport Insight | Forgot Password");
+    }
+
+    @FXML
+    private void onGoogleLogin() {
+        openAuthFeature("/tn/esprit/views/google_login.fxml", "Sport Insight | Google Login");
+    }
+
     public void prefillEmail(String email) {
         if (emailField != null && email != null) {
             emailField.setText(email);
@@ -135,6 +152,13 @@ public class LoginController {
 
     private String clean(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private void openAuthFeature(String fxmlPath, String title) {
+        SceneNavigator.switchScene(signInButton,
+                fxmlPath,
+                "/tn/esprit/styles/auth-theme.css",
+                title);
     }
 
     private void applyAuthThemeChrome() {

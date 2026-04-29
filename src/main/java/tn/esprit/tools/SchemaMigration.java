@@ -262,7 +262,8 @@ public final class SchemaMigration {
                             statut VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
                             date_inscription DATETIME NOT NULL,
                             cv_name VARCHAR(255) NULL,
-                            updated_at DATETIME NULL
+                            updated_at DATETIME NULL,
+                            face_registered TINYINT(1) NOT NULL DEFAULT 0
                         )
                         """);
             }
@@ -274,11 +275,33 @@ public final class SchemaMigration {
             addColumnIfMissing(metaData, catalog, statement, "user", "date_inscription", "DATETIME NOT NULL");
             addColumnIfMissing(metaData, catalog, statement, "user", "cv_name", "VARCHAR(255) NULL");
             addColumnIfMissing(metaData, catalog, statement, "user", "updated_at", "DATETIME NULL");
+            addColumnIfMissing(metaData, catalog, statement, "user", "face_registered", "TINYINT(1) NOT NULL DEFAULT 0");
 
             addIndexIfMissing(metaData, catalog, statement, "user", "idx_user_email",
                     "CREATE INDEX idx_user_email ON `user` (email)");
             addIndexIfMissing(metaData, catalog, statement, "user", "idx_user_status",
                     "CREATE INDEX idx_user_status ON `user` (statut)");
+
+            if (!tableExists(metaData, catalog, "password_reset_token")) {
+                statement.executeUpdate("""
+                        CREATE TABLE password_reset_token (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            token VARCHAR(16) NOT NULL,
+                            expires_at DATETIME NOT NULL,
+                            used TINYINT(1) NOT NULL DEFAULT 0,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            CONSTRAINT fk_password_reset_user
+                                FOREIGN KEY (user_id) REFERENCES `user` (id)
+                                ON DELETE CASCADE ON UPDATE CASCADE
+                        )
+                        """);
+            }
+
+            addIndexIfMissing(metaData, catalog, statement, "password_reset_token", "idx_password_reset_user",
+                    "CREATE INDEX idx_password_reset_user ON password_reset_token (user_id)");
+            addIndexIfMissing(metaData, catalog, statement, "password_reset_token", "idx_password_reset_token",
+                    "CREATE INDEX idx_password_reset_token ON password_reset_token (token)");
         }
     }
 

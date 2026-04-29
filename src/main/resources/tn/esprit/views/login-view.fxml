@@ -148,7 +148,23 @@
                                                     maxWidth="Infinity"
                                                     styleClass="auth-primary-button"
                                                     HBox.hgrow="ALWAYS"/>
+                                            <Button fx:id="faceLoginButton"
+                                                    onAction="#onFaceLogin"
+                                                    text="Face login"
+                                                    maxWidth="Infinity"
+                                                    styleClass="auth-primary-button"
+                                                    HBox.hgrow="ALWAYS"/>
                                         </HBox>
+
+                                        <Button onAction="#onForgotPassword"
+                                                text="Forgot password?"
+                                                maxWidth="Infinity"
+                                                styleClass="auth-ghost-button"/>
+
+                                        <Button onAction="#onGoogleLogin"
+                                                text="Continue with Google"
+                                                maxWidth="Infinity"
+                                                styleClass="auth-ghost-button"/>
                                     </VBox>
 
                                     <VBox spacing="8" styleClass="auth-switch">

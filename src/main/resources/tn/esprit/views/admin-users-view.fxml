@@ -262,6 +262,21 @@
                                        styleClass="admin-user-note"/>
 
                                 <HBox spacing="10" styleClass="admin-user-form-actions">
+                                    <Button fx:id="registerFaceBtn"
+                                            onAction="#handleRegisterFace"
+                                            text="Register Face"
+                                            maxWidth="Infinity"
+                                            styleClass="primary-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="deleteFaceBtn"
+                                            onAction="#handleDeleteFace"
+                                            text="Delete Face"
+                                            maxWidth="Infinity"
+                                            styleClass="danger-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                </HBox>
+
+                                <HBox spacing="10" styleClass="admin-user-form-actions">
                                     <Button fx:id="saveButton"
                                             onAction="#handleSave"
                                             text="%common.action.saveChanges"

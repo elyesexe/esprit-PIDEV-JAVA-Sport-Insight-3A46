@@ -9,7 +9,10 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
@@ -24,7 +27,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import tn.esprit.entities.User;
+import tn.esprit.face.FaceRecognitionService;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.UserPdfExportService;
@@ -42,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,6 +127,10 @@ public class AdminUserModerationController {
     private Button saveButton;
     @FXML
     private Button deleteButton;
+    @FXML
+    private Button registerFaceBtn;
+    @FXML
+    private Button deleteFaceBtn;
 
     private final ObservableList<User> users = FXCollections.observableArrayList();
     private final FilteredList<User> filteredUsers = new FilteredList<>(users, user -> true);
@@ -127,6 +138,7 @@ public class AdminUserModerationController {
 
     private UserService userService;
     private UserPdfExportService userPdfExportService;
+    private FaceRecognitionService faceService;
     private User selectedUser;
     private boolean darkMode;
     private final AtomicLong refreshSequence = new AtomicLong();
@@ -141,10 +153,17 @@ public class AdminUserModerationController {
         try {
             userService = new UserService();
             userPdfExportService = new UserPdfExportService();
+            faceService = new FaceRecognitionService();
             refreshUsersAsync(null, "Loading user moderation data...", "status-muted");
         } catch (IllegalStateException ex) {
             saveButton.setDisable(true);
             deleteButton.setDisable(true);
+            if (registerFaceBtn != null) {
+                registerFaceBtn.setDisable(true);
+            }
+            if (deleteFaceBtn != null) {
+                deleteFaceBtn.setDisable(true);
+            }
             showStatus("User moderation is unavailable because the database connection failed.", "status-error");
         }
     }
@@ -293,6 +312,7 @@ public class AdminUserModerationController {
             }
 
             userService.update(selectedUser);
+            refreshFaceLabel(selectedUser);
             refreshUsersAsync(selectedUser.getId(), "User profile updated successfully.", "status-success");
         } catch (SQLException | IllegalArgumentException ex) {
             showValidation("The user could not be updated. " + ex.getMessage());
@@ -330,7 +350,11 @@ public class AdminUserModerationController {
         }
 
         try {
-            userService.delete(selectedUser.getId());
+            int deletedId = selectedUser.getId();
+            userService.delete(deletedId);
+            if (faceService != null) {
+                faceService.deleteFace(deletedId);
+            }
             clearForm();
             refreshUsersAsync(null, "User deleted successfully.", "status-success");
         } catch (SQLException ex) {
@@ -342,6 +366,71 @@ public class AdminUserModerationController {
     private void handleClear() {
         clearForm();
         showStatus("Selection cleared.", "status-muted");
+    }
+
+    @FXML
+    private void handleRegisterFace() {
+        hideValidation();
+
+        if (selectedUser == null) {
+            showValidation("Select a user in the table before registering their face.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/tn/esprit/views/face_register.fxml"));
+            Parent root = loader.load();
+
+            FaceRegisterController controller = loader.getController();
+            controller.setTargetUser(selectedUser);
+
+            Stage modal = new Stage();
+            modal.setTitle("Register Face | " + selectedUser.getDisplayName());
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(userTableView.getScene().getWindow());
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.showAndWait();
+
+            refreshFaceLabel(selectedUser);
+            updateFaceButtonState(selectedUser);
+            showStatus("Face registration completed for " + selectedUser.getDisplayName() + ".", "status-success");
+        } catch (Exception ex) {
+            showValidation("Could not open face registration. " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleDeleteFace() {
+        hideValidation();
+
+        if (selectedUser == null) {
+            showValidation("Select a user before deleting their face data.");
+            return;
+        }
+        if (faceService == null) {
+            showValidation("Face recognition is not available.");
+            return;
+        }
+        if (!faceService.isFaceRegistered(selectedUser.getId())) {
+            showValidation(selectedUser.getDisplayName() + " has no registered face data.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete face data");
+        confirm.setHeaderText("Delete face data for " + selectedUser.getDisplayName() + "?");
+        confirm.setContentText("The user will no longer be able to log in with face recognition.");
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+
+        if (faceService.deleteFace(selectedUser.getId())) {
+            updateFaceButtonState(selectedUser);
+            showStatus("Face data deleted for " + selectedUser.getDisplayName() + ".", "status-success");
+        } else {
+            showValidation("Face data could not be fully deleted. Check the application logs.");
+        }
     }
 
     private void configureInputs() {
@@ -426,6 +515,7 @@ public class AdminUserModerationController {
                 return;
             }
             users.setAll(loadTask.getValue());
+            refreshFaceLabels(loadTask.getValue());
             applyFilter();
             updateMetrics();
             if (preferredUserId != null) {
@@ -523,6 +613,7 @@ public class AdminUserModerationController {
     private void populateForm(User user) {
         selectedUser = user;
         hideValidation();
+        updateFaceButtonState(user);
 
         if (user == null) {
             selectionStateLabel.setText("Select a user");
@@ -690,6 +781,33 @@ public class AdminUserModerationController {
                 node.setStyle("-fx-text-fill: " + legendColor + ";"));
         accountStatusPieChart.lookupAll(".chart-legend-item .label").forEach(node ->
                 node.setStyle("-fx-text-fill: " + legendColor + ";"));
+    }
+
+    private void refreshFaceLabels(List<User> loadedUsers) {
+        if (faceService == null || loadedUsers == null) {
+            return;
+        }
+        for (User user : loadedUsers) {
+            refreshFaceLabel(user);
+        }
+    }
+
+    private void refreshFaceLabel(User user) {
+        if (faceService == null || user == null || user.getId() == null || user.getEmail() == null) {
+            return;
+        }
+        faceService.refreshLabels(Map.of(user.getId(), user.getEmail()));
+    }
+
+    private void updateFaceButtonState(User user) {
+        boolean hasUser = user != null && user.getId() != null;
+        boolean hasFace = hasUser && faceService != null && faceService.isFaceRegistered(user.getId());
+        if (registerFaceBtn != null) {
+            registerFaceBtn.setDisable(!hasUser);
+        }
+        if (deleteFaceBtn != null) {
+            deleteFaceBtn.setDisable(!hasFace);
+        }
     }
 
     private String emptyIfNull(String value) {
