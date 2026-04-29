@@ -368,6 +368,9 @@ public class NotificationCenterController {
         if (notification != null && notification.isWorkflowType()) {
             return buildWorkflowNotificationCard(notification);
         }
+        if (isSponsorContractExpired(notification)) {
+            return buildSponsorContractCard(notification);
+        }
 
         Label unreadChip = new Label(notification.isRead() ? "Lue" : "Nouveau");
         unreadChip.getStyleClass().addAll("notification-meta-chip", notification.isRead() ? "notification-meta-chip-read" : "notification-meta-chip-unread");
@@ -461,6 +464,69 @@ public class NotificationCenterController {
             card.getStyleClass().add("notification-card-unread");
         }
         card.setOnMouseClicked(event -> replayNotification(notification));
+        return card;
+    }
+
+    private VBox buildSponsorContractCard(Notification notification) {
+        Label unreadChip = new Label(notification.isRead() ? "Lue" : "Nouveau");
+        unreadChip.getStyleClass().addAll("notification-meta-chip", notification.isRead() ? "notification-meta-chip-read" : "notification-meta-chip-unread");
+
+        Label typeChip = new Label("Contrat sponsor");
+        typeChip.getStyleClass().add("notification-meta-chip");
+
+        Label timeLabel = new Label(formatCreatedAt(notification.getCreatedAt()));
+        timeLabel.getStyleClass().add("notification-time-label");
+
+        Region topSpacer = new Region();
+        HBox.setHgrow(topSpacer, Priority.ALWAYS);
+
+        HBox topRow = new HBox(8, unreadChip, typeChip, topSpacer, timeLabel);
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+        StackPane sponsorAvatar = createActorLogo(null, notification.getActorName());
+
+        Label sponsorNameLabel = new Label(emptyToFallback(notification.getActorName(), "Sponsor"));
+        sponsorNameLabel.getStyleClass().add("notification-team-name");
+
+        Label sponsorRoleLabel = new Label(emptyToFallback(notification.getMinuteLabel(), "Expired"));
+        sponsorRoleLabel.getStyleClass().add("notification-score-caption");
+
+        VBox sponsorText = new VBox(3, sponsorNameLabel, sponsorRoleLabel);
+        sponsorText.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(sponsorText, Priority.ALWAYS);
+
+        HBox sponsorRow = new HBox(12, sponsorAvatar, sponsorText);
+        sponsorRow.setAlignment(Pos.CENTER_LEFT);
+        sponsorRow.getStyleClass().add("notification-teams-row");
+
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), "Contrat sponsor expire"));
+        titleLabel.getStyleClass().add("notification-title");
+        titleLabel.setWrapText(true);
+
+        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), "Un contrat sponsor est arrive a expiration."));
+        messageLabel.getStyleClass().add("notification-message");
+        messageLabel.setWrapText(true);
+
+        Button markReadButton = new Button(notification.isRead() ? "Deja lue" : "Marquer comme lue");
+        markReadButton.getStyleClass().add("ghost-button");
+        markReadButton.setDisable(notification.isRead());
+        markReadButton.setFocusTraversable(false);
+        markReadButton.setOnAction(event -> {
+            event.consume();
+            markNotificationAsRead(notification, true);
+        });
+
+        HBox actionsRow = new HBox(10, markReadButton);
+        actionsRow.setAlignment(Pos.CENTER_LEFT);
+        actionsRow.getStyleClass().add("notification-actions-row");
+
+        VBox card = new VBox(14, topRow, sponsorRow, titleLabel, messageLabel, actionsRow);
+        card.setPadding(new Insets(16, 18, 18, 18));
+        card.getStyleClass().add("notification-card");
+        if (!notification.isRead()) {
+            card.getStyleClass().add("notification-card-unread");
+        }
+        card.setOnMouseClicked(event -> markNotificationAsRead(notification, false));
         return card;
     }
 
@@ -839,6 +905,11 @@ public class NotificationCenterController {
     private boolean isUrgentAnnonce(Notification notification) {
         return notification != null
                 && NotificationService.TYPE_URGENT_ANNONCE.equalsIgnoreCase(emptyToFallback(notification.getType(), ""));
+    }
+
+    private boolean isSponsorContractExpired(Notification notification) {
+        return notification != null
+                && NotificationService.TYPE_SPONSOR_CONTRACT_EXPIRED.equalsIgnoreCase(emptyToFallback(notification.getType(), ""));
     }
 
     private Integer currentUserId() {

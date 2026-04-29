@@ -18,11 +18,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import tn.esprit.entities.ContratSponsor;
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Entrainement;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
+import tn.esprit.entities.Sponsor;
 import tn.esprit.entities.User;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.UserRoles;
@@ -31,6 +33,7 @@ import tn.esprit.services.EntrainementService;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.MatchsService;
+import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.services.UserService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
@@ -42,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -109,6 +113,14 @@ public class AdminDashboardController {
     private Label joueurCountLabel;
     @FXML
     private Label matchCountLabel;
+    @FXML
+    private Label sponsorCountLabel;
+    @FXML
+    private Label sponsorContractCountLabel;
+    @FXML
+    private Label sponsorSatisfactionLabel;
+    @FXML
+    private Label sponsorMappedCountLabel;
     @FXML
     private Label dashboardStatusLabel;
     @FXML
@@ -294,6 +306,7 @@ public class AdminDashboardController {
                         .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
                         .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
                         .reversed());
+                SponsoringDashboard sponsoringDashboard = loadSponsoringDashboard();
 
                 List<UserRow> userRows = users.stream()
                         .limit(6)
@@ -345,6 +358,7 @@ public class AdminDashboardController {
                         buildMatchDate(match),
                         emptyIfNull(match.getStatut(), "Programme")
                 )));
+                operationRows.addAll(sponsoringDashboard.operations());
 
                 return new DashboardPayload(
                         users.size(),
@@ -353,6 +367,7 @@ public class AdminDashboardController {
                         equipes.size(),
                         joueurs.size(),
                         matchs.size(),
+                        sponsoringDashboard,
                         equipes,
                         joueurs,
                         matchs,
@@ -373,6 +388,10 @@ public class AdminDashboardController {
             equipeCountLabel.setText(String.valueOf(payload.equipeCount()));
             joueurCountLabel.setText(String.valueOf(payload.joueurCount()));
             matchCountLabel.setText(String.valueOf(payload.matchCount()));
+            sponsorCountLabel.setText(String.valueOf(payload.sponsoring().sponsorCount()));
+            sponsorContractCountLabel.setText(String.valueOf(payload.sponsoring().contractCount()));
+            sponsorSatisfactionLabel.setText(payload.sponsoring().paidContracts() + " / " + payload.sponsoring().unpaidContracts());
+            sponsorMappedCountLabel.setText(String.valueOf(payload.sponsoring().mappedSponsors()));
             usersTableView.setItems(FXCollections.observableArrayList(payload.latestUsers()));
             annoncesTableView.setItems(FXCollections.observableArrayList(payload.latestAnnonces()));
             entrainementsTableView.setItems(FXCollections.observableArrayList(payload.latestEntrainements()));
@@ -388,6 +407,10 @@ public class AdminDashboardController {
             equipeCountLabel.setText("-");
             joueurCountLabel.setText("-");
             matchCountLabel.setText("-");
+            sponsorCountLabel.setText("-");
+            sponsorContractCountLabel.setText("-");
+            sponsorSatisfactionLabel.setText("-");
+            sponsorMappedCountLabel.setText("-");
             usersTableView.setItems(FXCollections.observableArrayList());
             annoncesTableView.setItems(FXCollections.observableArrayList());
             entrainementsTableView.setItems(FXCollections.observableArrayList());
@@ -404,6 +427,63 @@ public class AdminDashboardController {
         DB_EXECUTOR.execute(task);
     }
 
+    private SponsoringDashboard loadSponsoringDashboard() {
+        try {
+            SponsoringWorkspaceService sponsoringWorkspaceService = new SponsoringWorkspaceService();
+            SponsoringWorkspaceService.SponsoringSnapshot snapshot = sponsoringWorkspaceService.loadSnapshot();
+
+            long paidContracts = snapshot.contrats().stream()
+                    .filter(this::isPaidSponsorContract)
+                    .count();
+            long unpaidContracts = Math.max(0, snapshot.contrats().size() - paidContracts);
+            long mappedSponsors = snapshot.sponsors().stream()
+                    .filter(sponsor -> emptyToNull(sponsor.getAdresse()) != null)
+                    .count();
+
+            List<OperationRow> sponsorOperations = new ArrayList<>();
+            snapshot.sponsors().stream().limit(2).forEach(sponsor -> sponsorOperations.add(new OperationRow(
+                    "Sponsor",
+                    emptyIfNull(sponsor.getNom(), "Sponsor"),
+                    emptyIfNull(sponsor.getAdresse(), "Adresse non renseignee"),
+                    formatCompactCurrency(sponsor.getBudget())
+            )));
+            snapshot.contrats().stream().limit(2).forEach(contrat -> sponsorOperations.add(new OperationRow(
+                    "Contrat sponsor",
+                    buildSponsorContractLabel(snapshot, contrat),
+                    buildSponsorContractTeam(snapshot, contrat),
+                    sponsoringWorkspaceService.resolveContractStatus(contrat)
+                            + " / "
+                            + sponsoringWorkspaceService.resolvePaymentStatus(contrat)
+            )));
+
+            return new SponsoringDashboard(
+                    snapshot.sponsors().size(),
+                    snapshot.contrats().size(),
+                    paidContracts,
+                    unpaidContracts,
+                    mappedSponsors,
+                    sponsorOperations
+            );
+        } catch (Exception e) {
+            return SponsoringDashboard.empty();
+        }
+    }
+
+    private boolean isPaidSponsorContract(ContratSponsor contrat) {
+        String paymentStatus = contrat == null ? null : emptyToNull(contrat.getStatutPaiement());
+        return paymentStatus != null && paymentStatus.equalsIgnoreCase("PAID");
+    }
+
+    private String buildSponsorContractLabel(SponsoringWorkspaceService.SponsoringSnapshot snapshot, ContratSponsor contrat) {
+        Sponsor sponsor = snapshot.sponsorOf(contrat);
+        return emptyIfNull(sponsor == null ? null : sponsor.getNom(), "Sponsor");
+    }
+
+    private String buildSponsorContractTeam(SponsoringWorkspaceService.SponsoringSnapshot snapshot, ContratSponsor contrat) {
+        Equipe equipe = snapshot.equipeOf(contrat);
+        return emptyIfNull(equipe == null ? null : equipe.getNom(), "Equipe");
+    }
+
     private void setLoadingState() {
         userCountLabel.setText("...");
         annonceCountLabel.setText("...");
@@ -411,6 +491,10 @@ public class AdminDashboardController {
         equipeCountLabel.setText("...");
         joueurCountLabel.setText("...");
         matchCountLabel.setText("...");
+        sponsorCountLabel.setText("...");
+        sponsorContractCountLabel.setText("...");
+        sponsorSatisfactionLabel.setText("...");
+        sponsorMappedCountLabel.setText("...");
         usersTableView.setItems(FXCollections.observableArrayList());
         annoncesTableView.setItems(FXCollections.observableArrayList());
         entrainementsTableView.setItems(FXCollections.observableArrayList());
@@ -792,6 +876,13 @@ public class AdminDashboardController {
         return date == null ? "-" : DATE_FORMATTER.format(date);
     }
 
+    private String formatCompactCurrency(double amount) {
+        if (Math.abs(amount) >= 1000) {
+            return String.format(Locale.ENGLISH, "%,.1fK DT", amount / 1000.0);
+        }
+        return String.format(Locale.ENGLISH, "%,.0f DT", amount);
+    }
+
     private String buildTrainingTime(Entrainement entrainement) {
         String start = entrainement.getHeureDebut() == null ? "--:--" : TIME_FORMATTER.format(entrainement.getHeureDebut());
         String end = entrainement.getHeureFin() == null ? "--:--" : TIME_FORMATTER.format(entrainement.getHeureFin());
@@ -825,6 +916,7 @@ public class AdminDashboardController {
             int equipeCount,
             int joueurCount,
             int matchCount,
+            SponsoringDashboard sponsoring,
             List<Equipe> equipes,
             List<Joueur> joueurs,
             List<Matchs> matchs,
@@ -846,6 +938,19 @@ public class AdminDashboardController {
     }
 
     private record OperationRow(String module, String primary, String secondary, String meta) {
+    }
+
+    private record SponsoringDashboard(
+            int sponsorCount,
+            int contractCount,
+            long paidContracts,
+            long unpaidContracts,
+            long mappedSponsors,
+            List<OperationRow> operations
+    ) {
+        private static SponsoringDashboard empty() {
+            return new SponsoringDashboard(0, 0, 0, 0, 0, List.of());
+        }
     }
 
     private record TeamOption(Integer id, String label, String competition) {

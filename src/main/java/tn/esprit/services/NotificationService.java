@@ -1,5 +1,6 @@
 package tn.esprit.services;
 
+import tn.esprit.entities.ContratSponsor;
 import tn.esprit.entities.Notification;
 import tn.esprit.tools.MyConnection;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class NotificationService {
     public static final String TYPE_URGENT_ANNONCE = "URGENT_ANNONCE";
+    public static final String TYPE_SPONSOR_CONTRACT_EXPIRED = "SPONSOR_CONTRACT_EXPIRED";
 
     private final Connection connection;
 
@@ -172,6 +174,41 @@ public class NotificationService {
                 "danger"
         );
         notification.setActorImage(coachImage);
+        createIfAbsent(notification);
+    }
+
+    public void addSponsorContractExpiredNotification(
+            Integer recipientUserId,
+            ContratSponsor contrat,
+            String sponsorName
+    ) throws SQLException {
+        if (recipientUserId == null || contrat == null) {
+            return;
+        }
+
+        String safeSponsor = sponsorName == null || sponsorName.isBlank() ? "Sponsor" : sponsorName.trim();
+        String contractId = contrat.getId() == null ? "unknown" : String.valueOf(contrat.getId());
+        String endDate = contrat.getDateFin() == null ? "date inconnue" : contrat.getDateFin().toString();
+        String dedupeKey = "sponsor-contract-expired:" + contractId + ":" + recipientUserId;
+
+        Notification notification = new Notification(
+                "Contrat sponsor expire",
+                "Le contrat sponsor de " + safeSponsor + " est arrive a expiration le " + endDate + ".",
+                TYPE_SPONSOR_CONTRACT_EXPIRED,
+                LocalDateTime.now(),
+                false,
+                recipientUserId,
+                null,
+                dedupeKey,
+                null,
+                null,
+                null,
+                null,
+                null,
+                safeSponsor,
+                "Expired",
+                "warning"
+        );
         createIfAbsent(notification);
     }
 

@@ -394,6 +394,9 @@ public final class NavbarNotificationCenter {
         if (isUrgentAnnonce(notification)) {
             return buildUrgentAnnonceRow(notification);
         }
+        if (isSponsorContractExpired(notification)) {
+            return buildSponsorContractRow(notification);
+        }
 
         boolean workflowNotification = notification != null && notification.isWorkflowType();
         HBox logosRow = workflowNotification
@@ -465,6 +468,39 @@ public final class NavbarNotificationCenter {
                 replayNotification(notification);
             }
         });
+        return row;
+    }
+
+    private HBox buildSponsorContractRow(Notification notification) {
+        StackPane sponsorLogo = buildActorLogo(null, notification.getActorName());
+
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), "Sponsor contract"));
+        titleLabel.setWrapText(true);
+        titleLabel.getStyleClass().add("navbar-notification-item-title");
+
+        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), "A sponsor contract expired."));
+        messageLabel.setWrapText(true);
+        messageLabel.getStyleClass().add("navbar-notification-item-message");
+
+        Label metaLabel = new Label("Sponsor | " + buildMetaLine(notification));
+        metaLabel.getStyleClass().add("navbar-notification-item-meta");
+
+        VBox textBox = new VBox(4, titleLabel, messageLabel, metaLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        Label unreadDot = new Label();
+        unreadDot.getStyleClass().add("navbar-notification-dot");
+        unreadDot.setManaged(!notification.isRead());
+        unreadDot.setVisible(!notification.isRead());
+
+        HBox row = new HBox(12, sponsorLogo, textBox, unreadDot);
+        row.setAlignment(Pos.TOP_LEFT);
+        row.getStyleClass().add("navbar-notification-row");
+        if (!notification.isRead()) {
+            row.getStyleClass().add("navbar-notification-row-unread");
+        }
+        row.setOnMouseClicked(event -> markNotificationAsReadAsync(notification));
         return row;
     }
 
@@ -771,6 +807,11 @@ public final class NavbarNotificationCenter {
     private boolean isUrgentAnnonce(Notification notification) {
         return notification != null
                 && NotificationService.TYPE_URGENT_ANNONCE.equalsIgnoreCase(emptyToFallback(notification.getType(), ""));
+    }
+
+    private boolean isSponsorContractExpired(Notification notification) {
+        return notification != null
+                && NotificationService.TYPE_SPONSOR_CONTRACT_EXPIRED.equalsIgnoreCase(emptyToFallback(notification.getType(), ""));
     }
 
     private static ThreadFactory daemonFactory(String threadName) {

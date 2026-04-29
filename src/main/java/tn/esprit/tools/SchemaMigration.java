@@ -62,6 +62,7 @@ public final class SchemaMigration {
 
         ensureAnnonceSchema(connection);
         ensureUserSchema(connection);
+        ensureSponsorSchema(connection);
         ensureFaceIdSchema(connection);
         ensureOrderSchema(connection);
         ensureMatchLiveSchema(connection);
@@ -363,6 +364,73 @@ public final class SchemaMigration {
                     "CREATE INDEX idx_password_reset_user ON password_reset_token (user_id)");
             addIndexIfMissing(metaData, catalog, statement, "password_reset_token", "idx_password_reset_token",
                     "CREATE INDEX idx_password_reset_token ON password_reset_token (token)");
+        }
+    }
+
+    private static void ensureSponsorSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            if (!tableExists(metaData, catalog, "sponsor")) {
+                statement.executeUpdate("""
+                        CREATE TABLE sponsor (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            nom VARCHAR(255) NOT NULL,
+                            email VARCHAR(180) NULL,
+                            telephone VARCHAR(50) NULL,
+                            budget DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+                            logo_name VARCHAR(255) NULL,
+                            updated_at DATETIME NULL,
+                            adresse VARCHAR(255) NULL
+                        )
+                        """);
+            }
+
+            addColumnIfMissing(metaData, catalog, statement, "sponsor", "email", "VARCHAR(180) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "sponsor", "telephone", "VARCHAR(50) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "sponsor", "budget", "DECIMAL(12,2) NOT NULL DEFAULT 0.00");
+            addColumnIfMissing(metaData, catalog, statement, "sponsor", "logo_name", "VARCHAR(255) NULL");
+            addColumnIfMissing(metaData, catalog, statement, "sponsor", "updated_at", "DATETIME NULL");
+            addColumnIfMissing(metaData, catalog, statement, "sponsor", "adresse", "VARCHAR(255) NULL");
+
+            if (tableExists(metaData, catalog, "equipe") && !tableExists(metaData, catalog, "contrat_sponsor")) {
+                statement.executeUpdate("""
+                        CREATE TABLE contrat_sponsor (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            date_debut DATE NOT NULL,
+                            date_fin DATE NOT NULL,
+                            montant DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+                            description TEXT NULL,
+                            statut VARCHAR(100) NULL,
+                            notified BOOLEAN NOT NULL DEFAULT FALSE,
+                            statut_paiement VARCHAR(100) NULL,
+                            sponsor_id INT NOT NULL,
+                            equipe_id INT NOT NULL,
+                            CONSTRAINT fk_contrat_sponsor_sponsor
+                                FOREIGN KEY (sponsor_id) REFERENCES sponsor (id)
+                                ON DELETE CASCADE ON UPDATE CASCADE,
+                            CONSTRAINT fk_contrat_sponsor_equipe
+                                FOREIGN KEY (equipe_id) REFERENCES equipe (id)
+                                ON DELETE CASCADE ON UPDATE CASCADE
+                        )
+                        """);
+            }
+
+            if (tableExists(metaData, catalog, "contrat_sponsor")) {
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "date_debut", "DATE NOT NULL");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "date_fin", "DATE NOT NULL");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "montant", "DECIMAL(12,2) NOT NULL DEFAULT 0.00");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "description", "TEXT NULL");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "statut", "VARCHAR(100) NULL");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "notified", "BOOLEAN NOT NULL DEFAULT FALSE");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "statut_paiement", "VARCHAR(100) NULL");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "sponsor_id", "INT NOT NULL");
+                addColumnIfMissing(metaData, catalog, statement, "contrat_sponsor", "equipe_id", "INT NOT NULL");
+                addIndexIfMissing(metaData, catalog, statement, "contrat_sponsor", "idx_contrat_sponsor_sponsor_id",
+                        "CREATE INDEX idx_contrat_sponsor_sponsor_id ON contrat_sponsor (sponsor_id)");
+                addIndexIfMissing(metaData, catalog, statement, "contrat_sponsor", "idx_contrat_sponsor_equipe_id",
+                        "CREATE INDEX idx_contrat_sponsor_equipe_id ON contrat_sponsor (equipe_id)");
+            }
         }
     }
 

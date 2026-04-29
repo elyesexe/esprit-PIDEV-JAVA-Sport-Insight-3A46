@@ -21,6 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.embed.swing.SwingFXUtils;
 import tn.esprit.entities.ContratSponsor;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Sponsor;
@@ -28,9 +29,12 @@ import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.ContractQrCodeService;
+import tn.esprit.services.SponsorMapViewService;
 import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.tools.SponsorAssets;
 
+import java.awt.image.BufferedImage;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -121,6 +125,8 @@ public class SponsorUserController {
 
     private SidebarModuleGroup sidebarModuleGroup;
     private SponsoringWorkspaceService workspaceService;
+    private ContractQrCodeService qrCodeService;
+    private SponsorMapViewService sponsorMapViewService;
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
 
     @FXML
@@ -139,6 +145,8 @@ public class SponsorUserController {
 
         try {
             workspaceService = new SponsoringWorkspaceService();
+            qrCodeService = new ContractQrCodeService();
+            sponsorMapViewService = new SponsorMapViewService();
             refreshData("Sponsor feed ready.");
         } catch (SQLException e) {
             showErrorStatus("Sponsor feed unavailable.");
@@ -507,7 +515,17 @@ public class SponsorUserController {
                 buildInfoLine("Address", fallbackText(sponsor == null ? null : sponsor.getAdresse(), "-"))
         );
 
-        card.getChildren().addAll(header, budgetLabel, body);
+        HBox actionRow = new HBox(10);
+        Button mapButton = new Button("View map");
+        mapButton.getStyleClass().add("primary-button");
+        mapButton.setOnAction(event -> sponsorMapViewService.showMap(
+                pageRoot == null || pageRoot.getScene() == null ? null : pageRoot.getScene().getWindow(),
+                sponsor == null ? null : sponsor.getNom(),
+                sponsor == null ? null : sponsor.getAdresse()
+        ));
+        actionRow.getChildren().add(mapButton);
+
+        card.getChildren().addAll(header, budgetLabel, body, actionRow);
         return card;
     }
 
@@ -570,8 +588,72 @@ public class SponsorUserController {
         descriptionLabel.setWrapText(true);
         descriptionLabel.getStyleClass().add("sponsor-contract-description");
 
-        card.getChildren().addAll(header, infoFlow, descriptionLabel);
+        HBox qrSection = buildQrSection(model);
+        HBox mapSection = buildContractMapSection(model);
+
+        card.getChildren().addAll(header, infoFlow, descriptionLabel, qrSection, mapSection);
         return card;
+    }
+
+    private HBox buildContractMapSection(ContractViewModel model) {
+        HBox row = new HBox(10);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        Button mapButton = new Button("View sponsor map");
+        mapButton.getStyleClass().add("ghost-button");
+        mapButton.setOnAction(event -> sponsorMapViewService.showMap(
+                pageRoot == null || pageRoot.getScene() == null ? null : pageRoot.getScene().getWindow(),
+                model.sponsor() == null ? null : model.sponsor().getNom(),
+                model.sponsor() == null ? null : model.sponsor().getAdresse()
+        ));
+
+        row.getChildren().add(mapButton);
+        return row;
+    }
+
+    private HBox buildQrSection(ContractViewModel model) {
+        HBox container = new HBox(14);
+        container.setAlignment(Pos.CENTER_LEFT);
+        container.getStyleClass().add("sponsor-qr-row");
+
+        VBox textBox = new VBox(4);
+        Label title = new Label("Contract QR");
+        title.getStyleClass().add("sponsor-line-label");
+        Label subtitle = new Label("Scan this code to retrieve the sponsor name.");
+        subtitle.setWrapText(true);
+        subtitle.getStyleClass().add("sponsor-contract-subtitle");
+        textBox.getChildren().addAll(title, subtitle);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Node qrNode = buildQrNode(model);
+        container.getChildren().addAll(textBox, spacer, qrNode);
+        return container;
+    }
+
+    private Node buildQrNode(ContractViewModel model) {
+        StackPane shell = new StackPane();
+        shell.setPrefSize(132, 132);
+        shell.setMinSize(132, 132);
+        shell.getStyleClass().add("sponsor-qr-shell");
+
+        try {
+            BufferedImage qrImage = qrCodeService.generateQrImage(model.contrat(), model.sponsor(), model.equipe());
+            ImageView imageView = new ImageView(SwingFXUtils.toFXImage(qrImage, null));
+            imageView.setFitWidth(112);
+            imageView.setFitHeight(112);
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(true);
+            imageView.getStyleClass().add("sponsor-qr-image");
+            shell.getChildren().add(imageView);
+            return shell;
+        } catch (Exception e) {
+            Label fallback = new Label("QR");
+            fallback.getStyleClass().add("sponsor-logo-fallback");
+            shell.getChildren().add(fallback);
+            return shell;
+        }
     }
 
     private VBox buildEmptyCard(String title, String subtitle) {

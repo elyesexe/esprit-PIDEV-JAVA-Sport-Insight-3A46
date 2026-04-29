@@ -75,6 +75,34 @@
                         <Label fx:id="joueurCountLabel" text="..." styleClass="admin-kpi-value"/>
                         <Label text="%admin.dashboard.kpi.players.meta" wrapText="true" styleClass="admin-kpi-meta"/>
                     </VBox>
+
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="%admin.dashboard.kpi.sponsors.title" styleClass="admin-kpi-label"/>
+                        <Label fx:id="sponsorCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="%admin.dashboard.kpi.sponsors.meta" wrapText="true" styleClass="admin-kpi-meta"/>
+                    </VBox>
+
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="%admin.dashboard.kpi.sponsorContracts.title" styleClass="admin-kpi-label"/>
+                        <Label fx:id="sponsorContractCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="%admin.dashboard.kpi.sponsorContracts.meta" wrapText="true" styleClass="admin-kpi-meta"/>
+                    </VBox>
+
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="%admin.dashboard.kpi.sponsorSatisfaction.title" styleClass="admin-kpi-label"/>
+                        <Label fx:id="sponsorSatisfactionLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="%admin.dashboard.kpi.sponsorSatisfaction.meta" wrapText="true" styleClass="admin-kpi-meta"/>
+                    </VBox>
+
+                    <VBox spacing="10" prefWidth="268" minWidth="248" prefHeight="184"
+                          styleClass="panel-card admin-kpi-card admin-kpi-card-unified admin-dashboard-kpi-card">
+                        <Label text="%admin.dashboard.kpi.sponsorMaps.title" styleClass="admin-kpi-label"/>
+                        <Label fx:id="sponsorMappedCountLabel" text="..." styleClass="admin-kpi-value"/>
+                        <Label text="%admin.dashboard.kpi.sponsorMaps.meta" wrapText="true" styleClass="admin-kpi-meta"/>
+                    </VBox>
                 </FlowPane>
 
                 <VBox spacing="12" styleClass="panel-card admin-table-card admin-operations-card">
