@@ -6,17 +6,28 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class ProductImageResolver {
     private static final String SOURCE_PUBLIC_PROPERTY = "sportinsight.source.public";
     private static final String SOURCE_PUBLIC_ENV = "SPORT_INSIGHT_SOURCE_PUBLIC";
-    private static final String DEFAULT_SOURCE_PUBLIC = "C:/final/sport_insight_final/public";
-    private static final String DEFAULT_FALLBACK_RELATIVE_PATH = "api/football_ball.png";
+    private static final String DEFAULT_FALLBACK_RELATIVE_PATH = "store.png";
+    private static final String USER_HOME = System.getProperty("user.home");
     private static final Path WORKSPACE_ROOT = Path.of(System.getProperty("user.dir"));
     private static final List<Path> LOCAL_SEARCH_ROOTS = List.of(
             WORKSPACE_ROOT.resolve("src/main/resources/tn/esprit/images"),
             WORKSPACE_ROOT.resolve("image")
+    );
+    private static final List<Path> DEFAULT_SOURCE_PUBLIC_CANDIDATES = List.of(
+            Path.of(USER_HOME, "Downloads", "Esprit-PIDEV-3A46-2526-sport_insight-final (1)",
+                    "Esprit-PIDEV-3A46-2526-sport_insight-final", "public"),
+            Path.of(USER_HOME, "Downloads", "sport_insight-integration-v1.1", "public"),
+            Path.of(USER_HOME, "OneDrive", "Desktop", "projects", "final",
+                    "Esprit-PIDEV-3A46-2526-sport_insight", "public"),
+            Path.of(USER_HOME, "OneDrive", "Documents", "GitHub", "sport_insight", "public")
     );
 
     private ProductImageResolver() {
@@ -28,7 +39,7 @@ public final class ProductImageResolver {
     }
 
     private static Image resolveImage(Class<?> owner, String imagePath) {
-        String normalizedPath = trimToNull(imagePath);
+        String normalizedPath = normalizePath(trimToNull(imagePath));
         if (owner == null || normalizedPath == null) {
             return null;
         }
@@ -45,6 +56,11 @@ public final class ProductImageResolver {
                 return new Image(directFile.toURI().toString(), true);
             }
 
+            Path sourcePublicPath = resolveSourcePublicPath(normalizedPath);
+            if (sourcePublicPath != null) {
+                return new Image(sourcePublicPath.toUri().toString(), true);
+            }
+
             Path localPath = resolveLocalPath(normalizedPath);
             if (localPath != null) {
                 return new Image(localPath.toUri().toString(), true);
@@ -54,14 +70,6 @@ public final class ProductImageResolver {
             URL resource = owner.getResource(resourcePath);
             if (resource != null) {
                 return new Image(resource.toExternalForm(), true);
-            }
-
-            File sourcePublicRoot = resolveSourcePublicRoot();
-            if (sourcePublicRoot != null) {
-                File sourceFile = new File(sourcePublicRoot, normalizedPath.replace('/', File.separatorChar));
-                if (sourceFile.exists()) {
-                    return new Image(sourceFile.toURI().toString(), true);
-                }
             }
         } catch (Exception ignored) {
         }
@@ -86,17 +94,47 @@ public final class ProductImageResolver {
         return null;
     }
 
-    private static File resolveSourcePublicRoot() {
+    private static Path resolveSourcePublicPath(String normalizedPath) {
+        if (normalizedPath == null) {
+            return null;
+        }
+        for (Path root : resolveSourcePublicRoots()) {
+            Path candidate = root.resolve(normalizedPath).normalize();
+            if (Files.exists(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static List<Path> resolveSourcePublicRoots() {
+        Set<Path> roots = new LinkedHashSet<>();
         String configuredPath = trimToNull(System.getProperty(SOURCE_PUBLIC_PROPERTY));
         if (configuredPath == null) {
             configuredPath = trimToNull(System.getenv(SOURCE_PUBLIC_ENV));
         }
-        if (configuredPath == null) {
-            configuredPath = DEFAULT_SOURCE_PUBLIC;
+        if (configuredPath != null) {
+            Path configuredRoot = Path.of(configuredPath).normalize();
+            if (Files.exists(configuredRoot)) {
+                roots.add(configuredRoot);
+            }
         }
 
-        File directory = new File(configuredPath);
-        return directory.exists() ? directory : null;
+        for (Path candidate : DEFAULT_SOURCE_PUBLIC_CANDIDATES) {
+            if (Files.exists(candidate)) {
+                roots.add(candidate.normalize());
+            }
+        }
+
+        return new ArrayList<>(roots);
+    }
+
+    private static String normalizePath(String value) {
+        String normalized = trimToNull(value);
+        if (normalized == null) {
+            return null;
+        }
+        return normalized.replace('\\', '/');
     }
 
     private static String trimToNull(String value) {

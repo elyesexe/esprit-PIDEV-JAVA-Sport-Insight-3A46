@@ -55,7 +55,9 @@ class ProductServiceTest extends AbstractServiceTestSupport {
                 15,
                 "L",
                 "Nike",
-                "product-ajout.png"
+                "product-ajout.png",
+                "Breathable match jersey for weekly sessions.",
+                "jersey, nike, breathable"
         );
 
         productService.add(product);
@@ -68,6 +70,8 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertEquals("L", productAjoute.getSize());
         assertEquals("Nike", productAjoute.getBrand());
         assertEquals("product-ajout.png", productAjoute.getImage());
+        assertEquals("Breathable match jersey for weekly sessions.", productAjoute.getDescription());
+        assertEquals("jersey, nike, breathable", productAjoute.getTags());
     }
 
     @Test
@@ -83,6 +87,8 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         product.setSize("42");
         product.setBrand("Adidas");
         product.setImage("product-modifie.png");
+        product.setDescription("Updated description for the advanced product workflow.");
+        product.setTags("boots, adidas, elite");
 
         productService.update(product);
 
@@ -95,6 +101,8 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertEquals("42", productModifie.getSize());
         assertEquals("Adidas", productModifie.getBrand());
         assertEquals("product-modifie.png", productModifie.getImage());
+        assertEquals("Updated description for the advanced product workflow.", productModifie.getDescription());
+        assertEquals("boots, adidas, elite", productModifie.getTags());
     }
 
     @Test

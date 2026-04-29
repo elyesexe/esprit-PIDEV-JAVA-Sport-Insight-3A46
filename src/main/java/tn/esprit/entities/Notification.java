@@ -3,6 +3,16 @@ package tn.esprit.entities;
 import java.time.LocalDateTime;
 
 public class Notification {
+    public static final String TYPE_STORE_CART = "store_cart";
+    public static final String TYPE_PAYMENT_SUCCESS = "payment_success";
+    public static final String TYPE_PAYMENT_FAILED = "payment_failed";
+    public static final String TYPE_INVOICE_READY = "invoice_ready";
+    public static final String TYPE_ORDER_CREATED = "order_created";
+    public static final String TYPE_ORDER_UPDATED = "order_updated";
+    public static final String TYPE_ORDER_DELETED = "order_deleted";
+    public static final String TYPE_ORDER_EMAIL = "order_email";
+    public static final String TYPE_ORDER_EXPORT = "order_export";
+
     private Integer id;
     private String title;
     private String message;
@@ -207,6 +217,45 @@ public class Notification {
 
     public void setAccentTone(String accentTone) {
         this.accentTone = accentTone;
+    }
+
+    public boolean isStoreCartType() {
+        return type != null && TYPE_STORE_CART.equalsIgnoreCase(type.trim());
+    }
+
+    public boolean isStoreWorkflowType() {
+        if (type == null) {
+            return false;
+        }
+        String normalized = type.trim().toLowerCase();
+        return TYPE_STORE_CART.equals(normalized)
+                || TYPE_PAYMENT_SUCCESS.equals(normalized)
+                || TYPE_PAYMENT_FAILED.equals(normalized)
+                || TYPE_INVOICE_READY.equals(normalized);
+    }
+
+    public boolean isOrderWorkflowType() {
+        if (type == null) {
+            return false;
+        }
+        String normalized = type.trim().toLowerCase();
+        return TYPE_ORDER_CREATED.equals(normalized)
+                || TYPE_ORDER_UPDATED.equals(normalized)
+                || TYPE_ORDER_DELETED.equals(normalized)
+                || TYPE_ORDER_EMAIL.equals(normalized)
+                || TYPE_ORDER_EXPORT.equals(normalized);
+    }
+
+    public boolean isWorkflowType() {
+        return isStoreWorkflowType() || isOrderWorkflowType();
+    }
+
+    public boolean opensStorePayment() {
+        if (type == null) {
+            return false;
+        }
+        String normalized = type.trim().toLowerCase();
+        return TYPE_STORE_CART.equals(normalized) || TYPE_PAYMENT_FAILED.equals(normalized);
     }
 
     @Override

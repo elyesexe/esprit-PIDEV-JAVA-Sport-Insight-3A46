@@ -58,6 +58,9 @@ public class NotificationCenterController {
     private static final String FILTER_ALL = "Toutes";
     private static final String FILTER_UNREAD = "Non lues";
     private static final String FILTER_READ = "Lues";
+    private static final String STORE_VIEW = "/tn/esprit/views/store-view.fxml";
+    private static final String STORE_CSS = "/tn/esprit/styles/store-theme.css";
+    private static final String STORE_TITLE = "Store | Sport Insight";
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("notification-center-db-worker"));
 
@@ -362,6 +365,9 @@ public class NotificationCenterController {
         if (isUrgentAnnonce(notification)) {
             return buildUrgentAnnonceCard(notification);
         }
+        if (notification != null && notification.isWorkflowType()) {
+            return buildWorkflowNotificationCard(notification);
+        }
 
         Label unreadChip = new Label(notification.isRead() ? "Lue" : "Nouveau");
         unreadChip.getStyleClass().addAll("notification-meta-chip", notification.isRead() ? "notification-meta-chip-read" : "notification-meta-chip-unread");
@@ -529,6 +535,89 @@ public class NotificationCenterController {
         return card;
     }
 
+    private VBox buildWorkflowNotificationCard(Notification notification) {
+        Label unreadChip = new Label(notification.isRead() ? "Lue" : "Nouveau");
+        unreadChip.getStyleClass().addAll("notification-meta-chip", notification.isRead() ? "notification-meta-chip-read" : "notification-meta-chip-unread");
+
+        Label typeChip = new Label(resolveWorkflowTypeLabel(notification));
+        typeChip.getStyleClass().add("notification-meta-chip");
+
+        Label timeLabel = new Label(formatCreatedAt(notification.getCreatedAt()));
+        timeLabel.getStyleClass().add("notification-time-label");
+
+        Region topSpacer = new Region();
+        HBox.setHgrow(topSpacer, Priority.ALWAYS);
+
+        HBox topRow = new HBox(8, unreadChip, typeChip, topSpacer, timeLabel);
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+        StackPane storeLogo = createLogo(null, resolveWorkflowTypeLabel(notification));
+        Label productLabel = new Label(emptyToFallback(notification.getActorName(), "Notification"));
+        productLabel.getStyleClass().add("notification-team-name");
+
+        Label cartLabel = new Label(emptyToFallback(notification.getMinuteLabel(), "Mise a jour"));
+        cartLabel.getStyleClass().add("notification-score-caption");
+
+        VBox summaryTextBox = new VBox(4, productLabel, cartLabel);
+        summaryTextBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(summaryTextBox, Priority.ALWAYS);
+
+        HBox summaryRow = new HBox(12, storeLogo, summaryTextBox);
+        summaryRow.setAlignment(Pos.CENTER_LEFT);
+        summaryRow.getStyleClass().add("notification-teams-row");
+
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), "Notification"));
+        titleLabel.getStyleClass().add("notification-title");
+        titleLabel.setWrapText(true);
+
+        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), "Un evenement a ete enregistre."));
+        messageLabel.getStyleClass().add("notification-message");
+        messageLabel.setWrapText(true);
+
+        Button paymentButton = new Button("Passer au paiement");
+        paymentButton.getStyleClass().add("primary-button");
+        paymentButton.setManaged(notification.opensStorePayment());
+        paymentButton.setVisible(notification.opensStorePayment());
+        paymentButton.setDisable(!notification.opensStorePayment());
+        paymentButton.setFocusTraversable(false);
+        paymentButton.setOnAction(event -> {
+            event.consume();
+            openStoreFromNotification(notification, paymentButton);
+        });
+
+        Button markReadButton = new Button(notification.isRead() ? "Deja lue" : "Marquer comme lue");
+        markReadButton.getStyleClass().add("ghost-button");
+        markReadButton.setDisable(notification.isRead());
+        markReadButton.setFocusTraversable(false);
+        markReadButton.setOnAction(event -> {
+            event.consume();
+            markNotificationAsRead(notification, true);
+        });
+
+        HBox actionsRow = new HBox(10);
+        if (notification.opensStorePayment()) {
+            actionsRow.getChildren().add(paymentButton);
+        }
+        actionsRow.getChildren().add(markReadButton);
+        actionsRow.setAlignment(Pos.CENTER_LEFT);
+        actionsRow.getStyleClass().add("notification-actions-row");
+
+        VBox card = new VBox(14, topRow, summaryRow, titleLabel, messageLabel, actionsRow);
+        card.setPadding(new Insets(16, 18, 18, 18));
+        card.getStyleClass().add("notification-card");
+        if (!notification.isRead()) {
+            card.getStyleClass().add("notification-card-unread");
+        }
+        card.setOnMouseClicked(event -> {
+            if (notification.opensStorePayment()) {
+                openStoreFromNotification(notification, card);
+            } else {
+                markNotificationAsRead(notification, false);
+            }
+        });
+        return card;
+    }
+
     private StackPane createLogo(String logoPath, String teamName) {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(40);
@@ -580,6 +669,14 @@ public class NotificationCenterController {
     }
 
     private void replayNotification(Notification notification) {
+        if (notification != null && notification.opensStorePayment()) {
+            openStoreFromNotification(notification, notificationListView);
+            return;
+        }
+        if (notification != null && notification.isWorkflowType()) {
+            markNotificationAsRead(notification, false);
+            return;
+        }
         Stage owner = notificationListView == null || notificationListView.getScene() == null
                 ? null
                 : (Stage) notificationListView.getScene().getWindow();
@@ -621,6 +718,39 @@ public class NotificationCenterController {
         } catch (SQLException e) {
             showStatus("status-error", "Impossible d'ouvrir le match.");
         }
+    }
+
+    private void openStoreFromNotification(Notification notification, Node source) {
+        if (notification == null) {
+            return;
+        }
+
+        Node navigationSource = source != null ? source : notificationListView;
+        markNotificationAsRead(notification, false);
+        SceneNavigator.switchScene(
+                navigationSource,
+                STORE_VIEW,
+                STORE_CSS,
+                STORE_TITLE,
+                controller -> {
+                    if (controller instanceof StoreController storeController) {
+                        storeController.openPaymentFromNotification();
+                    }
+                }
+        );
+    }
+
+    private String resolveWorkflowTypeLabel(Notification notification) {
+        if (notification == null) {
+            return "Workflow";
+        }
+        if (notification.isOrderWorkflowType()) {
+            return "Commande";
+        }
+        if (notification.isStoreWorkflowType()) {
+            return "Paiement";
+        }
+        return "Workflow";
     }
 
     private void markNotificationAsRead(Notification notification, boolean showFeedback) {

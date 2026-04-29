@@ -167,8 +167,47 @@
     -fx-max-width: Infinity;
 }
 
+.product-page-root .order-empty-card {
+    -fx-min-height: 420;
+}
+
 .product-page-root .product-info-pill {
     -fx-padding: 12 14 12 14;
+}
+
+.product-page-root .order-section-card,
+.product-page-root .order-insight-card {
+    -fx-padding: 14 16 14 16;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+}
+
+.product-page-root .order-section-card {
+    -fx-background-color: rgba(248, 250, 252, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+}
+
+.product-page-root .order-insight-card {
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+}
+
+.product-page-root .order-anomaly-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 247, 237, 0.96) 0%, rgba(254, 242, 242, 0.98) 100%);
+}
+
+.product-page-root .order-recommendation-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.98) 0%, rgba(240, 249, 255, 0.96) 100%);
+}
+
+.product-page-root .order-insight-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.product-page-root .order-insight-body {
+    -fx-line-spacing: 3px;
 }
 
 .product-page-root .data-table {
@@ -303,6 +342,45 @@
 .admin-dark .product-page-root .product-info-pill {
     -fx-background-color: rgba(11, 18, 32, 0.92);
     -fx-border-color: rgba(148, 163, 184, 0.32);
+}
+
+.theme-dark.product-page-root .order-section-card,
+.theme-dark .product-page-root .order-section-card,
+.admin-dark.product-page-root .order-section-card,
+.admin-dark .product-page-root .order-section-card,
+.theme-dark.product-page-root .order-insight-card,
+.theme-dark .product-page-root .order-insight-card,
+.admin-dark.product-page-root .order-insight-card,
+.admin-dark .product-page-root .order-insight-card {
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark.product-page-root .order-section-card,
+.theme-dark .product-page-root .order-section-card,
+.admin-dark.product-page-root .order-section-card,
+.admin-dark .product-page-root .order-section-card {
+    -fx-background-color: rgba(11, 18, 32, 0.88);
+}
+
+.theme-dark.product-page-root .order-anomaly-card,
+.theme-dark .product-page-root .order-anomaly-card,
+.admin-dark.product-page-root .order-anomaly-card,
+.admin-dark .product-page-root .order-anomaly-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(69, 26, 3, 0.78) 0%, rgba(69, 10, 10, 0.72) 100%);
+}
+
+.theme-dark.product-page-root .order-recommendation-card,
+.theme-dark .product-page-root .order-recommendation-card,
+.admin-dark.product-page-root .order-recommendation-card,
+.admin-dark .product-page-root .order-recommendation-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 78, 59, 0.72) 0%, rgba(12, 74, 110, 0.68) 100%);
+}
+
+.theme-dark.product-page-root .order-insight-title,
+.theme-dark .product-page-root .order-insight-title,
+.admin-dark.product-page-root .order-insight-title,
+.admin-dark .product-page-root .order-insight-title {
+    -fx-text-fill: #f8fafc;
 }
 
 .theme-dark.product-page-root .product-thumbnail-placeholder,

@@ -1,13 +1,23 @@
 package tn.esprit.services;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.google.zxing.qrcode.QRCodeWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import tn.esprit.entities.Order;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,8 +27,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 
 public class OrderPdfExportService {
@@ -35,8 +47,7 @@ public class OrderPdfExportService {
     public void exportOrders(
             Path targetPath,
             List<Order> orders,
-            Function<Integer, String> productNameResolver,
-            Function<Integer, String> coachNameResolver
+            Function<Integer, String> productNameResolver
     ) throws IOException {
         ensureTarget(targetPath);
 
@@ -57,7 +68,7 @@ public class OrderPdfExportService {
             for (Order order : sortedOrders) {
                 writer.writeSectionTitle("Order #" + fallback(order.getId() == null ? null : String.valueOf(order.getId()), "-"));
                 writer.writeBody("Product: " + fallback(resolveName(productNameResolver, order.getProductId(), "Product #" + order.getProductId()), "-"));
-                writer.writeBody("Coach: " + fallback(resolveName(coachNameResolver, order.getEntraineurId(), "Coach #" + order.getEntraineurId()), "-"));
+                writer.writeBody("Client: " + fallback(order.getClientName(), fallback(order.getContactEmail(), "-")));
                 writer.writeBody("Date: " + formatDate(order.getOrderDate()));
                 writer.writeBody("Quantity: " + (order.getQuantity() == null ? "-" : order.getQuantity()));
                 writer.writeBody("Total: " + formatPrice(order.getTotalAmount()));
@@ -77,6 +88,10 @@ public class OrderPdfExportService {
     }
 
     public void exportInvoice(Path targetPath, Invoice invoice) throws IOException {
+        exportInvoice(targetPath, invoice, null);
+    }
+
+    public void exportInvoice(Path targetPath, Invoice invoice, String qrPayload) throws IOException {
         ensureTarget(targetPath);
         if (invoice == null) {
             throw new IOException("Invoice data is missing.");
@@ -92,6 +107,9 @@ public class OrderPdfExportService {
             writer.writeBody("Paiement: " + fallback(invoice.paymentMethod(), "-"));
             writer.writeBody("Livraison: " + fallback(invoice.shippingAddress(), "-"));
             writer.writeBody("Facturation: " + fallback(invoice.billingAddress(), "-"));
+            if (qrPayload != null && !qrPayload.isBlank()) {
+                writer.drawQrCode(createQrCode(qrPayload), 168f);
+            }
             writer.writeBlankLine(10f);
 
             List<InvoiceLine> lines = invoice.lines() == null ? List.of() : invoice.lines();
@@ -164,6 +182,19 @@ public class OrderPdfExportService {
                 .replace('\u201d', '"');
     }
 
+    private BufferedImage createQrCode(String payload) throws IOException {
+        try {
+            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+            hints.put(EncodeHintType.MARGIN, 1);
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            BitMatrix matrix = new QRCodeWriter().encode(payload, BarcodeFormat.QR_CODE, 512, 512, hints);
+            return MatrixToImageWriter.toBufferedImage(matrix);
+        } catch (WriterException e) {
+            throw new IOException("Unable to generate invoice QR code.", e);
+        }
+    }
+
     public record Invoice(
             String customerName,
             String contactEmail,
@@ -218,6 +249,18 @@ public class OrderPdfExportService {
 
         private void writeBlankLine(float height) {
             currentY -= height;
+        }
+
+        private void drawQrCode(BufferedImage image, float size) throws IOException {
+            if (image == null) {
+                return;
+            }
+            ensureSpace(size + 12f);
+            PDImageXObject pdfImage = LosslessFactory.createFromImage(document, image);
+            float x = PAGE_MARGIN + PAGE_WIDTH - size;
+            float y = currentY - size;
+            stream.drawImage(pdfImage, x, y, size, size);
+            currentY = y - 12f;
         }
 
         private void writeParagraph(String text, PDType1Font font, float fontSize) throws IOException {

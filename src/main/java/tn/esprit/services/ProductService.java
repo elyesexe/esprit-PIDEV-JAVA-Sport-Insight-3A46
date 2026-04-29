@@ -26,6 +26,8 @@ public class ProductService implements IService<Product> {
     private static final int MAX_BRAND_LENGTH = 60;
     private static final int MAX_SIZE_LENGTH = 20;
     private static final int MAX_IMAGE_LENGTH = 255;
+    private static final int MAX_DESCRIPTION_LENGTH = 2_000;
+    private static final int MAX_TAGS_LENGTH = 255;
     private static final int MAX_STOCK = 100_000;
     private static final BigDecimal MAX_PRICE = new BigDecimal("999999.99");
 
@@ -45,8 +47,8 @@ public class ProductService implements IService<Product> {
         ensureNoDuplicateProduct(normalized, null);
 
         String sql = """
-                INSERT INTO product (name, category, price, stock, size, brand, image)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO product (name, category, price, stock, size, brand, image, description, tags)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -70,7 +72,7 @@ public class ProductService implements IService<Product> {
 
         String sql = """
                 UPDATE product
-                SET name = ?, category = ?, price = ?, stock = ?, size = ?, brand = ?, image = ?
+                SET name = ?, category = ?, price = ?, stock = ?, size = ?, brand = ?, image = ?, description = ?, tags = ?
                 WHERE id = ?
                 """;
 
@@ -111,7 +113,7 @@ public class ProductService implements IService<Product> {
         }
 
         try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT id, name, category, price, stock, size, brand, image FROM product WHERE id = ?")) {
+                "SELECT id, name, category, price, stock, size, brand, image, description, tags FROM product WHERE id = ?")) {
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next() ? mapRow(resultSet) : null;
@@ -132,6 +134,25 @@ public class ProductService implements IService<Product> {
         String resolvedSortField = sortField == null ? "name" : sortField.name();
         boolean ascending = sortDirection == null || sortDirection == ProductRepository.SortDirection.ASC;
         return search(keyword, resolvedSortField, ascending);
+    }
+
+    public List<Product> getAllSorted(
+            ProductRepository.ProductSortField sortField,
+            ProductRepository.SortDirection sortDirection
+    ) throws SQLException {
+        String resolvedSortField = sortField == null ? "id" : sortField.name();
+        boolean ascending = sortDirection == null || sortDirection == ProductRepository.SortDirection.ASC;
+        return getAllSorted(resolvedSortField, ascending);
+    }
+
+    public List<Product> filterProducts(List<Product> source, ProductAiService.SmartProductQuery query) {
+        if (source == null || source.isEmpty() || query == null || query.isEmpty()) {
+            return source == null ? List.of() : source;
+        }
+
+        return source.stream()
+                .filter(product -> matchesSmartQuery(product, query))
+                .toList();
     }
 
     public Map<String, String> validate(Product product) {
@@ -167,6 +188,10 @@ public class ProductService implements IService<Product> {
                 "Size cannot exceed %d characters.".formatted(MAX_SIZE_LENGTH));
         validateOptionalText(errors, "image", product.getImage(), MAX_IMAGE_LENGTH,
                 "Image path cannot exceed %d characters.".formatted(MAX_IMAGE_LENGTH));
+        validateOptionalText(errors, "description", product.getDescription(), MAX_DESCRIPTION_LENGTH,
+                "Description cannot exceed %d characters.".formatted(MAX_DESCRIPTION_LENGTH));
+        validateOptionalText(errors, "tags", product.getTags(), MAX_TAGS_LENGTH,
+                "Tags cannot exceed %d characters.".formatted(MAX_TAGS_LENGTH));
 
         return errors;
     }
@@ -179,10 +204,13 @@ public class ProductService implements IService<Product> {
 
         String sql = """
                 SELECT id, name, category, price, stock, size, brand, image
+                     , description, tags
                 FROM product
                 WHERE LOWER(COALESCE(name, '')) LIKE ?
                    OR LOWER(COALESCE(category, '')) LIKE ?
                    OR LOWER(COALESCE(brand, '')) LIKE ?
+                   OR LOWER(COALESCE(description, '')) LIKE ?
+                   OR LOWER(COALESCE(tags, '')) LIKE ?
                 ORDER BY %s %s, id ASC
                 """.formatted(resolveSortColumn(sortField), ascending ? "ASC" : "DESC");
 
@@ -192,6 +220,8 @@ public class ProductService implements IService<Product> {
             statement.setString(1, pattern);
             statement.setString(2, pattern);
             statement.setString(3, pattern);
+            statement.setString(4, pattern);
+            statement.setString(5, pattern);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -215,6 +245,7 @@ public class ProductService implements IService<Product> {
     ) throws SQLException {
         StringBuilder sql = new StringBuilder("""
                 SELECT id, name, category, price, stock, size, brand, image
+                     , description, tags
                 FROM product
                 WHERE 1 = 1
                 """);
@@ -225,9 +256,13 @@ public class ProductService implements IService<Product> {
             sql.append("""
                      AND (LOWER(COALESCE(name, '')) LIKE ?
                        OR LOWER(COALESCE(category, '')) LIKE ?
-                       OR LOWER(COALESCE(brand, '')) LIKE ?)
+                       OR LOWER(COALESCE(brand, '')) LIKE ?
+                       OR LOWER(COALESCE(description, '')) LIKE ?
+                       OR LOWER(COALESCE(tags, '')) LIKE ?)
                     """);
             String pattern = "%" + normalizedKeyword.toLowerCase(Locale.ROOT) + "%";
+            params.add(pattern);
+            params.add(pattern);
             params.add(pattern);
             params.add(pattern);
             params.add(pattern);
@@ -290,6 +325,7 @@ public class ProductService implements IService<Product> {
     public List<Product> getAllSorted(String sortField, boolean ascending) throws SQLException {
         String sql = """
                 SELECT id, name, category, price, stock, size, brand, image
+                     , description, tags
                 FROM product
                 ORDER BY %s %s, id ASC
                 """.formatted(resolveSortColumn(sortField), ascending ? "ASC" : "DESC");
@@ -322,6 +358,10 @@ public class ProductService implements IService<Product> {
                 "Brand must contain between %d and %d characters.".formatted(MIN_BRAND_LENGTH, MAX_BRAND_LENGTH));
         String size = normalizeOptionalText(product.getSize(), MAX_SIZE_LENGTH, "Size cannot exceed %d characters.".formatted(MAX_SIZE_LENGTH));
         String image = normalizeOptionalText(product.getImage(), MAX_IMAGE_LENGTH, "Image path cannot exceed %d characters.".formatted(MAX_IMAGE_LENGTH));
+        String description = normalizeOptionalText(product.getDescription(), MAX_DESCRIPTION_LENGTH,
+                "Description cannot exceed %d characters.".formatted(MAX_DESCRIPTION_LENGTH));
+        String tags = normalizeOptionalText(product.getTags(), MAX_TAGS_LENGTH,
+                "Tags cannot exceed %d characters.".formatted(MAX_TAGS_LENGTH));
 
         BigDecimal price = normalizePrice(product.getPrice());
         int stock = product.getStock();
@@ -329,7 +369,7 @@ public class ProductService implements IService<Product> {
             throw new IllegalArgumentException("Stock must stay between 0 and " + MAX_STOCK + ".");
         }
 
-        return new Product(id, name, category, price, stock, size, brand, image);
+        return new Product(id, name, category, price, stock, size, brand, image, description, tags);
     }
 
     private void bindProduct(PreparedStatement statement, Product product, boolean includeId) throws SQLException {
@@ -340,8 +380,10 @@ public class ProductService implements IService<Product> {
         statement.setString(5, product.getSize());
         statement.setString(6, product.getBrand());
         statement.setString(7, product.getImage());
+        statement.setString(8, product.getDescription());
+        statement.setString(9, product.getTags());
         if (includeId) {
-            statement.setInt(8, product.getId());
+            statement.setInt(10, product.getId());
         }
     }
 
@@ -354,8 +396,64 @@ public class ProductService implements IService<Product> {
                 resultSet.getInt("stock"),
                 resultSet.getString("size"),
                 resultSet.getString("brand"),
-                resultSet.getString("image")
+                resultSet.getString("image"),
+                resultSet.getString("description"),
+                resultSet.getString("tags")
         );
+    }
+
+    private boolean matchesSmartQuery(Product product, ProductAiService.SmartProductQuery query) {
+        if (product == null || query == null) {
+            return false;
+        }
+        if (query.inStockOnly() && product.getStock() <= 0) {
+            return false;
+        }
+        if (!matchesText(product.getCategory(), query.category())) {
+            return false;
+        }
+        if (!matchesText(product.getBrand(), query.brand())) {
+            return false;
+        }
+        if (!matchesText(product.getSize(), query.size())) {
+            return false;
+        }
+        if (query.minPrice() != null && (product.getPrice() == null || product.getPrice().compareTo(query.minPrice()) < 0)) {
+            return false;
+        }
+        if (query.maxPrice() != null && (product.getPrice() == null || product.getPrice().compareTo(query.maxPrice()) > 0)) {
+            return false;
+        }
+
+        String searchableText = buildSearchableText(product);
+        for (String keyword : query.keywords()) {
+            String normalized = trimToNull(keyword);
+            if (normalized != null && !searchableText.contains(normalized.toLowerCase(Locale.ROOT))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean matchesText(String actualValue, String expectedValue) {
+        String normalizedExpected = trimToNull(expectedValue);
+        if (normalizedExpected == null) {
+            return true;
+        }
+        String normalizedActual = trimToNull(actualValue);
+        return normalizedActual != null && normalizedActual.toLowerCase(Locale.ROOT).contains(normalizedExpected.toLowerCase(Locale.ROOT));
+    }
+
+    private String buildSearchableText(Product product) {
+        return List.of(
+                        normalizeComparableText(product.getName()),
+                        normalizeComparableText(product.getCategory()),
+                        normalizeComparableText(product.getBrand()),
+                        normalizeComparableText(product.getSize()),
+                        normalizeComparableText(product.getDescription()),
+                        normalizeComparableText(product.getTags())
+                ).stream()
+                .collect(java.util.stream.Collectors.joining(" "));
     }
 
     private boolean hasRelatedOrders(int productId) throws SQLException {
