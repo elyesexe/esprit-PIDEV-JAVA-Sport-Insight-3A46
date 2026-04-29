@@ -1,87 +1,325 @@
 package tn.esprit.services;
 
 import tn.esprit.entities.Order;
+import tn.esprit.entities.Product;
 import tn.esprit.tools.MyConnection;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class OrderService implements IService<Order> {
+    private static final List<String> ORDER_STATUSES = List.of(
+            "PENDING",
+            "CONFIRMED",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED"
+    );
+    private static final List<String> PAYMENT_METHODS = List.of(
+            "CARD",
+            "CASH",
+            "CASH_ON_DELIVERY",
+            "BANK_TRANSFER"
+    );
+    private static final List<String> PAYMENT_STATUSES = List.of(
+            "UNPAID",
+            "PENDING",
+            "PAID",
+            "FAILED",
+            "REFUNDED"
+    );
+    private static final Set<String> ALLOWED_ORDER_STATUSES = Set.copyOf(ORDER_STATUSES);
+    private static final Set<String> ALLOWED_PAYMENT_METHODS = Set.copyOf(PAYMENT_METHODS);
+    private static final Set<String> ALLOWED_PAYMENT_STATUSES = Set.copyOf(PAYMENT_STATUSES);
+
+    private static final int MIN_ADDRESS_LENGTH = 8;
+    private static final int MAX_ADDRESS_LENGTH = 300;
+    private static final int MAX_PHONE_LENGTH = 20;
+    private static final int MAX_SIZE_LENGTH = 20;
+
     private final Connection connection;
 
     public OrderService() throws SQLException {
-        connection = MyConnection.getInstance().getConnection();
+        this(MyConnection.getInstance().getConnection());
+    }
+
+    OrderService(Connection connection) {
+        this.connection = connection;
+    }
+
+    public static List<String> allowedOrderStatuses() {
+        return ORDER_STATUSES;
+    }
+
+    public static List<String> allowedPaymentMethods() {
+        return PAYMENT_METHODS;
+    }
+
+    public static List<String> allowedPaymentStatuses() {
+        return PAYMENT_STATUSES;
     }
 
     @Override
     public void add(Order order) throws SQLException {
-        String sql = "INSERT INTO `order` (quantity, order_date, status, payment_method, payment_status, size, contact_email, contact_phone, shipping_address, billing_address, total_amount, product_id, entraineur_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        boolean originalAutoCommit = connection.getAutoCommit();
+        try {
+            connection.setAutoCommit(false);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            fillStatement(statement, order);
-            statement.executeUpdate();
+            Product product = getProductById(order == null ? null : order.getProductId(), true);
+            Order normalized = normalizeForPersistence(order, product, false);
+            ensureStockAvailable(product, normalized.getQuantity());
+
+            insertOrder(normalized);
+            updateProductStock(product.getId(), product.getStock() - normalized.getQuantity());
+
+            connection.commit();
+        } catch (RuntimeException | SQLException exception) {
+            connection.rollback();
+            throw exception;
+        } finally {
+            connection.setAutoCommit(originalAutoCommit);
         }
     }
 
     @Override
     public void update(Order order) throws SQLException {
-        String sql = "UPDATE `order` SET quantity = ?, order_date = ?, status = ?, payment_method = ?, payment_status = ?, size = ?, contact_email = ?, contact_phone = ?, shipping_address = ?, billing_address = ?, total_amount = ?, product_id = ?, entraineur_id = ? WHERE id = ?";
+        boolean originalAutoCommit = connection.getAutoCommit();
+        try {
+            connection.setAutoCommit(false);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            fillStatement(statement, order);
-            statement.setInt(14, order.getId());
-            statement.executeUpdate();
+            if (order == null || order.getId() == null || order.getId() <= 0) {
+                throw new IllegalArgumentException("The order id is required for updates.");
+            }
+
+            Order existingOrder = getById(order.getId(), true);
+            if (existingOrder == null) {
+                throw new IllegalArgumentException("The order to update was not found.");
+            }
+
+            restoreStock(existingOrder);
+
+            Product product = getProductById(order.getProductId(), true);
+            Order normalized = normalizeForPersistence(order, product, true);
+            ensureStockAvailable(product, normalized.getQuantity());
+
+            updateOrderRow(normalized);
+            updateProductStock(product.getId(), product.getStock() - normalized.getQuantity());
+
+            connection.commit();
+        } catch (RuntimeException | SQLException exception) {
+            connection.rollback();
+            throw exception;
+        } finally {
+            connection.setAutoCommit(originalAutoCommit);
         }
     }
 
     @Override
     public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM `order` WHERE id = ?";
+        if (id <= 0) {
+            throw new IllegalArgumentException("The order id is invalid.");
+        }
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, id);
-            statement.executeUpdate();
+        boolean originalAutoCommit = connection.getAutoCommit();
+        try {
+            connection.setAutoCommit(false);
+
+            Order existingOrder = getById(id, true);
+            if (existingOrder == null) {
+                throw new IllegalArgumentException("The order to delete was not found.");
+            }
+
+            restoreStock(existingOrder);
+
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM `order` WHERE id = ?")) {
+                statement.setInt(1, id);
+                statement.executeUpdate();
+            }
+
+            connection.commit();
+        } catch (RuntimeException | SQLException exception) {
+            connection.rollback();
+            throw exception;
+        } finally {
+            connection.setAutoCommit(originalAutoCommit);
         }
     }
 
     @Override
     public List<Order> getAll() throws SQLException {
-        String sql = "SELECT id, quantity, order_date, status, payment_method, payment_status, size, contact_email, contact_phone, shipping_address, billing_address, total_amount, product_id, entraineur_id FROM `order`";
-        List<Order> orders = new ArrayList<>();
+        String sql = """
+                SELECT id, quantity, order_date, status, payment_method, payment_status, size,
+                       contact_email, contact_phone, shipping_address, billing_address,
+                       total_amount, product_id, entraineur_id
+                FROM `order`
+                ORDER BY order_date DESC, id DESC
+                """;
 
+        List<Order> orders = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet rs = statement.executeQuery()) {
-            while (rs.next()) {
-                orders.add(mapRow(rs));
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                orders.add(mapRow(resultSet));
             }
         }
-
         return orders;
     }
 
     @Override
     public Order getById(int id) throws SQLException {
-        String sql = "SELECT id, quantity, order_date, status, payment_method, payment_status, size, contact_email, contact_phone, shipping_address, billing_address, total_amount, product_id, entraineur_id FROM `order` WHERE id = ?";
+        return getById(id, false);
+    }
 
+    @Override
+    public List<Order> search(String keyword) throws SQLException {
+        String normalizedKeyword = trimToNull(keyword);
+        if (normalizedKeyword == null) {
+            return getAll();
+        }
+
+        String sql = """
+                SELECT id, quantity, order_date, status, payment_method, payment_status, size,
+                       contact_email, contact_phone, shipping_address, billing_address,
+                       total_amount, product_id, entraineur_id
+                FROM `order`
+                WHERE LOWER(COALESCE(status, '')) LIKE ?
+                   OR LOWER(COALESCE(payment_method, '')) LIKE ?
+                   OR LOWER(COALESCE(payment_status, '')) LIKE ?
+                   OR LOWER(COALESCE(contact_email, '')) LIKE ?
+                   OR LOWER(COALESCE(contact_phone, '')) LIKE ?
+                   OR CAST(id AS CHAR) LIKE ?
+                   OR CAST(COALESCE(product_id, 0) AS CHAR) LIKE ?
+                ORDER BY order_date DESC, id DESC
+                """;
+
+        String pattern = "%" + normalizedKeyword.toLowerCase(Locale.ROOT) + "%";
+        List<Order> orders = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, id);
+            statement.setString(1, pattern);
+            statement.setString(2, pattern);
+            statement.setString(3, pattern);
+            statement.setString(4, pattern);
+            statement.setString(5, pattern);
+            statement.setString(6, pattern);
+            statement.setString(7, pattern);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    return mapRow(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    orders.add(mapRow(resultSet));
                 }
             }
         }
-
-        return null;
+        return orders;
     }
 
-    private void fillStatement(PreparedStatement statement, Order order) throws SQLException {
+    static Order normalizeForPersistence(Order order, Product product, boolean updateMode) {
+        if (order == null) {
+            throw new IllegalArgumentException("The order is required.");
+        }
+
+        Integer id = order.getId();
+        if (updateMode && (id == null || id <= 0)) {
+            throw new IllegalArgumentException("The order id is required.");
+        }
+
+        if (product == null || product.getId() == null || product.getId() <= 0) {
+            throw new IllegalArgumentException("The ordered product was not found.");
+        }
+
+        Integer quantity = order.getQuantity();
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be strictly positive.");
+        }
+
+        LocalDate orderDate = order.getOrderDate() == null ? LocalDate.now() : order.getOrderDate();
+
+        String paymentMethod = normalizeEnum(order.getPaymentMethod(), ALLOWED_PAYMENT_METHODS, true, "Payment method is required.");
+        String paymentStatus = normalizeEnum(order.getPaymentStatus(), ALLOWED_PAYMENT_STATUSES, false, null);
+        if (paymentStatus == null) {
+            paymentStatus = ("CASH".equals(paymentMethod) || "CASH_ON_DELIVERY".equals(paymentMethod)) ? "PENDING" : "PAID";
+        }
+
+        String status = normalizeEnum(order.getStatus(), ALLOWED_ORDER_STATUSES, false, null);
+        if (status == null) {
+            status = ("PAID".equals(paymentStatus) || "CONFIRMED".equals(order.getStatus())) ? "CONFIRMED" : "PENDING";
+        }
+
+        String size = normalizeOptionalText(order.getSize(), MAX_SIZE_LENGTH, "Size is too long.");
+        if (size == null) {
+            size = normalizeOptionalText(product.getSize(), MAX_SIZE_LENGTH, "Product size is invalid.");
+        }
+
+        String contactEmail = normalizeEmail(order.getContactEmail());
+        String contactPhone = normalizePhone(order.getContactPhone());
+        String shippingAddress = normalizeAddress(order.getShippingAddress(), "Shipping address is required.");
+        String billingAddress = normalizeAddress(order.getBillingAddress(), "Billing address is required.");
+
+        BigDecimal totalAmount = normalizeTotalAmount(order.getTotalAmount(), product, quantity);
+        Integer entraineurId = normalizeOptionalPositiveInteger(order.getEntraineurId(), "Coach id is invalid.");
+
+        return new Order(
+                id,
+                quantity,
+                orderDate,
+                status,
+                paymentMethod,
+                paymentStatus,
+                size,
+                contactEmail,
+                contactPhone,
+                shippingAddress,
+                billingAddress,
+                totalAmount,
+                product.getId(),
+                entraineurId
+        );
+    }
+
+    private void insertOrder(Order order) throws SQLException {
+        String sql = """
+                INSERT INTO `order`
+                    (quantity, order_date, status, payment_method, payment_status, size,
+                     contact_email, contact_phone, shipping_address, billing_address,
+                     total_amount, product_id, entraineur_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindOrder(statement, order, false);
+            statement.executeUpdate();
+        }
+    }
+
+    private void updateOrderRow(Order order) throws SQLException {
+        String sql = """
+                UPDATE `order`
+                SET quantity = ?, order_date = ?, status = ?, payment_method = ?, payment_status = ?, size = ?,
+                    contact_email = ?, contact_phone = ?, shipping_address = ?, billing_address = ?,
+                    total_amount = ?, product_id = ?, entraineur_id = ?
+                WHERE id = ?
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindOrder(statement, order, true);
+            int updatedRows = statement.executeUpdate();
+            if (updatedRows == 0) {
+                throw new IllegalArgumentException("The order to update was not found.");
+            }
+        }
+    }
+
+    private void bindOrder(PreparedStatement statement, Order order, boolean includeId) throws SQLException {
         statement.setInt(1, order.getQuantity());
         statement.setDate(2, Date.valueOf(order.getOrderDate()));
         statement.setString(3, order.getStatus());
@@ -94,27 +332,213 @@ public class OrderService implements IService<Order> {
         statement.setString(10, order.getBillingAddress());
         statement.setBigDecimal(11, order.getTotalAmount());
         statement.setInt(12, order.getProductId());
-        statement.setInt(13, order.getEntraineurId());
+        setNullableInteger(statement, 13, order.getEntraineurId());
+        if (includeId) {
+            statement.setInt(14, order.getId());
+        }
     }
 
-    private Order mapRow(ResultSet rs) throws SQLException {
-        Date orderDate = rs.getDate("order_date");
+    private Order getById(int id, boolean forUpdate) throws SQLException {
+        if (id <= 0) {
+            return null;
+        }
+
+        String sql = """
+                SELECT id, quantity, order_date, status, payment_method, payment_status, size,
+                       contact_email, contact_phone, shipping_address, billing_address,
+                       total_amount, product_id, entraineur_id
+                FROM `order`
+                WHERE id = ?
+                """ + (forUpdate ? " FOR UPDATE" : "");
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? mapRow(resultSet) : null;
+            }
+        }
+    }
+
+    private Product getProductById(Integer productId, boolean forUpdate) throws SQLException {
+        if (productId == null || productId <= 0) {
+            return null;
+        }
+
+        String sql = """
+                SELECT id, name, category, price, stock, size, brand, image
+                FROM product
+                WHERE id = ?
+                """ + (forUpdate ? " FOR UPDATE" : "");
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return null;
+                }
+                return new Product(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("category"),
+                        resultSet.getBigDecimal("price"),
+                        resultSet.getInt("stock"),
+                        resultSet.getString("size"),
+                        resultSet.getString("brand"),
+                        resultSet.getString("image")
+                );
+            }
+        }
+    }
+
+    private void ensureStockAvailable(Product product, Integer quantity) {
+        if (product.getStock() < quantity) {
+            throw new IllegalArgumentException(
+                    "Insufficient stock for \"" + product.getName() + "\". Available: " + product.getStock() + "."
+            );
+        }
+    }
+
+    private void updateProductStock(Integer productId, int newStock) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE product SET stock = ? WHERE id = ?")) {
+            statement.setInt(1, newStock);
+            statement.setInt(2, productId);
+            statement.executeUpdate();
+        }
+    }
+
+    private void restoreStock(Order order) throws SQLException {
+        Product product = getProductById(order.getProductId(), true);
+        if (product == null) {
+            return;
+        }
+        updateProductStock(product.getId(), product.getStock() + order.getQuantity());
+    }
+
+    private Order mapRow(ResultSet resultSet) throws SQLException {
+        Date orderDate = resultSet.getDate("order_date");
+        Integer productId = getNullableInteger(resultSet, "product_id");
+        Integer entraineurId = getNullableInteger(resultSet, "entraineur_id");
 
         return new Order(
-                rs.getInt("id"),
-                rs.getInt("quantity"),
+                resultSet.getInt("id"),
+                resultSet.getInt("quantity"),
                 orderDate == null ? null : orderDate.toLocalDate(),
-                rs.getString("status"),
-                rs.getString("payment_method"),
-                rs.getString("payment_status"),
-                rs.getString("size"),
-                rs.getString("contact_email"),
-                rs.getString("contact_phone"),
-                rs.getString("shipping_address"),
-                rs.getString("billing_address"),
-                rs.getBigDecimal("total_amount"),
-                rs.getInt("product_id"),
-                rs.getInt("entraineur_id")
+                resultSet.getString("status"),
+                resultSet.getString("payment_method"),
+                resultSet.getString("payment_status"),
+                resultSet.getString("size"),
+                resultSet.getString("contact_email"),
+                resultSet.getString("contact_phone"),
+                resultSet.getString("shipping_address"),
+                resultSet.getString("billing_address"),
+                resultSet.getBigDecimal("total_amount"),
+                productId,
+                entraineurId
         );
+    }
+
+    private static BigDecimal normalizeTotalAmount(BigDecimal totalAmount, Product product, int quantity) {
+        if (totalAmount != null && totalAmount.compareTo(BigDecimal.ZERO) > 0) {
+            return totalAmount.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        BigDecimal price = product.getPrice();
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("The product price is invalid for this order.");
+        }
+        return price.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private static String normalizeEnum(String value, Set<String> allowedValues, boolean required, String requiredMessage) {
+        String normalized = trimToNull(value);
+        if (normalized == null) {
+            if (required) {
+                throw new IllegalArgumentException(requiredMessage);
+            }
+            return null;
+        }
+
+        String canonical = normalized.toUpperCase(Locale.ROOT)
+                .replace(' ', '_')
+                .replace('-', '_');
+        if (!allowedValues.contains(canonical)) {
+            throw new IllegalArgumentException("Invalid value: " + normalized + ".");
+        }
+        return canonical;
+    }
+
+    private static String normalizeEmail(String email) {
+        String normalized = trimToNull(email);
+        if (normalized == null) {
+            throw new IllegalArgumentException("Contact email is required.");
+        }
+        if (!normalized.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("Contact email is invalid.");
+        }
+        return normalized.toLowerCase(Locale.ROOT);
+    }
+
+    private static String normalizePhone(String phone) {
+        String normalized = trimToNull(phone);
+        if (normalized == null) {
+            throw new IllegalArgumentException("Contact phone is required.");
+        }
+        String compact = normalized.replaceAll("[\\s().-]", "");
+        if (!compact.matches("^\\+?[0-9]{8," + MAX_PHONE_LENGTH + "}$")) {
+            throw new IllegalArgumentException("Contact phone is invalid.");
+        }
+        return normalized;
+    }
+
+    private static String normalizeAddress(String address, String requiredMessage) {
+        String normalized = trimToNull(address);
+        if (normalized == null) {
+            throw new IllegalArgumentException(requiredMessage);
+        }
+        if (normalized.length() < MIN_ADDRESS_LENGTH || normalized.length() > MAX_ADDRESS_LENGTH) {
+            throw new IllegalArgumentException(
+                    "Addresses must contain between " + MIN_ADDRESS_LENGTH + " and " + MAX_ADDRESS_LENGTH + " characters."
+            );
+        }
+        return normalized;
+    }
+
+    private static String normalizeOptionalText(String value, int maxLength, String errorMessage) {
+        String normalized = trimToNull(value);
+        if (normalized != null && normalized.length() > maxLength) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        return normalized;
+    }
+
+    private static Integer normalizeOptionalPositiveInteger(Integer value, String errorMessage) {
+        if (value == null) {
+            return null;
+        }
+        if (value <= 0) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        return value;
+    }
+
+    private static Integer getNullableInteger(ResultSet resultSet, String column) throws SQLException {
+        int value = resultSet.getInt(column);
+        return resultSet.wasNull() ? null : value;
+    }
+
+    private static void setNullableInteger(PreparedStatement statement, int index, Integer value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, Types.INTEGER);
+        } else {
+            statement.setInt(index, value);
+        }
+    }
+
+    private static String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

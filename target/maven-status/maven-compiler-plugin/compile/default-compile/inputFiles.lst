@@ -22,10 +22,12 @@ C:\PI Java\src\main\java\tn\esprit\Controller\MatchController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchDetailController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchFormController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\MatchListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\ProductController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\ProfileController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\SignupController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\SponsorAdminController.java
 C:\PI Java\src\main\java\tn\esprit\Controller\SponsorUserController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\StoreController.java
 C:\PI Java\src\main\java\tn\esprit\entities\Annonce.java
 C:\PI Java\src\main\java\tn\esprit\entities\ChatMessage.java
 C:\PI Java\src\main\java\tn\esprit\entities\Commentaire.java
@@ -54,6 +56,7 @@ C:\PI Java\src\main\java\tn\esprit\gui\HomeMain.java
 C:\PI Java\src\main\java\tn\esprit\gui\JoueurCrudMain.java
 C:\PI Java\src\main\java\tn\esprit\gui\JoueurUiSupport.java
 C:\PI Java\src\main\java\tn\esprit\gui\MatchCrudMain.java
+C:\PI Java\src\main\java\tn\esprit\gui\ProductImageResolver.java
 C:\PI Java\src\main\java\tn\esprit\gui\SceneNavigator.java
 C:\PI Java\src\main\java\tn\esprit\gui\SidebarModuleGroup.java
 C:\PI Java\src\main\java\tn\esprit\gui\ThemeManager.java
@@ -66,6 +69,7 @@ C:\PI Java\src\main\java\tn\esprit\mains\MatchMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\ProductMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\SponsorMain.java
 C:\PI Java\src\main\java\tn\esprit\mains\UserMain.java
+C:\PI Java\src\main\java\tn\esprit\repositories\ProductRepository.java
 C:\PI Java\src\main\java\tn\esprit\security\AuthSession.java
 C:\PI Java\src\main\java\tn\esprit\security\PasswordSupport.java
 C:\PI Java\src\main\java\tn\esprit\security\UserRoles.java

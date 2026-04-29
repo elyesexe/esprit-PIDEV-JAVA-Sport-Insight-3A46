@@ -212,6 +212,81 @@
 
                         <!-- FEED -->
                         <VBox spacing="14">
+                            <VBox fx:id="composerCard" spacing="14" styleClass="panel-card annonce-composer-card">
+                                <HBox alignment="CENTER_LEFT" spacing="12">
+                                    <StackPane fx:id="composerAvatarShell" styleClass="annonce-avatar-shell annonce-avatar-shell-lg">
+                                        <ImageView fx:id="composerAvatarImage"
+                                                   fitWidth="52"
+                                                   fitHeight="52"
+                                                   pickOnBounds="true"
+                                                   preserveRatio="false"
+                                                   smooth="true"
+                                                   styleClass="annonce-avatar-image"
+                                                   managed="false"
+                                                   visible="false"/>
+                                        <Label fx:id="composerAvatarInitialsLabel"
+                                               text="SI"
+                                               styleClass="annonce-avatar-fallback annonce-avatar-fallback-lg"/>
+                                    </StackPane>
+                                    <VBox spacing="4">
+                                        <Label fx:id="composerIdentityLabel" text="Post as Sport Insight user" styleClass="section-title"/>
+                                        <Label fx:id="composerHintLabel"
+                                               text="Only players can create a post or add comments."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Post title" styleClass="field-label"/>
+                                        <TextField fx:id="postTitleField"
+                                                   promptText="Write a short title for your post"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="6">
+                                        <Label text="Role" styleClass="field-label"/>
+                                        <TextField fx:id="postRoleField"
+                                                   promptText="Goalkeeper, Defender..."
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="6">
+                                        <Label text="Level" styleClass="field-label"/>
+                                        <TextField fx:id="postLevelField"
+                                                   promptText="Junior, Senior..."
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Post content" styleClass="field-label"/>
+                                    <TextArea fx:id="postDescriptionArea"
+                                              promptText="Share your update like a social post..."
+                                              wrapText="true"
+                                              prefRowCount="4"
+                                              styleClass="annonce-text-area"/>
+                                </VBox>
+
+                                <Label fx:id="composerValidationLabel"
+                                       text=""
+                                       managed="false"
+                                       visible="false"
+                                       styleClass="annonce-section-note"/>
+
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Button fx:id="publishPostButton"
+                                            text="Publish post"
+                                            onAction="#handlePublishPost"
+                                            styleClass="primary-button"/>
+                                    <Button fx:id="clearPostButton"
+                                            text="Clear"
+                                            onAction="#handleClearPostComposer"
+                                            styleClass="ghost-button"/>
+                                </HBox>
+                            </VBox>
+
                             <Label text="Posts" styleClass="section-title"/>
                             <Label text="Each announcement is shown as a post with its comments directly below."
                                    wrapText="true"
