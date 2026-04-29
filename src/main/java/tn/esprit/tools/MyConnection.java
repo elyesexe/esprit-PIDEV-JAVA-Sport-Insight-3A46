@@ -43,11 +43,15 @@ public class MyConnection {
 
     private Connection openConnection() throws SQLException {
         try {
-            return DriverManager.getConnection(URL, USER, PASSWORD);
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            DatabaseBootstrap.initializeIfNeeded(connection);
+            return connection;
         } catch (SQLException ex) {
             if (isUnknownDatabase(ex)) {
                 createDatabaseIfMissing();
-                return DriverManager.getConnection(URL, USER, PASSWORD);
+                Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                DatabaseBootstrap.initializeIfNeeded(connection);
+                return connection;
             }
             throw ex;
         }

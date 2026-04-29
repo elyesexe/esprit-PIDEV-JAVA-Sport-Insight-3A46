@@ -46,6 +46,9 @@ public final class NavbarNotificationCenter {
     private static final int RECENT_LIMIT = 14;
     private static final String NOTIFICATION_CENTER_VIEW = "/tn/esprit/views/notification-center-view.fxml";
     private static final String NOTIFICATION_CENTER_CSS = "/tn/esprit/styles/notification-theme.css";
+    private static final String STORE_VIEW = "/tn/esprit/views/store-view.fxml";
+    private static final String STORE_CSS = "/tn/esprit/styles/store-theme.css";
+    private static final String STORE_TITLE = "Store | Sport Insight";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("navbar-notification-worker"));
@@ -363,17 +366,20 @@ public final class NavbarNotificationCenter {
     }
 
     private HBox buildNotificationRow(Notification notification) {
-        HBox logosRow = new HBox(-8,
+        boolean workflowNotification = notification != null && notification.isWorkflowType();
+        HBox logosRow = workflowNotification
+                ? new HBox(buildTeamLogo(null, resolveWorkflowShellLabel(notification)))
+                : new HBox(-8,
                 buildTeamLogo(notification.getHomeTeamLogo(), notification.getHomeTeamName()),
                 buildTeamLogo(notification.getAwayTeamLogo(), notification.getAwayTeamName()));
         logosRow.setAlignment(Pos.TOP_LEFT);
         logosRow.getStyleClass().add("navbar-notification-logos");
 
-        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), "Match alert"));
+        Label titleLabel = new Label(emptyToFallback(notification.getTitle(), workflowNotification ? "Notification" : "Match alert"));
         titleLabel.setWrapText(true);
         titleLabel.getStyleClass().add("navbar-notification-item-title");
 
-        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), "No additional details."));
+        Label messageLabel = new Label(emptyToFallback(notification.getMessage(), workflowNotification ? "Workflow updated." : "No additional details."));
         messageLabel.setWrapText(true);
         messageLabel.getStyleClass().add("navbar-notification-item-message");
 
@@ -384,16 +390,21 @@ public final class NavbarNotificationCenter {
         textBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(textBox, Priority.ALWAYS);
 
-        Button openButton = new Button("Open");
+        boolean opensStorePayment = notification != null && notification.opensStorePayment();
+        Button openButton = new Button(opensStorePayment ? "Paiement" : "Open");
         openButton.getStyleClass().add("navbar-notification-open-button");
         openButton.setFocusTraversable(false);
-        boolean canOpenMatch = notification.getMatchId() != null;
-        openButton.setManaged(canOpenMatch);
-        openButton.setVisible(canOpenMatch);
-        openButton.setDisable(!canOpenMatch);
+        boolean canOpen = opensStorePayment || (!workflowNotification && notification.getMatchId() != null);
+        openButton.setManaged(canOpen);
+        openButton.setVisible(canOpen);
+        openButton.setDisable(!canOpen);
         openButton.setOnAction(event -> {
             event.consume();
-            openMatchAsync(notification);
+            if (opensStorePayment) {
+                openStoreAsync(notification);
+            } else if (!workflowNotification) {
+                openMatchAsync(notification);
+            }
         });
 
         Label unreadDot = new Label();
@@ -410,7 +421,15 @@ public final class NavbarNotificationCenter {
         if (!notification.isRead()) {
             row.getStyleClass().add("navbar-notification-row-unread");
         }
-        row.setOnMouseClicked(event -> replayNotification(notification));
+        row.setOnMouseClicked(event -> {
+            if (opensStorePayment) {
+                openStoreAsync(notification);
+            } else if (workflowNotification) {
+                markNotificationAsReadAsync(notification);
+            } else {
+                replayNotification(notification);
+            }
+        });
         return row;
     }
 
@@ -444,10 +463,51 @@ public final class NavbarNotificationCenter {
         if (stage == null || notification == null) {
             return;
         }
+        if (notification.opensStorePayment()) {
+            openStoreAsync(notification);
+            return;
+        }
+        if (notification.isWorkflowType()) {
+            markNotificationAsReadAsync(notification);
+            return;
+        }
 
         popupMenu.hide();
         MatchAlertPopupManager.getInstance().show(stage, notification);
         markNotificationAsReadAsync(notification);
+    }
+
+    private String resolveWorkflowShellLabel(Notification notification) {
+        if (notification == null) {
+            return "SI";
+        }
+        if (notification.isOrderWorkflowType()) {
+            return "Order";
+        }
+        if (notification.isStoreWorkflowType()) {
+            return "Store";
+        }
+        return "SI";
+    }
+
+    private void openStoreAsync(Notification notification) {
+        if (notification == null) {
+            return;
+        }
+
+        popupMenu.hide();
+        markNotificationAsReadAsync(notification);
+        SceneNavigator.switchScene(
+                bellButton,
+                STORE_VIEW,
+                STORE_CSS,
+                STORE_TITLE,
+                controller -> {
+                    if (controller instanceof tn.esprit.Controller.StoreController storeController) {
+                        storeController.openPaymentFromNotification();
+                    }
+                }
+        );
     }
 
     private void openMatchAsync(Notification notification) {

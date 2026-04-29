@@ -11,6 +11,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,10 +28,8 @@ public class OrderService implements IService<Order> {
             "CANCELLED"
     );
     private static final List<String> PAYMENT_METHODS = List.of(
-            "CARD",
-            "CASH",
             "CASH_ON_DELIVERY",
-            "BANK_TRANSFER"
+            "STRIPE"
     );
     private static final List<String> PAYMENT_STATUSES = List.of(
             "UNPAID",
@@ -45,6 +44,7 @@ public class OrderService implements IService<Order> {
 
     private static final int MIN_ADDRESS_LENGTH = 8;
     private static final int MAX_ADDRESS_LENGTH = 300;
+    private static final int MAX_CLIENT_NAME_LENGTH = 120;
     private static final int MAX_PHONE_LENGTH = 20;
     private static final int MAX_SIZE_LENGTH = 20;
 
@@ -160,7 +160,7 @@ public class OrderService implements IService<Order> {
     public List<Order> getAll() throws SQLException {
         String sql = """
                 SELECT id, quantity, order_date, status, payment_method, payment_status, size,
-                       contact_email, contact_phone, shipping_address, billing_address,
+                       client_name, contact_email, contact_phone, shipping_address, billing_address,
                        total_amount, product_id, entraineur_id
                 FROM `order`
                 ORDER BY order_date DESC, id DESC
@@ -190,12 +190,13 @@ public class OrderService implements IService<Order> {
 
         String sql = """
                 SELECT id, quantity, order_date, status, payment_method, payment_status, size,
-                       contact_email, contact_phone, shipping_address, billing_address,
+                       client_name, contact_email, contact_phone, shipping_address, billing_address,
                        total_amount, product_id, entraineur_id
                 FROM `order`
                 WHERE LOWER(COALESCE(status, '')) LIKE ?
                    OR LOWER(COALESCE(payment_method, '')) LIKE ?
                    OR LOWER(COALESCE(payment_status, '')) LIKE ?
+                   OR LOWER(COALESCE(client_name, '')) LIKE ?
                    OR LOWER(COALESCE(contact_email, '')) LIKE ?
                    OR LOWER(COALESCE(contact_phone, '')) LIKE ?
                    OR CAST(id AS CHAR) LIKE ?
@@ -213,6 +214,7 @@ public class OrderService implements IService<Order> {
             statement.setString(5, pattern);
             statement.setString(6, pattern);
             statement.setString(7, pattern);
+            statement.setString(8, pattern);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -247,7 +249,7 @@ public class OrderService implements IService<Order> {
         String paymentMethod = normalizeEnum(order.getPaymentMethod(), ALLOWED_PAYMENT_METHODS, true, "Payment method is required.");
         String paymentStatus = normalizeEnum(order.getPaymentStatus(), ALLOWED_PAYMENT_STATUSES, false, null);
         if (paymentStatus == null) {
-            paymentStatus = ("CASH".equals(paymentMethod) || "CASH_ON_DELIVERY".equals(paymentMethod)) ? "PENDING" : "PAID";
+            paymentStatus = "CASH_ON_DELIVERY".equals(paymentMethod) ? "PENDING" : "PAID";
         }
 
         String status = normalizeEnum(order.getStatus(), ALLOWED_ORDER_STATUSES, false, null);
@@ -264,6 +266,7 @@ public class OrderService implements IService<Order> {
         String contactPhone = normalizePhone(order.getContactPhone());
         String shippingAddress = normalizeAddress(order.getShippingAddress(), "Shipping address is required.");
         String billingAddress = normalizeAddress(order.getBillingAddress(), "Billing address is required.");
+        String clientName = normalizeClientName(order.getClientName(), contactEmail, contactPhone);
 
         BigDecimal totalAmount = normalizeTotalAmount(order.getTotalAmount(), product, quantity);
         Integer entraineurId = normalizeOptionalPositiveInteger(order.getEntraineurId(), "Coach id is invalid.");
@@ -272,6 +275,7 @@ public class OrderService implements IService<Order> {
                 id,
                 quantity,
                 orderDate,
+                clientName,
                 status,
                 paymentMethod,
                 paymentStatus,
@@ -289,22 +293,27 @@ public class OrderService implements IService<Order> {
     private void insertOrder(Order order) throws SQLException {
         String sql = """
                 INSERT INTO `order`
-                    (quantity, order_date, status, payment_method, payment_status, size,
+                    (quantity, order_date, client_name, status, payment_method, payment_status, size,
                      contact_email, contact_phone, shipping_address, billing_address,
                      total_amount, product_id, entraineur_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             bindOrder(statement, order, false);
             statement.executeUpdate();
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    order.setId(generatedKeys.getInt(1));
+                }
+            }
         }
     }
 
     private void updateOrderRow(Order order) throws SQLException {
         String sql = """
                 UPDATE `order`
-                SET quantity = ?, order_date = ?, status = ?, payment_method = ?, payment_status = ?, size = ?,
+                SET quantity = ?, order_date = ?, client_name = ?, status = ?, payment_method = ?, payment_status = ?, size = ?,
                     contact_email = ?, contact_phone = ?, shipping_address = ?, billing_address = ?,
                     total_amount = ?, product_id = ?, entraineur_id = ?
                 WHERE id = ?
@@ -322,19 +331,20 @@ public class OrderService implements IService<Order> {
     private void bindOrder(PreparedStatement statement, Order order, boolean includeId) throws SQLException {
         statement.setInt(1, order.getQuantity());
         statement.setDate(2, Date.valueOf(order.getOrderDate()));
-        statement.setString(3, order.getStatus());
-        statement.setString(4, order.getPaymentMethod());
-        statement.setString(5, order.getPaymentStatus());
-        statement.setString(6, order.getSize());
-        statement.setString(7, order.getContactEmail());
-        statement.setString(8, order.getContactPhone());
-        statement.setString(9, order.getShippingAddress());
-        statement.setString(10, order.getBillingAddress());
-        statement.setBigDecimal(11, order.getTotalAmount());
-        statement.setInt(12, order.getProductId());
-        setNullableInteger(statement, 13, order.getEntraineurId());
+        statement.setString(3, order.getClientName());
+        statement.setString(4, order.getStatus());
+        statement.setString(5, order.getPaymentMethod());
+        statement.setString(6, order.getPaymentStatus());
+        statement.setString(7, order.getSize());
+        statement.setString(8, order.getContactEmail());
+        statement.setString(9, order.getContactPhone());
+        statement.setString(10, order.getShippingAddress());
+        statement.setString(11, order.getBillingAddress());
+        statement.setBigDecimal(12, order.getTotalAmount());
+        statement.setInt(13, order.getProductId());
+        setNullableInteger(statement, 14, order.getEntraineurId());
         if (includeId) {
-            statement.setInt(14, order.getId());
+            statement.setInt(15, order.getId());
         }
     }
 
@@ -345,7 +355,7 @@ public class OrderService implements IService<Order> {
 
         String sql = """
                 SELECT id, quantity, order_date, status, payment_method, payment_status, size,
-                       contact_email, contact_phone, shipping_address, billing_address,
+                       client_name, contact_email, contact_phone, shipping_address, billing_address,
                        total_amount, product_id, entraineur_id
                 FROM `order`
                 WHERE id = ?
@@ -423,6 +433,7 @@ public class OrderService implements IService<Order> {
                 resultSet.getInt("id"),
                 resultSet.getInt("quantity"),
                 orderDate == null ? null : orderDate.toLocalDate(),
+                resultSet.getString("client_name"),
                 resultSet.getString("status"),
                 resultSet.getString("payment_method"),
                 resultSet.getString("payment_status"),
@@ -488,6 +499,23 @@ public class OrderService implements IService<Order> {
             throw new IllegalArgumentException("Contact phone is invalid.");
         }
         return normalized;
+    }
+
+    private static String normalizeClientName(String clientName, String contactEmail, String contactPhone) {
+        String normalized = trimToNull(clientName);
+        if (normalized != null) {
+            if (normalized.length() > MAX_CLIENT_NAME_LENGTH) {
+                throw new IllegalArgumentException("Client name is too long.");
+            }
+            return normalized;
+        }
+        if (contactEmail != null && contactEmail.contains("@")) {
+            return contactEmail.substring(0, contactEmail.indexOf('@'));
+        }
+        if (contactPhone != null) {
+            return "Client " + contactPhone;
+        }
+        return "Client Sport Insight";
     }
 
     private static String normalizeAddress(String address, String requiredMessage) {

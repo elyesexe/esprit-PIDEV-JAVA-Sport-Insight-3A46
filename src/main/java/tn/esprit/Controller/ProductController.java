@@ -22,6 +22,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
@@ -39,6 +40,9 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.repositories.ProductRepository;
+import tn.esprit.services.OrderService;
+import tn.esprit.services.ProductAiService;
+import tn.esprit.services.ProductAnalyticsService;
 import tn.esprit.services.ProductPdfExportService;
 import tn.esprit.services.ProductService;
 
@@ -61,8 +65,11 @@ import java.util.stream.Collectors;
 
 public class ProductController {
     private static final int LOW_STOCK_THRESHOLD = 5;
+    private static final int TRENDING_LIMIT = 6;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("product-db"));
+    private static final ExecutorService AI_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("product-ai"));
 
     @FXML private BorderPane pageRoot;
     @FXML private ScrollPane pageScroll;
@@ -84,12 +91,15 @@ public class ProductController {
     @FXML private Label visibleProductsMetricLabel;
     @FXML private Label lowStockMetricLabel;
     @FXML private Label outOfStockMetricLabel;
+    @FXML private Label restockSoonMetricLabel;
     @FXML private Label stockChartSummaryLabel;
     @FXML private Label categoryChartSummaryLabel;
     @FXML private BarChart<String, Number> stockStatusChart;
     @FXML private PieChart categoryDistributionChart;
 
     @FXML private TextField searchField;
+    @FXML private Label smartSearchSummaryLabel;
+    @FXML private Button trendingFilterButton;
     @FXML private ComboBox<ProductRepository.ProductSortField> sortByComboBox;
     @FXML private ComboBox<ProductRepository.SortDirection> sortDirectionComboBox;
 
@@ -111,6 +121,9 @@ public class ProductController {
     @FXML private Label detailCategoryValueLabel;
     @FXML private Label detailBrandValueLabel;
     @FXML private Label detailSizeValueLabel;
+    @FXML private Label detailTagsValueLabel;
+    @FXML private Label detailDescriptionValueLabel;
+    @FXML private Label detailForecastValueLabel;
     @FXML private Label detailImagePathLabel;
     @FXML private ImageView detailImageView;
     @FXML private Label detailImagePlaceholderLabel;
@@ -125,23 +138,36 @@ public class ProductController {
     @FXML private TextField stockField;
     @FXML private TextField sizeField;
     @FXML private TextField imageField;
+    @FXML private TextField tagsField;
+    @FXML private TextArea descriptionField;
+    @FXML private Label formInsightLabel;
+    @FXML private Label formForecastLabel;
     @FXML private Button addButton;
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
     @FXML private Button detailEditButton;
     @FXML private Button detailDeleteButton;
     @FXML private Button exportPdfButton;
+    @FXML private Button generateAiButton;
 
     private final ObservableList<Product> products = FXCollections.observableArrayList();
     private final Map<String, Image> imageCache = new HashMap<>();
 
     private ProductService productService;
+    private OrderService orderService;
     private ProductPdfExportService productPdfExportService;
+    private ProductAiService productAiService;
+    private ProductAnalyticsService productAnalyticsService;
     private Product selectedProduct;
     private boolean serviceReady;
     private boolean darkMode;
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong refreshSequence = new AtomicLong();
+    private List<tn.esprit.entities.Order> orderHistorySnapshot = List.of();
+    private ProductAiService.SmartProductQuery lastSmartQuery = ProductAiService.SmartProductQuery.empty();
+    private ProductAnalyticsService.DashboardDemandSummary demandSummary =
+            new ProductAnalyticsService.DashboardDemandSummary(0, ProductAnalyticsService.ProductDemandSnapshot.empty());
+    private boolean trendingFilterActive;
 
     @FXML
     public void initialize() {
@@ -151,6 +177,7 @@ public class ProductController {
         configureFormatters();
         configureTable();
         configureCharts();
+        updateTrendingButtonState();
         updateDetailPanel();
         updateActionAvailability();
         if (pageScroll != null) {
@@ -163,7 +190,12 @@ public class ProductController {
             productService = new ProductService();
             productPdfExportService = new ProductPdfExportService();
             serviceReady = true;
-            setStatus("Module produits pret.", "status-success");
+            orderService = createOptionalOrderService();
+            productAiService = new ProductAiService();
+            productAnalyticsService = new ProductAnalyticsService();
+            setStatus(orderService == null
+                    ? "Module produits pret. Analyse commandes indisponible."
+                    : "Module produits pret.", "status-success");
             refreshProducts(null, "Chargement des produits...", "status-muted");
         } catch (SQLException exception) {
             serviceReady = false;
@@ -275,6 +307,8 @@ public class ProductController {
         if (searchField != null) {
             searchField.clear();
         }
+        trendingFilterActive = false;
+        updateTrendingButtonState();
         if (sortByComboBox != null) {
             sortByComboBox.setValue(ProductRepository.ProductSortField.NAME);
         }
@@ -282,6 +316,98 @@ public class ProductController {
             sortDirectionComboBox.setValue(ProductRepository.SortDirection.ASC);
         }
         refreshProducts(getSelectedProductId(), "Filtres reinitialises.", "status-muted");
+    }
+
+    @FXML
+    private void handleToggleTrending() {
+        trendingFilterActive = !trendingFilterActive;
+        updateTrendingButtonState();
+        refreshProducts(getSelectedProductId(),
+                trendingFilterActive ? "Filtre tendances active." : "Filtre tendances desactive.",
+                "status-muted");
+    }
+
+    @FXML
+    private void handleGenerateAiContent() {
+        if (productAiService == null) {
+            showValidation("Le service IA produit n'est pas disponible.");
+            return;
+        }
+
+        ProductAiService.ProductDraft draft = new ProductAiService.ProductDraft(
+                trimToNull(nameField.getText()),
+                trimToNull(categoryField.getText()),
+                trimToNull(brandField.getText()),
+                trimToNull(sizeField.getText()),
+                parseOptionalPrice()
+        );
+
+        setStatus("Generation IA en cours...", "status-muted");
+        Task<ProductAiService.GeneratedProductContent> task = new Task<>() {
+            @Override
+            protected ProductAiService.GeneratedProductContent call() {
+                return productAiService.generateContent(draft);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            ProductAiService.GeneratedProductContent content = task.getValue();
+            if (content == null) {
+                setStatus("Generation IA impossible.", "status-error");
+                return;
+            }
+            if (trimToNull(nameField.getText()) == null && trimToNull(content.marketingTitle()) != null) {
+                nameField.setText(content.marketingTitle());
+            }
+            descriptionField.setText(emptyIfNull(content.description(), ""));
+            tagsField.setText(content.tagsAsText());
+            if (ProductAiService.SOURCE_OPENAI.equalsIgnoreCase(content.source())) {
+                setStatus("Contenu IA OpenAI applique.", "status-success");
+            } else if (ProductAiService.SOURCE_OPENAI_FALLBACK.equalsIgnoreCase(content.source())) {
+                setStatus("OpenAI configure mais indisponible. Contenu local intelligent applique.", "status-muted");
+            } else {
+                setStatus("OpenAI non configure. Contenu local intelligent applique.", "status-muted");
+            }
+        });
+
+        task.setOnFailed(event -> {
+            setStatus("Generation IA impossible.", "status-error");
+            showValidation(resolvePersistenceMessage(task.getException() instanceof Exception exception ? exception : new Exception(task.getException())));
+        });
+
+        AI_EXECUTOR.execute(task);
+    }
+
+    @FXML
+    private void handleChooseImage() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choisir une image produit");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif"),
+                new FileChooser.ExtensionFilter("Tous les fichiers", "*.*")
+        );
+
+        String currentPath = trimToNull(imageField.getText());
+        if (currentPath != null) {
+            java.io.File currentFile = new java.io.File(currentPath);
+            java.io.File initialDirectory = currentFile.isDirectory() ? currentFile : currentFile.getParentFile();
+            if (initialDirectory != null && initialDirectory.exists()) {
+                chooser.setInitialDirectory(initialDirectory);
+            }
+        } else {
+            java.io.File picturesDirectory = new java.io.File(System.getProperty("user.home"), "Pictures");
+            if (picturesDirectory.exists()) {
+                chooser.setInitialDirectory(picturesDirectory);
+            }
+        }
+
+        Window owner = pageRoot == null || pageRoot.getScene() == null ? null : pageRoot.getScene().getWindow();
+        java.io.File selectedFile = chooser.showOpenDialog(owner);
+        if (selectedFile == null) {
+            return;
+        }
+
+        imageField.setText(selectedFile.getAbsolutePath());
     }
 
     @FXML
@@ -321,8 +447,17 @@ public class ProductController {
 
         try {
             productService.add(product);
-            refreshProducts(product.getId(), "Produit ajoute avec succes.", "status-success");
+            selectedProduct = null;
+            clearFormFields();
             clearValidation();
+            if (searchField != null) {
+                searchField.clear();
+            }
+            formModeLabel.setText("Ajouter un produit");
+            formHintLabel.setText("Renseignez les champs ci-dessous pour ajouter un nouveau produit.");
+            selectionStateLabel.setText("Selectionnez un produit");
+            updateActionAvailability();
+            refreshProducts(null, "Produit ajoute avec succes.", "status-success");
         } catch (IllegalArgumentException | SQLException exception) {
             setStatus("Ajout impossible.", "status-error");
             showValidation(resolvePersistenceMessage(exception));
@@ -479,6 +614,7 @@ public class ProductController {
 
         long requestId = refreshSequence.incrementAndGet();
         String search = searchField == null ? null : searchField.getText();
+        boolean trendingActive = trendingFilterActive;
         ProductRepository.ProductSortField sortField =
                 sortByComboBox == null || sortByComboBox.getValue() == null
                         ? ProductRepository.ProductSortField.NAME
@@ -491,10 +627,32 @@ public class ProductController {
         setStatus(successMessage == null ? "Chargement des produits..." : successMessage,
                 statusStyle == null ? "status-muted" : statusStyle);
 
-        Task<List<Product>> loadTask = new Task<>() {
+        Task<ProductRefreshPayload> loadTask = new Task<>() {
             @Override
-            protected List<Product> call() throws Exception {
-                return productService.findProducts(search, sortField, sortDirection);
+            protected ProductRefreshPayload call() throws Exception {
+                List<Product> sortedProducts = productService.getAllSorted(sortField, sortDirection);
+                ProductAiService.SmartProductQuery smartQuery = productAiService == null
+                        ? ProductAiService.SmartProductQuery.empty()
+                        : productAiService.interpretSearch(search, sortedProducts);
+                List<tn.esprit.entities.Order> allOrders = loadOrderHistorySafely();
+                List<Product> baseProducts = resolveVisibleProducts(
+                        sortedProducts,
+                        smartQuery,
+                        search,
+                        sortField,
+                        sortDirection,
+                        allOrders,
+                        false
+                );
+                ProductAnalyticsService.TrendingSelection trendingSelection = productAnalyticsService == null
+                        ? new ProductAnalyticsService.TrendingSelection(List.of(), List.of(), TRENDING_LIMIT, "Tendances indisponibles.")
+                        : productAnalyticsService.selectTrendingProducts(baseProducts, allOrders, TRENDING_LIMIT);
+                List<Product> filteredProducts = trendingActive ? trendingSelection.products() : baseProducts;
+                ProductAnalyticsService.DashboardDemandSummary summary = productAnalyticsService == null
+                        ? new ProductAnalyticsService.DashboardDemandSummary(0, ProductAnalyticsService.ProductDemandSnapshot.empty())
+                        : productAnalyticsService.summarize(filteredProducts, allOrders);
+                String searchSummary = buildSearchSummary(search, smartQuery, trendingActive, trendingSelection);
+                return new ProductRefreshPayload(filteredProducts, smartQuery, allOrders, summary, searchSummary);
             }
         };
 
@@ -503,10 +661,16 @@ public class ProductController {
                 return;
             }
 
-            List<Product> foundProducts = loadTask.getValue();
-            products.setAll(foundProducts);
+            ProductRefreshPayload payload = loadTask.getValue();
+            products.setAll(payload.products());
+            lastSmartQuery = payload.smartQuery();
+            orderHistorySnapshot = payload.orders();
+            demandSummary = payload.demandSummary();
             updateMetrics();
             updateCharts();
+            if (smartSearchSummaryLabel != null) {
+                smartSearchSummaryLabel.setText(emptyIfNull(payload.searchSummary(), "Recherche texte standard."));
+            }
 
             if (selectedId != null) {
                 selectProductById(selectedId);
@@ -542,6 +706,77 @@ public class ProductController {
         DB_EXECUTOR.execute(loadTask);
     }
 
+    private OrderService createOptionalOrderService() {
+        try {
+            return new OrderService();
+        } catch (SQLException exception) {
+            return null;
+        }
+    }
+
+    private List<tn.esprit.entities.Order> loadOrderHistorySafely() {
+        if (orderService == null) {
+            return List.of();
+        }
+        try {
+            return orderService.getAll();
+        } catch (SQLException exception) {
+            return List.of();
+        }
+    }
+
+    private List<Product> resolveVisibleProducts(
+            List<Product> sortedProducts,
+            ProductAiService.SmartProductQuery smartQuery,
+            String search,
+            ProductRepository.ProductSortField sortField,
+            ProductRepository.SortDirection sortDirection,
+            List<tn.esprit.entities.Order> orders,
+            boolean trendingActive
+    ) throws SQLException {
+        String normalizedSearch = trimToNull(search);
+        List<Product> visibleProducts;
+        if (normalizedSearch == null) {
+            visibleProducts = sortedProducts;
+        } else if (smartQuery == null || smartQuery.isEmpty()) {
+            visibleProducts = productService.findProducts(normalizedSearch, sortField, sortDirection);
+        } else {
+            visibleProducts = productService.filterProducts(sortedProducts, smartQuery);
+        }
+
+        if (!trendingActive || productAnalyticsService == null) {
+            return visibleProducts;
+        }
+
+        return productAnalyticsService.selectTrendingProducts(visibleProducts, orders, TRENDING_LIMIT).products();
+    }
+
+    private String buildSearchSummary(
+            String search,
+            ProductAiService.SmartProductQuery smartQuery,
+            boolean trendingActive,
+            ProductAnalyticsService.TrendingSelection trendingSelection
+    ) {
+        String normalizedSearch = trimToNull(search);
+        String baseSummary;
+        if (normalizedSearch == null) {
+            baseSummary = "Recherche locale standard.";
+        } else if (smartQuery == null || smartQuery.isEmpty()) {
+            baseSummary = "Recherche texte: " + normalizedSearch;
+        } else {
+            baseSummary = emptyIfNull(smartQuery.summary(), "Recherche intelligente locale.");
+        }
+
+        if (!trendingActive) {
+            return baseSummary;
+        }
+
+        String trendSummary = trendingSelection == null
+                ? "Filtre tendances actif."
+                : emptyIfNull(trendingSelection.summary(), "Filtre tendances actif.");
+        return baseSummary + " | " + trendSummary;
+    }
+
     private void populateForm(Product product) {
         if (product == null) {
             return;
@@ -554,6 +789,8 @@ public class ProductController {
         stockField.setText(String.valueOf(product.getStock()));
         sizeField.setText(emptyIfNull(product.getSize(), ""));
         imageField.setText(emptyIfNull(product.getImage(), ""));
+        tagsField.setText(emptyIfNull(product.getTags(), ""));
+        descriptionField.setText(emptyIfNull(product.getDescription(), ""));
         formModeLabel.setText("Modifier le produit");
         formHintLabel.setText("Les modifications seront appliquees au produit selectionne.");
         clearValidation();
@@ -581,7 +818,9 @@ public class ProductController {
                 stock,
                 trimToNull(sizeField.getText()),
                 trimToNull(brandField.getText()),
-                trimToNull(imageField.getText())
+                trimToNull(imageField.getText()),
+                trimToNull(descriptionField.getText()),
+                trimToNull(tagsField.getText())
         );
 
         Map<String, String> errors = productService.validate(product);
@@ -631,6 +870,9 @@ public class ProductController {
 
     private void selectProduct(Product product) {
         selectedProduct = product;
+        if (product != null) {
+            populateForm(product);
+        }
         updateDetailPanel();
         updateActionAvailability();
         selectionStateLabel.setText(product == null
@@ -664,6 +906,9 @@ public class ProductController {
         visibleProductsMetricLabel.setText(String.valueOf(products.size()));
         lowStockMetricLabel.setText(String.valueOf(lowStock));
         outOfStockMetricLabel.setText(String.valueOf(outOfStock));
+        if (restockSoonMetricLabel != null) {
+            restockSoonMetricLabel.setText(String.valueOf(demandSummary.restockSoonCount()));
+        }
     }
 
     private void updateCharts() {
@@ -710,7 +955,11 @@ public class ProductController {
         }
 
         if (stockChartSummaryLabel != null) {
-            stockChartSummaryLabel.setText(products.size() + " visible product(s) | " + healthyStock + " healthy | " + lowStock + " low | " + outOfStock + " out");
+            StringBuilder summary = new StringBuilder(products.size() + " visible product(s) | " + healthyStock + " healthy | " + lowStock + " low | " + outOfStock + " out");
+            if (demandSummary != null && demandSummary.restockSoonCount() > 0) {
+                summary.append(" | ").append(demandSummary.restockSoonCount()).append(" restock soon");
+            }
+            stockChartSummaryLabel.setText(summary.toString());
         }
         if (categoryChartSummaryLabel != null) {
             String topCategory = categories.entrySet().stream()
@@ -719,7 +968,13 @@ public class ProductController {
                     .map(entry -> entry.getKey() + " leads with " + entry.getValue())
                     .findFirst()
                     .orElse("No category data available.");
-            categoryChartSummaryLabel.setText(topCategory);
+            ProductAnalyticsService.ProductDemandSnapshot topRisk = demandSummary == null
+                    ? ProductAnalyticsService.ProductDemandSnapshot.empty()
+                    : demandSummary.topRiskProduct();
+            String demandLabel = topRisk.productId() == null
+                    ? "No demand alert."
+                    : "Top alert: " + topRisk.productName() + " | " + topRisk.summary();
+            categoryChartSummaryLabel.setText(topCategory + " | " + demandLabel);
         }
     }
 
@@ -733,6 +988,9 @@ public class ProductController {
             detailCategoryValueLabel.setText("-");
             detailBrandValueLabel.setText("-");
             detailSizeValueLabel.setText("-");
+            detailTagsValueLabel.setText("-");
+            detailDescriptionValueLabel.setText("Aucune description");
+            detailForecastValueLabel.setText("Aucune prevision");
             detailImagePathLabel.setText("Aucune image");
             detailStockChipLabel.setText("-");
             detailStockChipLabel.getStyleClass().setAll("status-pill", "product-stock-chip", "product-stock-good");
@@ -741,6 +999,12 @@ public class ProductController {
             detailImageView.setManaged(false);
             detailImagePlaceholderLabel.setVisible(true);
             detailImagePlaceholderLabel.setManaged(true);
+            if (formInsightLabel != null) {
+                formInsightLabel.setText("Mode ajout. Selectionnez un produit dans la liste pour passer en mode edition.");
+            }
+            if (formForecastLabel != null) {
+                formForecastLabel.setText("Prevision indisponible tant qu'aucun produit n'est selectionne.");
+            }
             return;
         }
 
@@ -757,9 +1021,26 @@ public class ProductController {
         detailCategoryValueLabel.setText(emptyIfNull(selectedProduct.getCategory()));
         detailBrandValueLabel.setText(emptyIfNull(selectedProduct.getBrand()));
         detailSizeValueLabel.setText(emptyIfNull(selectedProduct.getSize()));
+        detailTagsValueLabel.setText(emptyIfNull(selectedProduct.getTags()));
+        detailDescriptionValueLabel.setText(emptyIfNull(selectedProduct.getDescription(), "Aucune description"));
         detailImagePathLabel.setText(emptyIfNull(selectedProduct.getImage(), "Aucune image"));
         detailStockChipLabel.setText(selectedProduct.getStock() + " en stock");
         applyStockStyle(detailStockChipLabel, selectedProduct.getStock());
+        if (formInsightLabel != null) {
+            formInsightLabel.setText("Produit #" + selectedProduct.getId()
+                    + " | " + emptyIfNull(selectedProduct.getCategory(), "-")
+                    + " | " + emptyIfNull(selectedProduct.getBrand(), "-")
+                    + " | stock " + selectedProduct.getStock());
+        }
+        if (productAnalyticsService != null) {
+            ProductAnalyticsService.ProductDemandSnapshot snapshot = productAnalyticsService.predictDemand(selectedProduct, orderHistorySnapshot);
+            detailForecastValueLabel.setText(emptyIfNull(snapshot.summary(), "Aucune prevision"));
+            if (formForecastLabel != null) {
+                formForecastLabel.setText(emptyIfNull(snapshot.summary(), "Aucune prevision"));
+            }
+        } else if (formForecastLabel != null) {
+            formForecastLabel.setText("Prevision indisponible.");
+        }
         updateDetailImage(selectedProduct.getImage(), selectedProduct.getName());
     }
 
@@ -778,7 +1059,7 @@ public class ProductController {
             return;
         }
         if (builder.length() > 0) {
-            builder.append(" • ");
+            builder.append(" | ");
         }
         builder.append(normalized);
     }
@@ -869,6 +1150,8 @@ public class ProductController {
         clearFieldError(stockField);
         clearFieldError(sizeField);
         clearFieldError(imageField);
+        clearFieldError(descriptionField);
+        clearFieldError(tagsField);
 
         if (errors.containsKey("name")) {
             markFieldInvalid(nameField);
@@ -891,16 +1174,49 @@ public class ProductController {
         if (errors.containsKey("image")) {
             markFieldInvalid(imageField);
         }
+        if (errors.containsKey("description")) {
+            markFieldInvalid(descriptionField);
+        }
+        if (errors.containsKey("tags")) {
+            markFieldInvalid(tagsField);
+        }
 
         showValidation(errors.values().stream().collect(Collectors.joining("\n")));
     }
 
     private void updateActionAvailability() {
-        boolean hasSelection = selectedProduct != null;
-        updateButton.setDisable(!hasSelection);
-        deleteButton.setDisable(!hasSelection);
-        detailEditButton.setDisable(!hasSelection);
-        detailDeleteButton.setDisable(!hasSelection);
+        boolean editMode = selectedProduct != null;
+
+        if (addButton != null) {
+            addButton.setDisable(editMode);
+            addButton.setManaged(!editMode);
+            addButton.setVisible(!editMode);
+        }
+        if (updateButton != null) {
+            updateButton.setDisable(!editMode);
+            updateButton.setManaged(editMode);
+            updateButton.setVisible(editMode);
+        }
+        if (deleteButton != null) {
+            deleteButton.setDisable(!editMode);
+            deleteButton.setManaged(editMode);
+            deleteButton.setVisible(editMode);
+        }
+        if (detailEditButton != null) {
+            detailEditButton.setDisable(!editMode);
+        }
+        if (detailDeleteButton != null) {
+            detailDeleteButton.setDisable(!editMode);
+        }
+    }
+
+    private void updateTrendingButtonState() {
+        if (trendingFilterButton == null) {
+            return;
+        }
+        trendingFilterButton.setText(trendingFilterActive ? "Tendances ON" : "Tendances");
+        trendingFilterButton.getStyleClass().removeAll("primary-button", "soft-button");
+        trendingFilterButton.getStyleClass().add(trendingFilterActive ? "primary-button" : "soft-button");
     }
 
     private void clearFormFields() {
@@ -911,6 +1227,8 @@ public class ProductController {
         stockField.clear();
         sizeField.clear();
         imageField.clear();
+        tagsField.clear();
+        descriptionField.clear();
     }
 
     private void showValidation(String message) {
@@ -931,6 +1249,8 @@ public class ProductController {
         clearFieldError(stockField);
         clearFieldError(sizeField);
         clearFieldError(imageField);
+        clearFieldError(descriptionField);
+        clearFieldError(tagsField);
     }
 
     private void markFieldInvalid(Control control) {
@@ -952,6 +1272,18 @@ public class ProductController {
             return new BigDecimal(value.replace(',', '.')).setScale(2, RoundingMode.HALF_UP);
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException("Saisissez un prix valide.");
+        }
+    }
+
+    private BigDecimal parseOptionalPrice() {
+        String value = trimToNull(priceField.getText());
+        if (value == null) {
+            return null;
+        }
+        try {
+            return new BigDecimal(value.replace(',', '.')).setScale(2, RoundingMode.HALF_UP);
+        } catch (NumberFormatException exception) {
+            return null;
         }
     }
 
@@ -1108,6 +1440,15 @@ public class ProductController {
 
     private Node resolveNavigationSource(Node preferred, Node fallback) {
         return preferred != null ? preferred : fallback;
+    }
+
+    private record ProductRefreshPayload(
+            List<Product> products,
+            ProductAiService.SmartProductQuery smartQuery,
+            List<tn.esprit.entities.Order> orders,
+            ProductAnalyticsService.DashboardDemandSummary demandSummary,
+            String searchSummary
+    ) {
     }
 
     private static ThreadFactory daemonFactory(String name) {

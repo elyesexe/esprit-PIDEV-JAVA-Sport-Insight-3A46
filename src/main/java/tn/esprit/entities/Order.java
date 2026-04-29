@@ -7,6 +7,7 @@ public class Order {
     private Integer id;
     private Integer quantity;
     private LocalDate orderDate;
+    private String clientName;
     private String status;
     private String paymentMethod;
     private String paymentStatus;
@@ -23,8 +24,13 @@ public class Order {
     }
 
     public Order(Integer quantity, LocalDate orderDate, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
+        this(quantity, orderDate, null, status, paymentMethod, paymentStatus, size, contactEmail, contactPhone, shippingAddress, billingAddress, totalAmount, productId, entraineurId);
+    }
+
+    public Order(Integer quantity, LocalDate orderDate, String clientName, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
         this.quantity = quantity;
         this.orderDate = orderDate;
+        this.clientName = clientName;
         this.status = status;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
@@ -39,9 +45,14 @@ public class Order {
     }
 
     public Order(Integer id, Integer quantity, LocalDate orderDate, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
+        this(id, quantity, orderDate, null, status, paymentMethod, paymentStatus, size, contactEmail, contactPhone, shippingAddress, billingAddress, totalAmount, productId, entraineurId);
+    }
+
+    public Order(Integer id, Integer quantity, LocalDate orderDate, String clientName, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
         this.id = id;
         this.quantity = quantity;
         this.orderDate = orderDate;
+        this.clientName = clientName;
         this.status = status;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
@@ -77,6 +88,14 @@ public class Order {
 
     public void setOrderDate(LocalDate orderDate) {
         this.orderDate = orderDate;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 
     public String getStatus() {
@@ -173,6 +192,7 @@ public class Order {
                 "id=" + id +
                 ", quantity=" + quantity +
                 ", orderDate=" + orderDate +
+                ", clientName='" + clientName + '\'' +
                 ", status='" + status + '\'' +
                 ", paymentMethod='" + paymentMethod + '\'' +
                 ", paymentStatus='" + paymentStatus + '\'' +

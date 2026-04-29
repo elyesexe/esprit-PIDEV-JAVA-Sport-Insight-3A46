@@ -14,6 +14,9 @@ public final class SchemaMigration {
         DatabaseMetaData metaData = connection.getMetaData();
         String catalog = currentCatalog(connection);
         try (Statement statement = connection.createStatement()) {
+            addColumnIfMissing(metaData, catalog, statement, "product", "description", "TEXT NULL");
+            addColumnIfMissing(metaData, catalog, statement, "product", "tags", "VARCHAR(255) NULL");
+
             addColumnIfMissing(metaData, catalog, statement, "equipe", "external_api_id", "BIGINT NULL");
             addColumnIfMissing(metaData, catalog, statement, "equipe", "external_source", "VARCHAR(32) NULL");
             addColumnIfMissing(metaData, catalog, statement, "equipe", "competition_code", "VARCHAR(16) NULL");
@@ -57,6 +60,7 @@ public final class SchemaMigration {
 
         ensureAnnonceSchema(connection);
         ensureUserSchema(connection);
+        ensureOrderSchema(connection);
         ensureMatchLiveSchema(connection);
     }
 
@@ -275,6 +279,38 @@ public final class SchemaMigration {
                     "CREATE INDEX idx_user_email ON `user` (email)");
             addIndexIfMissing(metaData, catalog, statement, "user", "idx_user_status",
                     "CREATE INDEX idx_user_status ON `user` (statut)");
+        }
+    }
+
+    private static void ensureOrderSchema(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        String catalog = currentCatalog(connection);
+        try (Statement statement = connection.createStatement()) {
+            addColumnIfMissing(metaData, catalog, statement, "order", "client_name", "VARCHAR(120) NULL AFTER `order_date`");
+
+            statement.executeUpdate("""
+                    UPDATE `order` o
+                    LEFT JOIN `user` u ON u.id = o.entraineur_id
+                    SET o.client_name = COALESCE(
+                        NULLIF(TRIM(o.client_name), ''),
+                        NULLIF(TRIM(CONCAT(COALESCE(u.prenom, ''), ' ', COALESCE(u.nom, ''))), ''),
+                        NULLIF(TRIM(u.email), ''),
+                        CASE
+                            WHEN o.contact_email IS NOT NULL AND TRIM(o.contact_email) <> ''
+                                THEN SUBSTRING_INDEX(TRIM(o.contact_email), '@', 1)
+                            WHEN o.contact_phone IS NOT NULL AND TRIM(o.contact_phone) <> ''
+                                THEN CONCAT('Client ', TRIM(o.contact_phone))
+                            ELSE 'Client Sport Insight'
+                        END
+                    )
+                    WHERE o.client_name IS NULL OR TRIM(o.client_name) = ''
+                    """);
+
+            try {
+                statement.executeUpdate("ALTER TABLE `order` MODIFY COLUMN `entraineur_id` INT NULL");
+            } catch (SQLException ignored) {
+                // Ignore if the column is already nullable or the engine treats this as a no-op.
+            }
         }
     }
 

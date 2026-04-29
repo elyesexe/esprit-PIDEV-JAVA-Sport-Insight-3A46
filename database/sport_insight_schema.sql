@@ -129,6 +129,8 @@ CREATE TABLE `product` (
     `size` VARCHAR(50) NULL,
     `brand` VARCHAR(120) NULL,
     `image` VARCHAR(255) NULL,
+    `description` TEXT NULL,
+    `tags` VARCHAR(255) NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -136,6 +138,7 @@ CREATE TABLE `order` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `quantity` INT NOT NULL,
     `order_date` DATE NOT NULL,
+    `client_name` VARCHAR(120) NULL,
     `status` VARCHAR(100) NULL,
     `payment_method` VARCHAR(100) NULL,
     `payment_status` VARCHAR(100) NULL,
@@ -146,7 +149,7 @@ CREATE TABLE `order` (
     `billing_address` VARCHAR(255) NULL,
     `total_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     `product_id` INT NOT NULL,
-    `entraineur_id` INT NOT NULL,
+    `entraineur_id` INT NULL,
     PRIMARY KEY (`id`),
     KEY `idx_order_product_id` (`product_id`),
     KEY `idx_order_entraineur_id` (`entraineur_id`),

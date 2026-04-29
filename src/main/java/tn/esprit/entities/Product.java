@@ -11,11 +11,17 @@ public class Product {
     private String size;
     private String brand;
     private String image;
+    private String description;
+    private String tags;
 
     public Product() {
     }
 
     public Product(String name, String category, BigDecimal price, int stock, String size, String brand, String image) {
+        this(name, category, price, stock, size, brand, image, null, null);
+    }
+
+    public Product(String name, String category, BigDecimal price, int stock, String size, String brand, String image, String description, String tags) {
         this.name = name;
         this.category = category;
         this.price = price;
@@ -23,9 +29,15 @@ public class Product {
         this.size = size;
         this.brand = brand;
         this.image = image;
+        this.description = description;
+        this.tags = tags;
     }
 
     public Product(Integer id, String name, String category, BigDecimal price, int stock, String size, String brand, String image) {
+        this(id, name, category, price, stock, size, brand, image, null, null);
+    }
+
+    public Product(Integer id, String name, String category, BigDecimal price, int stock, String size, String brand, String image, String description, String tags) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -34,6 +46,8 @@ public class Product {
         this.size = size;
         this.brand = brand;
         this.image = image;
+        this.description = description;
+        this.tags = tags;
     }
 
     public Integer getId() {
@@ -100,6 +114,22 @@ public class Product {
         this.image = image;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -111,6 +141,8 @@ public class Product {
                 ", size='" + size + '\'' +
                 ", brand='" + brand + '\'' +
                 ", image='" + image + '\'' +
+                ", description='" + description + '\'' +
+                ", tags='" + tags + '\'' +
                 '}';
     }
 }

@@ -139,6 +139,17 @@
     -fx-vgap: 18;
 }
 
+.store-notification-card {
+    -fx-max-width: 420;
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-border-color: rgba(16, 185, 129, 0.20);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 24, 0.18, 0, 10);
+}
+
+.store-notification-card .section-title {
+    -fx-font-size: 18px;
+}
+
 .store-product-card,
 .store-cart-card {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
