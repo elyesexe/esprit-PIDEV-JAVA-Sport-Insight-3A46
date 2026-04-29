@@ -8,6 +8,9 @@ public class Equipe {
     private String telephone;
     private String email;
     private String image;
+    private Long externalApiId;
+    private String externalSource;
+    private String competitionCode;
 
     public Equipe() {
     }
@@ -87,6 +90,30 @@ public class Equipe {
         this.image = image;
     }
 
+    public Long getExternalApiId() {
+        return externalApiId;
+    }
+
+    public void setExternalApiId(Long externalApiId) {
+        this.externalApiId = externalApiId;
+    }
+
+    public String getExternalSource() {
+        return externalSource;
+    }
+
+    public void setExternalSource(String externalSource) {
+        this.externalSource = externalSource;
+    }
+
+    public String getCompetitionCode() {
+        return competitionCode;
+    }
+
+    public void setCompetitionCode(String competitionCode) {
+        this.competitionCode = competitionCode;
+    }
+
     @Override
     public String toString() {
         return "Equipe{" +
@@ -97,6 +124,9 @@ public class Equipe {
                 ", telephone='" + telephone + '\'' +
                 ", email='" + email + '\'' +
                 ", image='" + image + '\'' +
+                ", externalApiId=" + externalApiId +
+                ", externalSource='" + externalSource + '\'' +
+                ", competitionCode='" + competitionCode + '\'' +
                 '}';
     }
 }

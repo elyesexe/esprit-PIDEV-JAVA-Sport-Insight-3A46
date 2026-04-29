@@ -1,0 +1,260 @@
+@import "equipe-theme.css";
+
+.module-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+}
+
+.module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(248, 250, 252, 0.78);
+    -fx-background-radius: 14;
+}
+
+.theme-dark .module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(0, 0, 0, 0.88);
+}
+
+.module-stats-chart .chart-vertical-grid-lines,
+.module-stats-chart .chart-horizontal-grid-lines,
+.module-stats-chart .chart-alternative-row-fill,
+.module-stats-chart .chart-alternative-column-fill {
+    -fx-stroke: rgba(148, 163, 184, 0.24);
+}
+
+.hero-photo {
+    -fx-background-image: url("../images/players-hero.jpg");
+    -fx-background-position: 50% 38%;
+}
+
+.player-list-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 4 4 4 4;
+}
+
+.player-list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.player-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 14 0;
+}
+
+.player-list-view .list-cell:filled:selected,
+.player-list-view .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.player-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.86);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 22;
+    -fx-padding: 16 18 16 18;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0.18, 0, 10);
+}
+
+.player-list-view .list-cell:filled:hover .player-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(16, 185, 129, 0.24);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 28, 0.2, 0, 14);
+}
+
+.player-list-view .list-cell:filled:selected .player-list-card,
+.player-list-view .list-cell:filled:selected:focused .player-list-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.98) 0%, rgba(240, 253, 250, 0.98) 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.5);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 28, 0.24, 0, 14);
+}
+
+.player-list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.player-list-view .scroll-bar:vertical .track {
+    -fx-background-color: rgba(226, 232, 240, 0.6);
+    -fx-background-radius: 999;
+}
+
+.player-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(16, 185, 129, 0.38);
+    -fx-background-radius: 999;
+}
+
+.player-avatar-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(241, 245, 249, 0.96) 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 22;
+    -fx-padding: 8;
+    -fx-alignment: center;
+}
+
+.player-avatar-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.player-card-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.player-number-badge {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #10b981 100%);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(16, 185, 129, 0.2);
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+}
+
+.player-card-team {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.player-card-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.player-card-meta-pill {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 999;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
+.player-detail-photo-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(241, 245, 249, 0.96) 100%);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 26;
+    -fx-padding: 22;
+    -fx-alignment: center;
+}
+
+.player-detail-photo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 62px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.form-date-picker {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 16;
+    -fx-padding: 2;
+}
+
+.form-date-picker:focused {
+    -fx-border-color: rgba(16, 185, 129, 0.78);
+}
+
+.form-date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-background-radius: 16;
+    -fx-padding: 10 12 10 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.form-date-picker .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14;
+}
+
+.form-date-picker .arrow {
+    -fx-background-color: #0f766e;
+}
+
+.form-date-picker.invalid-field,
+.glass-combo.invalid-field {
+    -fx-background-color: rgba(254, 242, 242, 0.95);
+    -fx-border-color: rgba(239, 68, 68, 0.72);
+}
+
+.form-card .button,
+.toolbar-panel .button {
+    -fx-max-width: infinity;
+}
+
+.theme-dark .player-list-card {
+    -fx-background-color: rgba(15, 23, 42, 0.74);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .player-list-view .list-cell:filled:hover .player-list-card {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+}
+
+.theme-dark .player-list-view .list-cell:filled:selected .player-list-card,
+.theme-dark .player-list-view .list-cell:filled:selected:focused .player-list-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.44) 0%, rgba(15, 23, 42, 0.86) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.62);
+}
+
+.theme-dark .player-list-view .scroll-bar:vertical .track {
+    -fx-background-color: rgba(51, 65, 85, 0.8);
+}
+
+.theme-dark .player-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(52, 211, 153, 0.46);
+}
+
+.theme-dark .player-avatar-shell,
+.theme-dark .player-detail-photo-shell {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+}
+
+.theme-dark .player-avatar-fallback,
+.theme-dark .player-detail-photo-fallback {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .player-card-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .player-number-badge {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #047857 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.44);
+    -fx-text-fill: #dcfce7;
+}
+
+.theme-dark .player-card-team {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .player-card-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .player-card-meta-pill {
+    -fx-background-color: rgba(30, 41, 59, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .form-date-picker .text-field {
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}

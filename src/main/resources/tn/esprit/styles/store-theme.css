@@ -1,0 +1,397 @@
+@import "equipe-theme.css";
+
+.store-page-root {
+    -fx-background-color:
+            radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.14) 0%, rgba(16, 185, 129, 0) 100%),
+            radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 100%),
+            linear-gradient(from 0% 0% to 100% 100%, #f8fffb 0%, #f0fdf4 38%, #f8fafc 100%);
+}
+
+.store-user-root .page-scroll,
+.store-user-root .page-scroll > .viewport,
+.store-user-root .page-scroll > .corner,
+.store-user-root .page-scroll > .viewport > .content,
+.store-user-root .page-shell-wrap,
+.store-user-root .page-shell {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.store-user-root .page-shell-wrap {
+    -fx-alignment: top-center;
+    -fx-padding: 0 14 0 14;
+}
+
+.store-hero-shell {
+    -fx-min-height: 300;
+    -fx-pref-height: 300;
+}
+
+.store-page-root .store-hero-photo {
+    -fx-background-image: url("../images/store.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-radius: 30;
+}
+
+/* Backup: if a shared ".hero-photo" selector wins, force store.png anyway. */
+.store-page-root .hero-photo {
+    -fx-background-image: url("../images/store.png");
+}
+
+.store-page-root .hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.92) 0%, rgba(6, 95, 70, 0.76) 48%, rgba(13, 148, 136, 0.54) 100%);
+    -fx-background-radius: 30;
+}
+
+.hero-content {
+    -fx-padding: 28 30 28 30;
+    -fx-spacing: 14;
+}
+
+.hero-kicker {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #a7f3d0;
+}
+
+.hero-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(248, 250, 252, 0.92);
+    -fx-max-width: 760;
+}
+
+.store-hero-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 42px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+}
+
+.store-metric-row {
+    -fx-spacing: 10;
+    -fx-padding: 4 0 0 0;
+}
+
+.store-metric-card {
+    -fx-background-color: rgba(15, 23, 42, 0.34);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(226, 232, 240, 0.22);
+    -fx-border-radius: 18;
+    -fx-padding: 10 12 10 12;
+    -fx-min-width: 150;
+}
+
+.store-metric-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(226, 232, 240, 0.82);
+}
+
+.store-metric-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 25px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.store-toolbar-panel,
+.store-summary-panel,
+.store-payment-form,
+.store-cart-total-card,
+.store-empty-card {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 24;
+    -fx-padding: 18;
+}
+
+.store-section-switcher {
+    -fx-padding: 4 0 0 0;
+}
+
+.store-section-button {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 999;
+    -fx-padding: 9 14 9 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #334155;
+}
+
+.store-section-button:hover {
+    -fx-background-color: rgba(220, 252, 231, 0.92);
+    -fx-border-color: rgba(52, 211, 153, 0.36);
+    -fx-text-fill: #047857;
+}
+
+.store-section-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #34d399 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.28);
+    -fx-text-fill: #ffffff;
+}
+
+.store-products-pane {
+    -fx-hgap: 18;
+    -fx-vgap: 18;
+}
+
+.store-product-card,
+.store-cart-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 24;
+    -fx-padding: 16;
+    -fx-spacing: 12;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0.14, 0, 8);
+}
+
+.store-product-card {
+    -fx-pref-width: 250;
+}
+
+.store-product-image-shell,
+.store-cart-image-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.9) 0%, rgba(241, 245, 249, 0.98) 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 22;
+    -fx-alignment: center;
+    -fx-padding: 6;
+}
+
+.store-image-placeholder {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f766e;
+}
+
+.store-stock-badge,
+.store-meta-chip {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.store-stock-badge-good {
+    -fx-background-color: rgba(220, 252, 231, 0.96);
+    -fx-border-color: rgba(34, 197, 94, 0.28);
+    -fx-text-fill: #166534;
+}
+
+.store-stock-badge-low {
+    -fx-background-color: rgba(254, 249, 195, 0.96);
+    -fx-border-color: rgba(245, 158, 11, 0.28);
+    -fx-text-fill: #92400e;
+}
+
+.store-stock-badge-out {
+    -fx-background-color: rgba(254, 226, 226, 0.96);
+    -fx-border-color: rgba(239, 68, 68, 0.28);
+    -fx-text-fill: #991b1b;
+}
+
+.store-meta-chip {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-text-fill: #334155;
+}
+
+.store-product-title,
+.store-cart-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.store-product-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.store-product-price,
+.store-payment-item-amount {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #059669;
+}
+
+.store-cart-list,
+.store-payment-items {
+    -fx-spacing: 14;
+}
+
+.store-payment-item-row {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(226, 232, 240, 0.86);
+    -fx-border-radius: 18;
+    -fx-padding: 12 14 12 14;
+}
+
+.store-payment-item-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.store-quantity-label {
+    -fx-min-width: 32;
+    -fx-alignment: center;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.store-total-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #334155;
+}
+
+.store-total-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.store-text-area {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 16;
+    -fx-padding: 6;
+    -fx-font-size: 13px;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.store-text-area .content {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14;
+}
+
+.store-text-area.invalid-field,
+.glass-combo.invalid-field,
+.form-text-field.invalid-field {
+    -fx-background-color: rgba(254, 242, 242, 0.96);
+    -fx-border-color: rgba(239, 68, 68, 0.68);
+}
+
+.theme-dark.store-page-root,
+.theme-dark .store-page-root,
+.store-user-dark {
+    -fx-background-color:
+            radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%),
+            radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0) 100%),
+            linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+}
+
+.theme-dark.store-page-root .store-toolbar-panel,
+.theme-dark.store-page-root .store-summary-panel,
+.theme-dark.store-page-root .store-payment-form,
+.theme-dark.store-page-root .store-cart-total-card,
+.theme-dark.store-page-root .store-empty-card,
+.theme-dark.store-page-root .store-product-card,
+.theme-dark.store-page-root .store-cart-card,
+.theme-dark .store-toolbar-panel,
+.theme-dark .store-summary-panel,
+.theme-dark .store-payment-form,
+.theme-dark .store-cart-total-card,
+.theme-dark .store-empty-card,
+.theme-dark .store-product-card,
+.theme-dark .store-cart-card,
+.store-user-dark .store-toolbar-panel,
+.store-user-dark .store-summary-panel,
+.store-user-dark .store-payment-form,
+.store-user-dark .store-cart-total-card,
+.store-user-dark .store-empty-card,
+.store-user-dark .store-product-card,
+.store-user-dark .store-cart-card {
+    -fx-background-color: rgba(15, 23, 42, 0.88);
+    -fx-border-color: rgba(71, 85, 105, 0.34);
+}
+
+.theme-dark.store-page-root .store-product-image-shell,
+.theme-dark.store-page-root .store-cart-image-shell,
+.theme-dark.store-page-root .store-payment-item-row,
+.theme-dark .store-product-image-shell,
+.theme-dark .store-cart-image-shell,
+.theme-dark .store-payment-item-row,
+.store-user-dark .store-product-image-shell,
+.store-user-dark .store-cart-image-shell,
+.store-user-dark .store-payment-item-row {
+    -fx-background-color: rgba(30, 41, 59, 0.92);
+    -fx-border-color: rgba(71, 85, 105, 0.36);
+}
+
+.theme-dark.store-page-root .store-product-title,
+.theme-dark.store-page-root .store-cart-title,
+.theme-dark.store-page-root .store-payment-item-title,
+.theme-dark.store-page-root .store-quantity-label,
+.theme-dark.store-page-root .store-total-label,
+.theme-dark.store-page-root .store-total-value,
+.theme-dark .store-product-title,
+.theme-dark .store-cart-title,
+.theme-dark .store-payment-item-title,
+.theme-dark .store-quantity-label,
+.theme-dark .store-total-label,
+.theme-dark .store-total-value,
+.store-user-dark .store-product-title,
+.store-user-dark .store-cart-title,
+.store-user-dark .store-payment-item-title,
+.store-user-dark .store-quantity-label,
+.store-user-dark .store-total-label,
+.store-user-dark .store-total-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark.store-page-root .store-product-subtitle,
+.theme-dark.store-page-root .store-meta-chip,
+.theme-dark .store-product-subtitle,
+.theme-dark .store-meta-chip,
+.store-user-dark .store-product-subtitle,
+.store-user-dark .store-meta-chip {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark.store-page-root .store-meta-chip,
+.theme-dark.store-page-root .store-section-button,
+.theme-dark .store-meta-chip,
+.theme-dark .store-section-button,
+.store-user-dark .store-meta-chip,
+.store-user-dark .store-section-button {
+    -fx-background-color: rgba(30, 41, 59, 0.96);
+    -fx-border-color: rgba(71, 85, 105, 0.42);
+}
+
+.theme-dark.store-page-root .store-image-placeholder,
+.theme-dark.store-page-root .store-product-price,
+.theme-dark.store-page-root .store-payment-item-amount,
+.theme-dark .store-image-placeholder,
+.theme-dark .store-product-price,
+.theme-dark .store-payment-item-amount,
+.store-user-dark .store-image-placeholder,
+.store-user-dark .store-product-price,
+.store-user-dark .store-payment-item-amount {
+    -fx-text-fill: #6ee7b7;
+}
+
+.theme-dark.store-page-root .store-text-area,
+.theme-dark .store-text-area,
+.store-user-dark .store-text-area {
+    -fx-background-color: rgba(30, 41, 59, 0.94);
+    -fx-border-color: rgba(71, 85, 105, 0.5);
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}

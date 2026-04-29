@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.ProductController"
+            fx:id="pageRoot"
+            styleClass="page-root product-page-root">
+    <top>
+        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="10" styleClass="navbar-brand" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Annonce"
+                            styleClass="navbar-nav-button"/>
+                    <Button fx:id="productNavButton"
+                            onAction="#handleOpenProducts"
+                            text="Products"
+                            styleClass="navbar-nav-button navbar-nav-button-active"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fx:id="pageScroll" fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="20" styleClass="page-shell">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <StackPane styleClass="hero-shell">
+                            <Region styleClass="hero-photo"/>
+                            <Region styleClass="hero-overlay"/>
+
+                            <VBox spacing="12" styleClass="hero-content">
+                                <Label text="Store" styleClass="hero-eyebrow"/>
+                                <Label text="Pilotez le catalogue produit" styleClass="hero-title"/>
+                                <Label text="Retrouvez le meme langage visuel que les modules Joueurs et Matchs, avec CRUD, recherche et tri dans une seule interface."
+                                       wrapText="true"
+                                       styleClass="hero-text"/>
+
+                                <HBox spacing="10">
+                                    <Label fx:id="resultCountLabel" text="0 produit(s)" styleClass="toolbar-chip-soft"/>
+                                    <Label fx:id="selectionStateLabel" text="Selectionnez un produit" styleClass="toolbar-chip"/>
+                                    <Label fx:id="statusLabel" text="Pret" styleClass="status-pill status-muted"/>
+                                </HBox>
+                            </VBox>
+                        </StackPane>
+
+                        <VBox spacing="14" styleClass="panel-card product-header-card">
+                            <HBox alignment="CENTER_LEFT" spacing="16">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Gestion des produits" styleClass="section-title"/>
+                                    <Label text="Ajoutez, modifiez, supprimez et suivez rapidement le stock depuis une vue inspiree du design public existant."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <HBox spacing="10">
+                                    <Button fx:id="exportPdfButton" onAction="#handleExportPdf" text="Export PDF" styleClass="ghost-button"/>
+                                    <Button onAction="#handleNewProduct" text="Ajouter un produit" styleClass="primary-button"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+
+                        <FlowPane hgap="12" vgap="12" prefWrapLength="900">
+                            <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
+                                <Label text="Produits visibles" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="visibleProductsMetricLabel" text="0" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                            <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
+                                <Label text="Stock faible" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="lowStockMetricLabel" text="0" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                            <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
+                                <Label text="Rupture" styleClass="toolbar-summary-caption"/>
+                                <Label fx:id="outOfStockMetricLabel" text="0" styleClass="toolbar-summary-value"/>
+                            </VBox>
+                        </FlowPane>
+
+                        <HBox spacing="18" styleClass="product-chart-grid">
+                            <VBox spacing="12" styleClass="panel-card product-chart-card" HBox.hgrow="ALWAYS">
+                                <Label text="Stock overview" styleClass="section-title"/>
+                                <Label fx:id="stockChartSummaryLabel"
+                                       text="0 visible product(s) | 0 healthy | 0 low | 0 out"
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                                <BarChart fx:id="stockStatusChart"
+                                          animated="false"
+                                          legendVisible="false"
+                                          prefHeight="300"
+                                          styleClass="product-stats-chart">
+                                    <xAxis>
+                                        <CategoryAxis label="Stock state"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Products"/>
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+
+                            <VBox spacing="12" prefWidth="360" styleClass="panel-card product-chart-card">
+                                <Label text="Top categories" styleClass="section-title"/>
+                                <Label fx:id="categoryChartSummaryLabel"
+                                       text="No category data available."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                                <PieChart fx:id="categoryDistributionChart"
+                                          animated="false"
+                                          labelsVisible="true"
+                                          legendVisible="true"
+                                          prefHeight="300"
+                                          styleClass="product-stats-chart"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="14" styleClass="panel-card toolbar-panel product-toolbar-panel">
+                            <VBox spacing="4">
+                                <Label text="Recherche et tri" styleClass="section-title"/>
+                                <Label text="Cherchez par nom, categorie ou marque puis appliquez le tri voulu."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="Recherche" styleClass="field-label"/>
+                                    <TextField fx:id="searchField"
+                                               promptText="Nom, categorie, marque..."
+                                               styleClass="form-text-field"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Trier par" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortByComboBox" prefWidth="150" styleClass="glass-combo"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Ordre" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortDirectionComboBox" prefWidth="110" styleClass="glass-combo"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Actions" styleClass="field-label"/>
+                                    <HBox spacing="10">
+                                        <Button onAction="#handleApplyFilters" text="Filtrer" styleClass="primary-button"/>
+                                        <Button onAction="#handleResetFilters" text="Reinit." styleClass="ghost-button"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <HBox spacing="18" styleClass="product-content-shell">
+                            <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                                <VBox spacing="4">
+                                    <Label text="Catalogue" styleClass="section-title"/>
+                                    <Label text="La table conserve l'esprit du module Symfony avec image, prix, stock et actions rapides."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+
+                                <TableView fx:id="productTableView" prefHeight="560" styleClass="data-table" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="productImageColumn" text="Image" prefWidth="90"/>
+                                        <TableColumn fx:id="productNameColumn" text="Nom" prefWidth="180"/>
+                                        <TableColumn fx:id="productCategoryColumn" text="Categorie" prefWidth="140"/>
+                                        <TableColumn fx:id="productPriceColumn" text="Prix" prefWidth="120"/>
+                                        <TableColumn fx:id="productStockColumn" text="Stock" prefWidth="100"/>
+                                        <TableColumn fx:id="productBrandColumn" text="Marque" prefWidth="140"/>
+                                        <TableColumn fx:id="productActionsColumn" text="Actions" prefWidth="220"/>
+                                    </columns>
+                                    <placeholder>
+                                        <Label text="Aucun produit trouve." styleClass="empty-text"/>
+                                    </placeholder>
+                                </TableView>
+                            </VBox>
+
+                            <VBox spacing="18" minWidth="390" prefWidth="420">
+                                <VBox spacing="14" styleClass="panel-card detail-card product-detail-card">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
+                                        <Label fx:id="detailStockChipLabel" text="-" styleClass="status-pill product-stock-chip product-stock-good"/>
+                                    </HBox>
+
+                                    <StackPane styleClass="product-detail-image-shell">
+                                        <ImageView fx:id="detailImageView"
+                                                   fitWidth="220"
+                                                   fitHeight="220"
+                                                   managed="false"
+                                                   preserveRatio="true"
+                                                   visible="false"/>
+                                        <Label fx:id="detailImagePlaceholderLabel" text="IMG" styleClass="product-detail-image-placeholder"/>
+                                    </StackPane>
+
+                                    <VBox spacing="6">
+                                        <Label fx:id="detailTitleLabel" text="Aucun produit selectionne" styleClass="detail-title"/>
+                                        <Label fx:id="detailSubtitleLabel"
+                                               text="Selectionnez un produit"
+                                               wrapText="true"
+                                               styleClass="detail-subtitle"/>
+                                    </VBox>
+
+                                    <Label fx:id="detailPriceLabel" text="0.00 DT" styleClass="product-price-value"/>
+
+                                    <GridPane hgap="10" vgap="10">
+                                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="product-info-pill">
+                                            <Label text="ID" styleClass="field-label"/>
+                                            <Label fx:id="detailIdValueLabel" text="Auto" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="product-info-pill">
+                                            <Label text="Categorie" styleClass="field-label"/>
+                                            <Label fx:id="detailCategoryValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="product-info-pill">
+                                            <Label text="Marque" styleClass="field-label"/>
+                                            <Label fx:id="detailBrandValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="product-info-pill">
+                                            <Label text="Taille" styleClass="field-label"/>
+                                            <Label fx:id="detailSizeValueLabel" text="-" styleClass="detail-title"/>
+                                        </VBox>
+                                    </GridPane>
+
+                                    <VBox spacing="6">
+                                        <Label text="Image" styleClass="field-label"/>
+                                        <Label fx:id="detailImagePathLabel" text="Aucune image" wrapText="true" styleClass="detail-subtitle"/>
+                                    </VBox>
+
+                                    <HBox spacing="10" styleClass="product-form-actions">
+                                        <Button fx:id="detailEditButton"
+                                                onAction="#handleEditSelectedProduct"
+                                                text="Modifier"
+                                                styleClass="ghost-button"
+                                                HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="detailDeleteButton"
+                                                onAction="#handleDeleteSelectedProduct"
+                                                text="Supprimer"
+                                                styleClass="danger-button"
+                                                HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="14" styleClass="panel-card form-card product-form-card">
+                                    <VBox spacing="4">
+                                        <Label fx:id="formModeLabel" text="Ajouter un produit" styleClass="section-title"/>
+                                        <Label fx:id="formHintLabel"
+                                               text="Renseignez les champs ci-dessous pour ajouter un nouveau produit."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+
+                                    <Label fx:id="validationLabel" managed="false" visible="false" wrapText="true" styleClass="validation-label"/>
+
+                                    <VBox spacing="8">
+                                        <Label text="Nom" styleClass="field-label"/>
+                                        <TextField fx:id="nameField" promptText="Ex: Maillot equipe" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Categorie" styleClass="field-label"/>
+                                            <TextField fx:id="categoryField" promptText="Ex: Vetements" styleClass="form-text-field"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Marque" styleClass="field-label"/>
+                                            <TextField fx:id="brandField" promptText="Ex: Nike" styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Prix" styleClass="field-label"/>
+                                            <TextField fx:id="priceField" promptText="0.00" styleClass="form-text-field"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Stock" styleClass="field-label"/>
+                                            <TextField fx:id="stockField" promptText="0" styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox spacing="10">
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Taille" styleClass="field-label"/>
+                                            <TextField fx:id="sizeField" promptText="Ex: L" styleClass="form-text-field"/>
+                                        </VBox>
+                                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                            <Label text="Image / URL" styleClass="field-label"/>
+                                            <TextField fx:id="imageField" promptText="Chemin local ou URL" styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <HBox spacing="10" styleClass="product-form-actions">
+                                        <Button fx:id="addButton" onAction="#handleAddProduct" text="Enregistrer" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="updateButton" onAction="#handleUpdateProduct" text="Mettre a jour" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <HBox spacing="10" styleClass="product-form-actions">
+                                        <Button fx:id="deleteButton" onAction="#handleDeleteSelectedProduct" text="Supprimer" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+                                        <Button onAction="#handleClearForm" text="Annuler / Effacer" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,491 @@
+package tn.esprit.Controller;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import tn.esprit.gui.EquipeUiSupport;
+import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.SidebarModuleGroup;
+import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.football.FootballDataCompetitions;
+import tn.esprit.services.football.FootballDataStandingsService;
+import tn.esprit.services.football.LeagueStandingEntry;
+import tn.esprit.services.football.LeagueStandingsSnapshot;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+
+public class LeagueTableController {
+    private static final double CREST_SIZE = 42;
+    private static final ExecutorService API_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("league-table-api-worker"));
+
+    @FXML
+    private HBox navbarRoot;
+    @FXML
+    private Button adminNavButton;
+    @FXML
+    private HBox sidebarBrandBox;
+    @FXML
+    private Button equipesNavButton;
+    @FXML
+    private Button matchsNavButton;
+    @FXML
+    private Button annonceNavButton;
+    @FXML
+    private HBox sidebarModuleChildrenBox;
+    @FXML
+    private Button leaguesNavButton;
+    @FXML
+    private Button joueursNavButton;
+    @FXML
+    private ToggleButton themeToggleButton;
+    @FXML
+    private Label competitionChipLabel;
+    @FXML
+    private Label pageTitleLabel;
+    @FXML
+    private Label pageSubtitleLabel;
+    @FXML
+    private Label clubCountChipLabel;
+    @FXML
+    private Label matchdayChipLabel;
+    @FXML
+    private Label seasonChipLabel;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label sectionSubtitleLabel;
+    @FXML
+    private GridPane standingsHeaderGrid;
+    @FXML
+    private ListView<LeagueStandingEntry> standingsListView;
+    @FXML
+    private VBox emptyStateBox;
+    @FXML
+    private Button refreshButton;
+
+    private final ObservableList<LeagueStandingEntry> standings = FXCollections.observableArrayList();
+    private final AtomicLong requestSequence = new AtomicLong();
+
+    private FootballDataStandingsService standingsService;
+    private String competitionFilterCode;
+    private boolean serviceReady;
+    private boolean loadingData;
+    private SidebarModuleGroup sidebarModuleGroup;
+
+    @FXML
+    public void initialize() {
+        configureSidebar();
+        ThemeManager.bindToggle(themeToggleButton);
+        configureHeaderGrid();
+        configureListView();
+        updateCompetitionTexts();
+        updateToolbarState();
+
+        try {
+            standingsService = new FootballDataStandingsService();
+            serviceReady = true;
+            if (competitionFilterCode != null) {
+                loadStandingsAsync("Chargement du classement...");
+            }
+        } catch (Exception e) {
+            serviceReady = false;
+            updateToolbarState();
+            showStatus("status-error", "Connexion football-data.org impossible.");
+            showAlert(Alert.AlertType.ERROR, "Classements", "Impossible de preparer le service de classements.\n" + e.getMessage());
+        }
+    }
+
+    public void setCompetitionFilter(String competitionCode) {
+        competitionFilterCode = FootballDataCompetitions.normalizeCode(competitionCode);
+        updateCompetitionTexts();
+        if (serviceReady) {
+            loadStandingsAsync("Chargement du classement...");
+        }
+    }
+
+    @FXML
+    private void handleOpenHome() {
+        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
+    }
+
+    @FXML
+    private void handleOpenAdmin() {
+        AdminNavigation.openAdmin(adminNavButton);
+    }
+
+    @FXML
+    private void handleOpenEquipes() {
+        SceneNavigator.switchScene(equipesNavButton, "/tn/esprit/views/equipe-competitions-view.fxml", "/tn/esprit/styles/equipe-theme.css", "Equipes | Competitions");
+    }
+
+    @FXML
+    private void handleOpenMatchs() {
+        if (sidebarModuleGroup != null && sidebarModuleGroup.handleMatchsClick()) {
+            return;
+        }
+        SceneNavigator.switchScene(matchsNavButton, "/tn/esprit/views/match-competitions-view.fxml", "/tn/esprit/styles/match-theme.css", "Matchs | Competitions");
+    }
+
+    @FXML
+    private void handleOpenLeagues() {
+        openCompetitionSelector();
+    }
+
+    @FXML
+    private void handleOpenJoueurs() {
+        SceneNavigator.switchScene(joueursNavButton, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Sport Insight");
+    }
+
+    @FXML
+    private void handleBack() {
+        openCompetitionSelector();
+    }
+
+    @FXML
+    private void handleRefresh() {
+        loadStandingsAsync("Actualisation du classement...");
+    }
+
+
+    @FXML
+    private void handleOpenAnnonces() {
+        SceneNavigator.switchScene(annonceNavButton != null ? annonceNavButton : matchsNavButton, "/tn/esprit/views/annonce-user-view.fxml", "/tn/esprit/styles/annonce-theme.css", "Anonce | Sport Insight");
+    }
+    private void configureSidebar() {
+        sidebarModuleGroup = new SidebarModuleGroup(
+                matchsNavButton,
+                sidebarModuleChildrenBox,
+                equipesNavButton,
+                leaguesNavButton,
+                joueursNavButton
+        );
+        sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.LEAGUES);
+    }
+
+    private void configureHeaderGrid() {
+        standingsHeaderGrid.getColumnConstraints().setAll(buildColumnConstraints());
+        addHeaderLabel("#", 0, "standings-header-pill");
+        addHeaderLabel("Club", 1, "standings-header-main");
+        addHeaderLabel("PJ", 2, "standings-header-stat");
+        addHeaderLabel("G", 3, "standings-header-stat");
+        addHeaderLabel("N", 4, "standings-header-stat");
+        addHeaderLabel("P", 5, "standings-header-stat");
+        addHeaderLabel("Buts", 6, "standings-header-stat");
+        addHeaderLabel("Diff", 7, "standings-header-stat");
+        addHeaderLabel("Pts", 8, "standings-header-points");
+    }
+
+    private void addHeaderLabel(String text, int columnIndex, String styleClass) {
+        Label label = new Label(text);
+        label.getStyleClass().add(styleClass);
+        standingsHeaderGrid.add(label, columnIndex, 0);
+        GridPane.setHalignment(label, columnIndex == 1 ? HPos.LEFT : HPos.CENTER);
+    }
+
+    private List<ColumnConstraints> buildColumnConstraints() {
+        ColumnConstraints positionColumn = new ColumnConstraints(60, 60, 60);
+        ColumnConstraints teamColumn = new ColumnConstraints();
+        teamColumn.setHgrow(Priority.ALWAYS);
+        ColumnConstraints playedColumn = centeredColumn(58);
+        ColumnConstraints wonColumn = centeredColumn(58);
+        ColumnConstraints drawColumn = centeredColumn(58);
+        ColumnConstraints lostColumn = centeredColumn(58);
+        ColumnConstraints goalsColumn = centeredColumn(84);
+        ColumnConstraints diffColumn = centeredColumn(66);
+        ColumnConstraints pointsColumn = centeredColumn(70);
+        return List.of(positionColumn, teamColumn, playedColumn, wonColumn, drawColumn, lostColumn, goalsColumn, diffColumn, pointsColumn);
+    }
+
+    private ColumnConstraints centeredColumn(double width) {
+        ColumnConstraints constraints = new ColumnConstraints(width, width, width);
+        constraints.setHalignment(HPos.CENTER);
+        return constraints;
+    }
+
+    private void configureListView() {
+        standingsListView.setItems(standings);
+        standingsListView.setCellFactory(listView -> createStandingCell());
+    }
+
+    private ListCell<LeagueStandingEntry> createStandingCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(LeagueStandingEntry entry, boolean empty) {
+                super.updateItem(entry, empty);
+                if (empty || entry == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                GridPane rowGrid = new GridPane();
+                rowGrid.getStyleClass().add("standings-row-grid");
+                rowGrid.setHgap(12);
+                rowGrid.setAlignment(Pos.CENTER_LEFT);
+                rowGrid.getColumnConstraints().setAll(buildColumnConstraints());
+
+                rowGrid.add(createPositionBadge(entry.position()), 0, 0);
+                rowGrid.add(createTeamCell(entry), 1, 0);
+                rowGrid.add(createStatValueLabel(String.valueOf(entry.playedGames()), false), 2, 0);
+                rowGrid.add(createStatValueLabel(String.valueOf(entry.won()), false), 3, 0);
+                rowGrid.add(createStatValueLabel(String.valueOf(entry.draw()), false), 4, 0);
+                rowGrid.add(createStatValueLabel(String.valueOf(entry.lost()), false), 5, 0);
+                rowGrid.add(createStatValueLabel(entry.goalsSummary(), false), 6, 0);
+                rowGrid.add(createStatValueLabel(entry.goalDifferenceSummary(), false), 7, 0);
+                rowGrid.add(createStatValueLabel(String.valueOf(entry.points()), true), 8, 0);
+
+                StackPane rowShell = new StackPane(rowGrid);
+                rowShell.getStyleClass().add("standings-row-shell");
+
+                setText(null);
+                setGraphic(rowShell);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+        };
+    }
+
+    private StackPane createPositionBadge(int position) {
+        Label label = new Label(position + ".");
+        label.getStyleClass().add("standings-position-label");
+
+        StackPane badge = new StackPane(label);
+        badge.getStyleClass().addAll("standings-position-badge", resolvePositionStyleClass(position));
+        badge.setMinSize(42, 42);
+        badge.setPrefSize(42, 42);
+        badge.setMaxSize(42, 42);
+        return badge;
+    }
+
+    private String resolvePositionStyleClass(int position) {
+        if (position <= 4) {
+            return "position-zone-champions";
+        }
+        if (position <= 6) {
+            return "position-zone-europe";
+        }
+        if (position >= 18) {
+            return "position-zone-relegation";
+        }
+        return "position-zone-neutral";
+    }
+
+    private HBox createTeamCell(LeagueStandingEntry entry) {
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(CREST_SIZE);
+        imageView.setFitHeight(CREST_SIZE);
+        imageView.setPreserveRatio(true);
+
+        Image image = EquipeUiSupport.loadEquipeImage(entry.teamCrest());
+        boolean hasImage = image != null;
+        imageView.setImage(image);
+        imageView.setManaged(hasImage);
+        imageView.setVisible(hasImage);
+
+        Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(entry.displayName(), "FC"));
+        fallbackLabel.getStyleClass().add("standings-team-fallback");
+        fallbackLabel.setManaged(!hasImage);
+        fallbackLabel.setVisible(!hasImage);
+
+        StackPane crestShell = new StackPane(imageView, fallbackLabel);
+        crestShell.getStyleClass().add("standings-team-crest-shell");
+        crestShell.setMinSize(CREST_SIZE + 14, CREST_SIZE + 14);
+        crestShell.setPrefSize(CREST_SIZE + 14, CREST_SIZE + 14);
+        crestShell.setMaxSize(CREST_SIZE + 14, CREST_SIZE + 14);
+
+        Label nameLabel = new Label(entry.displayName());
+        nameLabel.getStyleClass().add("standings-team-name");
+        nameLabel.setWrapText(true);
+
+        String subline = entry.teamTla() == null || entry.teamTla().isBlank()
+                ? "Club"
+                : entry.teamTla();
+        Label sublineLabel = new Label(subline);
+        sublineLabel.getStyleClass().add("standings-team-meta");
+
+        VBox textBox = new VBox(2, nameLabel, sublineLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        HBox teamBox = new HBox(12, crestShell, textBox);
+        teamBox.setAlignment(Pos.CENTER_LEFT);
+        return teamBox;
+    }
+
+    private Label createStatValueLabel(String value, boolean highlighted) {
+        Label label = new Label(value);
+        label.getStyleClass().add(highlighted ? "standings-points-value" : "standings-stat-value");
+        return label;
+    }
+
+    private void loadStandingsAsync(String loadingMessage) {
+        if (!serviceReady || competitionFilterCode == null) {
+            return;
+        }
+
+        long requestId = requestSequence.incrementAndGet();
+        loadingData = true;
+        updateToolbarState();
+        showStatus("status-muted", loadingMessage);
+
+        Task<LeagueStandingsSnapshot> loadTask = new Task<>() {
+            @Override
+            protected LeagueStandingsSnapshot call() throws Exception {
+                return standingsService.fetchStandings(competitionFilterCode);
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            if (requestId != requestSequence.get()) {
+                return;
+            }
+
+            loadingData = false;
+            updateToolbarState();
+
+            LeagueStandingsSnapshot snapshot = loadTask.getValue();
+            standings.setAll(snapshot == null ? List.of() : snapshot.table());
+            updateCompetitionTexts(snapshot);
+            updateEmptyState();
+            showStatus("status-success", "Classement actualise.");
+        });
+
+        loadTask.setOnFailed(event -> {
+            if (requestId != requestSequence.get()) {
+                return;
+            }
+
+            loadingData = false;
+            updateToolbarState();
+            updateEmptyState();
+            Throwable throwable = loadTask.getException();
+            showStatus("status-error", "Erreur lors du chargement du classement.");
+            showAlert(Alert.AlertType.ERROR, "Classements",
+                    "Impossible de charger le classement.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+        });
+
+        API_EXECUTOR.execute(loadTask);
+    }
+
+    private void updateCompetitionTexts() {
+        updateCompetitionTexts(null);
+    }
+
+    private void updateCompetitionTexts(LeagueStandingsSnapshot snapshot) {
+        String competitionLabel = FootballDataCompetitions.labelOf(competitionFilterCode);
+        competitionChipLabel.setText(competitionLabel == null ? "League" : competitionLabel);
+        pageTitleLabel.setText(competitionLabel == null ? "League Table" : competitionLabel);
+        pageSubtitleLabel.setText(snapshot == null
+                ? "Classement officiel en direct charge depuis football-data.org."
+                : buildSubtitle(snapshot));
+        clubCountChipLabel.setText((snapshot == null ? standings.size() : snapshot.clubCount()) + " clubs");
+        matchdayChipLabel.setText(snapshot == null || snapshot.currentMatchday() == null
+                ? "Journée --"
+                : "Journée " + snapshot.currentMatchday());
+        seasonChipLabel.setText(snapshot == null ? "Saison --" : buildSeasonLabel(snapshot));
+        sectionSubtitleLabel.setText(snapshot == null
+                ? "Position, matchs joues, bilan, buts, difference et points."
+                : "Source : football-data.org | " + defaultIfBlank(snapshot.stage(), "Classement total"));
+    }
+
+    private String buildSubtitle(LeagueStandingsSnapshot snapshot) {
+        String areaName = defaultIfBlank(snapshot.areaName(), "Europe");
+        String stage = defaultIfBlank(snapshot.stage(), "Classement total");
+        return areaName + " | " + stage + " | Donnees officielles football-data.org";
+    }
+
+    private String buildSeasonLabel(LeagueStandingsSnapshot snapshot) {
+        Integer startYear = extractYear(snapshot.seasonStartDate());
+        Integer endYear = extractYear(snapshot.seasonEndDate());
+        if (startYear == null && endYear == null) {
+            return "Saison --";
+        }
+        if (startYear != null && endYear != null && !startYear.equals(endYear)) {
+            return "Saison " + startYear + "-" + endYear;
+        }
+        int seasonYear = startYear != null ? startYear : endYear;
+        return "Saison " + seasonYear;
+    }
+
+    private Integer extractYear(String isoDate) {
+        if (isoDate == null || isoDate.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(isoDate, DateTimeFormatter.ISO_LOCAL_DATE).getYear();
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private void updateEmptyState() {
+        boolean isEmpty = standings.isEmpty();
+        emptyStateBox.setManaged(isEmpty);
+        emptyStateBox.setVisible(isEmpty);
+    }
+
+    private void updateToolbarState() {
+        refreshButton.setDisable(!serviceReady || loadingData || competitionFilterCode == null);
+    }
+
+    private void openCompetitionSelector() {
+        SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
+    }
+
+    private void showStatus(String styleClass, String message) {
+        statusLabel.getStyleClass().removeAll("status-success", "status-error", "status-warning", "status-muted");
+        if (!statusLabel.getStyleClass().contains(styleClass)) {
+            statusLabel.getStyleClass().add(styleClass);
+        }
+        statusLabel.setText(message);
+        statusLabel.setManaged(true);
+        statusLabel.setVisible(true);
+    }
+
+    private static ThreadFactory daemonFactory(String threadName) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, threadName);
+            thread.setDaemon(true);
+            return thread;
+        };
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+}
+

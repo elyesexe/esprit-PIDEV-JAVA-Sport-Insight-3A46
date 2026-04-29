@@ -1,6 +1,8 @@
 package tn.esprit.services;
 
 import tn.esprit.entities.User;
+import tn.esprit.security.PasswordSupport;
+import tn.esprit.security.UserRoles;
 import tn.esprit.tools.MyConnection;
 
 import java.sql.Connection;
@@ -28,15 +30,23 @@ public class UserService implements IService<User> {
     @Override
     public void add(User user) throws SQLException {
         String query = "INSERT INTO `user` (email, roles, password, nom, prenom, telephone, date_naissance, photo, statut, date_inscription, cv_name, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             fillStatement(statement, user);
             statement.executeUpdate();
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    user.setId(generatedKeys.getInt(1));
+                }
+            }
             System.out.println("User added successfully.");
         }
     }
 
     @Override
     public void update(User user) throws SQLException {
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("User id is required for updates.");
+        }
         String query = "UPDATE `user` SET email = ?, roles = ?, password = ?, nom = ?, prenom = ?, telephone = ?, date_naissance = ?, photo = ?, statut = ?, date_inscription = ?, cv_name = ?, updated_at = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             fillStatement(statement, user);
@@ -101,16 +111,73 @@ public class UserService implements IService<User> {
         return users;
     }
 
+    public User findByEmail(String email) throws SQLException {
+        String query = "SELECT * FROM `user` WHERE LOWER(email) = LOWER(?) LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapRow(resultSet);
+                }
+            }
+        }
+        return null;
+    }
+
+    public User authenticate(String email, String plainPassword) throws SQLException {
+        User user = findByEmail(email);
+        if (user == null) {
+            return null;
+        }
+        if (!user.isActiveAccount()) {
+            return null;
+        }
+        return PasswordSupport.matches(plainPassword, user.getPassword()) ? user : null;
+    }
+
+    public boolean emailExists(String email, Integer excludedUserId) throws SQLException {
+        String query = excludedUserId == null
+                ? "SELECT 1 FROM `user` WHERE LOWER(email) = LOWER(?) LIMIT 1"
+                : "SELECT 1 FROM `user` WHERE LOWER(email) = LOWER(?) AND id <> ? LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            if (excludedUserId != null) {
+                statement.setInt(2, excludedUserId);
+            }
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    public void updateStatus(Integer userId, String status) throws SQLException {
+        if (userId == null) {
+            throw new IllegalArgumentException("User id is required for status updates.");
+        }
+        String safeStatus = (status == null || status.isBlank()) ? "ACTIVE" : status.trim().toUpperCase();
+        String query = "UPDATE `user` SET statut = ?, updated_at = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, safeStatus);
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setInt(3, userId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void blockUserForSpam(Integer userId) throws SQLException {
+        updateStatus(userId, "BLOCKED");
+    }
+
     private void fillStatement(PreparedStatement statement, User user) throws SQLException {
         statement.setString(1, user.getEmail());
-        statement.setString(2, user.getRoles());
-        statement.setString(3, user.getPassword());
+        statement.setString(2, normalizeRolesForStorage(user));
+        statement.setString(3, PasswordSupport.prepareForStorage(user.getPassword()));
         statement.setString(4, user.getNom());
         statement.setString(5, user.getPrenom());
         statement.setString(6, user.getTelephone());
         statement.setDate(7, user.getDateNaissance() != null ? Date.valueOf(user.getDateNaissance()) : null);
         statement.setString(8, user.getPhoto());
-        statement.setString(9, user.getStatut());
+        statement.setString(9, normalizeStatusForStorage(user.getStatut()));
         statement.setTimestamp(10, user.getDateInscription() != null ? Timestamp.valueOf(user.getDateInscription()) : Timestamp.valueOf(LocalDateTime.now()));
         statement.setString(11, user.getCvName());
         statement.setTimestamp(12, user.getUpdatedAt() != null ? Timestamp.valueOf(user.getUpdatedAt()) : Timestamp.valueOf(LocalDateTime.now()));
@@ -147,5 +214,19 @@ public class UserService implements IService<User> {
         }
 
         return user;
+    }
+
+    private String normalizeRolesForStorage(User user) {
+        if (user == null) {
+            return UserRoles.toDatabaseValue(List.of(UserRoles.ROLE_USER));
+        }
+        return UserRoles.toDatabaseValue(user.getRoleList());
+    }
+
+    private String normalizeStatusForStorage(String status) {
+        if (status == null || status.isBlank()) {
+            return "ACTIVE";
+        }
+        return status.trim();
     }
 }

@@ -1,272 +1,459 @@
 # Sport Insight
 
-Java console application for managing `match`, `produit`, `entrainement`, `annonce`, `sponsor`, and `user` features with JDBC and MySQL.
+Sport Insight is a JavaFX desktop platform dedicated to football management, analysis, and user experience. The project brings together administration, sports data management, public-facing interfaces, and connected services inside one modern application backed by Java, JDBC, and MySQL.
 
-## Team
+The main idea behind Sport Insight is simple: create a single environment where teams, players, matches, training sessions, announcements, sponsors, products, and users can be managed through rich graphical interfaces while also benefiting from live football data and visual dashboards.
 
-- Director: `Elyes Chaouch`
-- Gestion match: `Elyes Chaouch`
-- Gestion produit: `Amine Bouchnak`
-- Gestion user: `Sirine Saidaoui`
-- Gestion entrainement: `Tesnim Fekih`
-- Gestion annonce: `Sayda Guennichi`
-- Gestion sponsor: `Rym Hamouda`
+## Project Vision
 
-## Features
+Sport Insight is designed as a digital ecosystem for football organizations and communities. It combines:
 
-- CRUD for `equipe`
-- CRUD for `joueur`
-- CRUD for `matchs`
-- CRUD for `product`
-- CRUD for `order`
-- CRUD for `entrainement`
-- CRUD for `evaluation`
-- CRUD for `participation`
-- CRUD for `annonce`
-- CRUD for `commentaire`
-- CRUD for `sponsor`
-- CRUD for `contrat_sponsor`
-- CRUD for `user`
-- Separate entry points for each module
-- MySQL connection through JDBC
+- sports administration
+- operational CRUD management
+- visual dashboards and statistics
+- competition and standings consultation
+- connected APIs for real-world football content
+- user-oriented browsing interfaces
 
-## Tech Stack
+The application focuses on usability, structured data, and a polished JavaFX experience for both administrators and regular users.
+
+## Authors
+
+- Elyes Chaouch — Director, Match management
+- Amine Bouchnak — Product management
+- Sirine Saidaoui — User management
+- Tesnim Fekih — Training management
+- Sayda Guennichi — Announcement management
+- Rym Hamouda — Sponsoring management
+
+## Functional Scope
+
+Sport Insight covers several business areas inside the same application:
+
+- user authentication and profile management
+- admin dashboard and moderation
+- team management
+- player management
+- match management
+- training management
+- announcement and communication management
+- sponsor and contract management
+- product and store management
+- league discovery, competition browsing, and standings consultation
+
+## Main Modules
+
+### 1. Administration
+
+The admin area centralizes the supervision of the platform. It includes:
+
+- an admin shell with side navigation
+- a dashboard with KPIs and charts
+- quick access to the main data modules
+- moderation tools for users
+- a visual overview of teams, players, matches, announcements, and training sessions
+
+### 2. Teams
+
+The team module manages football clubs and squads through dedicated interfaces.
+
+Main capabilities:
+
+- create a team
+- view team details
+- update team information
+- delete a team
+- browse team lists
+- explore linked competition data
+- sync teams from football-data sources
+
+Managed information includes:
+
+- name
+- coach
+- address
+- phone
+- email
+- image
+- competition code
+- external source metadata
+
+### 3. Players
+
+The player module manages athlete profiles with both local and enriched data.
+
+Main capabilities:
+
+- create a player
+- view player details
+- update player information
+- delete a player
+- browse player lists
+- assign players to teams
+- display player images
+- enrich profiles with external football data and Wikidata images
+
+Managed information includes:
+
+- first name
+- last name
+- date of birth
+- jersey number
+- image
+- team assignment
+- position
+- nationality
+- external source metadata
+
+### 4. Matches
+
+The match module handles fixture planning, scores, and match tracking.
+
+Main capabilities:
+
+- create a match
+- view match details
+- update match information
+- delete a match
+- browse scheduled and finished matches
+- link home and away teams
+- track scores and statuses
+- sync matches from external football competitions
+
+Managed information includes:
+
+- match identifier
+- date
+- kickoff time
+- location
+- type
+- status
+- home lineup
+- away lineup
+- home score
+- away score
+- home team
+- away team
+- competition code
+- external source metadata
+
+### 5. Training
+
+The training module supports sports preparation and attendance workflows.
+
+Main capabilities:
+
+- create training sessions
+- edit and delete sessions
+- browse planning data
+- manage participation and evaluation-related flows
+
+### 6. Announcements
+
+The announcement module is used to publish content for users and manage communication.
+
+Main capabilities:
+
+- create announcements
+- update announcement content
+- delete announcements
+- browse announcements in admin and user views
+- manage status and required level
+
+### 7. Sponsors
+
+The sponsoring module focuses on sponsorship visibility and contract follow-up.
+
+Main capabilities:
+
+- sponsor CRUD
+- sponsor presentation screens
+- sponsorship contract management
+- PDF-related service support
+- visual admin and user interfaces
+
+### 8. Products and Store
+
+Sport Insight also includes a product and store area.
+
+Main capabilities:
+
+- product CRUD
+- catalog browsing
+- order-related entities and services
+- shopping-oriented user interface
+
+### 9. Authentication and User Space
+
+The application contains a complete user flow:
+
+- sign up
+- login
+- session-based access
+- role handling
+- profile interface
+- access-aware navigation
+
+## CRUD Coverage
+
+Sport Insight includes strong CRUD coverage across the project. The platform manages operations such as:
+
+- `Equipe` CRUD
+- `Joueur` CRUD
+- `Matchs` CRUD
+- `Annonce` CRUD
+- `Entrainement` CRUD
+- `Sponsor` CRUD
+- `Product` CRUD
+- `User` administration and moderation
+- contract, participation, comment, evaluation, and order-related data services
+
+This CRUD logic is implemented through service classes, JavaFX controllers, and dedicated FXML views.
+
+## Interfaces and Screens
+
+The project is interface-driven and built around JavaFX views. Important screens include:
+
+- home interface
+- login interface
+- signup interface
+- profile interface
+- admin shell
+- admin dashboard
+- admin users view
+- team CRUD view
+- team list, detail, and form views
+- player admin, CRUD, list, and detail views
+- match admin, CRUD, form, list, and detail views
+- training admin and user views
+- announcement admin and user views
+- sponsor admin and user views
+- product/store views
+- competition and standings views
+
+Notable FXML files:
+
+- `home-view.fxml`
+- `admin-shell.fxml`
+- `admin-dashboard.fxml`
+- `equipe-crud-view.fxml`
+- `joueur-crud-view.fxml`
+- `match-crud-view.fxml`
+- `entrainement-admin-view.fxml`
+- `annonce-crud-view.fxml`
+- `sponsor-admin-view.fxml`
+- `product-crud-view.fxml`
+- `store-view.fxml`
+- `league-table-view.fxml`
+
+## Dashboard and Statistics
+
+Sport Insight includes visual dashboards to make data easier to understand.
+
+Current dashboard direction includes:
+
+- administrative KPI cards
+- operational summary tables
+- team statistics charts
+- player distribution charts
+- match status charts
+- recent activity views
+
+These elements help transform raw data into quick decisions for administrators.
+
+## External APIs and Data Enrichment
+
+One of the strengths of Sport Insight is the integration of external football information sources.
+
+### football-data.org integration
+
+The project integrates football-data services to:
+
+- import teams
+- import players
+- import matches
+- map competition codes
+- retrieve standings and league data
+
+Main related classes:
+
+- `FootballDataSyncService`
+- `FootballDataApiClient`
+- `FootballDataStandingsService`
+- `FootballDataCompetitions`
+- `LeagueStandingsSnapshot`
+- `LeagueStandingEntry`
+- `FootballDataConfig`
+
+### Wikidata integration
+
+Wikidata is used to enrich player information, especially media assets.
+
+Main related classes:
+
+- `WikidataPlayerImageService`
+- `WikidataApiClient`
+- `WikidataSparqlClient`
+
+This enrichment improves the realism and presentation quality of player profiles.
+
+## Technologies Used
 
 - Java 17
+- JavaFX 21
 - Maven
-- MySQL
 - JDBC
+- MySQL
+- Jackson Databind
+- jBCrypt
+- PDFBox
+- WebP ImageIO
+- JUnit 5
 
-## Project Structure
+## Architecture Overview
 
-```text
-src/main/java/tn/esprit/
-|-- entities/
-|-- mains/
-|-- services/
-`-- tools/
-```
+The project follows a layered desktop application structure.
 
-## Main Classes
+### `src/main/java/tn/esprit/Controller`
 
-- `tn.esprit.mains.Main`: database connection check only
-- `tn.esprit.mains.LauncherMain`: launcher menu for all modules
-- `tn.esprit.mains.MatchMain`: `equipe`, `joueur`, `matchs`
-- `tn.esprit.mains.ProductMain`: `product`, `order`
-- `tn.esprit.mains.EntrainementMain`: `entrainement`, `evaluation`, `participation`
-- `tn.esprit.mains.AnnonceMain`: `annonce`, `commentaire`
-- `tn.esprit.mains.SponsorMain`: `sponsor`, `contrat_sponsor`
-- `tn.esprit.mains.UserMain`: `user`
+Contains JavaFX controllers responsible for:
 
-## Database Configuration
+- user interaction
+- form management
+- table refresh logic
+- dashboard handling
+- navigation between views
 
-The database connection is configured in [src/main/java/tn/esprit/tools/MyConnection.java](src/main/java/tn/esprit/tools/MyConnection.java).
+### `src/main/java/tn/esprit/entities`
 
-Current settings:
+Contains domain entities such as:
 
-```java
-private static final String URL = "jdbc:mysql://127.0.0.1:3306/sport_insight?useSSL=false&serverTimezone=UTC";
-private static final String USER = "root";
-private static final String PASSWORD = "";
-```
+- `Equipe`
+- `Joueur`
+- `Matchs`
+- `Entrainement`
+- `Annonce`
+- `Sponsor`
+- `ContratSponsor`
+- `Product`
+- `Order`
+- `User`
 
-Update these values if your local MySQL configuration is different.
+### `src/main/java/tn/esprit/services`
 
-## Managed Tables
+Contains business logic and data access services for:
+
+- CRUD operations
+- statistics preparation
+- synchronization
+- enrichment
+- PDF generation
+- domain workflows
+
+### `src/main/java/tn/esprit/gui`
+
+Contains application launch and UI support classes such as:
+
+- `HomeMain`
+- `EquipeCrudMain`
+- `JoueurCrudMain`
+- `MatchCrudMain`
+- navigation and theme helpers
+
+### `src/main/java/tn/esprit/tools`
+
+Contains technical helpers for:
+
+- database connection
+- schema migration
+- external API configuration
+- utility support
+
+### `src/main/resources/tn/esprit/views`
+
+Contains all FXML interfaces.
+
+### `src/main/resources/tn/esprit/styles`
+
+Contains the visual identity of the application, including module-specific themes and admin styling.
+
+### `src/main/resources/tn/esprit/images`
+
+Contains visual assets used across interfaces.
+
+## Database
+
+Sport Insight relies on a MySQL database named `sport_insight`.
+
+The connection is configured in:
+
+- `src/main/java/tn/esprit/tools/MyConnection.java`
+
+The schema supports multiple modules, including:
 
 - `equipe`
 - `joueur`
 - `matchs`
-- `product`
-- `order`
 - `entrainement`
-- `evaluation`
 - `participation`
+- `evaluation`
 - `annonce`
 - `commentaire`
 - `sponsor`
 - `contrat_sponsor`
+- `product`
+- `order`
+- `order_item`
 - `user`
+- additional supporting tables for the full platform
 
-## Requirements
+## Security and Access
 
-Before running the project, make sure you have:
+The project includes a security layer for authentication and role handling.
 
-- Java installed
-- Maven installed
-- MySQL running
-- A database named `sport_insight`
-- The required tables created in MySQL
+Relevant components include:
 
-## Installation
+- `AuthSession`
+- `PasswordSupport`
+- `UserRoles`
+- login and signup controllers
 
-```bash
-git clone https://github.com/elyesexe/esprit-PIDEV-JAVA-Sport-Insight-3A46.git
-cd "PI Java"
-mvn compile
-```
+This allows Sport Insight to separate admin usage from standard user access and deliver a more structured platform experience.
 
-## Run
+## User Experience Approach
 
-From IntelliJ or the terminal, run the main class you need.
+The project emphasizes:
 
-Examples:
+- rich graphical interfaces
+- module-based navigation
+- reusable layouts
+- dashboard visibility
+- modern football-oriented styling
+- dark mode support in admin areas
+- detailed screens for teams, players, and matches
 
-```bash
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.Main"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.LauncherMain"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.MatchMain"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.ProductMain"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.EntrainementMain"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.AnnonceMain"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.SponsorMain"
-mvn exec:java -Dexec.mainClass="tn.esprit.mains.UserMain"
-```
+The goal is not only to store sports data, but to make that data meaningful, accessible, and attractive through a complete interface experience.
 
-To start from the central launcher menu, run `tn.esprit.mains.LauncherMain`.
+## Why Sport Insight Matters
 
-## Console Usage
+Sport Insight is more than a standard CRUD project. It combines local management and connected football intelligence inside one application. The platform shows how a sports-oriented system can evolve from simple administration into a full digital hub with interfaces, analytics, synchronization, and multi-module collaboration.
 
-### LauncherMain
+In that sense, Sport Insight represents:
 
-```text
-========================================
-      WELCOME TO SPORT INSIGHT
-========================================
-1. Match module
-2. Product module
-3. Entrainement module
-4. Annonce module
-5. Sponsor module
-6. User module
-0. Exit
-Choice:
-```
+- a football management platform
+- a data visualization platform
+- an administration tool
+- a user-facing sports experience
+- a connected system enriched by external APIs
 
-### MatchMain
+## Summary
 
-```text
-========================================
- MATCH MODULE
-========================================
-1. Manage equipes
-2. Manage joueurs
-3. Manage matchs
-4. Statistics
-0. Exit
-Select an option:
-```
+Sport Insight is a JavaFX and MySQL football platform that brings together:
 
-### ProductMain
-
-```text
---- PRODUCT MODULE ---
-1. Manage products
-2. Manage orders
-0. Exit
-Choice:
-```
-
-### EntrainementMain
-
-```text
-SPORT INSIGHT MENU
-1. Manage entrainements
-2. Manage evaluations
-3. Manage participations
-0. Exit
-Choice:
-```
-
-### AnnonceMain
-
-```text
---- ANNOUNCE MANAGEMENT ---
-1. Add annonce
-2. Show all annonces
-3. Update annonce
-4. Delete annonce
-5. Search annonces by title
-6. Sort annonces by publication date
-7. Add commentaire to annonce
-8. Show commentaires for annonce
-9. Search commentaires by content
-0. Exit
-Choice:
-```
-
-### SponsorMain
-
-```text
-============================================
-      SPONSOR & CONTRACT MANAGEMENT
-============================================
-1. Sponsor Management
-2. Contract Sponsor Management
-0. Exit
-Choose an option:
-```
-
-### UserMain
-
-```text
---- USER MODULE ---
-1. Add user
-2. Display all users
-3. View user by id
-4. Search users
-5. Update user
-6. Delete user
-0. Exit
-Choice:
-```
-
-Inside each module, CRUD actions now follow the same numbered style, for example:
-
-```text
-========================================
- MATCHS
-========================================
-1. Add match
-2. Display all matchs
-3. Update match
-4. Delete match
-5. Search match
-6. Sort matchs
-Select an action:
-
-========================================
- SORT MATCHS
-========================================
-1. By date
-2. By location
-3. By type
-Select a sort mode:
-
-========================================
- MATCH LIST
-========================================
-[1] MATCH-69A76521395FF689676675
-  Date/Time        : 2026-02-11 21:00
-  Location         : Riyadh
-  Type             : final supercopa
-  Status           : ended
-  Score            : 4 - 0
-  Home team ID     : 1
-  Away team ID     : 2
-  Home lineup      : 4-3-3
-  Away lineup      : 4-3-3
-```
-
-## Notes
-
-- Date input format: `yyyy-mm-dd`
-- Time input format for matches: `HH:mm:ss`
-- Time input format for entrainements: `HH:mm`
-- If your MySQL schema uses different table or column names, update the SQL in the service classes.
-- `Gestion-sponsor` was merged into this project and its sponsor entrypoint is available as `SponsorMain`.
-- `gestion_user` was merged locally into this branch and its entrypoint is available as `UserMain`.
-
-## Branch
-
-This merged version is available on branch `m+p+e+a+s`.
+- complete graphical interfaces
+- multiple business modules
+- CRUD operations across the application
+- administration and dashboard views
+- public and user-oriented screens
+- football-data and Wikidata integration
+- a clear sports-tech concept centered on football insight and management

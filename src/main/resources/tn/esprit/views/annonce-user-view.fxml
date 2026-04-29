@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.AnnonceUserController"
+            fx:id="pageRoot"
+            styleClass="annonce-page-root annonce-user-root">
+
+    <top>
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs +"
+                            styleClass="navbar-nav-button"/>
+
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button navbar-nav-button-active"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="20" styleClass="page-shell">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <!-- HERO -->
+                        <StackPane styleClass="annonce-user-hero-shell hero-shell">
+                            <Region fx:id="heroPhotoRegion" styleClass="annonce-user-hero-photo hero-photo"/>
+                            <Region styleClass="hero-overlay"/>
+                            <VBox spacing="14" styleClass="hero-content">
+                                <Label text="Recrutement intelligent" styleClass="hero-kicker"/>
+                                <Label text="CV joueurs et discussion directe avec l'entraineur" styleClass="annonce-user-hero-title"/>
+                                <Label text="Chaque annonce centralise le recrutement, le depot de CV en PDF et les echanges entre joueurs et entraineur."
+                                       wrapText="true"
+                                       styleClass="hero-subtitle"/>
+
+                                <FlowPane hgap="10" vgap="10" styleClass="annonce-metric-row">
+                                    <VBox styleClass="annonce-metric-card">
+                                        <Label text="Total announcements" styleClass="annonce-metric-label"/>
+                                        <Label fx:id="totalAnnoncesMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="annonce-metric-card">
+                                        <Label text="Active" styleClass="annonce-metric-label"/>
+                                        <Label fx:id="activeAnnoncesMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="annonce-metric-card">
+                                        <Label text="Urgent" styleClass="annonce-metric-label"/>
+                                        <Label fx:id="urgentAnnoncesMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="annonce-metric-card">
+                                        <Label text="Pending comments" styleClass="annonce-metric-label"/>
+                                        <Label fx:id="pendingCommentsMetricLabel" text="0" styleClass="annonce-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="annonce-metric-card">
+                                        <Label text="Positive sentiment" styleClass="annonce-metric-label"/>
+                                        <Label fx:id="positiveCommentsMetricLabel" text="0%" styleClass="annonce-metric-value"/>
+                                    </VBox>
+                                </FlowPane>
+                                <Label fx:id="sentimentSummaryLabel"
+                                       text="Aucun commentaire a analyser."
+                                       styleClass="toolbar-chip-soft"/>
+                            </VBox>
+                        </StackPane>
+
+                        <!-- TOOLBAR -->
+                        <VBox spacing="12" styleClass="toolbar-panel panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4">
+                                    <Label text="Find posts" styleClass="section-title"/>
+                                    <Label text="Recherchez des annonces et suivez les candidatures, CV et discussions au meme endroit."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="resultCountLabel" text="0 total announcement(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="statusLabel" text="Feed ready" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="Search" styleClass="field-label"/>
+                                    <TextField fx:id="searchField"
+                                               promptText="Search title, description, role, or level"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Level" styleClass="field-label"/>
+                                    <ComboBox fx:id="niveauFilterComboBox"
+                                              prefWidth="190"
+                                              promptText="All levels"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Sort" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortComboBox"
+                                              prefWidth="190"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Actions" styleClass="field-label"/>
+                                    <HBox spacing="10">
+                                        <Button text="Refresh"
+                                                onAction="#handleRefresh"
+                                                styleClass="primary-button"/>
+                                        <Button text="Reset"
+                                                onAction="#handleResetFilters"
+                                                styleClass="ghost-button"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label fx:id="resultsMetaLabel" text="0 announcement(s) visible" styleClass="section-subtitle"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="selectionStateLabel" text="Feed mode" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- FEED -->
+                        <VBox spacing="14">
+                            <VBox fx:id="cvSearchCard" spacing="14" styleClass="panel-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <VBox spacing="4">
+                                        <Label text="Recherche IA des CV" styleClass="section-title"/>
+                                        <Label text="Le coach retrouve rapidement les CV joints par titre, date de publication, joueur ou annonce."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="cvSearchSummaryLabel" text="0 CV trouve(s)" styleClass="toolbar-chip-soft"/>
+                                </HBox>
+
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Titre du CV" styleClass="field-label"/>
+                                        <TextField fx:id="cvSearchField"
+                                                   promptText="Chercher par titre de CV, joueur ou annonce"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="6">
+                                        <Label text="Date d'envoi" styleClass="field-label"/>
+                                        <DatePicker fx:id="cvSearchDatePicker"
+                                                    prefWidth="200"
+                                                    promptText="Date"
+                                                    styleClass="annonce-date-picker"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox fx:id="cvResultsPane" spacing="10"/>
+                            </VBox>
+
+                            <VBox fx:id="composerCard" spacing="14" styleClass="panel-card annonce-composer-card">
+                                <HBox alignment="CENTER_LEFT" spacing="12">
+                                    <StackPane fx:id="composerAvatarShell" styleClass="annonce-avatar-shell annonce-avatar-shell-lg">
+                                        <ImageView fx:id="composerAvatarImage"
+                                                   fitWidth="52"
+                                                   fitHeight="52"
+                                                   pickOnBounds="true"
+                                                   preserveRatio="false"
+                                                   smooth="true"
+                                                   styleClass="annonce-avatar-image"
+                                                   managed="false"
+                                                   visible="false"/>
+                                        <Label fx:id="composerAvatarInitialsLabel"
+                                               text="SI"
+                                               styleClass="annonce-avatar-fallback annonce-avatar-fallback-lg"/>
+                                    </StackPane>
+                                    <VBox spacing="4">
+                                        <Label fx:id="composerIdentityLabel" text="Post as Sport Insight user" styleClass="section-title"/>
+                                        <Label fx:id="composerHintLabel"
+                                               text="Les joueurs peuvent repondre a l'annonce, joindre un CV et echanger avec l'entraineur."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Post title" styleClass="field-label"/>
+                                        <TextField fx:id="postTitleField"
+                                                   promptText="Write a short title for your post"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="6">
+                                        <Label text="Role" styleClass="field-label"/>
+                                        <TextField fx:id="postRoleField"
+                                                   promptText="Goalkeeper, Defender..."
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="6">
+                                        <Label text="Level" styleClass="field-label"/>
+                                        <TextField fx:id="postLevelField"
+                                                   promptText="Junior, Senior..."
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Post content" styleClass="field-label"/>
+                                    <TextArea fx:id="postDescriptionArea"
+                                              promptText="Share your update like a social post..."
+                                              wrapText="true"
+                                              prefRowCount="4"
+                                              styleClass="annonce-text-area"/>
+                                </VBox>
+
+                                <Label fx:id="composerValidationLabel"
+                                       text=""
+                                       managed="false"
+                                       visible="false"
+                                       styleClass="annonce-section-note"/>
+
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <CheckBox fx:id="urgentPostCheck"
+                                              text="Urgent post"
+                                              styleClass="annonce-urgent-check"/>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Button fx:id="publishPostButton"
+                                            text="Publish post"
+                                            onAction="#handlePublishPost"
+                                            styleClass="primary-button"/>
+                                    <Button fx:id="clearPostButton"
+                                            text="Clear"
+                                            onAction="#handleClearPostComposer"
+                                            styleClass="ghost-button"/>
+                                </HBox>
+                            </VBox>
+
+                            <Label text="Posts" styleClass="section-title"/>
+                            <Label text="Chaque annonce regroupe la recherche du coach, les messages et les CV recus."
+                                   wrapText="true"
+                                   styleClass="section-subtitle"/>
+
+                            <VBox fx:id="annonceCardsPane" spacing="18" styleClass="annonce-feed"/>
+                        </VBox>
+
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,548 @@
+@import "equipe-theme.css";
+
+.page-root {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8fafc 0%, #eff6ff 32%, #ecfeff 68%, #f0fdf4 100%);
+}
+
+.hero-photo {
+    -fx-background-image: url("../images/match-hero.png");
+    -fx-background-size: cover;
+    -fx-background-position: 50% 50%;
+}
+
+.hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.9) 0%, rgba(15, 23, 42, 0.74) 42%, rgba(30, 64, 175, 0.56) 100%);
+}
+
+.match-toolbar {
+    -fx-background-color: rgba(255, 255, 255, 0.82);
+}
+
+.match-search-field {
+    -fx-pref-height: 46;
+}
+
+.sync-toolbar-row {
+    -fx-background-color: rgba(248, 250, 252, 0.74);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 22;
+    -fx-padding: 14 16 14 16;
+}
+
+.competition-filter-bar {
+    -fx-alignment: center-left;
+}
+
+.competition-filter-button {
+    -fx-font-size: 12px;
+    -fx-padding: 8 12 8 12;
+}
+
+.module-stats-chart {
+    -fx-background-color: transparent;
+    -fx-legend-side: bottom;
+}
+
+.module-stats-chart .chart-plot-background {
+    -fx-background-color: rgba(248, 250, 252, 0.78);
+    -fx-background-radius: 14;
+}
+
+.sync-section-title {
+    -fx-font-size: 22px;
+}
+
+.sync-section-text {
+    -fx-max-width: 420;
+}
+
+.competition-switcher {
+    -fx-padding: 2 0 4 0;
+}
+
+.competition-cards-pane {
+    -fx-padding: 4 0 4 0;
+}
+
+.competition-card-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%);
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 30;
+    -fx-padding: 20 16 20 16;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+    -fx-content-display: graphic-only;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 26, 0.2, 0, 10);
+}
+
+.competition-card-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 1) 0%, rgba(236, 253, 245, 0.98) 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.34);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 30, 0.24, 0, 12);
+}
+
+.competition-card-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(219, 234, 254, 0.96) 0%, rgba(220, 252, 231, 0.98) 100%);
+    -fx-border-color: rgba(16, 185, 129, 0.42);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 22, 0.22, 0, 10);
+}
+
+.competition-card-logo-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(148, 163, 184, 0.16);
+    -fx-border-radius: 28;
+    -fx-padding: 12;
+    -fx-alignment: center;
+}
+
+.competition-card-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.competition-card-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.match-date-picker {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 16;
+}
+
+.match-date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12 10 12;
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 14px;
+}
+
+.match-date-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.match-date-picker .arrow {
+    -fx-background-color: #1d4ed8;
+}
+
+.match-list-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-padding: 4 4 4 4;
+}
+
+.match-list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.match-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 14 0;
+}
+
+.match-list-view .list-cell:filled:selected,
+.match-list-view .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.fixture-card {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 24;
+    -fx-padding: 16 18 18 18;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 24, 0.18, 0, 10);
+}
+
+.fixture-card-clickable {
+    -fx-cursor: hand;
+}
+
+.match-list-view .list-cell:filled:hover .fixture-card {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-border-color: rgba(52, 211, 153, 0.34);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 28, 0.2, 0, 14);
+}
+
+.match-list-view .list-cell:filled:selected .fixture-card,
+.match-list-view .list-cell:filled:selected:focused .fixture-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(239, 246, 255, 0.98) 0%, rgba(236, 253, 245, 0.98) 100%);
+    -fx-border-color: rgba(59, 130, 246, 0.36);
+    -fx-effect: dropshadow(gaussian, rgba(30, 64, 175, 0.12), 30, 0.2, 0, 14);
+}
+
+.fixture-card-head {
+    -fx-padding: 0 0 4 0;
+}
+
+.fixture-status {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.fixture-status-scheduled {
+    -fx-background-color: rgba(59, 130, 246, 0.14);
+    -fx-border-color: rgba(59, 130, 246, 0.2);
+    -fx-text-fill: #2563eb;
+}
+
+.fixture-status-live {
+    -fx-background-color: rgba(16, 185, 129, 0.16);
+    -fx-border-color: rgba(16, 185, 129, 0.22);
+    -fx-text-fill: #059669;
+}
+
+.fixture-status-finished {
+    -fx-background-color: rgba(148, 163, 184, 0.2);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-text-fill: #475569;
+}
+
+.fixture-status-cancelled {
+    -fx-background-color: rgba(239, 68, 68, 0.14);
+    -fx-border-color: rgba(239, 68, 68, 0.22);
+    -fx-text-fill: #dc2626;
+}
+
+.fixture-date,
+.fixture-id,
+.fixture-team-role {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.fixture-id {
+    -fx-font-weight: 700;
+}
+
+.fixture-teams-row {
+    -fx-padding: 4 0 4 0;
+}
+
+.fixture-team-box {
+    -fx-padding: 4 0 4 0;
+}
+
+.fixture-team-logo-shell,
+.match-detail-logo-shell {
+    -fx-background-color: rgba(248, 250, 252, 0.98);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 22;
+    -fx-padding: 10;
+    -fx-alignment: center;
+}
+
+.fixture-team-fallback,
+.match-detail-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-weight: 700;
+    -fx-text-fill: #94a3b8;
+}
+
+.fixture-team-fallback {
+    -fx-font-size: 22px;
+}
+
+.match-detail-logo-fallback {
+    -fx-font-size: 28px;
+}
+
+.fixture-team-name,
+.match-detail-team-name {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-text-alignment: center;
+}
+
+.fixture-score-shell,
+.match-detail-score-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(241, 245, 249, 0.98) 0%, rgba(239, 246, 255, 0.98) 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 22;
+    -fx-padding: 14 16 14 16;
+}
+
+.match-detail-score-shell {
+    -fx-min-width: 132;
+    -fx-pref-width: 132;
+    -fx-alignment: center;
+}
+
+.fixture-score-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.fixture-score-caption,
+.match-detail-score-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.fixture-meta-row {
+    -fx-padding: 2 0 0 0;
+}
+
+.fixture-meta-chip {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
+.fixture-link-chip {
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(16, 185, 129, 0.22);
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.match-detail-board {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(241, 245, 249, 0.66) 0%, rgba(236, 253, 245, 0.74) 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 24;
+    -fx-padding: 18;
+}
+
+.match-detail-team-shell {
+    -fx-padding: 4;
+}
+
+.match-detail-team-role {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.match-detail-score {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-wrap-text: false;
+}
+
+.form-text-area,
+.lineup-readonly-area {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+    -fx-border-radius: 18;
+    -fx-padding: 6;
+    -fx-font-size: 13px;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.form-text-area .content,
+.lineup-readonly-area .content {
+    -fx-background-color: transparent;
+    -fx-background-radius: 16;
+}
+
+.form-text-area:focused {
+    -fx-border-color: rgba(16, 185, 129, 0.78);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.16), 18, 0.22, 0, 0);
+}
+
+.lineup-panel {
+    -fx-spacing: 12;
+}
+
+.lineup-title {
+    -fx-font-size: 22px;
+}
+
+.theme-dark.page-root {
+    -fx-background-color:
+        radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
+}
+
+.theme-dark .hero-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.92) 0%, rgba(15, 23, 42, 0.76) 42%, rgba(15, 118, 110, 0.54) 100%);
+}
+
+.theme-dark .match-toolbar {
+    -fx-background-color: rgba(15, 23, 42, 0.76);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .sync-toolbar-row {
+    -fx-background-color: rgba(11, 18, 32, 0.82);
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.theme-dark .competition-card-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.86) 0%, rgba(30, 41, 59, 0.82) 100%);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .competition-card-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.46) 0%, rgba(15, 23, 42, 0.92) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+}
+
+.theme-dark .competition-card-button-active {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.54) 0%, rgba(15, 23, 42, 0.88) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.54);
+}
+
+.theme-dark .competition-card-logo-shell {
+    -fx-background-color: rgba(11, 18, 32, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .competition-card-logo-fallback {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .competition-card-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .match-search-field {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.36);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .match-search-field:focused {
+    -fx-background-color: rgba(11, 18, 32, 0.94);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.94);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.theme-dark #searchField {
+    -fx-background-color: rgba(11, 18, 32, 0.9);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.9);
+    -fx-border-color: rgba(148, 163, 184, 0.36);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark #searchField:focused {
+    -fx-background-color: rgba(11, 18, 32, 0.94);
+    -fx-control-inner-background: rgba(11, 18, 32, 0.94);
+    -fx-border-color: rgba(52, 211, 153, 0.46);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.theme-dark .match-date-picker .text-field {
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .match-list-view .list-cell:filled:selected .fixture-card,
+.theme-dark .match-list-view .list-cell:filled:selected:focused .fixture-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.46) 0%, rgba(15, 23, 42, 0.86) 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.58);
+}
+
+.theme-dark .fixture-card {
+    -fx-background-color: rgba(15, 23, 42, 0.74);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .match-list-view .list-cell:filled:hover .fixture-card {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+}
+
+.theme-dark .fixture-date,
+.theme-dark .fixture-id,
+.theme-dark .fixture-team-role {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-team-logo-shell,
+.theme-dark .match-detail-logo-shell,
+.theme-dark .fixture-score-shell,
+.theme-dark .match-detail-score-shell,
+.theme-dark .match-detail-board {
+    -fx-background-color: rgba(11, 18, 32, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.32);
+}
+
+.theme-dark .fixture-team-fallback,
+.theme-dark .match-detail-logo-fallback {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-team-name,
+.theme-dark .match-detail-team-name,
+.theme-dark .fixture-score-value,
+.theme-dark .match-detail-score {
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .form-text-area,
+.theme-dark .lineup-readonly-area {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .form-text-area .content,
+.theme-dark .lineup-readonly-area .content {
+    -fx-background-color: transparent;
+}
+
+.theme-dark .fixture-score-caption,
+.theme-dark .match-detail-score-caption,
+.theme-dark .match-detail-team-role {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .fixture-meta-chip {
+    -fx-background-color: rgba(30, 41, 59, 0.84);
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .fixture-link-chip {
+    -fx-background-color: rgba(6, 95, 70, 0.5);
+    -fx-border-color: rgba(52, 211, 153, 0.42);
+    -fx-text-fill: #86efac;
+}

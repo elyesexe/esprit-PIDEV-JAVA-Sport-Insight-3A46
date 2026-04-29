@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,31 +20,33 @@ public class EquipeService implements IService<Equipe> {
 
     @Override
     public void add(Equipe equipe) throws SQLException {
-        String sql = "INSERT INTO equipe (nom, coach, adresse, telephone, email, image) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO equipe (nom, coach, adresse, telephone, email, image, competition_code) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, equipe.getNom());
-            statement.setString(2, equipe.getCoach());
-            statement.setString(3, equipe.getAdresse());
-            statement.setString(4, equipe.getTelephone());
-            statement.setString(5, equipe.getEmail());
-            statement.setString(6, equipe.getImage());
+            setNullableString(statement, 1, equipe.getNom());
+            setNullableString(statement, 2, equipe.getCoach());
+            setNullableString(statement, 3, equipe.getAdresse());
+            setNullableString(statement, 4, equipe.getTelephone());
+            setNullableString(statement, 5, equipe.getEmail());
+            setNullableString(statement, 6, equipe.getImage());
+            setNullableString(statement, 7, equipe.getCompetitionCode());
             statement.executeUpdate();
         }
     }
 
     @Override
     public void update(Equipe equipe) throws SQLException {
-        String sql = "UPDATE equipe SET nom = ?, coach = ?, adresse = ?, telephone = ?, email = ?, image = ? WHERE id = ?";
+        String sql = "UPDATE equipe SET nom = ?, coach = ?, adresse = ?, telephone = ?, email = ?, image = ?, competition_code = ? WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, equipe.getNom());
-            statement.setString(2, equipe.getCoach());
-            statement.setString(3, equipe.getAdresse());
-            statement.setString(4, equipe.getTelephone());
-            statement.setString(5, equipe.getEmail());
-            statement.setString(6, equipe.getImage());
-            statement.setInt(7, equipe.getId());
+            setNullableString(statement, 1, equipe.getNom());
+            setNullableString(statement, 2, equipe.getCoach());
+            setNullableString(statement, 3, equipe.getAdresse());
+            setNullableString(statement, 4, equipe.getTelephone());
+            setNullableString(statement, 5, equipe.getEmail());
+            setNullableString(statement, 6, equipe.getImage());
+            setNullableString(statement, 7, equipe.getCompetitionCode());
+            statement.setInt(8, equipe.getId());
             statement.executeUpdate();
         }
     }
@@ -60,7 +63,7 @@ public class EquipeService implements IService<Equipe> {
 
     @Override
     public List<Equipe> getAll() throws SQLException {
-        String sql = "SELECT id, nom, coach, adresse, telephone, email, image FROM equipe";
+        String sql = "SELECT id, nom, coach, adresse, telephone, email, image, external_api_id, external_source, competition_code FROM equipe";
         List<Equipe> equipes = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -75,7 +78,7 @@ public class EquipeService implements IService<Equipe> {
 
     @Override
     public Equipe getById(int id) throws SQLException {
-        String sql = "SELECT id, nom, coach, adresse, telephone, email, image FROM equipe WHERE id = ?";
+        String sql = "SELECT id, nom, coach, adresse, telephone, email, image, external_api_id, external_source, competition_code FROM equipe WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -91,7 +94,7 @@ public class EquipeService implements IService<Equipe> {
     }
 
     private Equipe mapRow(ResultSet rs) throws SQLException {
-        return new Equipe(
+        Equipe equipe = new Equipe(
                 rs.getInt("id"),
                 rs.getString("nom"),
                 rs.getString("coach"),
@@ -100,5 +103,19 @@ public class EquipeService implements IService<Equipe> {
                 rs.getString("email"),
                 rs.getString("image")
         );
+        long externalApiId = rs.getLong("external_api_id");
+        equipe.setExternalApiId(rs.wasNull() ? null : externalApiId);
+        equipe.setExternalSource(rs.getString("external_source"));
+        equipe.setCompetitionCode(rs.getString("competition_code"));
+        return equipe;
+    }
+
+    private void setNullableString(PreparedStatement statement, int index, String value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, Types.VARCHAR);
+            return;
+        }
+
+        statement.setString(index, value);
     }
 }

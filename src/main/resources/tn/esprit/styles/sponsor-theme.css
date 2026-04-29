@@ -1,0 +1,421 @@
+@import "entrainement-theme.css";
+@import "annonce-theme.css";
+
+.sponsor-page-root {
+    -fx-background-color:
+        radial-gradient(center 16% 14%, radius 34%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 100%),
+        radial-gradient(center 86% 18%, radius 28%, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0) 100%),
+        linear-gradient(from 0% 0% to 100% 100%, #fbfffd 0%, #f3faf7 38%, #f8fafc 100%);
+}
+
+.sponsor-user-light {
+    -fx-background-color:
+        radial-gradient(center 16% 14%, radius 34%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 100%),
+        radial-gradient(center 86% 18%, radius 28%, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0) 100%),
+        linear-gradient(from 0% 0% to 100% 100%, #fbfffd 0%, #f3faf7 38%, #f8fafc 100%);
+}
+
+.theme-dark.sponsor-page-root,
+.sponsor-user-dark {
+    -fx-background-color:
+        radial-gradient(center 18% 14%, radius 36%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 100%),
+        radial-gradient(center 84% 14%, radius 28%, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0) 100%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+}
+
+.sponsor-user-root .page-scroll,
+.sponsor-user-root .page-scroll > .viewport,
+.sponsor-user-root .page-scroll > .corner,
+.sponsor-user-root .page-scroll > .viewport > .content,
+.sponsor-user-root .page-shell-wrap,
+.sponsor-user-root .page-shell {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.sponsor-user-root .page-shell-wrap {
+    -fx-alignment: top-center;
+    -fx-padding: 0 14 0 14;
+}
+
+.sponsor-user-shell,
+.sponsor-admin-shell {
+    -fx-background-color: transparent;
+}
+
+.sponsor-hero-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+}
+
+.sponsor-hero-photo {
+    -fx-background-image: url("../images/sponsor.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-radius: 30;
+}
+
+.sponsor-metric-row {
+    -fx-alignment: center-left;
+}
+
+.sponsor-metric-card {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-radius: 18;
+    -fx-padding: 14 16 14 16;
+    -fx-pref-width: 175;
+    -fx-spacing: 6;
+}
+
+.sponsor-admin-metric-card {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+}
+
+.sponsor-metric-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(226, 232, 240, 0.92);
+}
+
+.sponsor-admin-metric-card .sponsor-metric-label {
+    -fx-text-fill: #64748b;
+}
+
+.sponsor-metric-value {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #ffffff;
+}
+
+.sponsor-admin-metric-card .sponsor-metric-value {
+    -fx-text-fill: #0f172a;
+}
+
+.sponsor-cards {
+    -fx-hgap: 18;
+    -fx-vgap: 18;
+}
+
+.sponsor-card,
+.sponsor-contract-card,
+.sponsor-empty-card,
+.sponsor-chart-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(148, 163, 184, 0.2);
+    -fx-border-radius: 24;
+    -fx-padding: 18 20 18 20;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 24, 0.18, 0, 10);
+}
+
+.sponsor-card {
+    -fx-pref-width: 300;
+}
+
+.sponsor-contract-card {
+    -fx-spacing: 14;
+}
+
+.sponsor-card-title,
+.sponsor-contract-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.sponsor-card-subtitle,
+.sponsor-contract-subtitle,
+.sponsor-empty-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.sponsor-card-value,
+.sponsor-contract-amount {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #059669;
+}
+
+.sponsor-contract-description {
+    -fx-font-size: 13px;
+    -fx-line-spacing: 1.5px;
+    -fx-text-fill: #334155;
+}
+
+.sponsor-line-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.sponsor-line-value {
+    -fx-font-size: 12px;
+    -fx-text-fill: #0f172a;
+}
+
+.sponsor-meta-chip {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
+.status-muted {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
+.sponsor-logo-shell,
+.sponsor-logo-preview-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(220, 252, 231, 0.92) 0%, rgba(240, 253, 244, 0.98) 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(52, 211, 153, 0.24);
+    -fx-border-radius: 22;
+    -fx-padding: 8;
+}
+
+.sponsor-logo-fallback {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #047857;
+}
+
+.sponsor-logo-image {
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 12, 0.18, 0, 4);
+}
+
+.sponsor-overview-grid {
+    -fx-hgap: 16;
+    -fx-vgap: 16;
+}
+
+.sponsor-chart-card {
+    -fx-spacing: 12;
+}
+
+.sponsor-tab-pane > .tab-header-area {
+    -fx-padding: 0 0 6 0;
+}
+
+.sponsor-tab-pane > .tab-header-area .tab {
+    -fx-background-color: rgba(255, 255, 255, 0.88);
+    -fx-background-radius: 14 14 0 0;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 14 14 0 0;
+    -fx-padding: 10 18 10 18;
+}
+
+.sponsor-tab-pane > .tab-header-area .tab:selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #10b981 100%);
+}
+
+.sponsor-tab-pane > .tab-header-area .tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+.sponsor-tab-pane > .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 8 0 0 0;
+}
+
+.sponsor-admin-root .chart-plot-background,
+.sponsor-admin-root .chart-vertical-grid-lines,
+.sponsor-admin-root .chart-horizontal-grid-lines {
+    -fx-background-color: transparent;
+}
+
+.sponsor-admin-root .axis,
+.sponsor-admin-root .axis-label,
+.sponsor-admin-root .chart-legend,
+.sponsor-admin-root .chart-legend-item,
+.sponsor-admin-root .chart-legend-item .label,
+.sponsor-admin-root .chart-pie-label {
+    -fx-tick-label-fill: #475569;
+    -fx-fill: #475569;
+    -fx-text-fill: #475569;
+}
+
+.sponsor-admin-root .chart-pie-label-line {
+    -fx-stroke: rgba(71, 85, 105, 0.5);
+}
+
+.theme-dark .sponsor-card,
+.theme-dark .sponsor-contract-card,
+.theme-dark .sponsor-empty-card,
+.theme-dark .sponsor-logo-shell,
+.theme-dark .sponsor-logo-preview-shell,
+.sponsor-user-dark .sponsor-card,
+.sponsor-user-dark .sponsor-contract-card,
+.sponsor-user-dark .sponsor-empty-card,
+.sponsor-user-dark .sponsor-logo-shell,
+.sponsor-user-dark .sponsor-logo-preview-shell {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(71, 85, 105, 0.38);
+}
+
+.theme-dark .sponsor-card-title,
+.theme-dark .sponsor-contract-title,
+.theme-dark .sponsor-line-value,
+.theme-dark .sponsor-metric-value,
+.sponsor-user-dark .sponsor-card-title,
+.sponsor-user-dark .sponsor-contract-title,
+.sponsor-user-dark .sponsor-line-value,
+.sponsor-user-dark .sponsor-metric-value,
+.sponsor-user-dark .section-title {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .sponsor-card-subtitle,
+.theme-dark .sponsor-contract-subtitle,
+.theme-dark .sponsor-empty-text,
+.theme-dark .sponsor-line-label,
+.theme-dark .sponsor-contract-description,
+.sponsor-user-dark .sponsor-card-subtitle,
+.sponsor-user-dark .sponsor-contract-subtitle,
+.sponsor-user-dark .sponsor-empty-text,
+.sponsor-user-dark .sponsor-line-label,
+.sponsor-user-dark .sponsor-contract-description,
+.sponsor-user-dark .section-subtitle {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .sponsor-meta-chip,
+.theme-dark .status-muted,
+.sponsor-user-dark .sponsor-meta-chip,
+.sponsor-user-dark .status-muted {
+    -fx-background-color: rgba(30, 41, 59, 0.96);
+    -fx-border-color: rgba(71, 85, 105, 0.42);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .sponsor-logo-fallback,
+.sponsor-user-dark .sponsor-logo-fallback {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .toolbar-chip-soft,
+.theme-dark .status-muted,
+.sponsor-user-dark .toolbar-chip-soft,
+.sponsor-user-dark .status-muted {
+    -fx-background-color: rgba(30, 41, 59, 0.96);
+    -fx-border-color: rgba(71, 85, 105, 0.42);
+    -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .ghost-button,
+.theme-dark .soft-button,
+.sponsor-user-dark .ghost-button,
+.sponsor-user-dark .soft-button {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(71, 85, 105, 0.44);
+    -fx-text-fill: #e2e8f0;
+}
+
+.theme-dark .ghost-button:hover,
+.theme-dark .soft-button:hover,
+.sponsor-user-dark .ghost-button:hover,
+.sponsor-user-dark .soft-button:hover {
+    -fx-background-color: rgba(30, 41, 59, 0.96);
+    -fx-border-color: rgba(52, 211, 153, 0.38);
+    -fx-text-fill: #ecfeff;
+}
+
+.theme-dark .sponsor-metric-card,
+.sponsor-user-dark .sponsor-metric-card {
+    -fx-background-color: rgba(15, 23, 42, 0.34);
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+}
+
+.theme-dark .sponsor-page-root .hero-shell,
+.sponsor-user-dark .hero-shell {
+    -fx-background-color: rgba(15, 23, 42, 0.24);
+    -fx-border-color: rgba(71, 85, 105, 0.42);
+}
+
+.admin-dark .sponsor-admin-root .sponsor-admin-metric-card,
+.admin-dark .sponsor-admin-root .sponsor-chart-card,
+.admin-dark .sponsor-admin-root .sponsor-logo-preview-shell {
+    -fx-background-color: rgba(39, 39, 42, 0.96);
+    -fx-border-color: rgba(82, 82, 91, 0.86);
+}
+
+.admin-dark .sponsor-admin-root .sponsor-admin-metric-card .sponsor-metric-label,
+.admin-dark .sponsor-admin-root .axis,
+.admin-dark .sponsor-admin-root .axis-label,
+.admin-dark .sponsor-admin-root .chart-legend,
+.admin-dark .sponsor-admin-root .chart-legend-item,
+.admin-dark .sponsor-admin-root .chart-legend-item .label,
+.admin-dark .sponsor-admin-root .chart-pie-label {
+    -fx-tick-label-fill: #a1a1aa;
+    -fx-fill: #a1a1aa;
+    -fx-text-fill: #a1a1aa;
+}
+
+.admin-dark .sponsor-admin-root .chart-pie-label {
+    -fx-fill: #e4e4e7;
+    -fx-text-fill: #e4e4e7;
+}
+
+.theme-dark .sponsor-admin-root .axis,
+.theme-dark .sponsor-admin-root .axis-label,
+.theme-dark .sponsor-admin-root .chart-legend,
+.theme-dark .sponsor-admin-root .chart-legend-item,
+.theme-dark .sponsor-admin-root .chart-legend-item .label,
+.theme-dark .sponsor-admin-root .chart-pie-label {
+    -fx-tick-label-fill: #e4e4e7;
+    -fx-fill: #e4e4e7;
+    -fx-text-fill: #e4e4e7;
+}
+
+.theme-dark .sponsor-admin-root .chart-pie-label-line {
+    -fx-stroke: rgba(228, 228, 231, 0.58);
+}
+
+.theme-dark .sponsor-admin-root .chart-legend {
+    -fx-background-color: rgba(11, 18, 32, 0.72);
+    -fx-background-radius: 12;
+}
+
+.admin-dark .sponsor-admin-root .chart-pie-label-line {
+    -fx-stroke: rgba(228, 228, 231, 0.58);
+}
+
+.admin-dark .sponsor-admin-root .chart-legend {
+    -fx-background-color: rgba(11, 18, 32, 0.72);
+    -fx-background-radius: 12;
+}
+
+.admin-dark .sponsor-admin-root .sponsor-admin-metric-card .sponsor-metric-value {
+    -fx-text-fill: #fafafa;
+}
+
+.admin-dark .sponsor-admin-root .sponsor-tab-pane > .tab-header-area .tab {
+    -fx-background-color: rgba(24, 24, 27, 0.98);
+    -fx-border-color: rgba(82, 82, 91, 0.78);
+}
+
+.admin-dark .sponsor-admin-root .sponsor-tab-pane > .tab-header-area .tab .tab-label {
+    -fx-text-fill: #d4d4d8;
+}
+
+.admin-dark .sponsor-admin-root .sponsor-tab-pane > .tab-header-area .tab:selected .tab-label {
+    -fx-text-fill: #ffffff;
+}

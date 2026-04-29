@@ -69,7 +69,7 @@ public class JoueurService implements IService<Joueur> {
 
     @Override
     public List<Joueur> getAll() throws SQLException {
-        String sql = "SELECT id, nom, prenom, date_naissance, numero, image, equipe_id FROM joueur";
+        String sql = "SELECT id, nom, prenom, date_naissance, numero, image, equipe_id, external_api_id, external_source, position, nationalite FROM joueur";
         List<Joueur> joueurs = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -84,7 +84,7 @@ public class JoueurService implements IService<Joueur> {
 
     @Override
     public Joueur getById(int id) throws SQLException {
-        String sql = "SELECT id, nom, prenom, date_naissance, numero, image, equipe_id FROM joueur WHERE id = ?";
+        String sql = "SELECT id, nom, prenom, date_naissance, numero, image, equipe_id, external_api_id, external_source, position, nationalite FROM joueur WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -99,18 +99,59 @@ public class JoueurService implements IService<Joueur> {
         return null;
     }
 
+    public void updateImage(int joueurId, String imagePath) throws SQLException {
+        String sql = "UPDATE joueur SET image = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, imagePath);
+            statement.setInt(2, joueurId);
+            statement.executeUpdate();
+        }
+    }
+
     private Joueur mapRow(ResultSet rs) throws SQLException {
         Date dateNaissance = rs.getDate("date_naissance");
         int equipeId = rs.getInt("equipe_id");
-
-        return new Joueur(
+        Integer equipeValue = rs.wasNull() ? null : equipeId;
+        Joueur joueur = new Joueur(
                 rs.getInt("id"),
                 rs.getString("nom"),
                 rs.getString("prenom"),
                 dateNaissance != null ? dateNaissance.toLocalDate() : null,
                 rs.getInt("numero"),
                 rs.getString("image"),
-                rs.wasNull() ? null : equipeId
+                equipeValue
         );
+        long externalApiId = rs.getLong("external_api_id");
+        joueur.setExternalApiId(rs.wasNull() ? null : externalApiId);
+        joueur.setExternalSource(rs.getString("external_source"));
+        joueur.setPosition(rs.getString("position"));
+        joueur.setNationalite(rs.getString("nationalite"));
+        return joueur;
+    }
+
+    /**
+     * Players currently assigned to a team ({@code equipe_id} is set).
+     */
+    public int countActivePlayers() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM joueur WHERE equipe_id IS NOT NULL";
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    /** Total rows in {@code joueur} (all registered players). */
+    public int countAll() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM joueur";
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
 }

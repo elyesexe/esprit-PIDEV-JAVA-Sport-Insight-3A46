@@ -1,0 +1,244 @@
+@import "home-theme.css";
+
+.profile-shell {
+    -fx-max-width: 1180;
+}
+
+.profile-hero-card {
+    -fx-background-color:
+            linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.9) 0%, rgba(17, 94, 89, 0.82) 100%);
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 28;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.22), 26, 0.18, 0, 10);
+}
+
+.profile-hero-content {
+    -fx-padding: 26 28 26 28;
+}
+
+.profile-hero-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.profile-hero-copy {
+    -fx-font-size: 14px;
+    -fx-text-fill: #dbeafe;
+    -fx-max-width: 760;
+}
+
+.profile-grid {
+    -fx-alignment: top-left;
+}
+
+.profile-side-column {
+    -fx-min-width: 300;
+    -fx-pref-width: 300;
+}
+
+.profile-photo-card,
+.profile-info-card,
+.profile-form-card {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 20, 0.14, 0, 8);
+}
+
+.profile-photo-card {
+    -fx-padding: 22 20 22 20;
+    -fx-alignment: center;
+}
+
+.profile-identity-box {
+    -fx-alignment: center;
+    -fx-fill-width: true;
+    -fx-max-width: Infinity;
+}
+
+.profile-info-card {
+    -fx-padding: 20 20 20 20;
+}
+
+.profile-form-card {
+    -fx-padding: 22 24 24 24;
+}
+
+.profile-photo-shell {
+    -fx-min-width: 180;
+    -fx-pref-width: 180;
+    -fx-max-width: 180;
+    -fx-min-height: 180;
+    -fx-pref-height: 180;
+    -fx-max-height: 180;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(219, 234, 254, 0.9) 0%, rgba(209, 250, 229, 0.88) 100%);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-border-radius: 999;
+    -fx-padding: 10;
+}
+
+.profile-photo-shell > .image-view {
+    -fx-background-radius: 999;
+}
+
+.profile-photo-fallback {
+    -fx-min-width: 160;
+    -fx-pref-width: 160;
+    -fx-max-width: 160;
+    -fx-min-height: 160;
+    -fx-pref-height: 160;
+    -fx-max-height: 160;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #16a34a 0%, #0f766e 100%);
+    -fx-background-radius: 999;
+}
+
+.profile-photo-initials {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 42px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.profile-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-wrap-text: true;
+    -fx-max-width: 240;
+}
+
+.profile-subtitle,
+.profile-note {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+}
+
+.profile-subtitle {
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-wrap-text: true;
+    -fx-max-width: 240;
+}
+
+.profile-info-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.profile-form-card .form-date-picker {
+    -fx-background-color: #12233f;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(71, 85, 105, 0.92);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.profile-form-card .date-picker.form-date-picker,
+.profile-form-card .date-picker.form-date-picker:focused {
+    -fx-background-color: #12233f;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(71, 85, 105, 0.92);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-control-inner-background: #12233f;
+}
+
+.profile-form-card .date-picker.form-date-picker > .date-picker-display-node,
+.profile-form-card .date-picker.form-date-picker .date-picker-display-node,
+.profile-form-card .date-picker.form-date-picker:focused > .date-picker-display-node,
+.profile-form-card .date-picker.form-date-picker:focused .date-picker-display-node,
+.profile-form-card .form-date-picker > .text-field,
+.profile-form-card .form-date-picker .text-field {
+    -fx-background-color: #12233f;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16 0 0 16;
+    -fx-control-inner-background: #12233f;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #94a3b8;
+    -fx-highlight-fill: rgba(96, 165, 250, 0.26);
+    -fx-highlight-text-fill: #f8fafc;
+}
+
+.profile-form-card .form-date-picker .arrow-button {
+    -fx-background-color: #0f1d33;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0 16 16 0;
+}
+
+.profile-form-card .form-date-picker .arrow {
+    -fx-background-color: #34d399;
+}
+
+.theme-dark .profile-hero-card {
+    -fx-background-color:
+            linear-gradient(from 0% 0% to 100% 100%, rgba(2, 6, 23, 0.94) 0%, rgba(20, 83, 45, 0.78) 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.68);
+}
+
+.theme-dark .profile-photo-card,
+.theme-dark .profile-info-card,
+.theme-dark .profile-form-card {
+    -fx-background-color: rgba(15, 23, 42, 0.84);
+    -fx-border-color: rgba(71, 85, 105, 0.74);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.34), 24, 0.18, 0, 10);
+}
+
+.theme-dark .profile-photo-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(30, 41, 59, 0.94) 0%, rgba(15, 23, 42, 0.94) 100%);
+    -fx-border-color: rgba(71, 85, 105, 0.84);
+}
+
+.theme-dark .profile-title,
+.theme-dark .profile-info-value {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .profile-subtitle,
+.theme-dark .profile-note {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .profile-form-card .form-date-picker {
+    -fx-background-color: #12233f;
+    -fx-border-color: rgba(96, 165, 250, 0.22);
+}
+
+.theme-dark .profile-form-card .date-picker.form-date-picker,
+.theme-dark .profile-form-card .date-picker.form-date-picker:focused {
+    -fx-background-color: #12233f;
+    -fx-background-insets: 0;
+    -fx-border-color: rgba(96, 165, 250, 0.22);
+    -fx-control-inner-background: #12233f;
+}
+
+.theme-dark .profile-form-card .date-picker.form-date-picker > .date-picker-display-node,
+.theme-dark .profile-form-card .date-picker.form-date-picker .date-picker-display-node,
+.theme-dark .profile-form-card .date-picker.form-date-picker:focused > .date-picker-display-node,
+.theme-dark .profile-form-card .date-picker.form-date-picker:focused .date-picker-display-node,
+.theme-dark .profile-form-card .form-date-picker > .text-field,
+.theme-dark .profile-form-card .form-date-picker .text-field {
+    -fx-background-color: #12233f;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16 0 0 16;
+    -fx-control-inner-background: #12233f;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.theme-dark .profile-form-card .form-date-picker .arrow-button {
+    -fx-background-color: #0b1730;
+}
+
+.theme-dark .profile-form-card .form-date-picker .arrow {
+    -fx-background-color: #60a5fa;
+}

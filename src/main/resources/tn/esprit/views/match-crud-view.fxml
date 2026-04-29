@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.MatchListController"
+            styleClass="page-root">
+    <top>
+        <HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="16" styleClass="navbar-root" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox" alignment="CENTER_LEFT" spacing="10" styleClass="navbar-brand" onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="â˜€" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="â˜¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                <VBox spacing="18" styleClass="page-shell">
+                    <padding>
+                        <Insets top="24" right="28" bottom="28" left="28"/>
+                    </padding>
+
+                    <StackPane styleClass="hero-shell">
+                        <StackPane styleClass="hero-photo"/>
+                        <StackPane styleClass="hero-overlay"/>
+                        <VBox spacing="14" styleClass="hero-content">
+                            <Label text="Fixtures" styleClass="hero-eyebrow"/>
+                            <Label text="Retrouvez les matchs sans edition" styleClass="hero-title"/>
+                            <Label text="Parcourez les rencontres, filtrez la competition active et ouvrez chaque fiche sur sa propre page."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+                            <HBox spacing="10">
+                                <Label fx:id="resultCountLabel" text="0 match(s)" styleClass="toolbar-chip"/>
+                                <Label fx:id="selectionStateLabel" text="Cliquez sur une carte pour ouvrir la fiche" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="statusLabel" text="Pret" styleClass="status-pill status-muted"/>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+
+                    <VBox spacing="14" styleClass="panel-card match-toolbar">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4">
+                                <Label text="Calendrier des rencontres" styleClass="section-title"/>
+                                <Label fx:id="resultsMetaLabel"
+                                       text="0 carte(s)"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button onAction="#handleOpenMatchs"
+                                    text="Competitions"
+                                    styleClass="ghost-button"/>
+                            <Button fx:id="refreshButton"
+                                    onAction="#handleRefresh"
+                                    text="Actualiser"
+                                    styleClass="primary-button"/>
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="searchField"
+                                       promptText="Rechercher par equipe, lieu, type, statut ou date"
+                                       styleClass="form-text-field match-search-field"
+                                       HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="statusFilterComboBox"
+                                      prefWidth="170"
+                                      promptText="Statut"
+                                      styleClass="glass-combo"/>
+                            <Button fx:id="clearButton"
+                                    onAction="#handleClear"
+                                    text="Vider"
+                                    styleClass="soft-button"/>
+                        </HBox>
+
+                        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="sync-toolbar-row">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Sync football-data.org" styleClass="section-title sync-section-title"/>
+                                <Label fx:id="syncMetaLabel"
+                                       text="Plan gratuit : un lot complet sur les 6 competitions prend environ 40 secondes."
+                                       wrapText="true"
+                                       styleClass="section-subtitle sync-section-text"/>
+                            </VBox>
+                            <ComboBox fx:id="syncCompetitionComboBox"
+                                      prefWidth="230"
+                                      promptText="Competition"
+                                      styleClass="glass-combo"/>
+                            <Button fx:id="syncTeamsButton"
+                                    onAction="#handleSyncTeamsAndPlayers"
+                                    text="Clubs &amp; effectifs"
+                                    styleClass="ghost-button"/>
+                            <Button fx:id="syncMatchesButton"
+                                    onAction="#handleSyncMatches"
+                                    text="Calendrier"
+                                    styleClass="primary-button"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="14" styleClass="panel-card results-panel">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Cartes des matchs" styleClass="section-title"/>
+                                <Label text="Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici."
+                                       wrapText="true"
+                                       styleClass="section-subtitle"/>
+                            </VBox>
+                        </HBox>
+
+                        <StackPane VBox.vgrow="ALWAYS">
+                            <ListView fx:id="matchListView"
+                                      prefHeight="560"
+                                      styleClass="match-list-view"/>
+
+                            <VBox fx:id="emptyStateBox"
+                                  alignment="CENTER"
+                                  managed="false"
+                                  maxWidth="340"
+                                  spacing="12"
+                                  visible="false"
+                                  styleClass="empty-state-box">
+                                <Label text="M" styleClass="empty-icon"/>
+                                <Label text="Aucun match trouve" styleClass="empty-title"/>
+                                <Label text="Aucun resultat ne correspond a la recherche actuelle. Essayez un autre mot-cle ou changez de competition."
+                                       wrapText="true"
+                                       styleClass="empty-text"/>
+                            </VBox>
+                        </StackPane>
+                    </VBox>
+                </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
+
+

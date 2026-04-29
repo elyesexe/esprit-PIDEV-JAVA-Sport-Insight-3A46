@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.StoreController"
+            fx:id="pageRoot"
+            styleClass="page-root store-page-root store-user-root">
+
+    <top>
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs"
+                            styleClass="navbar-nav-button"/>
+
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Annonce"
+                            styleClass="navbar-nav-button"/>
+
+                    <Button fx:id="productNavButton"
+                            onAction="#handleOpenProducts"
+                            text="Store"
+                            styleClass="navbar-nav-button navbar-nav-button-active"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fx:id="pageScroll"
+                    fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane fx:id="pageShellWrap" styleClass="page-shell-wrap">
+                    <VBox fx:id="pageShell" spacing="20" styleClass="page-shell">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <StackPane styleClass="store-hero-shell hero-shell">
+                            <Region fx:id="heroPhotoRegion" styleClass="store-hero-photo hero-photo"/>
+                            <Region styleClass="hero-overlay"/>
+
+                            <VBox spacing="14" styleClass="hero-content">
+                                <Label text="Store" styleClass="hero-kicker"/>
+                                <Label text="Shop products, build your cart, confirm payment" styleClass="store-hero-title"/>
+                                <Label text="This user store is separate from the admin CRUD. Browse products, add them to cart, then finish the order in the payment section."
+                                       wrapText="true"
+                                       styleClass="hero-subtitle"/>
+
+                                <HBox spacing="10" styleClass="store-metric-row">
+                                    <VBox styleClass="store-metric-card">
+                                        <Label text="Products visible" styleClass="store-metric-label"/>
+                                        <Label fx:id="catalogMetricLabel" text="0" styleClass="store-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="store-metric-card">
+                                        <Label text="Items in cart" styleClass="store-metric-label"/>
+                                        <Label fx:id="cartMetricLabel" text="0" styleClass="store-metric-value"/>
+                                    </VBox>
+                                    <VBox styleClass="store-metric-card">
+                                        <Label text="Cart total" styleClass="store-metric-label"/>
+                                        <Label fx:id="checkoutMetricLabel" text="0.00 DT" styleClass="store-metric-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                        </StackPane>
+
+                        <VBox spacing="12" styleClass="toolbar-panel panel-card store-toolbar-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4">
+                                    <Label text="Store controls" styleClass="section-title"/>
+                                    <Label text="Search the catalog, sort it, then move between Catalog, Cart, and Payment."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="resultCountLabel" text="0 produit(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="cartCountLabel" text="0 article(s)" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="cartTotalLabel" text="0.00 DT" styleClass="toolbar-chip-soft"/>
+                                <Label fx:id="statusLabel" text="Boutique prete" styleClass="status-pill status-muted"/>
+                            </HBox>
+
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="Search" styleClass="field-label"/>
+                                    <TextField fx:id="searchField"
+                                               promptText="Search by name, category, or brand"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Sort by" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortByComboBox"
+                                              prefWidth="170"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Order" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortDirectionComboBox"
+                                              prefWidth="120"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+                                <VBox spacing="6">
+                                    <Label text="Actions" styleClass="field-label"/>
+                                    <HBox spacing="10">
+                                        <Button text="Refresh"
+                                                onAction="#handleRefreshCatalog"
+                                                styleClass="primary-button"/>
+                                        <Button text="Reset"
+                                                onAction="#handleResetFilters"
+                                                styleClass="ghost-button"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="store-section-switcher">
+                                <Button fx:id="catalogSectionButton"
+                                        text="Catalogue"
+                                        onAction="#handleShowCatalog"
+                                        styleClass="store-section-button store-section-button-active"/>
+                                <Button fx:id="cartSectionButton"
+                                        text="Cart"
+                                        onAction="#handleShowCart"
+                                        styleClass="store-section-button"/>
+                                <Button fx:id="paymentSectionButton"
+                                        text="Payment"
+                                        onAction="#handleShowPayment"
+                                        styleClass="store-section-button"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="selectionStateLabel" text="Mode catalogue" styleClass="section-subtitle"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox fx:id="catalogSection" spacing="14">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4">
+                                    <Label text="Catalog" styleClass="section-title"/>
+                                    <Label text="Browse available products and add them directly to your cart."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Open cart"
+                                        onAction="#handleShowCart"
+                                        styleClass="primary-button"/>
+                            </HBox>
+
+                            <FlowPane fx:id="productsPane"
+                                      hgap="18"
+                                      vgap="18"
+                                      prefWrapLength="1080"
+                                      styleClass="store-products-pane"/>
+                        </VBox>
+
+                        <VBox fx:id="cartSection"
+                              managed="false"
+                              visible="false"
+                              spacing="14">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4">
+                                    <Label text="Cart" styleClass="section-title"/>
+                                    <Label text="Review quantities, remove items, then move to payment."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Continue shopping"
+                                        onAction="#handleShowCatalog"
+                                        styleClass="ghost-button"/>
+                                <Button text="Go to payment"
+                                        onAction="#handleShowPayment"
+                                        styleClass="primary-button"/>
+                            </HBox>
+
+                            <VBox fx:id="cartItemsPane"
+                                  spacing="14"
+                                  styleClass="store-cart-list"/>
+                        </VBox>
+
+                        <VBox fx:id="paymentSection"
+                              managed="false"
+                              visible="false"
+                              spacing="14">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4">
+                                    <Label text="Payment" styleClass="section-title"/>
+                                    <Label text="Complete delivery and payment details, then confirm the order."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Back to cart"
+                                        onAction="#handleShowCart"
+                                        styleClass="ghost-button"/>
+                            </HBox>
+
+                            <HBox spacing="18" alignment="TOP_LEFT">
+                                <VBox spacing="14" styleClass="panel-card store-summary-panel" HBox.hgrow="ALWAYS">
+                                    <VBox spacing="4">
+                                        <Label text="Order summary" styleClass="section-title"/>
+                                        <Label text="Products ready for checkout."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+
+                                    <VBox fx:id="paymentItemsPane"
+                                          spacing="12"
+                                          styleClass="store-payment-items"/>
+
+                                    <HBox spacing="10">
+                                        <Label text="Total" styleClass="store-total-label"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label fx:id="paymentTotalLabel" text="0.00 DT" styleClass="store-total-value"/>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="14" minWidth="360" prefWidth="380" styleClass="panel-card store-payment-form">
+                                    <VBox spacing="4">
+                                        <Label text="Delivery and payment" styleClass="section-title"/>
+                                        <Label text="No external payment API is used. Payment is confirmed locally and the order is saved in the database."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+
+                                    <Label fx:id="validationLabel"
+                                           managed="false"
+                                           visible="false"
+                                           wrapText="true"
+                                           styleClass="validation-label"/>
+
+                                    <VBox spacing="8">
+                                        <Label text="Email" styleClass="field-label"/>
+                                        <TextField fx:id="emailField"
+                                                   promptText="name@example.com"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="8">
+                                        <Label text="Phone" styleClass="field-label"/>
+                                        <TextField fx:id="phoneField"
+                                                   promptText="+216 00 000 000"
+                                                   styleClass="form-text-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="8">
+                                        <Label text="Shipping address" styleClass="field-label"/>
+                                        <TextArea fx:id="shippingAddressArea"
+                                                  promptText="Street, city, postal code"
+                                                  prefRowCount="4"
+                                                  wrapText="true"
+                                                  styleClass="store-text-area"/>
+                                    </VBox>
+
+                                    <VBox spacing="8">
+                                        <Label text="Billing address" styleClass="field-label"/>
+                                        <TextArea fx:id="billingAddressArea"
+                                                  promptText="Billing address"
+                                                  prefRowCount="4"
+                                                  wrapText="true"
+                                                  styleClass="store-text-area"/>
+                                    </VBox>
+
+                                    <VBox spacing="8">
+                                        <Label text="Payment method" styleClass="field-label"/>
+                                        <ComboBox fx:id="paymentMethodComboBox"
+                                                  prefWidth="220"
+                                                  styleClass="glass-combo"/>
+                                    </VBox>
+
+                                    <HBox spacing="10">
+                                        <Button text="Copy shipping"
+                                                onAction="#handleCopyShippingToBilling"
+                                                styleClass="soft-button"
+                                                HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="payNowButton"
+                                                text="Pay now"
+                                                onAction="#handlePayNow"
+                                                styleClass="primary-button"
+                                                HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

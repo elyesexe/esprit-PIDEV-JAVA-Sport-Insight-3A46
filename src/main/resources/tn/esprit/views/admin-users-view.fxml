@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.AdminUserModerationController"
+            styleClass="page-root">
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="22" styleClass="page-shell admin-users-shell">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <HBox alignment="CENTER_LEFT" spacing="16">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="User moderation" styleClass="admin-dashboard-title"/>
+                                <Label text="Update, review, and delete local Sport Insight accounts, including their assigned roles."
+                                       wrapText="true"
+                                       styleClass="admin-dashboard-subtitle"/>
+                            </VBox>
+                            <Label fx:id="statusLabel"
+                                   text="Loading..."
+                                   styleClass="status-pill status-muted"/>
+                        </HBox>
+
+                        <FlowPane hgap="16" vgap="16" prefWrapLength="1000" styleClass="admin-kpi-row">
+                            <VBox spacing="8" styleClass="admin-kpi-card">
+                                <Label text="Users" styleClass="admin-kpi-label"/>
+                                <Label fx:id="totalUsersLabel" text="0" styleClass="admin-kpi-value"/>
+                                <Label text="registered accounts" styleClass="admin-kpi-meta"/>
+                            </VBox>
+                            <VBox spacing="8" styleClass="admin-kpi-card">
+                                <Label text="Admins" styleClass="admin-kpi-label"/>
+                                <Label fx:id="adminUsersLabel" text="0" styleClass="admin-kpi-value"/>
+                                <Label text="privileged operators" styleClass="admin-kpi-meta"/>
+                            </VBox>
+                            <VBox spacing="8" styleClass="admin-kpi-card">
+                                <Label text="Inactive" styleClass="admin-kpi-label"/>
+                                <Label fx:id="inactiveUsersLabel" text="0" styleClass="admin-kpi-value"/>
+                                <Label text="blocked or disabled" styleClass="admin-kpi-meta"/>
+                            </VBox>
+                        </FlowPane>
+
+                        <HBox spacing="18" styleClass="admin-dashboard-grid">
+                            <VBox spacing="12" styleClass="panel-card admin-chart-card" HBox.hgrow="ALWAYS">
+                                <Label text="Account status overview" styleClass="section-title admin-section-title"/>
+                                <Label fx:id="chartSummaryLabel"
+                                       text="0 visible user(s) | 0 active | 0 blocked"
+                                       wrapText="true"
+                                       styleClass="admin-chart-summary"/>
+                                <BarChart fx:id="accountStatusBarChart"
+                                          animated="false"
+                                          legendVisible="false"
+                                          prefHeight="300"
+                                          styleClass="admin-stats-chart">
+                                    <xAxis>
+                                        <CategoryAxis label="Status"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Accounts"/>
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+
+                            <VBox spacing="12" prefWidth="360" styleClass="panel-card admin-chart-card">
+                                <Label text="Active vs blocked" styleClass="section-title admin-section-title"/>
+                                <Label text="The chart follows the currently visible list after search and sorting."
+                                       wrapText="true"
+                                       styleClass="admin-chart-summary"/>
+                                <PieChart fx:id="accountStatusPieChart"
+                                          animated="false"
+                                          labelsVisible="true"
+                                          legendVisible="true"
+                                          prefHeight="300"
+                                          styleClass="admin-stats-chart"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="16" styleClass="panel-card toolbar-panel">
+                            <HBox spacing="16" alignment="CENTER_LEFT">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Moderation workspace" styleClass="section-title"/>
+                                    <Label text="Search by name, email, role, or status before opening a profile on the right."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <Label fx:id="resultsMetaLabel" text="0 user(s)" styleClass="toolbar-chip-soft"/>
+                            </HBox>
+
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="Search" styleClass="field-label"/>
+                                    <TextField fx:id="searchField"
+                                               promptText="Search by name, email, role, or status"
+                                               styleClass="form-text-field"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Sort users" styleClass="field-label"/>
+                                    <ComboBox fx:id="sortComboBox"
+                                              prefWidth="140"
+                                              styleClass="glass-combo"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Actions" styleClass="field-label"/>
+                                    <HBox spacing="10">
+                                        <Button onAction="#handleExportPdf"
+                                                text="Export PDF"
+                                                styleClass="ghost-button"/>
+                                        <Button onAction="#handleRefresh"
+                                                text="Refresh"
+                                                styleClass="primary-button"/>
+                                        <Button onAction="#handleResetFilters"
+                                                text="Reset"
+                                                styleClass="ghost-button"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <HBox spacing="18" styleClass="admin-user-grid">
+                            <VBox spacing="12" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Accounts" styleClass="section-title admin-section-title"/>
+                                        <Label text="Sort the accounts alphabetically and export the visible list when needed."
+                                               wrapText="true"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+                                </HBox>
+
+                                <TableView fx:id="userTableView"
+                                           prefHeight="560"
+                                           styleClass="data-table admin-user-table">
+                                    <columns>
+                                        <TableColumn fx:id="idColumn" text="ID" prefWidth="70"/>
+                                        <TableColumn fx:id="nameColumn" text="User" prefWidth="180"/>
+                                        <TableColumn fx:id="emailColumn" text="Email" prefWidth="220"/>
+                                        <TableColumn fx:id="roleColumn" text="Role" prefWidth="120"/>
+                                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="120"/>
+                                        <TableColumn fx:id="createdColumn" text="Joined" prefWidth="150"/>
+                                    </columns>
+                                    <placeholder>
+                                        <Label text="No users available." styleClass="empty-text"/>
+                                    </placeholder>
+                                </TableView>
+                            </VBox>
+
+                            <VBox spacing="14"
+                                  styleClass="panel-card form-card admin-user-form-card"
+                                  minWidth="380"
+                                  prefWidth="410">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Selected account" styleClass="section-title"/>
+                                        <Label fx:id="selectionStateLabel"
+                                               text="Select a user"
+                                               styleClass="section-subtitle"/>
+                                    </VBox>
+                                    <Label text="Admin only" styleClass="toolbar-chip"/>
+                                </HBox>
+
+                                <Label fx:id="validationLabel"
+                                       managed="false"
+                                       visible="false"
+                                       wrapText="true"
+                                       styleClass="status-pill status-error"/>
+
+                                <VBox spacing="6">
+                                    <Label text="Email" styleClass="field-label"/>
+                                    <TextField fx:id="emailField" promptText="name@example.com" styleClass="form-text-field"/>
+                                </VBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="First name" styleClass="field-label"/>
+                                        <TextField fx:id="prenomField" promptText="First name" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Last name" styleClass="field-label"/>
+                                        <TextField fx:id="nomField" promptText="Last name" styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Telephone" styleClass="field-label"/>
+                                        <TextField fx:id="telephoneField" promptText="+216 ..." styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Birth date" styleClass="field-label"/>
+                                        <DatePicker fx:id="dateNaissancePicker" styleClass="form-date-picker"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Primary role" styleClass="field-label"/>
+                                        <ComboBox fx:id="roleComboBox" prefWidth="180" styleClass="glass-combo"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Status" styleClass="field-label"/>
+                                        <ComboBox fx:id="statusComboBox" prefWidth="180" styleClass="glass-combo"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="Photo path" styleClass="field-label"/>
+                                        <TextField fx:id="photoField" promptText="Optional photo path" styleClass="form-text-field"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="CV name" styleClass="field-label"/>
+                                        <TextField fx:id="cvField" promptText="Optional CV name" styleClass="form-text-field"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="6">
+                                    <Label text="New password" styleClass="field-label"/>
+                                    <PasswordField fx:id="passwordField"
+                                                   promptText="Leave blank to keep the current password"
+                                                   styleClass="form-text-field"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="Confirm password" styleClass="field-label"/>
+                                    <PasswordField fx:id="confirmPasswordField"
+                                                   promptText="Repeat the new password"
+                                                   styleClass="form-text-field"/>
+                                </VBox>
+
+                                <Label text="Leaving the password fields empty keeps the current hashed password unchanged."
+                                       wrapText="true"
+                                       styleClass="admin-user-note"/>
+
+                                <HBox spacing="10" styleClass="admin-user-form-actions">
+                                    <Button fx:id="saveButton"
+                                            onAction="#handleSave"
+                                            text="Save changes"
+                                            maxWidth="Infinity"
+                                            styleClass="primary-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="deleteButton"
+                                            onAction="#handleDelete"
+                                            text="Delete user"
+                                            maxWidth="Infinity"
+                                            styleClass="danger-button"
+                                            HBox.hgrow="ALWAYS"/>
+                                </HBox>
+
+                                <Button onAction="#handleClear"
+                                        text="Clear selection"
+                                        maxWidth="Infinity"
+                                        styleClass="ghost-button"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

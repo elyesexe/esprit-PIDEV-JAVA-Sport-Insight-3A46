@@ -10,6 +10,10 @@ public class Joueur {
     private int numero;
     private String image;
     private Integer equipeId;
+    private Long externalApiId;
+    private String externalSource;
+    private String position;
+    private String nationalite;
 
     public Joueur() {
     }
@@ -89,6 +93,38 @@ public class Joueur {
         this.equipeId = equipeId;
     }
 
+    public Long getExternalApiId() {
+        return externalApiId;
+    }
+
+    public void setExternalApiId(Long externalApiId) {
+        this.externalApiId = externalApiId;
+    }
+
+    public String getExternalSource() {
+        return externalSource;
+    }
+
+    public void setExternalSource(String externalSource) {
+        this.externalSource = externalSource;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getNationalite() {
+        return nationalite;
+    }
+
+    public void setNationalite(String nationalite) {
+        this.nationalite = nationalite;
+    }
+
     @Override
     public String toString() {
         return "Joueur{" +
@@ -99,6 +135,10 @@ public class Joueur {
                 ", numero=" + numero +
                 ", image='" + image + '\'' +
                 ", equipeId=" + equipeId +
+                ", externalApiId=" + externalApiId +
+                ", externalSource='" + externalSource + '\'' +
+                ", position='" + position + '\'' +
+                ", nationalite='" + nationalite + '\'' +
                 '}';
     }
 }

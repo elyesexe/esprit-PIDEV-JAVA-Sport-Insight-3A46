@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.Controller.EntrainementUserController"
+            styleClass="page-root">
+
+    <top>
+        <HBox fx:id="navbarRoot"
+              alignment="CENTER_LEFT"
+              spacing="16"
+              styleClass="navbar-root"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Button fx:id="adminNavButton"
+                    onAction="#handleOpenAdmin"
+                    text="Admin"
+                    mnemonicParsing="false"
+                    styleClass="navbar-admin-button"/>
+
+            <HBox fx:id="sidebarBrandBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="navbar-brand"
+                  onMouseClicked="#handleOpenHome">
+                <StackPane styleClass="navbar-logo-shell">
+                    <ImageView fitWidth="152" fitHeight="50" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/sport-insight-logo.png"/>
+                        </image>
+                    </ImageView>
+                </StackPane>
+            </HBox>
+
+            <StackPane HBox.hgrow="ALWAYS" styleClass="navbar-center-wrap">
+                <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
+                    <Button fx:id="matchsNavButton"
+                            onAction="#handleOpenMatchs"
+                            text="Matchs +"
+                            styleClass="navbar-nav-button"/>
+
+                    <HBox fx:id="sidebarModuleChildrenBox"
+                          spacing="8"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false"
+                          styleClass="navbar-submenu">
+                        <Button fx:id="equipesNavButton"
+                                onAction="#handleOpenEquipes"
+                                text="Equipes"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="leaguesNavButton"
+                                onAction="#handleOpenLeagues"
+                                text="Leagues"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                        <Button fx:id="joueursNavButton"
+                                onAction="#handleOpenJoueurs"
+                                text="Joueurs"
+                                styleClass="navbar-nav-button navbar-submenu-button"/>
+                    </HBox>
+
+                    <Button fx:id="annonceNavButton"
+                            onAction="#handleOpenAnnonces"
+                            text="Anonce"
+                            styleClass="navbar-nav-button"/>
+                    <Button fx:id="entrainementNavButton"
+                            onAction="#handleOpenEntrainements"
+                            text="Entrainements"
+                            styleClass="navbar-nav-button navbar-nav-button-active"/>
+                </HBox>
+            </StackPane>
+
+            <HBox alignment="CENTER_RIGHT" styleClass="navbar-theme-wrap">
+                <ToggleButton fx:id="themeToggleButton"
+                              mnemonicParsing="false"
+                              contentDisplay="GRAPHIC_ONLY"
+                              styleClass="theme-toggle">
+                    <graphic>
+                        <StackPane styleClass="theme-toggle-track">
+                            <StackPane styleClass="theme-toggle-thumb">
+                                <StackPane styleClass="theme-toggle-icon-shell">
+                                    <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+                                </StackPane>
+                            </StackPane>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    pannable="true"
+                    styleClass="page-scroll"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane styleClass="page-shell-wrap">
+                    <VBox spacing="20" styleClass="page-shell" maxWidth="1280">
+                        <padding>
+                            <Insets top="24" right="28" bottom="28" left="28"/>
+                        </padding>
+
+                        <StackPane styleClass="hero-shell">
+                        <Region styleClass="entrainement-hero-photo"/>
+                        <Region styleClass="hero-overlay"/>
+                        <VBox spacing="12" styleClass="hero-content">
+                            <Label text="Gestion &amp; suivi" styleClass="hero-eyebrow"/>
+                            <Label text="Entrainements" styleClass="hero-title"/>
+                            <Label text="Planifiez les sessions, suivez les objectifs et surveillez la presence en temps reel."
+                                   wrapText="true"
+                                   styleClass="hero-text"/>
+                        </VBox>
+                    </StackPane>
+
+                    <HBox spacing="20">
+                        <VBox spacing="16" HBox.hgrow="ALWAYS">
+                            <VBox spacing="10" styleClass="panel-card">
+                                <Label text="Sessions d'entrainement" styleClass="section-title"/>
+                                <Label text="Recherchez par type, lieu, ou objectif et triez par date."
+                                       styleClass="section-subtitle"/>
+
+                                <HBox spacing="10" styleClass="toolbar-row">
+                                    <TextField fx:id="searchField" promptText="Rechercher par type, lieu, objectif"
+                                               styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                                    <ComboBox fx:id="sortChoiceBox" prefWidth="160" promptText="Trier par" styleClass="form-combo"/>
+                                    <Button onAction="#handleRefresh" text="Actualiser" styleClass="ghost-button"/>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Total" styleClass="section-subtitle"/>
+                                    <Label fx:id="countLabel" text="0" styleClass="training-card-badge"/>
+                                </HBox>
+
+                                <FlowPane fx:id="cardsPane" styleClass="training-cards"/>
+                                <Label fx:id="emptyStateLabel" text="Aucun entrainement pour le moment."
+                                       styleClass="section-subtitle" visible="false" managed="false"/>
+                            </VBox>
+                        </VBox>
+
+                        <VBox fx:id="managementPanel" spacing="14" prefWidth="360" styleClass="panel-card">
+                            <Label text="Creer / Modifier" styleClass="section-title"/>
+                            <Label fx:id="formHintLabel" text="Renseignez les details de la session."
+                                   styleClass="section-subtitle"/>
+
+                            <DatePicker fx:id="dateField" promptText="Date" styleClass="form-date-picker"/>
+                            <TextField fx:id="startField" promptText="Heure debut (HH:mm)" styleClass="form-field"/>
+                            <TextField fx:id="endField" promptText="Heure fin (HH:mm)" styleClass="form-field"/>
+                            <TextField fx:id="typeField" promptText="Type (Technique, Tactique)" styleClass="form-field"/>
+                            <TextField fx:id="objectifField" promptText="Objectif" styleClass="form-field"/>
+                            <TextField fx:id="lieuField" promptText="Lieu" styleClass="form-field"/>
+                            <ComboBox fx:id="coachField" promptText="Coach" styleClass="form-combo"/>
+                            <TextArea fx:id="notesField" promptText="Notes internes (optionnel)" styleClass="form-area"/>
+
+                            <Label fx:id="validationLabel" text="" styleClass="section-subtitle" visible="false" managed="false"/>
+
+                            <HBox spacing="10">
+                                <Button onAction="#handleAdd" text="Ajouter" styleClass="primary-button"/>
+                                <Button onAction="#handleUpdate" text="Modifier" styleClass="ghost-button"/>
+                                <Button onAction="#handleDelete" text="Supprimer" styleClass="danger-button"/>
+                            </HBox>
+                            <Button onAction="#handleClear" text="Reinitialiser" styleClass="ghost-button"/>
+
+                            <Region prefHeight="6"/>
+
+                            <Label text="Participation" styleClass="section-title"/>
+                            <Label fx:id="participationContextLabel" text="Selectionnez une session pour marquer votre presence."
+                                   styleClass="section-subtitle"/>
+                            <ComboBox fx:id="participationPresenceField" promptText="Present / Absent" styleClass="form-combo"/>
+                            <TextArea fx:id="participationJustificationField" promptText="Justification si absent"
+                                      styleClass="form-area"/>
+                            <HBox spacing="10">
+                                <Button onAction="#handleSaveParticipation" text="Enregistrer" styleClass="primary-button"/>
+                                <Button onAction="#handleDeleteParticipation" text="Supprimer" styleClass="danger-button"/>
+                            </HBox>
+
+                            <Region prefHeight="6"/>
+
+                            <Label text="Evaluations" styleClass="section-title"/>
+                            <Label fx:id="evaluationContextLabel" text="Aucune evaluation chargee."
+                                   styleClass="section-subtitle"/>
+                            <VBox fx:id="evaluationCardsPane" spacing="8"/>
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
