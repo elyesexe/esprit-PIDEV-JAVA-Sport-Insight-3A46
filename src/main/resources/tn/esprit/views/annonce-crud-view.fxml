@@ -304,6 +304,7 @@
                                     <TableColumn fx:id="commentaireDateColumn" text="Date" prefWidth="98"/>
                                     <TableColumn fx:id="commentaireLikesColumn" text="Likes" prefWidth="80"/>
                                     <TableColumn fx:id="commentaireModerationColumn" text="Moderation" prefWidth="120"/>
+                                    <TableColumn fx:id="commentaireSentimentColumn" text="Sentiment" prefWidth="110"/>
                                 </columns>
                             </TableView>
                         </VBox>

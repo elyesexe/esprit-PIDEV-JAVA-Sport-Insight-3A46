@@ -1,10 +1,13 @@
 package tn.esprit.Controller;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
@@ -88,6 +91,7 @@ public class SponsorAdminController {
     @FXML private TextField sponsorSearchField;
     @FXML private ComboBox<String> sponsorSortComboBox;
     @FXML private TableView<SponsorRow> sponsorTableView;
+    @FXML private TableColumn<SponsorRow, Node> sponsorLogoColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorNameColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorEmailColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorPhoneColumn;
@@ -227,6 +231,28 @@ public class SponsorAdminController {
     }
 
     private void configureSponsorTable() {
+        sponsorLogoColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                buildLogoNode(
+                        cell.getValue().sponsor().getLogoName(),
+                        cell.getValue().sponsor().getNom(),
+                        34
+                )
+        ));
+        sponsorLogoColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+            @Override
+            protected void updateItem(Node item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                setGraphic(item);
+                setText(null);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
+            }
+        });
         sponsorNameColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getNom(), "Sponsor")));
         sponsorEmailColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getEmail(), "-")));
         sponsorPhoneColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getTelephone(), "-")));

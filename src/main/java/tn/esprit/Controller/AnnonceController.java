@@ -31,6 +31,7 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.AnnoncePdfExportService;
 import tn.esprit.services.AnnonceService;
+import tn.esprit.services.CommentSentimentService;
 import tn.esprit.services.CommentaireService;
 
 import java.io.File;
@@ -108,6 +109,7 @@ public class AnnonceController {
     @FXML private TableColumn<Commentaire, String> commentaireDateColumn;
     @FXML private TableColumn<Commentaire, Integer> commentaireLikesColumn;
     @FXML private TableColumn<Commentaire, String> commentaireModerationColumn;
+    @FXML private TableColumn<Commentaire, String> commentaireSentimentColumn;
     @FXML private Label commentFormHintLabel;
     @FXML private Label commentValidationLabel;
     @FXML private TextField auteurField;
@@ -136,6 +138,7 @@ public class AnnonceController {
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+    private CommentSentimentService commentSentimentService;
     private AnnoncePdfExportService annoncePdfExportService;
     private Annonce selectedAnnonce;
     private Commentaire selectedCommentaire;
@@ -153,6 +156,7 @@ public class AnnonceController {
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+            commentSentimentService = new CommentSentimentService();
             annoncePdfExportService = new AnnoncePdfExportService();
             serviceReady = true;
             refreshData(null, null);
@@ -465,6 +469,7 @@ public class AnnonceController {
         commentaireDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDate(cell.getValue().getDateCommentaire())));
         commentaireLikesColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getNbLikes()));
         commentaireModerationColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getModerationStatus())));
+        commentaireSentimentColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveCommentSentiment(cell.getValue()).label()));
         commentaireTableView.setItems(visibleCommentaires);
         commentaireTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         commentaireTableView.setPlaceholder(new Label("No comments found."));
@@ -931,7 +936,9 @@ public class AnnonceController {
             commentFormHintLabel.setText("Comments are locked for the selected announcement. Admin can still delete existing comments if needed.");
             setStatus(commentStatusLabel, "Comments locked", "status-warning");
         } else if (selectedCommentaire != null) {
-            commentFormHintLabel.setText("Admin can review, update, or delete the selected player comment for moderation purposes.");
+            CommentSentimentService.SentimentResult sentiment = resolveCommentSentiment(selectedCommentaire);
+            commentFormHintLabel.setText("Admin can review, update, or delete the selected player comment for moderation purposes. Sentiment: "
+                    + sentiment.label() + " (" + sentiment.summary() + ")");
             setStatus(commentStatusLabel, "Comment selected", resolveCommentStatusStyle(selectedCommentaire.getModerationStatus()));
         } else {
             commentFormHintLabel.setText("Read comments here and select one to update or delete it as part of moderation.");
@@ -1187,6 +1194,13 @@ public class AnnonceController {
             case "REJECTED" -> "status-error";
             default -> "status-muted";
         };
+    }
+
+    private CommentSentimentService.SentimentResult resolveCommentSentiment(Commentaire commentaire) {
+        if (commentSentimentService == null) {
+            commentSentimentService = new CommentSentimentService();
+        }
+        return commentSentimentService.analyze(commentaire == null ? null : commentaire.getContenu());
     }
 
     private String normalize(String value) {

@@ -323,6 +323,15 @@
     -fx-text-fill: #334155;
 }
 
+.annonce-comment-card .status-success,
+.annonce-comment-card .status-warning,
+.annonce-comment-card .status-error,
+.annonce-comment-card .status-muted {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 6 10 6 10;
+}
+
 .annonce-user-description-box {
     -fx-background-color: rgba(248, 250, 252, 0.96);
     -fx-background-radius: 20;

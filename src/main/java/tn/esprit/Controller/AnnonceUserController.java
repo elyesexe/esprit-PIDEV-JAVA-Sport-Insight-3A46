@@ -36,6 +36,7 @@ import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.AnnonceService;
+import tn.esprit.services.CommentSentimentService;
 import tn.esprit.services.CommentaireService;
 import tn.esprit.services.UserService;
 
@@ -108,6 +109,7 @@ public class AnnonceUserController {
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+    private CommentSentimentService commentSentimentService;
     private UserService userService;
     private boolean serviceReady;
 
@@ -126,6 +128,7 @@ public class AnnonceUserController {
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+            commentSentimentService = new CommentSentimentService();
             userService = new UserService();
             serviceReady = true;
             refreshData();
@@ -743,8 +746,10 @@ public class AnnonceUserController {
                 humanizeStatus(commentaire.getModerationStatus()),
                 resolveCommentStatusStyle(commentaire.getModerationStatus())
         );
+        CommentSentimentService.SentimentResult sentiment = resolveCommentSentiment(commentaire);
+        Label sentimentPill = createPill(sentiment.label(), sentiment.styleClass());
 
-        header.getChildren().addAll(avatar, authorBox, spacer, statusPill);
+        header.getChildren().addAll(avatar, authorBox, spacer, sentimentPill, statusPill);
 
         Label bodyLabel = new Label(fallbackText(commentaire.getContenu(), ""));
         bodyLabel.setWrapText(true);
@@ -754,6 +759,7 @@ public class AnnonceUserController {
         footer.setHgap(8);
         footer.setVgap(8);
         footer.getChildren().add(createMetaChip(commentaire.getNbLikes() + " like(s)"));
+        footer.getChildren().add(createMetaChip("AI: " + sentiment.summary()));
         if (emptyToNull(commentaire.getModerationReason()) != null) {
             footer.getChildren().add(createMetaChip(commentaire.getModerationReason()));
         }
@@ -1048,6 +1054,13 @@ public class AnnonceUserController {
             case "REJECTED", "BLOCKED" -> "status-error";
             default -> "status-muted";
         };
+    }
+
+    private CommentSentimentService.SentimentResult resolveCommentSentiment(Commentaire commentaire) {
+        if (commentSentimentService == null) {
+            commentSentimentService = new CommentSentimentService();
+        }
+        return commentSentimentService.analyze(commentaire == null ? null : commentaire.getContenu());
     }
 
     private String humanizeStatus(String raw) {

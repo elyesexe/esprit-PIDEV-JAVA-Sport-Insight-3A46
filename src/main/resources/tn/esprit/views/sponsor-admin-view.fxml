@@ -182,6 +182,7 @@
 
                                             <TableView fx:id="sponsorTableView" styleClass="data-table">
                                                 <columns>
+                                                    <TableColumn fx:id="sponsorLogoColumn" text="Logo"/>
                                                     <TableColumn fx:id="sponsorNameColumn" text="Name"/>
                                                     <TableColumn fx:id="sponsorEmailColumn" text="Email"/>
                                                     <TableColumn fx:id="sponsorPhoneColumn" text="Phone"/>
