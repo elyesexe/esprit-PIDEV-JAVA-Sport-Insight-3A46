@@ -1,15 +1,2 @@
-.idea/
-target/
-*.class
-*.log
-
-# Local test helpers
-Check*.java
-
-# OS files
-Thumbs.db
-Desktop.ini
-
-# Local asset workspace
-image/
-football-data.local.properties
+target/ 
+target/ 
