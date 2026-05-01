@@ -19,6 +19,7 @@ The admin workspace recently received a large UI and workflow refresh. The bigge
 - cleaner Git hygiene with generated build output ignored from version control
 - finished-match highlight playback using the official YouTube Data API and an embedded Chromium player
 - a new user-facing News page with live football headlines, search, topic filters, saved stories, a custom hero image, responsive dark mode, and optimized high-resolution story images
+- restored training participation and evaluation UX from the training branch, including color-coded attendance cards, styled evaluation dialogs, evaluation notification email support, and player progression with AI recommendations
 
 ## Project Vision
 
@@ -165,7 +166,14 @@ Main capabilities:
 - create training sessions
 - edit and delete sessions
 - browse planning data
+- mark front-office participation as `Present` or `Absent`
+- show green training cards for present users and red training cards for absent users
 - manage participation and evaluation-related flows
+- let admins add evaluations for players who participated in a session
+- send evaluation notification emails through the configured Gmail SMTP sender
+- show player progression in the front training view after evaluations are recorded
+- generate AI-based recommended exercises and nutrition plans from the player's evaluation history
+- keep dedicated styling for training, participation, evaluation dialogs, and performance widgets in `entrainement-theme.css`
 
 ### 6. Announcements
 

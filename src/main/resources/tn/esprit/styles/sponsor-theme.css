@@ -227,6 +227,50 @@
     -fx-spacing: 12;
 }
 
+.sentiment-metric-card {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 18;
+    -fx-padding: 14 16 14 16;
+    -fx-pref-width: 170;
+    -fx-spacing: 8;
+}
+
+.sentiment-metric-card .sponsor-metric-label {
+    -fx-text-fill: #64748b;
+}
+
+.sentiment-result-chip {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 15px;
+    -fx-font-weight: 900;
+}
+
+.sentiment-positive {
+    -fx-background-color: rgba(220, 252, 231, 0.98);
+    -fx-border-color: rgba(34, 197, 94, 0.38);
+    -fx-text-fill: #047857;
+}
+
+.sentiment-neutral {
+    -fx-background-color: rgba(241, 245, 249, 0.98);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-text-fill: #475569;
+}
+
+.sentiment-negative {
+    -fx-background-color: rgba(254, 226, 226, 0.98);
+    -fx-border-color: rgba(239, 68, 68, 0.38);
+    -fx-text-fill: #b91c1c;
+}
+
+.sentiment-output-area {
+    -fx-opacity: 1;
+}
+
 .sponsor-tab-pane > .tab-header-area {
     -fx-padding: 0 0 6 0;
 }
@@ -375,12 +419,14 @@
 
 .admin-dark .sponsor-admin-root .sponsor-admin-metric-card,
 .admin-dark .sponsor-admin-root .sponsor-chart-card,
+.admin-dark .sponsor-admin-root .sentiment-metric-card,
 .admin-dark .sponsor-admin-root .sponsor-logo-preview-shell {
     -fx-background-color: rgba(39, 39, 42, 0.96);
     -fx-border-color: rgba(82, 82, 91, 0.86);
 }
 
 .admin-dark .sponsor-admin-root .sponsor-admin-metric-card .sponsor-metric-label,
+.admin-dark .sponsor-admin-root .sentiment-metric-card .sponsor-metric-label,
 .admin-dark .sponsor-admin-root .axis,
 .admin-dark .sponsor-admin-root .axis-label,
 .admin-dark .sponsor-admin-root .chart-legend,
@@ -427,6 +473,10 @@
 }
 
 .admin-dark .sponsor-admin-root .sponsor-admin-metric-card .sponsor-metric-value {
+    -fx-text-fill: #fafafa;
+}
+
+.admin-dark .sponsor-admin-root .sentiment-metric-card .sponsor-metric-value {
     -fx-text-fill: #fafafa;
 }
 

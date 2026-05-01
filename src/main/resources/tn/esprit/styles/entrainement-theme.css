@@ -280,6 +280,34 @@
     -fx-border-width: 2px;
 }
 
+.training-card-attending {
+    -fx-background-color: rgba(236, 253, 245, 0.95);
+    -fx-border-color: rgba(16, 185, 129, 0.58);
+    -fx-border-width: 2px;
+}
+
+.training-card-attending .training-card-hero {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(16, 185, 129, 0.96) 0%, rgba(5, 150, 105, 0.96) 100%);
+}
+
+.training-card-attending .training-card-participation {
+    -fx-text-fill: #047857;
+}
+
+.training-card-absent {
+    -fx-background-color: rgba(254, 242, 242, 0.95);
+    -fx-border-color: rgba(239, 68, 68, 0.58);
+    -fx-border-width: 2px;
+}
+
+.training-card-absent .training-card-hero {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(239, 68, 68, 0.96) 0%, rgba(190, 24, 93, 0.96) 100%);
+}
+
+.training-card-absent .training-card-participation {
+    -fx-text-fill: #b91c1c;
+}
+
 .training-card-hero {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(5, 150, 105, 0.9) 0%, rgba(13, 148, 136, 0.9) 100%);
     -fx-background-radius: 22 22 16 16;
@@ -304,6 +332,10 @@
 .training-card-line {
     -fx-font-size: 12px;
     -fx-text-fill: #475569;
+}
+
+.training-card-participation {
+    -fx-font-weight: 800;
 }
 
 .training-card-badge {
@@ -515,6 +547,325 @@
     -fx-text-fill: #27272a;
 }
 
+/* Participation dialog and evaluation workflow */
+.attendance-dialog-root,
+.evaluation-dialog-root {
+    -fx-background-color: transparent;
+}
+
+.attendance-dialog-header {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #059669 100%);
+    -fx-background-radius: 20 20 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.30), 20, 0.30, 0, 8);
+}
+
+.attendance-dialog-title,
+.evaluation-dialog-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.attendance-dialog-session,
+.evaluation-dialog-player {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(255, 255, 255, 0.95);
+}
+
+.attendance-dialog-info,
+.evaluation-dialog-session {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(255, 255, 255, 0.86);
+}
+
+.attendance-dialog-content,
+.evaluation-dialog-content {
+    -fx-background-color: white;
+}
+
+.attendance-dialog-question,
+.evaluation-dialog-instruction {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937;
+}
+
+.attendance-choice-button,
+.attendance-toggle-button {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #475569;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.10), 12, 0.16, 0, 4);
+}
+
+.attendance-choice-button:hover,
+.attendance-toggle-button:hover {
+    -fx-border-color: #94a3b8;
+}
+
+.attendance-present-button:selected,
+.present-button:selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #d1fae5 0%, #a7f3d0 100%);
+    -fx-border-color: #10b981;
+    -fx-border-width: 3;
+    -fx-text-fill: #065f46;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.34), 18, 0.28, 0, 6);
+}
+
+.attendance-absent-button:selected,
+.absent-button:selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fee2e2 0%, #fecaca 100%);
+    -fx-border-color: #ef4444;
+    -fx-border-width: 3;
+    -fx-text-fill: #991b1b;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.34), 18, 0.28, 0, 6);
+}
+
+.attendance-dialog-label,
+.evaluation-dialog-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #374151;
+}
+
+.attendance-justification-area,
+.evaluation-comment-area {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1f2937;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.attendance-justification-area:focused,
+.evaluation-comment-area:focused {
+    -fx-border-color: #10b981;
+    -fx-background-color: white;
+}
+
+.attendance-justification-area .content,
+.evaluation-comment-area .content {
+    -fx-background-color: transparent;
+}
+
+.attendance-dialog-footer,
+.evaluation-dialog-footer {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 0 0 20 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 0 0 0;
+}
+
+.attendance-dialog-button,
+.evaluation-dialog-button {
+    -fx-background-radius: 12;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.attendance-save-button,
+.evaluation-save-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #059669 100%);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.28), 12, 0.20, 0, 4);
+}
+
+.attendance-save-button:hover,
+.evaluation-save-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #047857 100%);
+}
+
+.attendance-cancel-button,
+.evaluation-cancel-button {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-text-fill: #475569;
+}
+
+.attendance-cancel-button:hover,
+.evaluation-cancel-button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #9ca3af;
+}
+
+.attendance-clear-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fef2f2 0%, #fee2e2 100%);
+    -fx-border-color: #fca5a5;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-text-fill: #dc2626;
+}
+
+.attendance-clear-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fee2e2 0%, #fecaca 100%);
+    -fx-border-color: #ef4444;
+}
+
+.attendance-clear-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.evaluation-dialog-header {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #1d4ed8 100%);
+    -fx-background-radius: 20 20 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.30), 20, 0.30, 0, 8);
+}
+
+.evaluation-slider {
+    -fx-pref-width: 350;
+}
+
+.evaluation-slider .track {
+    -fx-background-color: linear-gradient(to right, #fee2e2 0%, #fef3c7 50%, #d1fae5 100%);
+    -fx-background-radius: 8;
+    -fx-pref-height: 8;
+}
+
+.evaluation-slider .thumb {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #3b82f6 0%, #2563eb 100%);
+    -fx-background-radius: 12;
+    -fx-pref-width: 24;
+    -fx-pref-height: 24;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.40), 12, 0.30, 0, 4);
+}
+
+.evaluation-value-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #2563eb;
+    -fx-background-color: #eff6ff;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12 6 12;
+}
+
+.evaluation-average-box {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dbeafe 0%, #bfdbfe 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.18), 12, 0.20, 0, 4);
+}
+
+.evaluation-average-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1e40af;
+}
+
+.evaluation-average-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1e3a8a;
+}
+
+/* Performance evolution */
+.stat-mini-card {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+    -fx-alignment: center;
+}
+
+.stat-mini-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #64748b;
+}
+
+.stat-mini-value {
+    -fx-font-size: 21px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f766e;
+}
+
+.chart-mini-container {
+    -fx-background-color: rgba(248, 250, 252, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(148, 163, 184, 0.20);
+    -fx-border-radius: 16;
+    -fx-padding: 15;
+}
+
+.weak-areas-box {
+    -fx-background-color: rgba(255, 247, 237, 0.94);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(251, 146, 60, 0.22);
+    -fx-border-radius: 16;
+    -fx-padding: 12;
+}
+
+.ai-mini-button,
+.nutrition-button {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-padding: 11 18 11 18;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.ai-mini-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #7c3aed 100%);
+    -fx-border-color: rgba(191, 219, 254, 0.34);
+}
+
+.ai-mini-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1d4ed8 0%, #6d28d9 100%);
+}
+
+.nutrition-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #f97316 100%);
+    -fx-border-color: rgba(254, 215, 170, 0.34);
+}
+
+.nutrition-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #115e59 0%, #ea580c 100%);
+}
+
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: rgba(255, 255, 255, 0.82);
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #e2e8f0;
+}
+
+.default-color0.chart-series-line { -fx-stroke: #ef4444; -fx-stroke-width: 2.5px; }
+.default-color1.chart-series-line { -fx-stroke: #2563eb; -fx-stroke-width: 2.5px; }
+.default-color2.chart-series-line { -fx-stroke: #7c3aed; -fx-stroke-width: 2.5px; }
+
+.default-color0.chart-line-symbol { -fx-background-color: #ef4444, white; }
+.default-color1.chart-line-symbol { -fx-background-color: #2563eb, white; }
+.default-color2.chart-line-symbol { -fx-background-color: #7c3aed, white; }
+
 /* Dark theme for user pages */
 .theme-dark.page-root {
     -fx-background-color: radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
@@ -600,8 +951,141 @@
     -fx-border-color: rgba(148, 163, 184, 0.28);
 }
 
+.theme-dark .training-card-attending {
+    -fx-background-color: rgba(6, 78, 59, 0.40);
+    -fx-border-color: rgba(52, 211, 153, 0.72);
+}
+
+.theme-dark .training-card-attending .training-card-hero {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(5, 150, 105, 0.96) 0%, rgba(6, 95, 70, 0.96) 100%);
+}
+
+.theme-dark .training-card-attending .training-card-participation {
+    -fx-text-fill: #86efac;
+}
+
+.theme-dark .training-card-absent {
+    -fx-background-color: rgba(127, 29, 29, 0.38);
+    -fx-border-color: rgba(248, 113, 113, 0.72);
+}
+
+.theme-dark .training-card-absent .training-card-hero {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(220, 38, 38, 0.96) 0%, rgba(159, 18, 57, 0.96) 100%);
+}
+
+.theme-dark .training-card-absent .training-card-participation {
+    -fx-text-fill: #fecaca;
+}
+
 .theme-dark .training-card-line {
     -fx-text-fill: #cbd5e1;
+}
+
+.theme-dark .attendance-dialog-content,
+.theme-dark .evaluation-dialog-content {
+    -fx-background-color: #1f2937;
+}
+
+.theme-dark .attendance-dialog-question,
+.theme-dark .evaluation-dialog-instruction,
+.theme-dark .attendance-dialog-label,
+.theme-dark .evaluation-dialog-label {
+    -fx-text-fill: #f3f4f6;
+}
+
+.theme-dark .attendance-choice-button,
+.theme-dark .attendance-toggle-button {
+    -fx-background-color: #374151;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .attendance-choice-button:hover,
+.theme-dark .attendance-toggle-button:hover {
+    -fx-border-color: #6b7280;
+}
+
+.theme-dark .attendance-justification-area,
+.theme-dark .evaluation-comment-area {
+    -fx-background-color: #111827;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #f3f4f6;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.theme-dark .attendance-justification-area:focused,
+.theme-dark .evaluation-comment-area:focused {
+    -fx-border-color: #10b981;
+    -fx-background-color: #1f2937;
+}
+
+.theme-dark .attendance-dialog-footer,
+.theme-dark .evaluation-dialog-footer {
+    -fx-background-color: #111827;
+    -fx-border-color: #374151;
+}
+
+.theme-dark .attendance-cancel-button,
+.theme-dark .evaluation-cancel-button {
+    -fx-background-color: #374151;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .attendance-cancel-button:hover,
+.theme-dark .evaluation-cancel-button:hover {
+    -fx-background-color: #4b5563;
+    -fx-border-color: #6b7280;
+}
+
+.theme-dark .evaluation-slider .track {
+    -fx-background-color: linear-gradient(to right, #7f1d1d 0%, #78350f 50%, #064e3b 100%);
+}
+
+.theme-dark .evaluation-value-label {
+    -fx-background-color: #1e3a8a;
+    -fx-text-fill: #bfdbfe;
+}
+
+.theme-dark .evaluation-average-box {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1e3a8a 0%, #1e40af 100%);
+    -fx-border-color: #60a5fa;
+}
+
+.theme-dark .evaluation-average-title {
+    -fx-text-fill: #bfdbfe;
+}
+
+.theme-dark .evaluation-average-value {
+    -fx-text-fill: #dbeafe;
+}
+
+.theme-dark .stat-mini-card,
+.theme-dark .chart-mini-container {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark .stat-mini-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.theme-dark .stat-mini-value {
+    -fx-text-fill: #67e8f9;
+}
+
+.theme-dark .weak-areas-box {
+    -fx-background-color: rgba(67, 20, 7, 0.56);
+    -fx-border-color: rgba(251, 146, 60, 0.30);
+}
+
+.theme-dark .chart-plot-background {
+    -fx-background-color: rgba(15, 23, 42, 0.90);
+}
+
+.theme-dark .chart-vertical-grid-lines,
+.theme-dark .chart-horizontal-grid-lines {
+    -fx-stroke: #334155;
 }
 
 .theme-dark .note-card {

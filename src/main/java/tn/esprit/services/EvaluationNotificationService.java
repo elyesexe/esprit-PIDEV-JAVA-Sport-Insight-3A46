@@ -26,6 +26,7 @@ import java.util.Properties;
 
 public class EvaluationNotificationService {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final String DEFAULT_GMAIL_SENDER = "bennjimamariem99@gmail.com";
     private static final String LOCAL_PROPERTIES_FILE = "evaluation-mail.local.properties";
     private static final String USER_HOME_PROPERTIES_FILE = ".sport-insight/evaluation-mail.local.properties";
     private static final String CLASSPATH_PROPERTIES = "/evaluation-mail.properties";
@@ -164,7 +165,8 @@ public class EvaluationNotificationService {
                     System.getProperty("sport.insight.smtp.host"),
                     System.getenv("SPORT_INSIGHT_SMTP_HOST"),
                     props.getProperty("smtp.host"),
-                    props.getProperty("mail.smtp.host"));
+                    props.getProperty("mail.smtp.host"),
+                    "smtp.gmail.com");
             int port = parseInt(firstNonBlank(
                     System.getProperty("sport.insight.smtp.port"),
                     System.getenv("SPORT_INSIGHT_SMTP_PORT"),
@@ -175,7 +177,8 @@ public class EvaluationNotificationService {
                     System.getenv("SPORT_INSIGHT_SMTP_USERNAME"),
                     props.getProperty("smtp.username"),
                     props.getProperty("mail.sender"),
-                    props.getProperty("mail.smtp.username"));
+                    props.getProperty("mail.smtp.username"),
+                    DEFAULT_GMAIL_SENDER);
             String password = firstNonBlank(
                     System.getProperty("sport.insight.smtp.password"),
                     System.getenv("SPORT_INSIGHT_SMTP_PASSWORD"),
@@ -187,7 +190,8 @@ public class EvaluationNotificationService {
                     System.getenv("SPORT_INSIGHT_SMTP_FROM"),
                     props.getProperty("smtp.from"),
                     props.getProperty("mail.sender"),
-                    username);
+                    username,
+                    DEFAULT_GMAIL_SENDER);
             boolean useStartTls = parseBoolean(firstNonBlank(
                     System.getProperty("sport.insight.smtp.tls"),
                     System.getenv("SPORT_INSIGHT_SMTP_TLS"),

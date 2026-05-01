@@ -1348,6 +1348,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
+        ThemeManager.registerScene(scene);
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -1507,6 +1508,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
+        ThemeManager.registerScene(scene);
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -1691,6 +1693,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
+        ThemeManager.registerScene(scene);
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -1831,6 +1834,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
+        ThemeManager.registerScene(scene);
         
         dialog.setScene(scene);
         dialog.showAndWait();

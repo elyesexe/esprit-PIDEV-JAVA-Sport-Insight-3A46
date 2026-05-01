@@ -44,6 +44,7 @@ import tn.esprit.services.ContractQrCodeService;
 import tn.esprit.services.NotificationService;
 import tn.esprit.services.SponsorService;
 import tn.esprit.services.SponsorMapViewService;
+import tn.esprit.services.SponsorSentimentAnalysisService;
 import tn.esprit.services.SponsoringPdfService;
 import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.tools.SponsorAssets;
@@ -96,6 +97,7 @@ public class SponsorAdminController {
     @FXML private Tab overviewTab;
     @FXML private Tab sponsorsTab;
     @FXML private Tab contractsTab;
+    @FXML private Tab sentimentTab;
 
     @FXML private TextField sponsorSearchField;
     @FXML private ComboBox<String> sponsorSortComboBox;
@@ -141,6 +143,16 @@ public class SponsorAdminController {
     @FXML private TextArea contractDescriptionArea;
     @FXML private Label contractValidationLabel;
 
+    @FXML private ComboBox<SponsorOption> sentimentSponsorField;
+    @FXML private TextArea sentimentMessageArea;
+    @FXML private Label sentimentResultLabel;
+    @FXML private Label sentimentScoreLabel;
+    @FXML private Label sentimentConfidenceLabel;
+    @FXML private TextArea sentimentReasonArea;
+    @FXML private TextArea sentimentActionArea;
+    @FXML private TextArea sentimentReplyArea;
+    @FXML private Label sentimentStatusLabel;
+
     private final ObservableList<SponsorRow> sponsorRows = FXCollections.observableArrayList();
     private final ObservableList<ContractRow> contractRows = FXCollections.observableArrayList();
     private final ObservableList<SponsorOption> sponsorOptions = FXCollections.observableArrayList();
@@ -150,6 +162,7 @@ public class SponsorAdminController {
     private SponsoringPdfService pdfService;
     private ContractQrCodeService qrCodeService;
     private SponsorMapViewService sponsorMapViewService;
+    private SponsorSentimentAnalysisService sentimentAnalysisService;
     private SponsorService sponsorService;
     private ContratSponsorService contratSponsorService;
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
@@ -164,6 +177,7 @@ public class SponsorAdminController {
         pdfService = new SponsoringPdfService();
         qrCodeService = new ContractQrCodeService();
         sponsorMapViewService = new SponsorMapViewService();
+        sentimentAnalysisService = new SponsorSentimentAnalysisService();
         configureOverview();
         configureSponsorTable();
         configureContractTable();
@@ -280,6 +294,7 @@ public class SponsorAdminController {
                 return;
             }
             populateSponsorForm(newValue.sponsor());
+            selectSentimentSponsor(newValue.sponsor());
             sponsorFormHintLabel.setText("Editing sponsor #" + newValue.sponsor().getId());
         });
     }
@@ -326,6 +341,7 @@ public class SponsorAdminController {
 
         contractSponsorField.setItems(sponsorOptions);
         contractTeamField.setItems(teamOptions);
+        sentimentSponsorField.setItems(sponsorOptions);
         contractStatusField.setItems(FXCollections.observableArrayList("ACTIVE", "RENEWED", "DRAFT", "EXPIRED"));
         contractPaymentField.setItems(FXCollections.observableArrayList("PENDING", "PAID", "PARTIAL"));
         contractStatusField.setValue("ACTIVE");
@@ -340,6 +356,7 @@ public class SponsorAdminController {
         contractSortComboBox.valueProperty().addListener((obs, oldValue, newValue) -> applyContractFilters());
         sponsorLogoField.textProperty().addListener((obs, oldValue, newValue) -> updateSponsorPreview());
         sponsorNameField.textProperty().addListener((obs, oldValue, newValue) -> updateSponsorPreview());
+        sentimentMessageArea.textProperty().addListener((obs, oldValue, newValue) -> clearInvalid(sentimentMessageArea));
     }
 
     @FXML
@@ -614,6 +631,126 @@ public class SponsorAdminController {
         }
     }
 
+    @FXML
+    private void handleAnalyzeSentiment() {
+        clearInvalid(sentimentMessageArea);
+        String message = optionalText(sentimentMessageArea.getText());
+        if (message == null) {
+            markInvalid(sentimentMessageArea);
+            showSentimentStatus("Add a sponsor message before analysis.", "status-warning");
+            return;
+        }
+
+        Sponsor sponsor = resolveSentimentSponsor();
+        SponsorSentimentAnalysisService.SponsorSentimentAnalysis analysis =
+                sentimentAnalysisService.analyze(message, sponsor == null ? null : sponsor.getNom());
+        renderSentimentAnalysis(analysis);
+        showSentimentStatus("Sentiment analysis complete.", resolveSentimentStatusStyle(analysis.sentiment()));
+    }
+
+    @FXML
+    private void handleClearSentiment() {
+        clearInvalid(sentimentMessageArea);
+        sentimentMessageArea.clear();
+        sentimentReasonArea.clear();
+        sentimentActionArea.clear();
+        sentimentReplyArea.clear();
+        sentimentResultLabel.setText("NEUTRE");
+        sentimentScoreLabel.setText("0/100");
+        sentimentConfidenceLabel.setText("0%");
+        sentimentResultLabel.getStyleClass().removeAll("sentiment-positive", "sentiment-neutral", "sentiment-negative");
+        if (!sentimentResultLabel.getStyleClass().contains("sentiment-neutral")) {
+            sentimentResultLabel.getStyleClass().add("sentiment-neutral");
+        }
+        showSentimentStatus("Sentiment workspace ready.", "status-muted");
+    }
+
+    @FXML
+    private void handleUseSelectedSponsorForSentiment() {
+        if (selectedSponsorRow == null) {
+            showSentimentStatus("Select a sponsor first.", "status-warning");
+            return;
+        }
+        selectSentimentSponsor(selectedSponsorRow.sponsor());
+        if (sponsorTabPane != null && sentimentTab != null) {
+            sponsorTabPane.getSelectionModel().select(sentimentTab);
+        }
+        showSentimentStatus("Selected sponsor loaded for analysis.", "status-success");
+    }
+
+    private Sponsor resolveSentimentSponsor() {
+        SponsorOption option = sentimentSponsorField.getValue();
+        if (option != null && snapshot != null) {
+            return snapshot.sponsors().stream()
+                    .filter(sponsor -> Objects.equals(sponsor.getId(), option.id()))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return selectedSponsorRow == null ? null : selectedSponsorRow.sponsor();
+    }
+
+    private void selectSentimentSponsor(Sponsor sponsor) {
+        if (sponsor == null || sponsor.getId() == null || sentimentSponsorField == null) {
+            return;
+        }
+        sponsorOptions.stream()
+                .filter(option -> Objects.equals(option.id(), sponsor.getId()))
+                .findFirst()
+                .ifPresent(sentimentSponsorField::setValue);
+    }
+
+    private void renderSentimentAnalysis(SponsorSentimentAnalysisService.SponsorSentimentAnalysis analysis) {
+        sentimentResultLabel.setText(analysis.sentiment().label());
+        sentimentResultLabel.getStyleClass().removeAll("sentiment-positive", "sentiment-neutral", "sentiment-negative");
+        String sentimentStyle = switch (analysis.sentiment()) {
+            case POSITIVE -> "sentiment-positive";
+            case NEGATIVE -> "sentiment-negative";
+            case NEUTRAL -> "sentiment-neutral";
+        };
+        if (!sentimentResultLabel.getStyleClass().contains(sentimentStyle)) {
+            sentimentResultLabel.getStyleClass().add(sentimentStyle);
+        }
+
+        sentimentScoreLabel.setText(String.format(Locale.ENGLISH, "%+d/100", analysis.score()));
+        sentimentConfidenceLabel.setText(String.format(Locale.ENGLISH, "%.0f%%", analysis.confidence() * 100.0));
+        sentimentReasonArea.setText(buildSentimentReasonText(analysis));
+        sentimentActionArea.setText(numberedList(analysis.recommendedActions()));
+        sentimentReplyArea.setText(analysis.responseDraft());
+    }
+
+    private String buildSentimentReasonText(SponsorSentimentAnalysisService.SponsorSentimentAnalysis analysis) {
+        return "Summary: " + analysis.summary()
+                + "\n\nPositive signals: " + listOrDash(analysis.positiveSignals())
+                + "\nNegative signals: " + listOrDash(analysis.negativeSignals())
+                + "\nTopics: " + listOrDash(analysis.topics());
+    }
+
+    private String numberedList(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return "-";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < values.size(); i++) {
+            if (i > 0) {
+                builder.append('\n');
+            }
+            builder.append(i + 1).append(". ").append(values.get(i));
+        }
+        return builder.toString();
+    }
+
+    private String listOrDash(List<String> values) {
+        return values == null || values.isEmpty() ? "-" : String.join(", ", values);
+    }
+
+    private String resolveSentimentStatusStyle(SponsorSentimentAnalysisService.Sentiment sentiment) {
+        return switch (sentiment) {
+            case POSITIVE -> "status-success";
+            case NEGATIVE -> "status-error";
+            case NEUTRAL -> "status-muted";
+        };
+    }
+
     private boolean openSponsorFromQr(ContractQrCodeService.SponsorQrData qrData) {
         if (snapshot == null) {
             return false;
@@ -708,6 +845,7 @@ public class SponsorAdminController {
     private void rebuildChoiceBoxData() {
         String currentFilter = contractStatusFilterComboBox.getValue();
         SponsorOption currentSponsor = contractSponsorField.getValue();
+        SponsorOption currentSentimentSponsor = sentimentSponsorField.getValue();
         TeamOption currentTeam = contractTeamField.getValue();
 
         sponsorOptions.setAll(snapshot.sponsors().stream()
@@ -736,6 +874,14 @@ public class SponsorAdminController {
                     .ifPresentOrElse(contractSponsorField::setValue, () -> contractSponsorField.getSelectionModel().clearSelection());
         } else {
             contractSponsorField.getSelectionModel().clearSelection();
+        }
+        if (currentSentimentSponsor != null) {
+            sponsorOptions.stream()
+                    .filter(option -> Objects.equals(option.id(), currentSentimentSponsor.id()))
+                    .findFirst()
+                    .ifPresentOrElse(sentimentSponsorField::setValue, () -> sentimentSponsorField.getSelectionModel().clearSelection());
+        } else {
+            sentimentSponsorField.getSelectionModel().clearSelection();
         }
         if (currentTeam != null) {
             teamOptions.stream()
@@ -1258,6 +1404,10 @@ public class SponsorAdminController {
 
     private void showContractStatus(String message, String styleClass) {
         setStatusLabel(contractTabStatusLabel, message, styleClass);
+    }
+
+    private void showSentimentStatus(String message, String styleClass) {
+        setStatusLabel(sentimentStatusLabel, message, styleClass);
     }
 
     private void setStatusLabel(Label label, String message, String styleClass) {

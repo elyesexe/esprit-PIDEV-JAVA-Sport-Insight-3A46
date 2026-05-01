@@ -300,6 +300,81 @@
                                     </HBox>
                                 </content>
                             </Tab>
+
+                            <Tab fx:id="sentimentTab" text="Sentiment AI">
+                                <content>
+                                    <HBox spacing="18">
+                                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar-row">
+                                                <ComboBox fx:id="sentimentSponsorField"
+                                                          promptText="Sponsor"
+                                                          prefWidth="240"
+                                                          styleClass="form-combo"/>
+                                                <Button text="Use selected sponsor"
+                                                        onAction="#handleUseSelectedSponsorForSentiment"
+                                                        styleClass="ghost-button"/>
+                                                <Region HBox.hgrow="ALWAYS"/>
+                                                <Button text="Analyze sentiment"
+                                                        onAction="#handleAnalyzeSentiment"
+                                                        styleClass="primary-button"/>
+                                                <Button text="Clear"
+                                                        onAction="#handleClearSentiment"
+                                                        styleClass="ghost-button"/>
+                                            </HBox>
+
+                                            <TextArea fx:id="sentimentMessageArea"
+                                                      promptText="Paste a sponsor message, email, complaint, or feedback here"
+                                                      wrapText="true"
+                                                      prefRowCount="11"
+                                                      styleClass="form-area"/>
+
+                                            <HBox spacing="12" styleClass="sponsor-overview-grid">
+                                                <VBox styleClass="sentiment-metric-card">
+                                                    <Label text="Sentiment" styleClass="sponsor-metric-label"/>
+                                                    <Label fx:id="sentimentResultLabel" text="NEUTRE" styleClass="sentiment-result-chip sentiment-neutral"/>
+                                                </VBox>
+                                                <VBox styleClass="sentiment-metric-card">
+                                                    <Label text="Score" styleClass="sponsor-metric-label"/>
+                                                    <Label fx:id="sentimentScoreLabel" text="0/100" styleClass="sponsor-metric-value"/>
+                                                </VBox>
+                                                <VBox styleClass="sentiment-metric-card">
+                                                    <Label text="Confidence" styleClass="sponsor-metric-label"/>
+                                                    <Label fx:id="sentimentConfidenceLabel" text="0%" styleClass="sponsor-metric-value"/>
+                                                </VBox>
+                                            </HBox>
+
+                                            <Label fx:id="sentimentStatusLabel" text="Sentiment workspace ready" styleClass="status-muted"/>
+                                        </VBox>
+
+                                        <VBox spacing="12" prefWidth="430" styleClass="panel-card">
+                                            <Label text="Relationship guidance" styleClass="section-title"/>
+                                            <Label text="Signals, recommended actions, and a draft answer for sponsor follow-up."
+                                                   wrapText="true"
+                                                   styleClass="section-subtitle"/>
+
+                                            <Label text="Detected signals" styleClass="sponsor-line-label"/>
+                                            <TextArea fx:id="sentimentReasonArea"
+                                                      editable="false"
+                                                      wrapText="true"
+                                                      prefRowCount="6"
+                                                      styleClass="form-area sentiment-output-area"/>
+
+                                            <Label text="Recommended actions" styleClass="sponsor-line-label"/>
+                                            <TextArea fx:id="sentimentActionArea"
+                                                      editable="false"
+                                                      wrapText="true"
+                                                      prefRowCount="6"
+                                                      styleClass="form-area sentiment-output-area"/>
+
+                                            <Label text="Draft reply" styleClass="sponsor-line-label"/>
+                                            <TextArea fx:id="sentimentReplyArea"
+                                                      wrapText="true"
+                                                      prefRowCount="7"
+                                                      styleClass="form-area"/>
+                                        </VBox>
+                                    </HBox>
+                                </content>
+                            </Tab>
                         </tabs>
                     </TabPane>
                 </VBox>
