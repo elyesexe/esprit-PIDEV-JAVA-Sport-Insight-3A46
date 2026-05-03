@@ -1,0 +1,3 @@
+mailtrap.api.key=your_mailtrap_key
+mailtrap.inbox.id=your_mailtrap_inbox_id
+mailtrap.from=notifications@sport-insight.local

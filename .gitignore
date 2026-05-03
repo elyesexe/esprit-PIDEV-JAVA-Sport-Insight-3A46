@@ -19,6 +19,10 @@ Desktop.ini
 image/
 football-data.local.properties
 api-football.local.properties
+openai.local.properties
+resend.local.properties
+mailtrap.local.properties
+stripe.local.properties
 verify-cp.txt
 runtime.classpath
 jcef-bundle/

@@ -18,6 +18,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -137,7 +139,6 @@ public class OrderController {
     @FXML private Button detailDeleteButton;
     @FXML private Button exportPdfButton;
     @FXML private Button exportInvoiceButton;
-    @FXML private Button sendNotificationButton;
 
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
     private final ObservableList<ChoiceItem> productChoices = FXCollections.observableArrayList();
@@ -353,15 +354,6 @@ public class OrderController {
     }
 
     @FXML
-    private void handleSendNotification() {
-        if (selectedOrder == null) {
-            showValidation("Selectionnez une commande pour envoyer une notification.");
-            return;
-        }
-        triggerOrderNotification(selectedOrder, true);
-    }
-
-    @FXML
     private void handleRefreshLiveFx() {
         Order referenceOrder = selectedOrder != null ? selectedOrder : buildDraftOrderFromForm();
         if (referenceOrder == null) {
@@ -403,7 +395,7 @@ public class OrderController {
             @Override
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty || item == null ? null : createStatusChip(item.getStatus(), false));
+                setGraphic(empty || item == null ? null : createEditableStatusChip(item, false));
             }
         });
         orderPaymentColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
@@ -411,7 +403,7 @@ public class OrderController {
             @Override
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty || item == null ? null : createStatusChip(item.getPaymentStatus(), true));
+                setGraphic(empty || item == null ? null : createEditableStatusChip(item, true));
             }
         });
         orderActionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
@@ -728,8 +720,18 @@ public class OrderController {
     }
 
     private void updateCharts() {
-        Map<String, Long> statusCounts = orders.stream().collect(Collectors.groupingBy(order -> emptyIfNull(order.getStatus(), "PENDING"), Collectors.counting()));
-        Map<String, Long> paymentCounts = orders.stream().collect(Collectors.groupingBy(order -> emptyIfNull(order.getPaymentStatus(), "UNKNOWN"), Collectors.counting()));
+        Map<String, Long> statusCounts = orders.stream()
+                .collect(Collectors.groupingBy(
+                        order -> normalizeChartStatus(order == null ? null : order.getStatus(), false),
+                        java.util.LinkedHashMap::new,
+                        Collectors.counting()
+                ));
+        Map<String, Long> paymentCounts = orders.stream()
+                .collect(Collectors.groupingBy(
+                        order -> normalizeChartStatus(order == null ? null : order.getPaymentStatus(), true),
+                        java.util.LinkedHashMap::new,
+                        Collectors.counting()
+                ));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (String status : List.of("PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED")) {
@@ -746,9 +748,33 @@ public class OrderController {
         }
         paymentChart.setData(pieData);
 
-        statusChartSummaryLabel.setText(orders.size() + " visible order(s) | " + statusCounts);
-        paymentChartSummaryLabel.setText(paymentCounts.isEmpty() ? "Aucune donnee de paiement." : paymentCounts.toString());
+        statusChartSummaryLabel.setText(orders.size() + " visible order(s) | " + formatCountSummary(statusCounts));
+        paymentChartSummaryLabel.setText(paymentCounts.isEmpty() ? "Aucune donnee de paiement." : formatCountSummary(paymentCounts));
         Platform.runLater(() -> applyPieChartTheme(paymentChart));
+    }
+
+    private String normalizeChartStatus(String value, boolean paymentMode) {
+        String normalized = emptyIfNull(value, paymentMode ? "UNKNOWN" : "PENDING")
+                .trim()
+                .toUpperCase(Locale.ROOT)
+                .replace(' ', '_')
+                .replace('-', '_');
+        if (paymentMode) {
+            return switch (normalized) {
+                case "PAID", "PENDING", "UNPAID", "FAILED", "REFUNDED" -> normalized;
+                default -> "UNKNOWN";
+            };
+        }
+        return switch (normalized) {
+            case "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED" -> normalized;
+            default -> "PENDING";
+        };
+    }
+
+    private String formatCountSummary(Map<String, Long> counts) {
+        return counts.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining(", ", "{", "}"));
     }
 
     private void updateDetailPanel() {
@@ -846,38 +872,127 @@ public class OrderController {
         return label;
     }
 
-    private void applyStatusStyle(Label label, String value, boolean paymentMode) {
-        label.getStyleClass().setAll("status-pill", "product-stock-chip");
+    private MenuButton createEditableStatusChip(Order order, boolean paymentMode) {
+        String currentValue = paymentMode ? order.getPaymentStatus() : order.getStatus();
+        MenuButton menuButton = new MenuButton(emptyIfNull(currentValue));
+        menuButton.setFocusTraversable(false);
+        menuButton.getStyleClass().setAll("status-pill", "product-stock-chip", "order-status-menu");
+        applyStatusStyle(menuButton, currentValue, paymentMode);
+
+        List<String> allowedValues = paymentMode
+                ? OrderService.allowedPaymentStatuses()
+                : OrderService.allowedOrderStatuses();
+
+        for (String candidate : allowedValues) {
+            MenuItem item = new MenuItem(candidate);
+            item.setOnAction(event -> handleInlineStatusUpdate(order, candidate, paymentMode));
+            menuButton.getItems().add(item);
+        }
+        return menuButton;
+    }
+
+    private void applyStatusStyle(Control control, String value, boolean paymentMode) {
+        control.getStyleClass().removeAll("product-stock-good", "product-stock-low", "product-stock-out");
         String normalized = emptyIfNull(value, "").toUpperCase(Locale.ROOT);
         if (paymentMode) {
             if ("PAID".equals(normalized)) {
-                label.getStyleClass().add("product-stock-good");
+                control.getStyleClass().add("product-stock-good");
             } else if ("FAILED".equals(normalized) || "REFUNDED".equals(normalized)) {
-                label.getStyleClass().add("product-stock-out");
+                control.getStyleClass().add("product-stock-out");
             } else {
-                label.getStyleClass().add("product-stock-low");
+                control.getStyleClass().add("product-stock-low");
             }
             return;
         }
         if ("HIGH".equals(normalized)) {
-            label.getStyleClass().add("product-stock-out");
+            control.getStyleClass().add("product-stock-out");
             return;
         }
         if ("MEDIUM".equals(normalized)) {
-            label.getStyleClass().add("product-stock-low");
+            control.getStyleClass().add("product-stock-low");
             return;
         }
         if ("LOW".equals(normalized)) {
-            label.getStyleClass().add("product-stock-good");
+            control.getStyleClass().add("product-stock-good");
             return;
         }
         if ("DELIVERED".equals(normalized) || "CONFIRMED".equals(normalized)) {
-            label.getStyleClass().add("product-stock-good");
+            control.getStyleClass().add("product-stock-good");
         } else if ("CANCELLED".equals(normalized)) {
-            label.getStyleClass().add("product-stock-out");
+            control.getStyleClass().add("product-stock-out");
         } else {
-            label.getStyleClass().add("product-stock-low");
+            control.getStyleClass().add("product-stock-low");
         }
+    }
+
+    private void handleInlineStatusUpdate(Order sourceOrder, String newValue, boolean paymentMode) {
+        if (sourceOrder == null || orderService == null) {
+            return;
+        }
+        String currentValue = paymentMode ? sourceOrder.getPaymentStatus() : sourceOrder.getStatus();
+        if (emptyIfNull(currentValue).equalsIgnoreCase(emptyIfNull(newValue))) {
+            return;
+        }
+
+        Order updatedOrder = copyOrder(sourceOrder);
+        if (paymentMode) {
+            updatedOrder.setPaymentStatus(newValue);
+        } else {
+            updatedOrder.setStatus(newValue);
+        }
+
+        String fieldLabel = paymentMode ? "paiement" : "statut";
+        setStatus("Mise a jour du " + fieldLabel + " en cours...", "status-muted");
+
+        Task<Order> task = new Task<>() {
+            @Override
+            protected Order call() throws Exception {
+                orderService.update(updatedOrder);
+                return updatedOrder;
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            Order persistedOrder = task.getValue();
+            triggerOrderNotification(persistedOrder, true);
+            refreshOrders(
+                    persistedOrder.getId(),
+                    "Commande #" + persistedOrder.getId() + " mise a jour: " + fieldLabel + " " + newValue + ".",
+                    "status-success"
+            );
+        });
+
+        task.setOnFailed(event -> {
+            Throwable exception = task.getException();
+            setStatus("Mise a jour impossible.", "status-error");
+            showAlert(Alert.AlertType.ERROR, "Commande", resolveMessage(exception instanceof Exception e ? e : new Exception(exception)));
+            orderTableView.refresh();
+        });
+
+        DB_EXECUTOR.execute(task);
+    }
+
+    private Order copyOrder(Order source) {
+        if (source == null) {
+            return null;
+        }
+        return new Order(
+                source.getId(),
+                source.getQuantity(),
+                source.getOrderDate(),
+                source.getClientName(),
+                source.getStatus(),
+                source.getPaymentMethod(),
+                source.getPaymentStatus(),
+                source.getSize(),
+                source.getContactEmail(),
+                source.getContactPhone(),
+                source.getShippingAddress(),
+                source.getBillingAddress(),
+                source.getTotalAmount(),
+                source.getProductId(),
+                source.getEntraineurId()
+        );
     }
 
     private String colorForStatus(String status) {
@@ -930,9 +1045,6 @@ public class OrderController {
         detailDeleteButton.setDisable(!hasSelection);
         if (exportInvoiceButton != null) {
             exportInvoiceButton.setDisable(!hasSelection);
-        }
-        if (sendNotificationButton != null) {
-            sendNotificationButton.setDisable(!hasSelection);
         }
         if (cancelFormButton != null) {
             cancelFormButton.setDisable(!(createMode || editMode));
@@ -1063,7 +1175,7 @@ public class OrderController {
     }
 
     private void refreshDraftPreviewIfNeeded() {
-        if (panelMode == PanelMode.CREATE) {
+        if (panelMode == PanelMode.CREATE || panelMode == PanelMode.EDIT) {
             updateDetailPanel();
         }
     }
@@ -1221,7 +1333,7 @@ public class OrderController {
     private void setPanelMode(PanelMode mode) {
         panelMode = mode == null ? PanelMode.EMPTY : mode;
         setVisibleManaged(emptyStateCard, panelMode == PanelMode.EMPTY);
-        setVisibleManaged(detailCard, panelMode == PanelMode.DETAIL || panelMode == PanelMode.CREATE || panelMode == PanelMode.EDIT);
+        setVisibleManaged(detailCard, panelMode == PanelMode.DETAIL || panelMode == PanelMode.CREATE);
         setVisibleManaged(formCard, panelMode == PanelMode.CREATE || panelMode == PanelMode.EDIT);
 
         if (panelMode == PanelMode.EDIT) {

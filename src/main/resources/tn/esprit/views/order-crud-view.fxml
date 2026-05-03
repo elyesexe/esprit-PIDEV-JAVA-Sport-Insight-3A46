@@ -273,7 +273,6 @@
 
                                     <HBox spacing="10" styleClass="product-form-actions">
                                         <Button fx:id="exportInvoiceButton" onAction="#handleExportInvoice" text="Facture QR" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
-                                        <Button fx:id="sendNotificationButton" onAction="#handleSendNotification" text="Notifier" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
                                     </HBox>
 
                                     <HBox spacing="10" styleClass="product-form-actions">
