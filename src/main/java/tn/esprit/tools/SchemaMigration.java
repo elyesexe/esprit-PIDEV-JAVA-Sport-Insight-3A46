@@ -5,8 +5,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Set;
 
 public final class SchemaMigration {
     private SchemaMigration() {
@@ -704,49 +702,11 @@ public final class SchemaMigration {
         DatabaseMetaData metaData = connection.getMetaData();
         String catalog = currentCatalog(connection);
         try (Statement statement = connection.createStatement()) {
-            dropForeignKeysReferencing(metaData, catalog, statement, "evaluation", "joueur_id", "joueur");
-            dropForeignKeysReferencing(metaData, catalog, statement, "participation", "joueur_id", "joueur");
+            addIndexIfMissing(metaData, catalog, statement, "evaluation", "idx_evaluation_joueur_id",
+                    "CREATE INDEX idx_evaluation_joueur_id ON evaluation (joueur_id)");
+            addIndexIfMissing(metaData, catalog, statement, "participation", "idx_participation_joueur_id",
+                    "CREATE INDEX idx_participation_joueur_id ON participation (joueur_id)");
         }
-    }
-
-    private static void dropForeignKeysReferencing(
-            DatabaseMetaData metaData,
-            String catalog,
-            Statement statement,
-            String tableName,
-            String columnName,
-            String referencedTable
-    ) throws SQLException {
-        Set<String> keys = foreignKeysReferencing(metaData, catalog, tableName, columnName, referencedTable);
-        if (keys.isEmpty()) {
-            keys = foreignKeysReferencing(metaData, null, tableName, columnName, referencedTable);
-        }
-        for (String key : keys) {
-            statement.executeUpdate("ALTER TABLE `" + tableName + "` DROP FOREIGN KEY `" + key + "`");
-        }
-    }
-
-    private static Set<String> foreignKeysReferencing(
-            DatabaseMetaData metaData,
-            String catalog,
-            String tableName,
-            String columnName,
-            String referencedTable
-    ) throws SQLException {
-        Set<String> keys = new HashSet<>();
-        try (ResultSet resultSet = metaData.getImportedKeys(catalog, null, tableName)) {
-            while (resultSet.next()) {
-                String discoveredColumn = resultSet.getString("FKCOLUMN_NAME");
-                String discoveredTable = resultSet.getString("PKTABLE_NAME");
-                String key = resultSet.getString("FK_NAME");
-                if (key != null
-                        && columnName.equalsIgnoreCase(discoveredColumn)
-                        && referencedTable.equalsIgnoreCase(discoveredTable)) {
-                    keys.add(key);
-                }
-            }
-        }
-        return keys;
     }
 
     private static boolean tableExists(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {

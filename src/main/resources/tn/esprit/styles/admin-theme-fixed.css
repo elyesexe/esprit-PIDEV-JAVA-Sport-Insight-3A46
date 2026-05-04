@@ -2216,3 +2216,126 @@
 .admin-two-axis-table .scroll-bar .thumb:hover {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0c8ff 0%, #a5f3fc 100%);
 }
+
+/* Performance pass for the embedded admin shell.
+   Dark mode was using repeated radial gradients and large drop shadows across many
+   controls. These cheaper surfaces keep the dark look while avoiding expensive
+   repaint work during scrolling, navigation, and table interaction. */
+.admin-shell-root.admin-performance-mode.admin-dark,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-content-stage,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-content-stack,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-shell-surface,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root.admin-performance-mode {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #161238 0%, #1b1742 100%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .page-scroll,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .page-scroll > .viewport,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .page-scroll > .corner,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .page-shell,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .page-shell-wrap,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .content-shell,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .side-column,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .product-content-shell,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .sponsor-admin-shell,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .admin-users-shell {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .panel-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .admin-kpi-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .admin-hint-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .admin-chart-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .toolbar-panel,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .results-panel,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .detail-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .form-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .match-toolbar,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .sync-toolbar-row,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .toolbar-summary-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .player-list-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .training-card,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .training-card-body,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .training-card-hero,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .note-card {
+    -fx-background-color: rgba(42, 32, 94, 0.96);
+    -fx-border-color: rgba(195, 165, 255, 0.22);
+    -fx-effect: none;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .admin-nav-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-sidebar-user-button,
+.admin-shell-root.admin-performance-mode.admin-dark .button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .primary-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .ghost-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .soft-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .danger-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .detail-tab-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .competition-filter-button,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .toolbar-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .toolbar-chip-soft,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .status-pill,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .status-muted,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .fixture-status,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .fixture-meta-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .fixture-link-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .player-card-meta-pill,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .annonce-user-meta-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .sponsor-meta-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .product-stock-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .team-card-competition-badge,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .team-top-scorer-pill,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .flashscore-inline-badge,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .timeline-minute-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .timeline-score-chip,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .pitch-side-badge {
+    -fx-background-color: #8f6df4;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 238, 255, 0.34);
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-effect: none;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .admin-nav-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-sidebar-user-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .primary-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .ghost-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .soft-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .danger-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .detail-tab-button:hover,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .competition-filter-button:hover {
+    -fx-background-color: #9b79f8;
+    -fx-border-color: rgba(255, 243, 255, 0.46);
+    -fx-effect: none;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .admin-nav-button-active,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .competition-card-button-active,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root .detail-tab-button-active {
+    -fx-background-color: #a083ff;
+    -fx-border-color: rgba(255, 244, 255, 0.58);
+    -fx-effect: none;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .chart-plot-background,
+.admin-shell-root.admin-performance-mode.admin-dark .module-stats-chart .chart-plot-background,
+.admin-shell-root.admin-performance-mode.admin-dark .product-stats-chart .chart-plot-background,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-stats-chart .chart-plot-background,
+.admin-shell-root.admin-performance-mode.admin-dark .chart-legend {
+    -fx-background-color: rgba(36, 28, 82, 0.92);
+    -fx-background-radius: 16;
+    -fx-effect: none;
+}
+
+.admin-shell-root.admin-performance-mode.admin-dark .table-row-delete-icon-button,
+.admin-shell-root.admin-performance-mode.admin-dark .table-row-action-button,
+.admin-shell-root.admin-performance-mode.admin-dark .table-row-danger-button {
+    -fx-effect: none;
+}

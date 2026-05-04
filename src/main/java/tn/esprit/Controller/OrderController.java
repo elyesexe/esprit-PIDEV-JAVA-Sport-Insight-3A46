@@ -382,7 +382,7 @@ public class OrderController {
         statusComboBox.setItems(FXCollections.observableArrayList(OrderService.allowedOrderStatuses()));
         paymentMethodComboBox.setItems(FXCollections.observableArrayList(OrderService.allowedPaymentMethods()));
         paymentStatusComboBox.setItems(FXCollections.observableArrayList(OrderService.allowedPaymentStatuses()));
-        statusComboBox.setValue("PENDING");
+        statusComboBox.setValue("pending");
         String defaultPaymentMethod = defaultPaymentMethod();
         paymentMethodComboBox.setValue(defaultPaymentMethod);
         paymentStatusComboBox.setValue(defaultPaymentStatus(defaultPaymentMethod));
@@ -633,7 +633,7 @@ public class OrderController {
         selectChoice(productComboBox, productChoices, order.getProductId());
         clientNameField.setText(emptyIfNull(order.getClientName(), ""));
         orderDatePicker.setValue(order.getOrderDate());
-        statusComboBox.setValue(emptyIfNull(order.getStatus(), "PENDING"));
+        statusComboBox.setValue(emptyIfNull(order.getStatus(), "pending"));
         String paymentMethod = resolveEditablePaymentMethod(order.getPaymentMethod());
         paymentMethodComboBox.setValue(paymentMethod);
         paymentStatusComboBox.setValue(emptyIfNull(order.getPaymentStatus(), defaultPaymentStatus(paymentMethod)));
@@ -744,7 +744,7 @@ public class OrderController {
                 ));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        for (String status : List.of("PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED")) {
+        for (String status : OrderService.allowedOrderStatuses()) {
             XYChart.Data<String, Number> data = new XYChart.Data<>(status, statusCounts.getOrDefault(status, 0L));
             series.getData().add(data);
             applyBarColor(data, colorForStatus(status));
@@ -766,18 +766,21 @@ public class OrderController {
     private String normalizeChartStatus(String value, boolean paymentMode) {
         String normalized = emptyIfNull(value, paymentMode ? "UNKNOWN" : "PENDING")
                 .trim()
-                .toUpperCase(Locale.ROOT)
+                .toLowerCase(Locale.ROOT)
                 .replace(' ', '_')
                 .replace('-', '_');
         if (paymentMode) {
             return switch (normalized) {
-                case "PAID", "PENDING", "UNPAID", "FAILED", "REFUNDED" -> normalized;
-                default -> "UNKNOWN";
+                case "paid", "pending", "failed" -> normalized;
+                case "unpaid" -> "pending";
+                case "refunded" -> "failed";
+                default -> "unknown";
             };
         }
         return switch (normalized) {
-            case "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED" -> normalized;
-            default -> "PENDING";
+            case "pending", "confirmed", "shipped", "delivered", "rejected" -> normalized;
+            case "cancelled", "canceled" -> "rejected";
+            default -> "pending";
         };
     }
 
@@ -928,7 +931,7 @@ public class OrderController {
         }
         if ("DELIVERED".equals(normalized) || "CONFIRMED".equals(normalized)) {
             control.getStyleClass().add("product-stock-good");
-        } else if ("CANCELLED".equals(normalized)) {
+        } else if ("CANCELLED".equals(normalized) || "REJECTED".equals(normalized)) {
             control.getStyleClass().add("product-stock-out");
         } else {
             control.getStyleClass().add("product-stock-low");
@@ -1006,20 +1009,21 @@ public class OrderController {
     }
 
     private String colorForStatus(String status) {
+        String normalized = emptyIfNull(status, "").toUpperCase(Locale.ROOT);
         if (darkMode) {
-            return switch (status) {
+            return switch (normalized) {
                 case "CONFIRMED" -> "#9d71ff";
                 case "SHIPPED" -> "#7c84ff";
                 case "DELIVERED" -> "#57d5ff";
-                case "CANCELLED" -> "#ff63d0";
+                case "CANCELLED", "REJECTED" -> "#ff63d0";
                 default -> "#c084fc";
             };
         }
-        return switch (status) {
+        return switch (normalized) {
             case "CONFIRMED" -> "#0ea5e9";
             case "SHIPPED" -> "#6366f1";
             case "DELIVERED" -> "#22c55e";
-            case "CANCELLED" -> "#ef4444";
+            case "CANCELLED", "REJECTED" -> "#ef4444";
             default -> "#f59e0b";
         };
     }
@@ -1028,7 +1032,7 @@ public class OrderController {
         productComboBox.getSelectionModel().clearSelection();
         clientNameField.clear();
         orderDatePicker.setValue(LocalDate.now());
-        statusComboBox.setValue("PENDING");
+        statusComboBox.setValue("pending");
         String defaultPaymentMethod = defaultPaymentMethod();
         paymentMethodComboBox.setValue(defaultPaymentMethod);
         paymentStatusComboBox.setValue(defaultPaymentStatus(defaultPaymentMethod));
@@ -1065,8 +1069,8 @@ public class OrderController {
     }
 
     private String defaultPaymentMethod() {
-        if (OrderService.allowedPaymentMethods().contains("CASH_ON_DELIVERY")) {
-            return "CASH_ON_DELIVERY";
+        if (OrderService.allowedPaymentMethods().contains("cod")) {
+            return "cod";
         }
         return OrderService.allowedPaymentMethods().isEmpty() ? null : OrderService.allowedPaymentMethods().get(0);
     }
@@ -1077,7 +1081,7 @@ public class OrderController {
     }
 
     private String defaultPaymentStatus(String paymentMethod) {
-        return "CASH_ON_DELIVERY".equalsIgnoreCase(paymentMethod) ? "PENDING" : "UNPAID";
+        return "cod".equalsIgnoreCase(paymentMethod) ? "pending" : "paid";
     }
 
     private void showValidation(String message) {

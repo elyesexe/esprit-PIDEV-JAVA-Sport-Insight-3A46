@@ -1,11 +1,8 @@
 package tn.esprit.Controller;
 
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javafx.util.Duration;
 /**
  * Admin layout: left sidebar (dashboard + CRUD + return to user UI), center hosts panels.
  * CRUD panels reuse existing FXML; the user navbar strip is removed so only the workspace shows.
@@ -39,12 +35,9 @@ import javafx.util.Duration;
 public class AdminShellController {
     private static final String ADMIN_LIGHT_CLASS = "admin-light";
     private static final String ADMIN_DARK_CLASS = "admin-dark";
-    private static final String ADMIN_WORKSPACE_STYLESHEET = "/tn/esprit/styles/admin-theme-fixed.css";
+    private static final String ADMIN_PERFORMANCE_CLASS = "admin-performance-mode";
     private static final String ADMIN_DARK_BACKGROUND_STYLE =
-            "-fx-background-color: " +
-                    "radial-gradient(center 14% 10%, radius 46%, rgba(221, 110, 255, 0.30) 0%, rgba(221, 110, 255, 0.10) 48%, transparent 49%), " +
-                    "radial-gradient(center 88% 14%, radius 34%, rgba(87, 213, 255, 0.18) 0%, rgba(87, 213, 255, 0.05) 46%, transparent 47%), " +
-                    "linear-gradient(from 0% 0% to 100% 100%, #1a1246 0%, #24175b 48%, #2c1d70 100%); " +
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #161238 0%, #1b1742 100%); " +
                     "-fx-background-insets: 0; " +
                     "-fx-background-radius: 0; " +
                     "-fx-border-color: transparent;";
@@ -61,7 +54,6 @@ public class AdminShellController {
     private static final String USER_MODERATION = "/tn/esprit/views/admin-users-view.fxml";
     private static final double SIDEBAR_EXPANDED_WIDTH = 286;
     private static final double SIDEBAR_COLLAPSED_WIDTH = 104;
-    private static final Duration SIDEBAR_ANIMATION_DURATION = Duration.millis(220);
 
     @FXML
     private BorderPane adminRoot;
@@ -103,7 +95,6 @@ public class AdminShellController {
     private Button usersNavButton;
 
     private Object activeContentController;
-    private Timeline sidebarTimeline;
     private boolean sidebarCollapsed;
     private final Map<String, LoadedWorkspace> workspaceCache = new HashMap<>();
 
@@ -111,6 +102,7 @@ public class AdminShellController {
     public void initialize() {
         ThemeManager.bindToggle(themeToggleButton);
         themeToggleButton.selectedProperty().addListener((observable, oldValue, selected) -> applyAdminModeStyles(selected));
+        enableAdminPerformanceMode();
         configureSidebarCollapse();
         applyAdminModeStyles(themeToggleButton.isSelected());
         showDashboard();
@@ -223,10 +215,10 @@ public class AdminShellController {
                 borderPane.setTop(null);
             }
             Object controller = loader.getController();
-            attachWorkspaceStylesheet(root);
             if (!root.getStyleClass().contains("admin-workspace-root")) {
                 root.getStyleClass().add("admin-workspace-root");
             }
+            addStyleClass(root, ADMIN_PERFORMANCE_CLASS);
             if (stripCrudChrome) {
                 stripNodesByStyleClass(root, "hero-shell");
                 stripNodesByStyleClass(root, "home-hero-shell");
@@ -258,15 +250,14 @@ public class AdminShellController {
         adminRoot.getStyleClass().add(darkMode ? "theme-dark" : "theme-light");
         adminRoot.getStyleClass().removeAll(ADMIN_LIGHT_CLASS, ADMIN_DARK_CLASS);
         adminRoot.getStyleClass().add(darkMode ? ADMIN_DARK_CLASS : ADMIN_LIGHT_CLASS);
+        addStyleClass(adminRoot, ADMIN_PERFORMANCE_CLASS);
         adminRoot.setStyle(darkMode ? ADMIN_DARK_BACKGROUND_STYLE : "");
         if (contentStack != null) {
+            addStyleClass(contentStack, ADMIN_PERFORMANCE_CLASS);
             contentStack.setStyle(darkMode ? ADMIN_DARK_BACKGROUND_STYLE : "");
-        }
-        for (Node child : contentStack.getChildren()) {
-            applyWorkspaceModeStyles(child, darkMode);
-        }
-        for (LoadedWorkspace workspace : workspaceCache.values()) {
-            applyWorkspaceModeStyles(workspace.root(), darkMode);
+            for (Node child : contentStack.getChildren()) {
+                applyWorkspaceModeStyles(child, darkMode);
+            }
         }
         applyControllerModeStyles(activeContentController, darkMode);
     }
@@ -283,20 +274,8 @@ public class AdminShellController {
         node.getStyleClass().add(darkMode ? "theme-dark" : "theme-light");
         node.getStyleClass().removeAll(ADMIN_LIGHT_CLASS, ADMIN_DARK_CLASS);
         node.getStyleClass().add(darkMode ? ADMIN_DARK_CLASS : ADMIN_LIGHT_CLASS);
+        addStyleClass(node, ADMIN_PERFORMANCE_CLASS);
         node.setStyle(darkMode ? ADMIN_DARK_BACKGROUND_STYLE : "");
-    }
-
-    private void attachWorkspaceStylesheet(Parent root) {
-        if (root == null) {
-            return;
-        }
-        URL stylesheet = AdminShellController.class.getResource(ADMIN_WORKSPACE_STYLESHEET);
-        if (stylesheet == null) {
-            return;
-        }
-        String stylesheetUrl = stylesheet.toExternalForm();
-        root.getStylesheets().remove(stylesheetUrl);
-        root.getStylesheets().add(stylesheetUrl);
     }
 
     private void stripNodesByStyleClass(Parent root, String styleClass) {
@@ -375,48 +354,31 @@ public class AdminShellController {
             return;
         }
 
-        if (sidebarTimeline != null) {
-            sidebarTimeline.stop();
-        }
-
         sidebarCollapsed = collapsed;
         List<Node> textNodes = collectSidebarTextNodes();
 
         if (collapsed) {
-            sidebarTimeline = new Timeline(
-                    new KeyFrame(Duration.ZERO,
-                            new KeyValue(adminSidebarScroll.prefWidthProperty(), adminSidebarScroll.getWidth() > 0 ? adminSidebarScroll.getWidth() : SIDEBAR_EXPANDED_WIDTH, Interpolator.EASE_BOTH)
-                    ),
-                    new KeyFrame(SIDEBAR_ANIMATION_DURATION,
-                            new KeyValue(adminSidebarScroll.prefWidthProperty(), SIDEBAR_COLLAPSED_WIDTH, Interpolator.EASE_BOTH)
-                    )
-            );
-            textNodes.forEach(node -> node.setOpacity(1));
-            sidebarTimeline.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
-                double progress = Math.min(1.0, newValue.toMillis() / SIDEBAR_ANIMATION_DURATION.toMillis());
-                double opacity = 1.0 - progress;
-                textNodes.forEach(node -> node.setOpacity(opacity));
+            adminSidebarScroll.setMinWidth(SIDEBAR_COLLAPSED_WIDTH);
+            adminSidebarScroll.setMaxWidth(SIDEBAR_COLLAPSED_WIDTH);
+            adminSidebarScroll.setPrefWidth(SIDEBAR_COLLAPSED_WIDTH);
+            if (sidebarHeaderSpacer != null) {
+                sidebarHeaderSpacer.setManaged(false);
+                sidebarHeaderSpacer.setVisible(false);
+            }
+            textNodes.forEach(node -> {
+                node.setManaged(false);
+                node.setVisible(false);
+                node.setOpacity(0);
             });
-            sidebarTimeline.setOnFinished(event -> {
-                if (sidebarHeaderSpacer != null) {
-                    sidebarHeaderSpacer.setManaged(false);
-                    sidebarHeaderSpacer.setVisible(false);
-                }
-                textNodes.forEach(node -> {
-                    node.setManaged(false);
-                    node.setVisible(false);
-                    node.setOpacity(0);
-                });
-                if (!adminRoot.getStyleClass().contains("admin-shell-collapsed")) {
-                    adminRoot.getStyleClass().add("admin-shell-collapsed");
-                }
-                updateSidebarToggleGlyph();
-            });
-            sidebarTimeline.play();
+            addStyleClass(adminRoot, "admin-shell-collapsed");
+            updateSidebarToggleGlyph();
             return;
         }
 
         adminRoot.getStyleClass().remove("admin-shell-collapsed");
+        adminSidebarScroll.setMinWidth(SIDEBAR_COLLAPSED_WIDTH);
+        adminSidebarScroll.setMaxWidth(SIDEBAR_EXPANDED_WIDTH);
+        adminSidebarScroll.setPrefWidth(SIDEBAR_EXPANDED_WIDTH);
         if (sidebarHeaderSpacer != null) {
             sidebarHeaderSpacer.setManaged(true);
             sidebarHeaderSpacer.setVisible(true);
@@ -424,25 +386,9 @@ public class AdminShellController {
         textNodes.forEach(node -> {
             node.setManaged(true);
             node.setVisible(true);
-            node.setOpacity(0);
+            node.setOpacity(1);
         });
-        sidebarTimeline = new Timeline(
-                new KeyFrame(Duration.ZERO,
-                        new KeyValue(adminSidebarScroll.prefWidthProperty(), adminSidebarScroll.getWidth() > 0 ? adminSidebarScroll.getWidth() : SIDEBAR_COLLAPSED_WIDTH, Interpolator.EASE_BOTH)
-                ),
-                new KeyFrame(SIDEBAR_ANIMATION_DURATION,
-                        new KeyValue(adminSidebarScroll.prefWidthProperty(), SIDEBAR_EXPANDED_WIDTH, Interpolator.EASE_BOTH)
-                )
-        );
-        sidebarTimeline.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
-            double progress = Math.min(1.0, newValue.toMillis() / SIDEBAR_ANIMATION_DURATION.toMillis());
-            textNodes.forEach(node -> node.setOpacity(progress));
-        });
-        sidebarTimeline.setOnFinished(event -> {
-            textNodes.forEach(node -> node.setOpacity(1));
-            updateSidebarToggleGlyph();
-        });
-        sidebarTimeline.play();
+        updateSidebarToggleGlyph();
     }
 
     private List<Node> collectSidebarTextNodes() {
@@ -473,7 +419,23 @@ public class AdminShellController {
 
     private void updateSidebarToggleGlyph() {
         if (sidebarToggleButton != null) {
-            sidebarToggleButton.setText(sidebarCollapsed ? "›" : "‹");
+            sidebarToggleButton.setText(sidebarCollapsed ? ">" : "<");
+        }
+    }
+
+    private void enableAdminPerformanceMode() {
+        addStyleClass(adminRoot, ADMIN_PERFORMANCE_CLASS);
+        addStyleClass(contentStack, ADMIN_PERFORMANCE_CLASS);
+        addStyleClass(adminSidebarRoot, ADMIN_PERFORMANCE_CLASS);
+        if (adminSidebarRoot != null) {
+            adminSidebarRoot.setCache(true);
+            adminSidebarRoot.setCacheHint(CacheHint.SPEED);
+        }
+    }
+
+    private void addStyleClass(Node node, String styleClass) {
+        if (node != null && !node.getStyleClass().contains(styleClass)) {
+            node.getStyleClass().add(styleClass);
         }
     }
 

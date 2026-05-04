@@ -739,7 +739,7 @@ public class StoreController {
             return;
         }
         try {
-            finalizePaidCheckout(checkout, preparedCheckout, "STRIPE");
+            finalizePaidCheckout(checkout, preparedCheckout, "online");
         } catch (IllegalArgumentException | SQLException exception) {
             notifyPaymentFailed(preparedCheckout.total(), exception.getMessage());
             setStatus("Paiement impossible.", "status-error");
@@ -830,7 +830,10 @@ public class StoreController {
     }
 
     private boolean isStripePayment(String paymentMethod) {
-        return "STRIPE".equalsIgnoreCase(trimToNull(paymentMethod));
+        String normalized = trimToNull(paymentMethod);
+        return "online".equalsIgnoreCase(normalized)
+                || "STRIPE".equalsIgnoreCase(normalized)
+                || "stripe_checkout".equalsIgnoreCase(normalized);
     }
 
     public void openPaymentFromNotification() {
@@ -1604,7 +1607,7 @@ public class StoreController {
             billingAddressArea.setText(pendingCheckout.billingAddress());
         }
         if (paymentMethodComboBox != null) {
-            paymentMethodComboBox.setValue("STRIPE");
+            paymentMethodComboBox.setValue("online");
         }
     }
 

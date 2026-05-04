@@ -17,30 +17,54 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class OrderService implements IService<Order> {
     private static final List<String> ORDER_STATUSES = List.of(
-            "PENDING",
-            "CONFIRMED",
-            "SHIPPED",
-            "DELIVERED",
-            "CANCELLED"
+            "pending",
+            "confirmed",
+            "shipped",
+            "delivered",
+            "rejected"
     );
     private static final List<String> PAYMENT_METHODS = List.of(
-            "CASH_ON_DELIVERY",
-            "STRIPE"
+            "cod",
+            "online"
     );
     private static final List<String> PAYMENT_STATUSES = List.of(
-            "UNPAID",
-            "PENDING",
-            "PAID",
-            "FAILED",
-            "REFUNDED"
+            "pending",
+            "paid",
+            "failed"
     );
     private static final Set<String> ALLOWED_ORDER_STATUSES = Set.copyOf(ORDER_STATUSES);
     private static final Set<String> ALLOWED_PAYMENT_METHODS = Set.copyOf(PAYMENT_METHODS);
     private static final Set<String> ALLOWED_PAYMENT_STATUSES = Set.copyOf(PAYMENT_STATUSES);
+    private static final Map<String, String> ORDER_STATUS_ALIASES = Map.of(
+            "PENDING", "pending",
+            "CONFIRMED", "confirmed",
+            "SHIPPED", "shipped",
+            "DELIVERED", "delivered",
+            "CANCELLED", "rejected",
+            "CANCELED", "rejected",
+            "REJECTED", "rejected"
+    );
+    private static final Map<String, String> PAYMENT_METHOD_ALIASES = Map.of(
+            "COD", "cod",
+            "CASH", "cod",
+            "CASH_ON_DELIVERY", "cod",
+            "CARD", "online",
+            "ONLINE", "online",
+            "STRIPE", "online",
+            "STRIPE_CHECKOUT", "online"
+    );
+    private static final Map<String, String> PAYMENT_STATUS_ALIASES = Map.of(
+            "UNPAID", "pending",
+            "PENDING", "pending",
+            "PAID", "paid",
+            "FAILED", "failed",
+            "REFUNDED", "failed"
+    );
 
     private static final int MIN_ADDRESS_LENGTH = 8;
     private static final int MAX_ADDRESS_LENGTH = 300;
@@ -246,15 +270,15 @@ public class OrderService implements IService<Order> {
 
         LocalDate orderDate = order.getOrderDate() == null ? LocalDate.now() : order.getOrderDate();
 
-        String paymentMethod = normalizeEnum(order.getPaymentMethod(), ALLOWED_PAYMENT_METHODS, true, "Payment method is required.");
-        String paymentStatus = normalizeEnum(order.getPaymentStatus(), ALLOWED_PAYMENT_STATUSES, false, null);
+        String paymentMethod = normalizeEnum(order.getPaymentMethod(), ALLOWED_PAYMENT_METHODS, PAYMENT_METHOD_ALIASES, true, "Payment method is required.");
+        String paymentStatus = normalizeEnum(order.getPaymentStatus(), ALLOWED_PAYMENT_STATUSES, PAYMENT_STATUS_ALIASES, false, null);
         if (paymentStatus == null) {
-            paymentStatus = "CASH_ON_DELIVERY".equals(paymentMethod) ? "PENDING" : "PAID";
+            paymentStatus = "cod".equals(paymentMethod) ? "pending" : "paid";
         }
 
-        String status = normalizeEnum(order.getStatus(), ALLOWED_ORDER_STATUSES, false, null);
+        String status = normalizeEnum(order.getStatus(), ALLOWED_ORDER_STATUSES, ORDER_STATUS_ALIASES, false, null);
         if (status == null) {
-            status = ("PAID".equals(paymentStatus) || "CONFIRMED".equals(order.getStatus())) ? "CONFIRMED" : "PENDING";
+            status = "paid".equals(paymentStatus) ? "confirmed" : "pending";
         }
 
         String size = normalizeOptionalText(order.getSize(), MAX_SIZE_LENGTH, "Size is too long.");
@@ -460,7 +484,13 @@ public class OrderService implements IService<Order> {
         return price.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private static String normalizeEnum(String value, Set<String> allowedValues, boolean required, String requiredMessage) {
+    private static String normalizeEnum(
+            String value,
+            Set<String> allowedValues,
+            Map<String, String> aliases,
+            boolean required,
+            String requiredMessage
+    ) {
         String normalized = trimToNull(value);
         if (normalized == null) {
             if (required) {
@@ -469,7 +499,15 @@ public class OrderService implements IService<Order> {
             return null;
         }
 
-        String canonical = normalized.toUpperCase(Locale.ROOT)
+        String aliasKey = normalized.toUpperCase(Locale.ROOT)
+                .replace(' ', '_')
+                .replace('-', '_');
+        String aliased = aliases.get(aliasKey);
+        if (aliased != null) {
+            return aliased;
+        }
+
+        String canonical = normalized.toLowerCase(Locale.ROOT)
                 .replace(' ', '_')
                 .replace('-', '_');
         if (!allowedValues.contains(canonical)) {

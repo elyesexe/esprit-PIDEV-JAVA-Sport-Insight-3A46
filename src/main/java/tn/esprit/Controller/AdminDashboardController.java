@@ -47,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -57,10 +58,7 @@ public class AdminDashboardController {
     private static final String TRANSPARENT_SURFACE_STYLE =
             "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;";
     private static final String DARK_DASHBOARD_SURFACE_STYLE =
-            "-fx-background-color: "
-                    + "radial-gradient(center 14% 10%, radius 46%, rgba(221, 110, 255, 0.30) 0%, rgba(221, 110, 255, 0.10) 48%, transparent 49%), "
-                    + "radial-gradient(center 88% 14%, radius 34%, rgba(87, 213, 255, 0.18) 0%, rgba(87, 213, 255, 0.05) 46%, transparent 47%), "
-                    + "linear-gradient(from 0% 0% to 100% 100%, #1a1246 0%, #24175b 48%, #2c1d70 100%); "
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #161238 0%, #1b1742 100%); "
                     + "-fx-background-insets: 0; "
                     + "-fx-background-radius: 0; "
                     + "-fx-border-color: transparent; "
@@ -70,17 +68,14 @@ public class AdminDashboardController {
                     + " linear-gradient(from 0% 0% to 100% 100%, #f8fbff 0%, #eef2ff 52%, #f6f8ff 100%);"
                     + " -fx-padding: 0;";
     private static final String DARK_KPI_CARD_STYLE =
-            "-fx-background-color: "
-                    + "radial-gradient(center 100% 0%, radius 34%, rgba(100, 219, 255, 0.18) 0%, transparent 52%), "
-                    + "radial-gradient(center 0% 100%, radius 40%, rgba(224, 128, 255, 0.22) 0%, transparent 56%), "
-                    + "linear-gradient(from 0% 0% to 100% 100%, rgba(67, 47, 154, 0.98) 0%, rgba(44, 31, 114, 0.99) 100%); "
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(49, 38, 111, 0.98) 0%, rgba(36, 28, 88, 0.99) 100%); "
                     + "-fx-background-insets: 0; "
-                    + "-fx-background-radius: 30; "
-                    + "-fx-border-color: rgba(214, 187, 255, 0.34); "
-                    + "-fx-border-width: 1.2; "
-                    + "-fx-border-radius: 30; "
-                    + "-fx-padding: 22 24 22 24; "
-                    + "-fx-effect: dropshadow(gaussian, rgba(11, 7, 32, 0.36), 36, 0.20, 0, 14);";
+                    + "-fx-background-radius: 22; "
+                    + "-fx-border-color: rgba(214, 187, 255, 0.24); "
+                    + "-fx-border-width: 1; "
+                    + "-fx-border-radius: 22; "
+                    + "-fx-padding: 20 22 20 22; "
+                    + "-fx-effect: none;";
     private static final String LIGHT_KPI_CARD_STYLE =
             "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 255, 0.98) 100%); "
                     + "-fx-background-insets: 0; "
@@ -193,29 +188,41 @@ public class AdminDashboardController {
     private List<Joueur> dashboardJoueurs = List.of();
     private List<Matchs> dashboardMatchs = List.of();
     private boolean darkMode = ThemeManager.isDarkMode();
+    private Boolean appliedDarkMode;
+    private Node dashboardViewport;
+    private Node dashboardContentNode;
+    private boolean surfaceRefreshQueued;
 
     @FXML
     public void initialize() {
         configureTables();
         configureCharts();
-        applyWorkspaceSurface();
         if (dashboardScroll != null) {
-            dashboardScroll.skinProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(this::applyWorkspaceSurface));
-            dashboardScroll.sceneProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(this::applyWorkspaceSurface));
+            dashboardScroll.skinProperty().addListener((observable, oldValue, newValue) -> {
+                clearCachedScrollNodes();
+                scheduleWorkspaceSurface();
+            });
+            dashboardScroll.sceneProperty().addListener((observable, oldValue, newValue) -> {
+                clearCachedScrollNodes();
+                scheduleWorkspaceSurface();
+            });
         }
-        Platform.runLater(this::applyWorkspaceSurface);
+        scheduleWorkspaceSurface();
         setLoadingState();
         loadDashboardAsync();
     }
 
     public void setDarkMode(boolean darkMode) {
+        if (Objects.equals(appliedDarkMode, darkMode)) {
+            return;
+        }
         this.darkMode = darkMode;
+        appliedDarkMode = darkMode;
         toggleDarkClass(usersTableView, darkMode);
         toggleDarkClass(annoncesTableView, darkMode);
         toggleDarkClass(entrainementsTableView, darkMode);
         toggleDarkClass(operationsTableView, darkMode);
         applyWorkspaceSurface();
-        Platform.runLater(this::applyWorkspaceSurface);
         refreshActiveChartColors();
     }
 
@@ -245,6 +252,18 @@ public class AdminDashboardController {
         annoncesTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         entrainementsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         operationsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        configureFastTable(usersTableView);
+        configureFastTable(annoncesTableView);
+        configureFastTable(entrainementsTableView);
+        configureFastTable(operationsTableView);
+    }
+
+    private void configureFastTable(TableView<?> tableView) {
+        if (tableView == null) {
+            return;
+        }
+        tableView.setFixedCellSize(40);
+        tableView.setCache(false);
     }
 
     private void configureCharts() {
@@ -259,6 +278,7 @@ public class AdminDashboardController {
         if (matchStatusChart != null) {
             matchStatusChart.setTitle("Repartition des statuts");
             matchStatusChart.setAnimated(false);
+            matchStatusChart.setLabelsVisible(false);
         }
         if (teamStatsComboBox != null) {
             teamStatsComboBox.valueProperty().addListener((observable, oldValue, newValue) -> updateTeamRateChart(newValue));
@@ -717,13 +737,43 @@ public class AdminDashboardController {
         if (dashboardScroll != null) {
             dashboardScroll.setStyle(TRANSPARENT_SURFACE_STYLE);
             forceTransparent(dashboardScroll);
-            forceTransparent(dashboardScroll.lookup(".viewport"));
-            forceTransparent(dashboardScroll.lookup(".content"));
+            forceTransparent(resolveDashboardViewport());
+            forceTransparent(resolveDashboardContentNode());
         }
         if (dashboardWrap != null) {
             dashboardWrap.setStyle(darkMode ? DARK_DASHBOARD_SURFACE_STYLE : LIGHT_DASHBOARD_SURFACE_STYLE);
         }
         applyMetricCardSurface();
+    }
+
+    private void scheduleWorkspaceSurface() {
+        if (surfaceRefreshQueued) {
+            return;
+        }
+        surfaceRefreshQueued = true;
+        Platform.runLater(() -> {
+            surfaceRefreshQueued = false;
+            applyWorkspaceSurface();
+        });
+    }
+
+    private void clearCachedScrollNodes() {
+        dashboardViewport = null;
+        dashboardContentNode = null;
+    }
+
+    private Node resolveDashboardViewport() {
+        if (dashboardViewport == null && dashboardScroll != null) {
+            dashboardViewport = dashboardScroll.lookup(".viewport");
+        }
+        return dashboardViewport;
+    }
+
+    private Node resolveDashboardContentNode() {
+        if (dashboardContentNode == null && dashboardScroll != null) {
+            dashboardContentNode = dashboardScroll.getContent();
+        }
+        return dashboardContentNode;
     }
 
     private void applyMetricCardSurface() {

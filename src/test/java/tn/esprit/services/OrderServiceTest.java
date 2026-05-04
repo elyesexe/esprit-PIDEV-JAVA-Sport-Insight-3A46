@@ -97,9 +97,9 @@ class OrderServiceTest extends AbstractServiceTestSupport {
         assertNotNull(orderAjoute);
         assertEquals(2, orderAjoute.getQuantity());
         assertEquals(java.time.LocalDate.of(2026, 8, 5), orderAjoute.getOrderDate());
-        assertEquals("PENDING", orderAjoute.getStatus());
-        assertEquals("CARD", orderAjoute.getPaymentMethod());
-        assertEquals("UNPAID", orderAjoute.getPaymentStatus());
+        assertEquals("pending", orderAjoute.getStatus());
+        assertEquals("online", orderAjoute.getPaymentMethod());
+        assertEquals("pending", orderAjoute.getPaymentStatus());
         assertEquals("L", orderAjoute.getSize());
         assertEquals("Shipping Ajout", orderAjoute.getShippingAddress());
         assertEquals("Billing Ajout", orderAjoute.getBillingAddress());
@@ -138,9 +138,9 @@ class OrderServiceTest extends AbstractServiceTestSupport {
         assertNotNull(orderModifie);
         assertEquals(5, orderModifie.getQuantity());
         assertEquals(java.time.LocalDate.of(2026, 8, 6), orderModifie.getOrderDate());
-        assertEquals("CONFIRMED", orderModifie.getStatus());
-        assertEquals("CASH", orderModifie.getPaymentMethod());
-        assertEquals("PAID", orderModifie.getPaymentStatus());
+        assertEquals("confirmed", orderModifie.getStatus());
+        assertEquals("cod", orderModifie.getPaymentMethod());
+        assertEquals("paid", orderModifie.getPaymentStatus());
         assertEquals("XL", orderModifie.getSize());
         assertEquals(emailFor(TEST_PREFIX, "MODIFIE"), orderModifie.getContactEmail());
         assertEquals(phoneFor(TEST_PREFIX + "MODIFIE", 42000000), orderModifie.getContactPhone());
