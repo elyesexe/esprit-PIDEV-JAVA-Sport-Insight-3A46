@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import tn.esprit.entities.Order;
 import tn.esprit.entities.Product;
+import tn.esprit.tools.BrevoConfig;
+import tn.esprit.tools.MailtrapConfig;
 import tn.esprit.tools.ResendConfig;
 
 import java.io.IOException;
@@ -34,7 +36,7 @@ public class OrderNotificationService {
     }
 
     public boolean isConfigured() {
-        return ResendConfig.isConfigured();
+        return MailtrapConfig.isConfigured() || BrevoConfig.isConfigured() || ResendConfig.isConfigured();
     }
 
     public DeliveryResult sendOrderNotification(Order order, Product product, String clientLabel, boolean updateMode) throws IOException, InterruptedException {
@@ -52,6 +54,115 @@ public class OrderNotificationService {
             throw new IOException("Order contact email is missing.");
         }
 
+        if (MailtrapConfig.isConfigured()) {
+            return sendWithMailtrap(order, clientLabel, recipient, content);
+        }
+        if (BrevoConfig.isConfigured()) {
+            return sendWithBrevo(order, clientLabel, recipient, content, updateMode);
+        }
+        if (ResendConfig.isConfigured()) {
+            return sendWithResend(order, recipient, content, updateMode);
+        }
+        return writePreview(order, content);
+    }
+
+    private DeliveryResult sendWithMailtrap(
+            Order order,
+            String clientLabel,
+            String recipient,
+            NotificationContent content
+    ) throws IOException, InterruptedException {
+        Integer inboxId = MailtrapConfig.resolveInboxId();
+        if (inboxId == null || inboxId <= 0) {
+            throw new IOException("Mailtrap inbox id is invalid.");
+        }
+
+        ObjectNode payload = objectMapper.createObjectNode();
+        ObjectNode from = payload.putObject("from");
+        from.put("email", MailtrapConfig.resolveFromAddress());
+        ArrayNode to = payload.putArray("to");
+        ObjectNode recipientNode = to.addObject();
+        recipientNode.put("email", recipient);
+        String recipientName = trimToNull(clientLabel);
+        if (recipientName != null) {
+            recipientNode.put("name", recipientName);
+        }
+        payload.put("subject", content.subject());
+        payload.put("text", content.text());
+        payload.put("html", content.html());
+
+        HttpRequest request = HttpRequest.newBuilder(URI.create(MailtrapConfig.SANDBOX_BASE_URL + inboxId))
+                .header("Authorization", "Bearer " + MailtrapConfig.resolveApiKey())
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            DeliveryResult fallback = writePreview(order, content);
+            return new DeliveryResult(false, fallback.message(), fallback.previewPath(), null, response.statusCode());
+        }
+
+        JsonNode root = objectMapper.readTree(response.body());
+        String messageId = null;
+        JsonNode messageIds = root.path("message_ids");
+        if (messageIds.isArray() && !messageIds.isEmpty()) {
+            messageId = trimToNull(messageIds.get(0).asText(null));
+        }
+        return new DeliveryResult(true, "Email captured in Mailtrap sandbox.", null, messageId, response.statusCode());
+    }
+
+    private DeliveryResult sendWithBrevo(
+            Order order,
+            String clientLabel,
+            String recipient,
+            NotificationContent content,
+            boolean updateMode
+    ) throws IOException, InterruptedException {
+        SenderIdentity senderIdentity = parseSenderIdentity(BrevoConfig.resolveFromAddress());
+        ObjectNode payload = objectMapper.createObjectNode();
+        ObjectNode sender = payload.putObject("sender");
+        sender.put("email", senderIdentity.email());
+        if (senderIdentity.name() != null) {
+            sender.put("name", senderIdentity.name());
+        }
+        ArrayNode to = payload.putArray("to");
+        ObjectNode recipientNode = to.addObject();
+        recipientNode.put("email", recipient);
+        String recipientName = trimToNull(clientLabel);
+        if (recipientName != null) {
+            recipientNode.put("name", recipientName);
+        }
+        payload.put("subject", content.subject());
+        payload.put("htmlContent", content.html());
+
+        HttpRequest request = HttpRequest.newBuilder(URI.create(BrevoConfig.BASE_URL))
+                .header("accept", "application/json")
+                .header("api-key", BrevoConfig.resolveApiKey())
+                .header("Content-Type", "application/json")
+                .header("Idempotency-Key", "order-" + fallback(order.getId(), 0) + "-" + (updateMode ? "update" : "create"))
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            DeliveryResult fallback = writePreview(order, content);
+            return new DeliveryResult(false, fallback.message(), fallback.previewPath(), null, response.statusCode());
+        }
+
+        JsonNode root = objectMapper.readTree(response.body());
+        String messageId = trimToNull(root.path("messageId").asText(null));
+        return new DeliveryResult(true, "Email sent with Brevo.", null, messageId, response.statusCode());
+    }
+
+    private DeliveryResult sendWithResend(
+            Order order,
+            String recipient,
+            NotificationContent content,
+            boolean updateMode
+    ) throws IOException, InterruptedException {
         ObjectNode payload = objectMapper.createObjectNode();
         payload.put("from", ResendConfig.resolveFromAddress());
         ArrayNode to = payload.putArray("to");
@@ -191,6 +302,26 @@ public class OrderNotificationService {
         return value == null ? fallback : value;
     }
 
+    private SenderIdentity parseSenderIdentity(String rawSender) throws IOException {
+        String normalized = trimToNull(rawSender);
+        if (normalized == null) {
+            throw new IOException("Brevo sender address is missing.");
+        }
+
+        int ltIndex = normalized.lastIndexOf('<');
+        int gtIndex = normalized.lastIndexOf('>');
+        if (ltIndex >= 0 && gtIndex > ltIndex) {
+            String name = trimToNull(normalized.substring(0, ltIndex));
+            String email = trimToNull(normalized.substring(ltIndex + 1, gtIndex));
+            if (email == null) {
+                throw new IOException("Brevo sender email is invalid.");
+            }
+            return new SenderIdentity(name, email);
+        }
+
+        return new SenderIdentity(null, normalized);
+    }
+
     public record DeliveryResult(
             boolean delivered,
             String message,
@@ -204,6 +335,12 @@ public class OrderNotificationService {
             String subject,
             String text,
             String html
+    ) {
+    }
+
+    private record SenderIdentity(
+            String name,
+            String email
     ) {
     }
 }
