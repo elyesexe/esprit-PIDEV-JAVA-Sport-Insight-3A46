@@ -55,6 +55,7 @@ public class ProductMain {
         System.out.println("4. Delete product");
         System.out.println("5. Search product");
         System.out.println("6. Sort products");
+        System.out.println("7. Advanced search");
         System.out.print("Choice: ");
         int choice = Integer.parseInt(SCANNER.nextLine());
 
@@ -112,26 +113,8 @@ public class ProductMain {
                 System.out.println("Product deleted successfully.");
             }
             case 5 -> {
-                System.out.print("Keyword (Enter to skip): ");
-                String keyword = emptyToNull(SCANNER.nextLine());
-                System.out.print("Category (Enter to skip): ");
-                String category = emptyToNull(SCANNER.nextLine());
-                System.out.print("Brand (Enter to skip): ");
-                String brand = emptyToNull(SCANNER.nextLine());
-                System.out.print("Min price (Enter to skip): ");
-                BigDecimal minPrice = parseBigDecimalOrNull(SCANNER.nextLine());
-                System.out.print("Max price (Enter to skip): ");
-                BigDecimal maxPrice = parseBigDecimalOrNull(SCANNER.nextLine());
-                System.out.print("Min stock (Enter to skip): ");
-                Integer minStock = parseIntegerOrNull(SCANNER.nextLine());
-                System.out.print("Size (Enter to skip): ");
-                String size = emptyToNull(SCANNER.nextLine());
-                System.out.print("In-stock only? (y/n): ");
-                boolean inStockOnly = SCANNER.nextLine().trim().equalsIgnoreCase("y");
-
-                List<Product> products = productService.advancedSearch(
-                        keyword, category, brand, minPrice, maxPrice, minStock, size, inStockOnly
-                );
+                System.out.print("Keyword: ");
+                List<Product> products = productService.search(SCANNER.nextLine());
                 if (products.isEmpty()) {
                     System.out.println("No products found.");
                 } else {
@@ -153,6 +136,34 @@ public class ProductMain {
                     }
                 }
                 products.forEach(System.out::println);
+            }
+            case 7 -> {
+                System.out.print("Keyword (Enter to skip): ");
+                String keyword = emptyToNull(SCANNER.nextLine());
+                System.out.print("Category (Enter to skip): ");
+                String category = emptyToNull(SCANNER.nextLine());
+                System.out.print("Brand (Enter to skip): ");
+                String brand = emptyToNull(SCANNER.nextLine());
+                System.out.print("Min price (Enter to skip): ");
+                BigDecimal minPrice = parseBigDecimalOrNull(SCANNER.nextLine());
+                System.out.print("Max price (Enter to skip): ");
+                BigDecimal maxPrice = parseBigDecimalOrNull(SCANNER.nextLine());
+                System.out.print("Min stock (Enter to skip): ");
+                Integer minStock = parseIntegerOrNull(SCANNER.nextLine());
+                System.out.print("Size (Enter to skip): ");
+                String size = emptyToNull(SCANNER.nextLine());
+                System.out.print("In-stock only? (y/n): ");
+                boolean inStockOnly = SCANNER.nextLine().trim().equalsIgnoreCase("y");
+
+                List<Product> products = productService.advancedSearch(
+                        keyword, category, brand, minPrice, maxPrice, minStock, size, inStockOnly
+                );
+
+                if (products.isEmpty()) {
+                    System.out.println("No products found.");
+                } else {
+                    products.forEach(System.out::println);
+                }
             }
             default -> System.out.println("Invalid choice.");
         }
