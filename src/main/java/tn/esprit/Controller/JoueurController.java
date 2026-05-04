@@ -1139,7 +1139,7 @@ public class JoueurController implements AssistantContextProvider {
                 .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
         playerDistributionChart.getData().add(series);
         applyBarColors(series, darkMode
-                ? List.of("#8b5cf6", "#a855f7", "#c084fc", "#60a5fa", "#38bdf8", "#f472b6")
+                ? List.of("#10b981", "#0ea5e9", "#34d399", "#f59e0b", "#ef4444", "#14b8a6")
                 : List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
 
         long withoutTeam = filteredJoueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count();

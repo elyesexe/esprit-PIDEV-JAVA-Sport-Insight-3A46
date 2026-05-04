@@ -945,7 +945,7 @@ public class EquipeController implements AssistantContextProvider {
         }
         teamRateChart.getData().add(series);
         applyBarColors(series, darkMode
-                ? List.of("#9d71ff", "#57d5ff", "#ff63d0")
+                ? List.of("#22c55e", "#f59e0b", "#ef4444")
                 : List.of("#16a34a", "#f59e0b", "#dc2626"));
 
         if (teamStatsSummaryLabel != null) {

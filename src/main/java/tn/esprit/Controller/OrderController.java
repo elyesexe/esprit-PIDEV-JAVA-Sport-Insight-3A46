@@ -1012,11 +1012,11 @@ public class OrderController {
         String normalized = emptyIfNull(status, "").toUpperCase(Locale.ROOT);
         if (darkMode) {
             return switch (normalized) {
-                case "CONFIRMED" -> "#9d71ff";
-                case "SHIPPED" -> "#7c84ff";
-                case "DELIVERED" -> "#57d5ff";
-                case "CANCELLED", "REJECTED" -> "#ff63d0";
-                default -> "#c084fc";
+                case "CONFIRMED" -> "#0ea5e9";
+                case "SHIPPED" -> "#14b8a6";
+                case "DELIVERED" -> "#22c55e";
+                case "CANCELLED", "REJECTED" -> "#ef4444";
+                default -> "#f59e0b";
             };
         }
         return switch (normalized) {

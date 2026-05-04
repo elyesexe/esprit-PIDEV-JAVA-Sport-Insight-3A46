@@ -36,11 +36,89 @@ public class AdminShellController {
     private static final String ADMIN_LIGHT_CLASS = "admin-light";
     private static final String ADMIN_DARK_CLASS = "admin-dark";
     private static final String ADMIN_PERFORMANCE_CLASS = "admin-performance-mode";
+    private static final String ADMIN_EMBEDDED_PAGE_CLASS = "admin-embedded-page";
     private static final String ADMIN_DARK_BACKGROUND_STYLE =
-            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #161238 0%, #1b1742 100%); " +
+            "-fx-background-color: radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%), " +
+                    "radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%), " +
+                    "linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%); " +
                     "-fx-background-insets: 0; " +
                     "-fx-background-radius: 0; " +
                     "-fx-border-color: transparent;";
+    private static final String ADMIN_DARK_TRANSPARENT_STYLE =
+            "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;";
+    private static final String ADMIN_DARK_CARD_STYLE =
+            "-fx-background-color: rgba(15, 23, 42, 0.92); "
+                    + "-fx-border-color: rgba(71, 85, 105, 0.34); "
+                    + "-fx-effect: none;";
+    private static final String ADMIN_DARK_FIELD_STYLE =
+            "-fx-background-color: rgba(15, 23, 42, 0.96); "
+                    + "-fx-control-inner-background: rgba(15, 23, 42, 0.96); "
+                    + "-fx-border-color: rgba(71, 85, 105, 0.42); "
+                    + "-fx-text-fill: #e2e8f0; "
+                    + "-fx-prompt-text-fill: rgba(148, 163, 184, 0.82);";
+    private static final String ADMIN_DARK_SECONDARY_BUTTON_STYLE =
+            "-fx-background-color: rgba(15, 23, 42, 0.88); "
+                    + "-fx-border-color: rgba(71, 85, 105, 0.36); "
+                    + "-fx-text-fill: #e2e8f0; "
+                    + "-fx-effect: none;";
+    private static final String ADMIN_DARK_ACTIVE_BUTTON_STYLE =
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #064e3b 0%, #0f766e 100%); "
+                    + "-fx-border-color: rgba(52, 211, 153, 0.48); "
+                    + "-fx-text-fill: #ffffff; "
+                    + "-fx-effect: none;";
+    private static final String ADMIN_DARK_PRIMARY_BUTTON_STYLE =
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #34d399 100%); "
+                    + "-fx-border-color: rgba(16, 185, 129, 0.42); "
+                    + "-fx-text-fill: #ffffff; "
+                    + "-fx-effect: none;";
+    private static final String ADMIN_DARK_DANGER_BUTTON_STYLE =
+            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #991b1b 0%, #dc2626 100%); "
+                    + "-fx-border-color: rgba(248, 113, 113, 0.34); "
+                    + "-fx-text-fill: #fff7f7; "
+                    + "-fx-effect: none;";
+    private static final String ADMIN_DARK_CHIP_STYLE =
+            "-fx-background-color: rgba(6, 78, 59, 0.36); "
+                    + "-fx-border-color: rgba(16, 185, 129, 0.32); "
+                    + "-fx-text-fill: #a7f3d0; "
+                    + "-fx-effect: none;";
+    private static final String ADMIN_DARK_SIDEBAR_STYLE =
+            "-fx-background-color: rgba(15, 23, 42, 0.94); "
+                    + "-fx-border-color: rgba(71, 85, 105, 0.36); "
+                    + "-fx-effect: none;";
+    private static final Set<String> TRANSPARENT_DARK_SURFACE_CLASSES = Set.of(
+            "page-scroll", "page-shell-wrap", "page-shell", "content-shell", "side-column",
+            "product-content-shell", "sponsor-admin-shell", "admin-users-shell", "toolbar-row",
+            "competition-filter-bar", "sponsor-overview-grid", "product-chart-grid", "training-cards",
+            "annonce-feed", "annonce-comment-stack"
+    );
+    private static final Set<String> DARK_CARD_CLASSES = Set.of(
+            "panel-card", "toolbar-panel", "results-panel", "detail-card", "form-card", "match-toolbar",
+            "sync-toolbar-row", "toolbar-summary-card", "admin-kpi-card", "admin-hint-card", "admin-chart-card",
+            "training-card", "training-card-hero", "training-card-body", "note-card", "player-list-card",
+            "fixture-card", "fixture-team-logo-shell", "match-detail-logo-shell", "fixture-score-shell",
+            "match-detail-score-shell", "match-detail-board", "match-stat-row", "competition-card-button",
+            "competition-card-logo-shell", "annonce-post-card", "annonce-comment-card",
+            "annonce-user-description-box", "annonce-metric-card", "product-header-card",
+            "product-toolbar-panel", "product-detail-card", "product-form-card", "product-metric-card",
+            "product-chart-card", "product-thumbnail-shell", "product-detail-image-shell", "product-info-pill",
+            "sponsor-card", "sponsor-contract-card", "sponsor-empty-card", "sponsor-chart-card",
+            "sponsor-metric-card", "sponsor-admin-metric-card", "sponsor-logo-shell",
+            "sponsor-logo-preview-shell", "detail-info-card", "squad-card", "team-top-scorer-row",
+            "card-logo-shell", "detail-logo-shell", "stat-chip", "empty-state-box", "flashscore-score-card",
+            "flashscore-lineup-card", "flashscore-stats-card", "flashscore-scoreboard", "flashscore-fact-chip",
+            "flashscore-logo-shell", "bench-column", "flashscore-stat-card", "bench-player-chip",
+            "bench-placeholder-chip", "flashscore-summary-card", "timeline-event-box", "pitch-player-identity-pill"
+    );
+    private static final Set<String> DARK_FIELD_CLASSES = Set.of(
+            "form-text-field", "search-field", "form-field", "form-area", "annonce-text-area", "glass-combo",
+            "form-combo", "form-date-picker", "match-date-picker", "match-search-field"
+    );
+    private static final Set<String> DARK_CHIP_CLASSES = Set.of(
+            "toolbar-chip", "toolbar-chip-soft", "status-muted", "status-pill", "fixture-status",
+            "fixture-meta-chip", "fixture-link-chip", "player-card-meta-pill", "annonce-user-meta-chip",
+            "sponsor-meta-chip", "product-stock-chip", "team-card-competition-badge", "team-top-scorer-pill",
+            "flashscore-inline-badge", "timeline-minute-chip", "timeline-score-chip", "pitch-side-badge"
+    );
 
     private static final String DASHBOARD = "/tn/esprit/views/admin-dashboard.fxml";
     private static final String EQUIPE_CRUD = "/tn/esprit/views/equipe-crud-view.fxml";
@@ -218,12 +296,15 @@ public class AdminShellController {
             if (!root.getStyleClass().contains("admin-workspace-root")) {
                 root.getStyleClass().add("admin-workspace-root");
             }
+            if (stripCrudChrome) {
+                addStyleClass(root, ADMIN_EMBEDDED_PAGE_CLASS);
+            }
             addStyleClass(root, ADMIN_PERFORMANCE_CLASS);
             if (stripCrudChrome) {
                 stripNodesByStyleClass(root, "hero-shell");
                 stripNodesByStyleClass(root, "home-hero-shell");
             }
-            LoadedWorkspace workspace = new LoadedWorkspace(root, controller);
+            LoadedWorkspace workspace = new LoadedWorkspace(root, controller, stripCrudChrome);
             workspaceCache.put(resourcePath, workspace);
             return workspace;
         } catch (IOException e) {
@@ -237,7 +318,7 @@ public class AdminShellController {
             return;
         }
         activeContentController = workspace.controller();
-        applyWorkspaceModeStyles(workspace.root());
+        applyWorkspaceModeStyles(workspace.root(), themeToggleButton != null && themeToggleButton.isSelected(), workspace.embeddedPage());
         applyControllerModeStyles(activeContentController);
         contentStack.getChildren().setAll(Collections.singletonList(workspace.root()));
     }
@@ -252,6 +333,7 @@ public class AdminShellController {
         adminRoot.getStyleClass().add(darkMode ? ADMIN_DARK_CLASS : ADMIN_LIGHT_CLASS);
         addStyleClass(adminRoot, ADMIN_PERFORMANCE_CLASS);
         adminRoot.setStyle(darkMode ? ADMIN_DARK_BACKGROUND_STYLE : "");
+        applySidebarPalette(darkMode);
         if (contentStack != null) {
             addStyleClass(contentStack, ADMIN_PERFORMANCE_CLASS);
             contentStack.setStyle(darkMode ? ADMIN_DARK_BACKGROUND_STYLE : "");
@@ -267,6 +349,10 @@ public class AdminShellController {
     }
 
     private void applyWorkspaceModeStyles(Node node, boolean darkMode) {
+        applyWorkspaceModeStyles(node, darkMode, node != null && node.getStyleClass().contains(ADMIN_EMBEDDED_PAGE_CLASS));
+    }
+
+    private void applyWorkspaceModeStyles(Node node, boolean darkMode, boolean embeddedPage) {
         if (node == null) {
             return;
         }
@@ -276,6 +362,72 @@ public class AdminShellController {
         node.getStyleClass().add(darkMode ? ADMIN_DARK_CLASS : ADMIN_LIGHT_CLASS);
         addStyleClass(node, ADMIN_PERFORMANCE_CLASS);
         node.setStyle(darkMode ? ADMIN_DARK_BACKGROUND_STYLE : "");
+        if (embeddedPage) {
+            addStyleClass(node, ADMIN_EMBEDDED_PAGE_CLASS);
+            forceEmbeddedPagePalette(node, darkMode, true);
+        }
+    }
+
+    private void forceEmbeddedPagePalette(Node node, boolean darkMode, boolean rootNode) {
+        if (node == null) {
+            return;
+        }
+
+        if (!darkMode) {
+            if (rootNode
+                    || hasAnyStyleClass(node, TRANSPARENT_DARK_SURFACE_CLASSES)
+                    || hasAnyStyleClass(node, DARK_CARD_CLASSES)
+                    || hasAnyStyleClass(node, DARK_FIELD_CLASSES)
+                    || hasAnyStyleClass(node, DARK_CHIP_CLASSES)
+                    || node instanceof Button) {
+                node.setStyle("");
+            }
+        } else if (rootNode) {
+            node.setStyle(ADMIN_DARK_BACKGROUND_STYLE);
+        } else if (hasAnyStyleClass(node, TRANSPARENT_DARK_SURFACE_CLASSES)) {
+            node.setStyle(ADMIN_DARK_TRANSPARENT_STYLE);
+        } else if (hasAnyStyleClass(node, DARK_FIELD_CLASSES)) {
+            node.setStyle(ADMIN_DARK_FIELD_STYLE);
+        } else if (hasAnyStyleClass(node, DARK_CARD_CLASSES)) {
+            node.setStyle(ADMIN_DARK_CARD_STYLE);
+        } else if (hasAnyStyleClass(node, DARK_CHIP_CLASSES)) {
+            node.setStyle(ADMIN_DARK_CHIP_STYLE);
+        } else if (node instanceof Button) {
+            applyEmbeddedButtonPalette(node);
+        }
+
+        if (node instanceof ScrollPane scrollPane) {
+            forceEmbeddedPagePalette(scrollPane.getContent(), darkMode, false);
+        }
+        if (node instanceof Parent parent) {
+            for (Node child : parent.getChildrenUnmodifiable()) {
+                forceEmbeddedPagePalette(child, darkMode, false);
+            }
+        }
+    }
+
+    private void applyEmbeddedButtonPalette(Node node) {
+        if (hasAnyStyleClass(node, Set.of("danger-button", "table-row-danger-button"))) {
+            node.setStyle(ADMIN_DARK_DANGER_BUTTON_STYLE);
+        } else if (hasAnyStyleClass(node, Set.of("primary-button", "sidebar-open-button", "navbar-settings-button"))) {
+            node.setStyle(ADMIN_DARK_PRIMARY_BUTTON_STYLE);
+        } else if (hasAnyStyleClass(node, Set.of("competition-card-button-active", "detail-tab-button-active"))) {
+            node.setStyle(ADMIN_DARK_ACTIVE_BUTTON_STYLE);
+        } else {
+            node.setStyle(ADMIN_DARK_SECONDARY_BUTTON_STYLE);
+        }
+    }
+
+    private boolean hasAnyStyleClass(Node node, Set<String> styleClasses) {
+        if (node == null || styleClasses == null || styleClasses.isEmpty()) {
+            return false;
+        }
+        for (String styleClass : styleClasses) {
+            if (node.getStyleClass().contains(styleClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void stripNodesByStyleClass(Parent root, String styleClass) {
@@ -316,7 +468,47 @@ public class AdminShellController {
     }
 
     private void highlightNav(Button active) {
-        for (Button b : new Button[] {
+        for (Button b : getSidebarNavButtons()) {
+            if (b == null) {
+                continue;
+            }
+            b.getStyleClass().remove("admin-nav-button-active");
+        }
+        if (active != null && !active.getStyleClass().contains("admin-nav-button-active")) {
+            active.getStyleClass().add("admin-nav-button-active");
+        }
+        applySidebarPalette(themeToggleButton != null && themeToggleButton.isSelected());
+    }
+
+    private void applySidebarPalette(boolean darkMode) {
+        if (adminSidebarScroll != null) {
+            adminSidebarScroll.setStyle(darkMode ? ADMIN_DARK_SIDEBAR_STYLE : "");
+        }
+        if (adminSidebarRoot != null) {
+            adminSidebarRoot.setStyle(darkMode ? ADMIN_DARK_TRANSPARENT_STYLE : "");
+        }
+        if (sidebarToggleButton != null) {
+            sidebarToggleButton.setStyle(darkMode ? ADMIN_DARK_SECONDARY_BUTTON_STYLE : "");
+        }
+        for (Button button : getSidebarNavButtons()) {
+            if (button == null) {
+                continue;
+            }
+            if (!darkMode) {
+                button.setStyle("");
+            } else if (button.getStyleClass().contains("admin-nav-button-active")) {
+                button.setStyle(ADMIN_DARK_ACTIVE_BUTTON_STYLE);
+            } else {
+                button.setStyle(ADMIN_DARK_SECONDARY_BUTTON_STYLE);
+            }
+        }
+        if (userUiButton != null) {
+            userUiButton.setStyle(darkMode ? ADMIN_DARK_PRIMARY_BUTTON_STYLE : "");
+        }
+    }
+
+    private Button[] getSidebarNavButtons() {
+        return new Button[] {
                 dashboardNavButton,
                 equipesNavButton,
                 joueursNavButton,
@@ -327,15 +519,7 @@ public class AdminShellController {
                 entrainementsNavButton,
                 sponsorsNavButton,
                 usersNavButton
-        }) {
-            if (b == null) {
-                continue;
-            }
-            b.getStyleClass().remove("admin-nav-button-active");
-        }
-        if (active != null && !active.getStyleClass().contains("admin-nav-button-active")) {
-            active.getStyleClass().add("admin-nav-button-active");
-        }
+        };
     }
 
     private void configureSidebarCollapse() {
@@ -461,6 +645,6 @@ public class AdminShellController {
         }
     }
 
-    private record LoadedWorkspace(Parent root, Object controller) {
+    private record LoadedWorkspace(Parent root, Object controller, boolean embeddedPage) {
     }
 }

@@ -924,9 +924,9 @@ public class ProductController {
             series.getData().addAll(healthyData, lowData, outData);
             stockStatusChart.getData().setAll(series);
             if (isDarkModeEnabled()) {
-                applyBarColor(healthyData, "#9d71ff");
-                applyBarColor(lowData, "#57d5ff");
-                applyBarColor(outData, "#ff63d0");
+                applyBarColor(healthyData, "#22c55e");
+                applyBarColor(lowData, "#f59e0b");
+                applyBarColor(outData, "#ef4444");
             } else {
                 applyBarColor(healthyData, "#22c55e");
                 applyBarColor(lowData, "#f59e0b");

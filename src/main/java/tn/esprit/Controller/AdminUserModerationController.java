@@ -587,9 +587,9 @@ public class AdminUserModerationController {
             series.getData().add(new XYChart.Data<>("Other", otherCount));
             accountStatusBarChart.getData().setAll(series);
             if (darkMode) {
-                applyBarColor(series.getData().get(0), "#9d71ff");
-                applyBarColor(series.getData().get(1), "#ff63d0");
-                applyBarColor(series.getData().get(2), "#57d5ff");
+                applyBarColor(series.getData().get(0), "#22c55e");
+                applyBarColor(series.getData().get(1), "#ef4444");
+                applyBarColor(series.getData().get(2), "#0ea5e9");
             } else {
                 applyBarColor(series.getData().get(0), "#22c55e");
                 applyBarColor(series.getData().get(1), "#ef4444");

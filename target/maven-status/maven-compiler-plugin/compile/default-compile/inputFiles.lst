@@ -217,10 +217,12 @@ C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataApiClient.java
 C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataPlayerImageService.java
 C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataSparqlClient.java
 C:\PI Java\src\main\java\tn\esprit\tools\ApiFootballConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\BrevoConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\DatabaseBootstrap.java
 C:\PI Java\src\main\java\tn\esprit\tools\FaceIdConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\FootballDataConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\JoueurAvatarGenerator.java
+C:\PI Java\src\main\java\tn\esprit\tools\MailtrapConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\MyConnection.java
 C:\PI Java\src\main\java\tn\esprit\tools\OpenAiConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\ResendConfig.java

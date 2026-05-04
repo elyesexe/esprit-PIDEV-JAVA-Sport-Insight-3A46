@@ -58,7 +58,9 @@ public class AdminDashboardController {
     private static final String TRANSPARENT_SURFACE_STYLE =
             "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;";
     private static final String DARK_DASHBOARD_SURFACE_STYLE =
-            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #161238 0%, #1b1742 100%); "
+            "-fx-background-color: radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%), "
+                    + "radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%), "
+                    + "linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%); "
                     + "-fx-background-insets: 0; "
                     + "-fx-background-radius: 0; "
                     + "-fx-border-color: transparent; "
@@ -68,10 +70,10 @@ public class AdminDashboardController {
                     + " linear-gradient(from 0% 0% to 100% 100%, #f8fbff 0%, #eef2ff 52%, #f6f8ff 100%);"
                     + " -fx-padding: 0;";
     private static final String DARK_KPI_CARD_STYLE =
-            "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(49, 38, 111, 0.98) 0%, rgba(36, 28, 88, 0.99) 100%); "
+            "-fx-background-color: rgba(15, 23, 42, 0.88); "
                     + "-fx-background-insets: 0; "
                     + "-fx-background-radius: 22; "
-                    + "-fx-border-color: rgba(214, 187, 255, 0.24); "
+                    + "-fx-border-color: rgba(71, 85, 105, 0.34); "
                     + "-fx-border-width: 1; "
                     + "-fx-border-radius: 22; "
                     + "-fx-padding: 20 22 20 22; "
@@ -88,11 +90,11 @@ public class AdminDashboardController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final List<String> LIGHT_TEAM_RATE_COLORS = List.of("#16a34a", "#f59e0b", "#dc2626");
-    private static final List<String> DARK_TEAM_RATE_COLORS = List.of("#38d9ff", "#9d71ff", "#ff63d0");
+    private static final List<String> DARK_TEAM_RATE_COLORS = List.of("#22c55e", "#f59e0b", "#ef4444");
     private static final List<String> LIGHT_PLAYER_DISTRIBUTION_COLORS =
             List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e");
     private static final List<String> DARK_PLAYER_DISTRIBUTION_COLORS =
-            List.of("#36d7ff", "#5f8bff", "#b667ff", "#ff63d0", "#ffc14d", "#45e6c3");
+            List.of("#10b981", "#0ea5e9", "#34d399", "#f59e0b", "#ef4444", "#14b8a6");
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("admin-dashboard-db"));
 
