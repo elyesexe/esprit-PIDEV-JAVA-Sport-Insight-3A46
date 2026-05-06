@@ -1,9 +1,16 @@
 package tn.esprit.services.football;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import tn.esprit.entities.Matchs;
+import tn.esprit.tools.MyConnection;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -20,8 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ApiFootballOddsService {
-    private static final int MAX_MARKETS = 4;
-    private static final int MAX_BOOKMAKER_ROWS = 5;
+    private static final int MAX_MARKETS = 3;
+    private static final int MAX_BOOKMAKER_ROWS = 3;
     private static final String THE_ODDS_API_REGIONS = "eu";
     private static final String THE_ODDS_API_MARKETS = "h2h,spreads,totals";
     private static final Map<String, String> THE_ODDS_API_SPORT_KEYS = Map.of(
@@ -47,6 +54,7 @@ public class ApiFootballOddsService {
     private final String configurationError;
     private final TheOddsApiClient theOddsApiClient;
     private final String theOddsApiConfigurationError;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ApiFootballOddsService() {
         ApiFootballClient resolvedClient = null;
@@ -76,30 +84,164 @@ public class ApiFootballOddsService {
             return unavailable("Match indisponible.", "Odds", false, false);
         }
 
+        ApiFootballOddsSnapshot storedSnapshot = readStoredOddsSnapshot(match);
+        if (isFinished(match) && storedSnapshot != null && storedSnapshot.hasMarkets()) {
+            return storedOddsSnapshot(
+                    storedSnapshot,
+                    match,
+                    homeName,
+                    awayName,
+                    true,
+                    "Cotes conservees en base avant la fin du match. Les free APIs ne gardent pas toujours l'historique apres le coup de sifflet final."
+            );
+        }
+
         String primaryMessage = null;
-        IOException primaryError = null;
+        ApiFootballOddsSnapshot apiFootballSnapshot = null;
         if (apiClient == null) {
             primaryMessage = "API-Football non configure: " + compactConfigHint();
         } else if (match.getApiFootballId() == null) {
             primaryMessage = "Identifiant API-Football manquant; bascule vers The Odds API par equipes/date.";
         } else {
             try {
-                ApiFootballOddsSnapshot apiFootballSnapshot = loadApiFootballFixtureOdds(match, homeName, awayName);
+                apiFootballSnapshot = loadApiFootballFixtureOdds(match, homeName, awayName);
                 if (apiFootballSnapshot.hasMarkets()) {
+                    persistOddsSnapshot(match, apiFootballSnapshot);
                     return apiFootballSnapshot;
                 }
                 primaryMessage = apiFootballSnapshot.message();
             } catch (IOException exception) {
-                primaryError = exception;
                 primaryMessage = "API-Football indisponible: " + exception.getMessage();
             }
         }
 
         ApiFootballOddsSnapshot fallbackSnapshot = loadTheOddsApiFallback(match, homeName, awayName, primaryMessage);
-        if (fallbackSnapshot.hasMarkets() || primaryError == null) {
+        if (fallbackSnapshot.hasMarkets()) {
+            persistOddsSnapshot(match, fallbackSnapshot);
             return fallbackSnapshot;
         }
+
+        if (storedSnapshot != null && storedSnapshot.hasMarkets()) {
+            return storedOddsSnapshot(
+                    storedSnapshot,
+                    match,
+                    homeName,
+                    awayName,
+                    isFinished(match),
+                    emptyToString(fallbackSnapshot.message())
+            );
+        }
+
+        if (apiFootballSnapshot != null && apiFootballSnapshot.hasMarkets()) {
+            persistOddsSnapshot(match, apiFootballSnapshot);
+            return apiFootballSnapshot;
+        }
         return fallbackSnapshot;
+    }
+
+    private ApiFootballOddsSnapshot readStoredOddsSnapshot(Matchs match) {
+        if (match == null) {
+            return null;
+        }
+
+        String json = match.getOddsSnapshotJson();
+        if ((json == null || json.isBlank()) && match.getId() != null) {
+            try {
+                Connection connection = MyConnection.getInstance().getConnection();
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "SELECT odds_snapshot_json, odds_source, odds_synced_at FROM matchs WHERE id = ?"
+                )) {
+                    statement.setInt(1, match.getId());
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            json = resultSet.getString("odds_snapshot_json");
+                            match.setOddsSnapshotJson(json);
+                            match.setOddsSource(resultSet.getString("odds_source"));
+                            Timestamp syncedAt = resultSet.getTimestamp("odds_synced_at");
+                            match.setOddsSyncedAt(syncedAt == null ? null : syncedAt.toLocalDateTime());
+                        }
+                    }
+                }
+            } catch (SQLException ignored) {
+                return null;
+            }
+        }
+
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(json, ApiFootballOddsSnapshot.class);
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
+    private void persistOddsSnapshot(Matchs match, ApiFootballOddsSnapshot snapshot) {
+        if (match == null || match.getId() == null || snapshot == null || !snapshot.hasMarkets()) {
+            return;
+        }
+
+        try {
+            String json = objectMapper.writeValueAsString(snapshot);
+            LocalDateTime syncedAt = LocalDateTime.now();
+            Connection connection = MyConnection.getInstance().getConnection();
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE matchs SET odds_snapshot_json = ?, odds_source = ?, odds_synced_at = ? WHERE id = ?"
+            )) {
+                statement.setString(1, json);
+                statement.setString(2, firstNonBlank(snapshot.sourceLabel(), "Stored odds"));
+                statement.setTimestamp(3, Timestamp.valueOf(syncedAt));
+                statement.setInt(4, match.getId());
+                statement.executeUpdate();
+            }
+            match.setOddsSnapshotJson(json);
+            match.setOddsSource(firstNonBlank(snapshot.sourceLabel(), "Stored odds"));
+            match.setOddsSyncedAt(syncedAt);
+        } catch (IOException | SQLException exception) {
+            System.err.println("Odds cache skipped: " + exception.getMessage());
+        }
+    }
+
+    private ApiFootballOddsSnapshot storedOddsSnapshot(
+            ApiFootballOddsSnapshot storedSnapshot,
+            Matchs match,
+            String homeName,
+            String awayName,
+            boolean locked,
+            String detail
+    ) {
+        boolean live = isLive(match);
+        String source = firstNonBlank(match == null ? null : match.getOddsSource(), storedSnapshot.sourceLabel(), "Stored odds");
+        String update = firstNonBlank(
+                storedSnapshot.updatedAt(),
+                formatStoredTimestamp(match == null ? null : match.getOddsSyncedAt()),
+                "Derniere mise a jour inconnue"
+        );
+        String message = locked
+                ? "Cotes finales conservees en base locale."
+                : "Affichage des dernieres cotes conservees en base locale.";
+        if (detail != null && !detail.isBlank()) {
+            message = message + " " + detail.trim();
+        } else if (storedSnapshot.message() != null && !storedSnapshot.message().isBlank()) {
+            message = message + " " + storedSnapshot.message().trim();
+        }
+
+        return new ApiFootballOddsSnapshot(
+                "Base locale - " + source,
+                locked ? "CLOSED ODDS" : (live ? "LIVE ODDS" : "PRE-MATCH ODDS"),
+                locked ? "Finished" : (live ? "Stored live" : "Stored"),
+                update,
+                message,
+                storedSnapshot.apiBacked(),
+                locked || storedSnapshot.locked(),
+                storedSnapshot.markets(),
+                buildGestureInsight(match, homeName, awayName, live, locked || storedSnapshot.locked(), storedSnapshot.markets())
+        );
+    }
+
+    private String formatStoredTimestamp(LocalDateTime value) {
+        return value == null ? null : DISPLAY_TIME_FORMAT.format(value);
     }
 
     private ApiFootballOddsSnapshot loadApiFootballFixtureOdds(Matchs match, String homeName, String awayName)
@@ -391,7 +533,7 @@ public class ApiFootballOddsService {
             ));
         }
         return selections.stream()
-                .limit(6)
+                .limit(4)
                 .toList();
     }
 
@@ -741,7 +883,7 @@ public class ApiFootballOddsService {
         }
 
         return selections.stream()
-                .limit(6)
+                .limit(4)
                 .toList();
     }
 

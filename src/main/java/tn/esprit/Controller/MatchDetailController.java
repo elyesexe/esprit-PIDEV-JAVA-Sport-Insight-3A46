@@ -60,6 +60,7 @@ import tn.esprit.services.football.ApiFootballMatchIncident;
 import tn.esprit.services.football.ApiFootballMatchDetails;
 import tn.esprit.services.football.ApiFootballOddsService;
 import tn.esprit.services.football.ApiFootballOddsSnapshot;
+import tn.esprit.services.football.ApiFootballPlayerMatchStats;
 import tn.esprit.services.football.ApiFootballStatisticRow;
 import tn.esprit.services.football.FootballDataCompetitions;
 import tn.esprit.services.football.YouTubeService;
@@ -99,6 +100,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -195,9 +197,13 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Button summaryTabButton;
     @FXML
+    private Button liveCompanionTabButton;
+    @FXML
     private Button statsTabButton;
     @FXML
     private Button lineupTabButton;
+    @FXML
+    private Button playerStatsTabButton;
     @FXML
     private Button videosTabButton;
     @FXML
@@ -213,9 +219,13 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private VBox summarySection;
     @FXML
+    private VBox liveCompanionSection;
+    @FXML
     private VBox statsSection;
     @FXML
     private VBox lineupSection;
+    @FXML
+    private VBox playerStatsSection;
     @FXML
     private VBox videosSection;
     @FXML
@@ -268,6 +278,18 @@ public class MatchDetailController implements AssistantContextProvider {
     private VBox matchStatsContainer;
     @FXML
     private Label matchStatsEmptyLabel;
+    @FXML
+    private Label playerStatsMessageLabel;
+    @FXML
+    private Label playerStatsStateLabel;
+    @FXML
+    private Label playerStatsSourceLabel;
+    @FXML
+    private Label playerStatsUpdatedLabel;
+    @FXML
+    private Button refreshPlayerStatsButton;
+    @FXML
+    private VBox playerStatsCategoriesContainer;
     @FXML
     private Label matchVideoStatusLabel;
     @FXML
@@ -334,10 +356,12 @@ public class MatchDetailController implements AssistantContextProvider {
     private final AtomicLong apiRequestSequence = new AtomicLong();
     private final AtomicLong videoRequestSequence = new AtomicLong();
     private final AtomicLong oddsRequestSequence = new AtomicLong();
+    private final AtomicLong playerStatsRequestSequence = new AtomicLong();
     private List<ApiFootballMatchIncident> currentIncidents = List.of();
     private ApiFootballLineupSide currentHomeLineup;
     private ApiFootballLineupSide currentAwayLineup;
     private List<ApiFootballStatisticRow> currentStatistics = List.of();
+    private List<ApiFootballPlayerMatchStats> currentPlayerMatchStats = List.of();
     private Long currentMvpPlayerId;
     private String currentMvpPlayerNameKey;
     private String currentApiFootballStatus = "Detailed match data not loaded yet.";
@@ -356,6 +380,7 @@ public class MatchDetailController implements AssistantContextProvider {
     private boolean matchVideoLookupCompleted;
     private boolean matchVideoRefreshInProgress;
     private boolean oddsRefreshInProgress;
+    private boolean playerStatsRefreshInProgress;
 
     @FXML
     public void initialize() {
@@ -888,6 +913,11 @@ public class MatchDetailController implements AssistantContextProvider {
         applyActiveTab();
     }
 
+    public void openLiveCompanionTabFromAssistant() {
+        activeTab = MatchDetailTab.LIVE_COMPANION;
+        applyActiveTab();
+    }
+
     public void openStatsTabFromAssistant() {
         activeTab = MatchDetailTab.STATS;
         applyActiveTab();
@@ -896,6 +926,15 @@ public class MatchDetailController implements AssistantContextProvider {
     public void openLineupTabFromAssistant() {
         activeTab = MatchDetailTab.LINEUP;
         applyActiveTab();
+    }
+
+    public void openPlayerStatsTabFromAssistant() {
+        if (!isPlayerStatsEligible()) {
+            return;
+        }
+        activeTab = MatchDetailTab.PLAYER_STATS;
+        applyActiveTab();
+        refreshPlayerStatsAsync(false);
     }
 
     public void openOddsTabFromAssistant() {
@@ -997,6 +1036,12 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     @FXML
+    private void handleShowLiveCompanionTab() {
+        activeTab = MatchDetailTab.LIVE_COMPANION;
+        applyActiveTab();
+    }
+
+    @FXML
     private void handleShowStatsTab() {
         activeTab = MatchDetailTab.STATS;
         applyActiveTab();
@@ -1006,6 +1051,16 @@ public class MatchDetailController implements AssistantContextProvider {
     private void handleShowLineupTab() {
         activeTab = MatchDetailTab.LINEUP;
         applyActiveTab();
+    }
+
+    @FXML
+    private void handleShowPlayerStatsTab() {
+        if (!isPlayerStatsEligible()) {
+            return;
+        }
+        activeTab = MatchDetailTab.PLAYER_STATS;
+        applyActiveTab();
+        refreshPlayerStatsAsync(false);
     }
 
     @FXML
@@ -1025,6 +1080,11 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private void handleRefreshOdds() {
         refreshOddsAsync(true);
+    }
+
+    @FXML
+    private void handleRefreshPlayerStats() {
+        refreshPlayerStatsAsync(true);
     }
 
     @FXML
@@ -1125,6 +1185,7 @@ public class MatchDetailController implements AssistantContextProvider {
             currentMvpPlayerNameKey = null;
             resetMatchVideoUiForNewMatch();
             resetOddsUiForNewMatch();
+            resetPlayerStatsUiForNewMatch();
             renderSummary(List.of());
             renderStoredLineups();
             renderStatistics(List.of());
@@ -1135,6 +1196,7 @@ public class MatchDetailController implements AssistantContextProvider {
             renderCachedInsights();
             ensureFinishedMatchHighlightsLoaded(false);
             refreshOddsAsync(false);
+            refreshPlayerStatsAsync(false);
             refreshLiveMatchAsync(true);
             startLiveRefreshIfNeeded();
         } catch (SQLException e) {
@@ -1216,6 +1278,7 @@ public class MatchDetailController implements AssistantContextProvider {
 
             applyFixtureSnapshot(payload.snapshot());
             refreshOddsAsync(false);
+            refreshPlayerStatsAsync(false);
             if (payload.details() != null) {
                 renderApiFootballInsights(payload.details());
             }
@@ -1417,10 +1480,10 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     private VBox buildOddsMarketCard(ApiFootballOddsSnapshot.Market market, boolean locked) {
-        VBox card = new VBox(8);
-        card.getStyleClass().add("odds-market-card");
+        VBox card = new VBox(6);
+        card.getStyleClass().addAll("odds-market-card", oddsMarketToneClass(market == null ? null : market.name()));
 
-        HBox header = new HBox(10);
+        HBox header = new HBox(8);
         header.setAlignment(Pos.CENTER_LEFT);
         Label title = new Label(emptyToFallback(market == null ? null : market.name(), "Market"));
         title.getStyleClass().add("odds-market-title");
@@ -1445,16 +1508,16 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     private HBox buildOddsBookmakerRow(ApiFootballOddsSnapshot.BookmakerRow row, boolean locked) {
-        HBox container = new HBox(10);
+        HBox container = new HBox(8);
         container.setAlignment(Pos.CENTER_LEFT);
         container.getStyleClass().add("odds-bookmaker-row");
 
         Label bookmakerLabel = new Label(emptyToFallback(row == null ? null : row.bookmaker(), "Bookmaker"));
-        bookmakerLabel.setMinWidth(150);
-        bookmakerLabel.setPrefWidth(150);
+        bookmakerLabel.setMinWidth(124);
+        bookmakerLabel.setPrefWidth(124);
         bookmakerLabel.getStyleClass().add("odds-bookmaker-label");
 
-        HBox selectionsBox = new HBox(8);
+        HBox selectionsBox = new HBox(6);
         selectionsBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(selectionsBox, Priority.ALWAYS);
 
@@ -1471,8 +1534,8 @@ public class MatchDetailController implements AssistantContextProvider {
     private VBox buildOddsSelectionCell(ApiFootballOddsSnapshot.Selection selection, boolean locked) {
         VBox cell = new VBox(2);
         cell.setAlignment(Pos.CENTER);
-        cell.setMinWidth(92);
-        cell.setPrefWidth(108);
+        cell.setMinWidth(76);
+        cell.setPrefWidth(88);
         cell.getStyleClass().add("odds-selection-cell");
         if (locked || (selection != null && selection.suspended())) {
             cell.getStyleClass().add("odds-selection-locked");
@@ -1492,6 +1555,23 @@ public class MatchDetailController implements AssistantContextProvider {
 
         cell.getChildren().addAll(label, odd, signal);
         return cell;
+    }
+
+    private String oddsMarketToneClass(String marketName) {
+        String normalized = lowercase(marketName);
+        if (normalized == null) {
+            return "odds-market-neutral";
+        }
+        if (normalized.contains("winner") || normalized.contains("1x2")) {
+            return "odds-market-winner";
+        }
+        if (normalized.contains("goal") || normalized.contains("over")) {
+            return "odds-market-goals";
+        }
+        if (normalized.contains("handicap")) {
+            return "odds-market-handicap";
+        }
+        return "odds-market-neutral";
     }
 
     private String oddsTrendLabel(String trend, boolean locked) {
@@ -1551,6 +1631,582 @@ public class MatchDetailController implements AssistantContextProvider {
             styleClass = "odds-state-pending";
         }
         oddsStateLabel.getStyleClass().add(styleClass);
+    }
+
+    private void refreshPlayerStatsAsync(boolean force) {
+        if (!isPlayerStatsEligible()) {
+            resetPlayerStatsUiForNewMatch();
+            return;
+        }
+        if (match == null || apiFootballInsightsService == null) {
+            return;
+        }
+        if (playerStatsRefreshInProgress && !force) {
+            return;
+        }
+
+        long requestId = playerStatsRequestSequence.incrementAndGet();
+        Matchs requestedMatch = match;
+        Equipe requestedHomeTeam = homeTeam;
+        Equipe requestedAwayTeam = awayTeam;
+        playerStatsRefreshInProgress = true;
+        setPlayerStatsLoading(true);
+        updatePlayerStatsAvailability();
+        if (playerStatsCategoriesContainer != null && playerStatsCategoriesContainer.getChildren().isEmpty()) {
+            renderPlayerStatsPlaceholder("Loading live player performance...");
+        }
+        if (playerStatsMessageLabel != null) {
+            playerStatsMessageLabel.setText("Loading player stats for this fixture...");
+        }
+
+        Task<List<ApiFootballPlayerMatchStats>> task = new Task<>() {
+            @Override
+            protected List<ApiFootballPlayerMatchStats> call() throws Exception {
+                return apiFootballInsightsService.loadMatchPlayerStats(requestedMatch, requestedHomeTeam, requestedAwayTeam);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestId != playerStatsRequestSequence.get()) {
+                return;
+            }
+            playerStatsRefreshInProgress = false;
+            setPlayerStatsLoading(false);
+            renderPlayerStats(task.getValue());
+        });
+
+        task.setOnFailed(event -> {
+            if (requestId != playerStatsRequestSequence.get()) {
+                return;
+            }
+            playerStatsRefreshInProgress = false;
+            setPlayerStatsLoading(false);
+            renderPlayerStatsError(shortError(task.getException()));
+        });
+
+        task.setOnCancelled(event -> {
+            if (requestId == playerStatsRequestSequence.get()) {
+                playerStatsRefreshInProgress = false;
+                setPlayerStatsLoading(false);
+                renderPlayerStatsError("Loading player stats was cancelled.");
+            }
+        });
+
+        API_EXECUTOR.execute(task);
+    }
+
+    private void resetPlayerStatsUiForNewMatch() {
+        playerStatsRequestSequence.incrementAndGet();
+        currentPlayerMatchStats = List.of();
+        playerStatsRefreshInProgress = false;
+        setPlayerStatsLoading(false);
+        updatePlayerStatsAvailability();
+        if (playerStatsStateLabel != null) {
+            playerStatsStateLabel.setText("PLAYER STATS");
+            applyPlayerStatsStateStyle("pending");
+        }
+        if (playerStatsSourceLabel != null) {
+            playerStatsSourceLabel.setText("API-Football fixture players");
+        }
+        if (playerStatsUpdatedLabel != null) {
+            playerStatsUpdatedLabel.setText("Waiting for live or full-time data");
+        }
+        if (playerStatsMessageLabel != null) {
+            playerStatsMessageLabel.setText(isPlayerStatsEligible()
+                    ? "Player performance will load from the live fixture feed."
+                    : "Player stats unlock only when the match is live or finished.");
+        }
+        renderPlayerStatsPlaceholder(isPlayerStatsEligible()
+                ? "Player performance stats will appear here."
+                : "No player stats before kickoff.");
+    }
+
+    private void setPlayerStatsLoading(boolean loading) {
+        if (refreshPlayerStatsButton == null) {
+            return;
+        }
+        refreshPlayerStatsButton.setDisable(loading || !isPlayerStatsEligible());
+        refreshPlayerStatsButton.setText(loading ? "Loading..." : "Refresh stats");
+    }
+
+    private void renderPlayerStats(List<ApiFootballPlayerMatchStats> stats) {
+        currentPlayerMatchStats = stats == null ? List.of() : List.copyOf(stats);
+        updatePlayerStatsAvailability();
+        if (playerStatsStateLabel != null) {
+            playerStatsStateLabel.setText(isFinishedMatch(match) ? "FULL TIME" : "LIVE");
+            applyPlayerStatsStateStyle(isFinishedMatch(match) ? "closed" : "live");
+        }
+        if (playerStatsSourceLabel != null) {
+            playerStatsSourceLabel.setText(currentPlayerMatchStats.stream()
+                    .map(ApiFootballPlayerMatchStats::sourceLabel)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse("API-Football fixture players"));
+        }
+        if (playerStatsUpdatedLabel != null) {
+            playerStatsUpdatedLabel.setText("Updated " + formatTime(LocalTime.now()));
+        }
+        if (playerStatsMessageLabel != null) {
+            playerStatsMessageLabel.setText(buildPlayerStatsMessage(currentPlayerMatchStats));
+        }
+
+        List<PlayerStatCategory> categories = buildPlayerStatCategories(currentPlayerMatchStats);
+        if (playerStatsCategoriesContainer != null) {
+            playerStatsCategoriesContainer.getChildren().clear();
+            if (categories.isEmpty()) {
+                renderPlayerStatsPlaceholder("No player performance stats are published for this fixture yet.");
+            } else {
+                for (PlayerStatCategory category : categories) {
+                    playerStatsCategoriesContainer.getChildren().add(buildPlayerStatCategoryCard(category));
+                }
+            }
+        }
+    }
+
+    private void renderPlayerStatsError(String message) {
+        currentPlayerMatchStats = List.of();
+        if (playerStatsStateLabel != null) {
+            playerStatsStateLabel.setText("UNAVAILABLE");
+            applyPlayerStatsStateStyle("unavailable");
+        }
+        if (playerStatsMessageLabel != null) {
+            playerStatsMessageLabel.setText(emptyToFallback(message, "Player stats are unavailable for this fixture."));
+        }
+        if (playerStatsUpdatedLabel != null) {
+            playerStatsUpdatedLabel.setText("Last update failed");
+        }
+        renderPlayerStatsPlaceholder(emptyToFallback(message, "Player stats are unavailable for this fixture."));
+    }
+
+    private void renderPlayerStatsPlaceholder(String message) {
+        if (playerStatsCategoriesContainer == null) {
+            return;
+        }
+        playerStatsCategoriesContainer.getChildren().clear();
+        Label placeholder = new Label(emptyToFallback(message, "Player stats are unavailable for this fixture."));
+        placeholder.setWrapText(true);
+        placeholder.getStyleClass().add("player-stats-placeholder");
+        playerStatsCategoriesContainer.getChildren().add(placeholder);
+    }
+
+    private void updatePlayerStatsAvailability() {
+        boolean eligible = isPlayerStatsEligible();
+        if (playerStatsTabButton != null) {
+            playerStatsTabButton.setManaged(eligible);
+            playerStatsTabButton.setVisible(eligible);
+            playerStatsTabButton.setDisable(!eligible);
+        }
+        if (!eligible && activeTab == MatchDetailTab.PLAYER_STATS) {
+            activeTab = MatchDetailTab.SUMMARY;
+            applyActiveTab();
+        }
+        setPlayerStatsLoading(playerStatsRefreshInProgress);
+    }
+
+    private boolean isPlayerStatsEligible() {
+        if (match == null) {
+            return false;
+        }
+        return isFinishedMatch(match) || isLiveStatusText(normalize(match.getStatut()));
+    }
+
+    private String buildPlayerStatsMessage(List<ApiFootballPlayerMatchStats> stats) {
+        int playerCount = stats == null ? 0 : stats.size();
+        String status = isFinishedMatch(match) ? "post-match report" : "live match report";
+        if (playerCount <= 0) {
+            return "The " + status + " is waiting for the provider to publish player metrics.";
+        }
+        long homeCount = stats.stream().filter(ApiFootballPlayerMatchStats::homeSide).count();
+        long awayCount = stats.stream().filter(ApiFootballPlayerMatchStats::awaySide).count();
+        return playerCount + " player performance rows loaded"
+                + (homeCount > 0 || awayCount > 0 ? " | " + homeCount + " home, " + awayCount + " away" : "")
+                + ".";
+    }
+
+    private List<PlayerStatCategory> buildPlayerStatCategories(List<ApiFootballPlayerMatchStats> stats) {
+        if (stats == null || stats.isEmpty()) {
+            return List.of();
+        }
+
+        List<ApiFootballPlayerMatchStats> players = stats.stream()
+                .filter(Objects::nonNull)
+                .filter(ApiFootballPlayerMatchStats::hasMetricData)
+                .toList();
+        if (players.isEmpty()) {
+            return List.of();
+        }
+
+        List<PlayerStatCategory> categories = new ArrayList<>();
+        addCategory(categories, buildTopCategory(
+                "Impact index",
+                "Sport Insight Edge",
+                "player-stat-value-impact",
+                players,
+                this::playerImpactScore,
+                value -> formatWholeNumber(playerImpactScore(value))
+        ));
+        addCategory(categories, buildTopCategory(
+                "Rating",
+                "API-Football",
+                "player-stat-value-rating",
+                players,
+                ApiFootballPlayerMatchStats::rating,
+                value -> formatRating(value.rating())
+        ));
+        addCategory(categories, buildTopCategory(
+                "Total shots",
+                "Attacking volume",
+                "player-stat-value-default",
+                players,
+                value -> metricScore(value.totalShots()),
+                value -> formatInt(value.totalShots())
+        ));
+        addCategory(categories, buildTopCategory(
+                "Expected goals (xG)",
+                "Sport Insight estimate when provider xG is absent",
+                "player-stat-value-default",
+                players,
+                ApiFootballPlayerMatchStats::expectedGoals,
+                value -> formatDecimal(value.expectedGoals())
+        ));
+        addCategory(categories, buildTopCategory(
+                "Accurate passes",
+                "Pass volume and accuracy",
+                "player-stat-value-default",
+                players,
+                this::accuratePassScore,
+                this::formatPassesValue
+        ));
+        addCategory(categories, buildTopCategory(
+                "Touches",
+                "Ball involvement",
+                "player-stat-value-default",
+                players,
+                value -> metricScore(value.touches()),
+                value -> formatInt(value.touches())
+        ));
+        addCategory(categories, buildTopCategory(
+                "Successful dribbles",
+                "1v1 progression",
+                "player-stat-value-default",
+                players,
+                value -> metricScore(value.dribblesSuccess()),
+                this::formatDribblesValue
+        ));
+        addCategory(categories, buildTopCategory(
+                "Duels",
+                "Physical contests",
+                "player-stat-value-default",
+                players,
+                value -> metricScore(value.duelsTotal()),
+                this::formatDuelsValue
+        ));
+        addCategory(categories, buildTopCategory(
+                "Defensive work",
+                "Tackles + interceptions",
+                "player-stat-value-default",
+                players,
+                this::defensiveWorkScore,
+                value -> formatWholeNumber(defensiveWorkScore(value))
+        ));
+        return categories;
+    }
+
+    private void addCategory(List<PlayerStatCategory> categories, PlayerStatCategory category) {
+        if (category != null && category.entries() != null && !category.entries().isEmpty()) {
+            categories.add(category);
+        }
+    }
+
+    private PlayerStatCategory buildTopCategory(
+            String title,
+            String subtitle,
+            String valueStyleClass,
+            List<ApiFootballPlayerMatchStats> players,
+            Function<ApiFootballPlayerMatchStats, Double> scoreExtractor,
+            Function<ApiFootballPlayerMatchStats, String> valueFormatter
+    ) {
+        List<ApiFootballPlayerMatchStats> ranked = players.stream()
+                .filter(player -> scoreExtractor.apply(player) != null && scoreExtractor.apply(player) > 0)
+                .sorted(Comparator
+                        .comparing((ApiFootballPlayerMatchStats player) -> scoreExtractor.apply(player), Comparator.reverseOrder())
+                        .thenComparing(player -> player.playerName() == null ? "" : player.playerName(), String.CASE_INSENSITIVE_ORDER))
+                .limit(3)
+                .toList();
+        if (ranked.isEmpty()) {
+            return null;
+        }
+
+        List<PlayerStatEntry> entries = new ArrayList<>();
+        Double previousScore = null;
+        for (int index = 0; index < ranked.size(); index++) {
+            ApiFootballPlayerMatchStats player = ranked.get(index);
+            Double score = scoreExtractor.apply(player);
+            int rank = previousScore != null && Math.abs(previousScore - score) < 0.0001
+                    ? entries.get(entries.size() - 1).rank()
+                    : index + 1;
+            entries.add(new PlayerStatEntry(rank, player, emptyToFallback(valueFormatter.apply(player), "-")));
+            previousScore = score;
+        }
+        return new PlayerStatCategory(title, subtitle, valueStyleClass, entries);
+    }
+
+    private VBox buildPlayerStatCategoryCard(PlayerStatCategory category) {
+        VBox card = new VBox(0);
+        card.getStyleClass().add("player-stat-category-card");
+
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.getStyleClass().add("player-stat-category-header");
+        VBox titleBox = new VBox(2);
+        Label titleLabel = new Label(category.title());
+        titleLabel.getStyleClass().add("player-stat-category-title");
+        titleLabel.setWrapText(true);
+        titleBox.getChildren().add(titleLabel);
+        if (emptyToNull(category.subtitle()) != null) {
+            Label subtitleLabel = new Label(category.subtitle());
+            subtitleLabel.getStyleClass().add("player-stat-category-subtitle");
+            subtitleLabel.setWrapText(true);
+            titleBox.getChildren().add(subtitleLabel);
+        }
+        Label arrowLabel = new Label(">");
+        arrowLabel.getStyleClass().add("player-stat-category-arrow");
+        header.getChildren().addAll(titleBox, new Region(), arrowLabel);
+        HBox.setHgrow(titleBox, Priority.ALWAYS);
+        HBox.setHgrow(header.getChildren().get(1), Priority.ALWAYS);
+        card.getChildren().add(header);
+
+        for (PlayerStatEntry entry : category.entries()) {
+            card.getChildren().add(buildPlayerStatRow(entry, category.valueStyleClass()));
+        }
+        return card;
+    }
+
+    private HBox buildPlayerStatRow(PlayerStatEntry entry, String valueStyleClass) {
+        ApiFootballPlayerMatchStats player = entry.player();
+        HBox row = new HBox(12);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("player-stat-row");
+
+        Label rankLabel = new Label(entry.rank() + ".");
+        rankLabel.getStyleClass().add("player-stat-rank");
+        rankLabel.setMinWidth(34);
+        rankLabel.setAlignment(Pos.CENTER_RIGHT);
+
+        ImageView photoView = new ImageView();
+        photoView.setFitWidth(50);
+        photoView.setFitHeight(50);
+        photoView.setPreserveRatio(true);
+        photoView.setSmooth(true);
+        Label fallbackLabel = new Label(buildPlayerInitials(player == null ? null : player.playerName()));
+        fallbackLabel.getStyleClass().add("player-stat-photo-fallback");
+        StackPane photoShell = new StackPane(photoView, fallbackLabel, buildPlayerStatTeamBadge(player));
+        photoShell.getStyleClass().add("player-stat-photo-shell");
+        bindPlayerStatPhoto(photoView, fallbackLabel, player);
+
+        VBox identityBox = new VBox(2);
+        identityBox.setAlignment(Pos.CENTER_LEFT);
+        Label nameLabel = new Label(emptyToFallback(player == null ? null : player.playerName(), "Player"));
+        nameLabel.getStyleClass().add("player-stat-name");
+        nameLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
+        nameLabel.setMaxWidth(360);
+        Label metaLabel = new Label(buildPlayerStatMeta(player));
+        metaLabel.getStyleClass().add("player-stat-meta");
+        metaLabel.setTextOverrun(OverrunStyle.ELLIPSIS);
+        metaLabel.setMaxWidth(360);
+        identityBox.getChildren().addAll(nameLabel, metaLabel);
+
+        Label valueLabel = new Label(entry.value());
+        valueLabel.getStyleClass().add("player-stat-value");
+        if (emptyToNull(valueStyleClass) != null) {
+            valueLabel.getStyleClass().add(valueStyleClass);
+        }
+        valueLabel.setAlignment(Pos.CENTER);
+        valueLabel.setMinWidth(64);
+
+        row.getChildren().addAll(rankLabel, photoShell, identityBox, new Region(), valueLabel);
+        HBox.setHgrow(identityBox, Priority.ALWAYS);
+        HBox.setHgrow(row.getChildren().get(3), Priority.ALWAYS);
+        return row;
+    }
+
+    private StackPane buildPlayerStatTeamBadge(ApiFootballPlayerMatchStats player) {
+        Label fallback = new Label(player == null ? "?" : (player.homeSide() ? "H" : player.awaySide() ? "A" : "T"));
+        fallback.getStyleClass().add("player-stat-team-fallback");
+        ImageView logoView = new ImageView();
+        logoView.setFitWidth(20);
+        logoView.setFitHeight(20);
+        logoView.setPreserveRatio(true);
+        logoView.setSmooth(true);
+        Image image = player == null ? null : loadImage(player.teamLogoUrl());
+        boolean hasImage = image != null && !image.isError();
+        logoView.setImage(image);
+        logoView.setVisible(hasImage);
+        logoView.setManaged(hasImage);
+        fallback.setVisible(!hasImage);
+        fallback.setManaged(!hasImage);
+        StackPane badge = new StackPane(logoView, fallback);
+        badge.getStyleClass().add("player-stat-team-badge");
+        StackPane.setAlignment(badge, Pos.BOTTOM_RIGHT);
+        return badge;
+    }
+
+    private void bindPlayerStatPhoto(ImageView photoView, Label fallbackLabel, ApiFootballPlayerMatchStats player) {
+        String photoPath = player == null ? null : emptyToNull(player.photoUrl());
+        if (photoPath == null) {
+            updatePlayerPhotoVisibility(photoView, fallbackLabel, null);
+            return;
+        }
+
+        Image cachedImage = PLAYER_PHOTO_CACHE.get(photoPath);
+        if (cachedImage != null) {
+            updatePlayerPhotoVisibility(photoView, fallbackLabel, cachedImage);
+            return;
+        }
+
+        if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) {
+            updatePlayerPhotoVisibility(photoView, fallbackLabel, null);
+            CompletableFuture<Image> request = PLAYER_PHOTO_REQUESTS.computeIfAbsent(
+                    photoPath,
+                    path -> CompletableFuture.supplyAsync(() -> fetchPlayerPhoto(path), PHOTO_EXECUTOR)
+                            .whenComplete((image, error) -> {
+                                if (image != null) {
+                                    PLAYER_PHOTO_CACHE.put(path, image);
+                                }
+                                PLAYER_PHOTO_REQUESTS.remove(path);
+                            })
+            );
+            request.whenComplete((image, error) -> Platform.runLater(() ->
+                    updatePlayerPhotoVisibility(photoView, fallbackLabel, error == null ? image : null)));
+            return;
+        }
+
+        updatePlayerPhotoVisibility(photoView, fallbackLabel, loadImage(photoPath));
+    }
+
+    private String buildPlayerStatMeta(ApiFootballPlayerMatchStats player) {
+        if (player == null) {
+            return "Player";
+        }
+        String position = player.displayPosition();
+        String side = player.homeSide() ? "Home" : player.awaySide() ? "Away" : emptyToFallback(player.teamName(), "Team");
+        if (player.minutes() != null && player.minutes() > 0) {
+            return position + " | " + side + " | " + player.minutes() + "'";
+        }
+        return position + " | " + side;
+    }
+
+    private Double metricScore(Integer value) {
+        return value == null ? null : value.doubleValue();
+    }
+
+    private Double accuratePassScore(ApiFootballPlayerMatchStats player) {
+        if (player == null || player.passes() == null) {
+            return null;
+        }
+        if (player.passAccuracyPercent() == null) {
+            return player.passes().doubleValue();
+        }
+        return (double) Math.round(player.passes() * player.passAccuracyPercent() / 100.0);
+    }
+
+    private Double playerImpactScore(ApiFootballPlayerMatchStats player) {
+        if (player == null || !player.hasMetricData()) {
+            return null;
+        }
+        double score = 0.0;
+        if (player.rating() != null) {
+            score += player.rating() * 8.0;
+        }
+        score += safeInt(player.goals()) * 9.0;
+        score += safeInt(player.assists()) * 6.0;
+        score += safeInt(player.totalShots()) * 1.2;
+        score += safeInt(player.keyPasses()) * 1.6;
+        score += safeInt(player.dribblesSuccess()) * 1.5;
+        score += safeInt(player.duelsWon()) * 0.8;
+        score += safeInt(player.tackles()) * 1.0;
+        score += safeInt(player.interceptions()) * 1.0;
+        return Math.min(100.0, Math.max(0.0, score));
+    }
+
+    private Double defensiveWorkScore(ApiFootballPlayerMatchStats player) {
+        if (player == null) {
+            return null;
+        }
+        int value = safeInt(player.tackles()) + safeInt(player.interceptions());
+        return value <= 0 ? null : (double) value;
+    }
+
+    private int safeInt(Integer value) {
+        return value == null ? 0 : value;
+    }
+
+    private String formatPassesValue(ApiFootballPlayerMatchStats player) {
+        if (player == null || player.passes() == null) {
+            return "-";
+        }
+        if (player.passAccuracyPercent() == null) {
+            return formatInt(player.passes());
+        }
+        int accuratePasses = (int) Math.round(player.passes() * player.passAccuracyPercent() / 100.0);
+        return accuratePasses + " (" + player.passAccuracyPercent() + "%)";
+    }
+
+    private String formatDribblesValue(ApiFootballPlayerMatchStats player) {
+        if (player == null || player.dribblesSuccess() == null) {
+            return "-";
+        }
+        if (player.dribblesAttempts() == null || player.dribblesAttempts() <= 0) {
+            return formatInt(player.dribblesSuccess());
+        }
+        int percent = (int) Math.round((player.dribblesSuccess() * 100.0) / player.dribblesAttempts());
+        return player.dribblesSuccess() + " (" + Math.max(0, Math.min(100, percent)) + "%)";
+    }
+
+    private String formatDuelsValue(ApiFootballPlayerMatchStats player) {
+        if (player == null || player.duelsTotal() == null) {
+            return "-";
+        }
+        if (player.duelsWon() == null) {
+            return formatInt(player.duelsTotal());
+        }
+        return player.duelsTotal() + " (" + player.duelsWon() + " won)";
+    }
+
+    private String formatInt(Integer value) {
+        return value == null ? "-" : String.valueOf(value);
+    }
+
+    private String formatWholeNumber(Double value) {
+        return value == null ? "-" : String.valueOf((int) Math.round(value));
+    }
+
+    private String formatDecimal(Double value) {
+        return value == null ? "-" : String.format(Locale.US, "%.2f", value);
+    }
+
+    private void applyPlayerStatsStateStyle(String state) {
+        if (playerStatsStateLabel == null) {
+            return;
+        }
+        playerStatsStateLabel.getStyleClass().removeAll(
+                "player-stats-state-live",
+                "player-stats-state-closed",
+                "player-stats-state-unavailable",
+                "player-stats-state-pending"
+        );
+        String normalized = lowercase(state);
+        String styleClass;
+        if (normalized != null && normalized.contains("live")) {
+            styleClass = "player-stats-state-live";
+        } else if (normalized != null && (normalized.contains("closed") || normalized.contains("full") || normalized.contains("finished"))) {
+            styleClass = "player-stats-state-closed";
+        } else if (normalized != null && normalized.contains("unavailable")) {
+            styleClass = "player-stats-state-unavailable";
+        } else {
+            styleClass = "player-stats-state-pending";
+        }
+        playerStatsStateLabel.getStyleClass().add(styleClass);
     }
 
     private void refreshMatchVideosAsync(boolean force) {
@@ -1685,6 +2341,7 @@ public class MatchDetailController implements AssistantContextProvider {
             youtubeMatchInfoLabel.setText(buildYouTubeMatchInfo());
         }
         updateLiveScoreboard(snapshot, statusLabel);
+        updatePlayerStatsAvailability();
     }
 
     private void resetMatchVideoUiForNewMatch() {
@@ -2608,13 +3265,17 @@ public class MatchDetailController implements AssistantContextProvider {
 
     private void applyActiveTab() {
         updateSectionVisibility(summarySection, activeTab == MatchDetailTab.SUMMARY);
+        updateSectionVisibility(liveCompanionSection, activeTab == MatchDetailTab.LIVE_COMPANION);
         updateSectionVisibility(statsSection, activeTab == MatchDetailTab.STATS);
         updateSectionVisibility(lineupSection, activeTab == MatchDetailTab.LINEUP);
+        updateSectionVisibility(playerStatsSection, activeTab == MatchDetailTab.PLAYER_STATS && isPlayerStatsEligible());
         updateSectionVisibility(videosSection, activeTab == MatchDetailTab.VIDEOS);
         updateSectionVisibility(oddsSection, activeTab == MatchDetailTab.ODDS);
         updateTabButton(summaryTabButton, activeTab == MatchDetailTab.SUMMARY);
+        updateTabButton(liveCompanionTabButton, activeTab == MatchDetailTab.LIVE_COMPANION);
         updateTabButton(statsTabButton, activeTab == MatchDetailTab.STATS);
         updateTabButton(lineupTabButton, activeTab == MatchDetailTab.LINEUP);
+        updateTabButton(playerStatsTabButton, activeTab == MatchDetailTab.PLAYER_STATS);
         updateTabButton(videosTabButton, activeTab == MatchDetailTab.VIDEOS);
         updateTabButton(oddsTabButton, activeTab == MatchDetailTab.ODDS);
         if (activeTab == MatchDetailTab.VIDEOS) {
@@ -5227,10 +5888,27 @@ public class MatchDetailController implements AssistantContextProvider {
         alert.showAndWait();
     }
 
+    private record PlayerStatCategory(
+            String title,
+            String subtitle,
+            String valueStyleClass,
+            List<PlayerStatEntry> entries
+    ) {
+    }
+
+    private record PlayerStatEntry(
+            int rank,
+            ApiFootballPlayerMatchStats player,
+            String value
+    ) {
+    }
+
     private enum MatchDetailTab {
         SUMMARY,
+        LIVE_COMPANION,
         STATS,
         LINEUP,
+        PLAYER_STATS,
         ODDS,
         VIDEOS
     }

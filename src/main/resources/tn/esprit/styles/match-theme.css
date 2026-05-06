@@ -789,6 +789,7 @@
 .flashscore-score-card,
 .flashscore-lineup-card,
 .flashscore-stats-card,
+.flashscore-player-stats-card,
 .flashscore-videos-card {
     -fx-background-color: #ffffff;
     -fx-background-radius: 18;
@@ -2251,6 +2252,11 @@
     -fx-padding: 2 0 8 0;
 }
 
+.flashscore-live-companion-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(224, 242, 254, 0.9) 100%);
+    -fx-border-color: rgba(13, 148, 136, 0.22);
+}
+
 .live-companion-kicker {
     -fx-font-size: 11px;
     -fx-font-weight: 900;
@@ -2392,6 +2398,11 @@
     -fx-border-color: rgba(56, 189, 248, 0.34);
 }
 
+.theme-dark .flashscore-live-companion-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 47, 73, 0.96) 0%, rgba(6, 78, 59, 0.7) 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.3);
+}
+
 .theme-dark .flashscore-summary-card .flashscore-section-title,
 .theme-dark .flashscore-summary-card .summary-team-header,
 .theme-dark .flashscore-summary-card .timeline-event-title,
@@ -2521,6 +2532,271 @@
     -fx-font-weight: 900;
 }
 
+.flashscore-player-stats-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(224, 242, 254, 0.9) 100%);
+    -fx-border-color: rgba(13, 148, 136, 0.22);
+}
+
+.player-stats-message-label {
+    -fx-line-spacing: 1px;
+}
+
+.player-stats-meta-row {
+    -fx-background-color: rgba(255, 255, 255, 0.58);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(13, 148, 136, 0.18);
+    -fx-border-radius: 12;
+    -fx-padding: 10 12 10 12;
+}
+
+.player-stats-meta-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f766e;
+}
+
+.player-stats-meta-value {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.player-stats-placeholder {
+    -fx-background-color: rgba(255, 255, 255, 0.52);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(13, 148, 136, 0.18);
+    -fx-border-radius: 12;
+    -fx-padding: 16;
+    -fx-text-fill: #115e59;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.player-stat-category-card {
+    -fx-background-color: rgba(255, 255, 255, 0.64);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(13, 148, 136, 0.18);
+    -fx-border-radius: 14;
+}
+
+.player-stat-category-header {
+    -fx-padding: 14 14 12 14;
+    -fx-border-color: transparent transparent rgba(13, 148, 136, 0.14) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.player-stat-category-title {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #042f2e;
+}
+
+.player-stat-category-subtitle {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f766e;
+}
+
+.player-stat-category-arrow {
+    -fx-font-size: 28px;
+    -fx-font-weight: 400;
+    -fx-text-fill: #0f766e;
+}
+
+.player-stat-row {
+    -fx-padding: 12 14 12 14;
+    -fx-border-color: transparent transparent rgba(13, 148, 136, 0.12) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.player-stat-row:hover {
+    -fx-background-color: rgba(13, 148, 136, 0.08);
+}
+
+.player-stat-rank {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #334155;
+}
+
+.player-stat-photo-shell {
+    -fx-min-width: 58;
+    -fx-pref-width: 58;
+    -fx-max-width: 58;
+    -fx-min-height: 58;
+    -fx-pref-height: 58;
+    -fx-max-height: 58;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(13, 148, 136, 0.22);
+    -fx-border-radius: 14;
+    -fx-padding: 4;
+}
+
+.player-stat-photo-fallback {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 17px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f766e;
+}
+
+.player-stat-team-badge {
+    -fx-min-width: 24;
+    -fx-pref-width: 24;
+    -fx-max-width: 24;
+    -fx-min-height: 24;
+    -fx-pref-height: 24;
+    -fx-max-height: 24;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(15, 23, 42, 0.16);
+    -fx-border-radius: 8;
+    -fx-padding: 2;
+}
+
+.player-stat-team-fallback {
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f766e;
+}
+
+.player-stat-name {
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 17px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.player-stat-meta {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.player-stat-value {
+    -fx-background-color: rgba(8, 47, 73, 0.1);
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(8, 47, 73, 0.12);
+    -fx-border-radius: 8;
+    -fx-padding: 7 10 7 10;
+    -fx-font-family: "Bahnschrift SemiBold";
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.player-stat-value-rating {
+    -fx-background-color: #65a30d;
+    -fx-border-color: rgba(132, 204, 22, 0.56);
+    -fx-text-fill: #ffffff;
+}
+
+.player-stat-value-impact {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #22c55e 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.36);
+    -fx-text-fill: #ffffff;
+}
+
+.player-stats-state-live {
+    -fx-background-color: #dc2626;
+    -fx-border-color: rgba(254, 202, 202, 0.72);
+    -fx-text-fill: #ffffff;
+}
+
+.player-stats-state-closed,
+.player-stats-state-unavailable {
+    -fx-background-color: rgba(100, 116, 139, 0.16);
+    -fx-border-color: rgba(100, 116, 139, 0.28);
+    -fx-text-fill: #475569;
+}
+
+.player-stats-state-pending {
+    -fx-background-color: rgba(13, 148, 136, 0.18);
+    -fx-border-color: rgba(13, 148, 136, 0.32);
+    -fx-text-fill: #0f766e;
+}
+
+.theme-dark .flashscore-player-stats-card {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 47, 73, 0.96) 0%, rgba(15, 23, 42, 0.96) 100%);
+    -fx-border-color: rgba(20, 184, 166, 0.34);
+}
+
+.theme-dark .flashscore-player-stats-card .flashscore-section-title,
+.theme-dark .player-stat-category-title,
+.theme-dark .player-stat-name,
+.theme-dark .player-stat-value {
+    -fx-text-fill: #f8fafc;
+}
+
+.theme-dark .flashscore-player-stats-card .section-subtitle,
+.theme-dark .player-stats-meta-value,
+.theme-dark .player-stats-placeholder,
+.theme-dark .player-stat-meta,
+.theme-dark .player-stat-rank {
+    -fx-text-fill: #bae6fd;
+}
+
+.theme-dark .player-stats-meta-row,
+.theme-dark .player-stat-category-card,
+.theme-dark .player-stats-placeholder {
+    -fx-background-color: rgba(15, 23, 42, 0.54);
+    -fx-border-color: rgba(45, 212, 191, 0.22);
+}
+
+.theme-dark .player-stat-category-header,
+.theme-dark .player-stat-row {
+    -fx-border-color: transparent transparent rgba(45, 212, 191, 0.16) transparent;
+}
+
+.theme-dark .player-stat-row:hover {
+    -fx-background-color: rgba(20, 184, 166, 0.1);
+}
+
+.theme-dark .player-stat-photo-shell,
+.theme-dark .player-stat-team-badge {
+    -fx-background-color: rgba(2, 6, 23, 0.72);
+    -fx-border-color: rgba(45, 212, 191, 0.28);
+}
+
+.theme-dark .player-stats-meta-caption,
+.theme-dark .player-stat-category-subtitle,
+.theme-dark .player-stat-category-arrow,
+.theme-dark .player-stat-photo-fallback,
+.theme-dark .player-stat-team-fallback {
+    -fx-text-fill: #5eead4;
+}
+
+.theme-dark .player-stat-value {
+    -fx-background-color: rgba(8, 47, 73, 0.76);
+    -fx-border-color: rgba(125, 211, 252, 0.26);
+}
+
+.theme-dark .player-stat-value-rating {
+    -fx-background-color: #65a30d;
+    -fx-border-color: rgba(132, 204, 22, 0.56);
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .player-stat-value-impact {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #16a34a 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.38);
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .player-stats-state-pending {
+    -fx-background-color: rgba(20, 184, 166, 0.18);
+    -fx-border-color: rgba(45, 212, 191, 0.34);
+    -fx-text-fill: #99f6e4;
+}
+
+.theme-dark .player-stats-state-closed,
+.theme-dark .player-stats-state-unavailable {
+    -fx-background-color: rgba(71, 85, 105, 0.52);
+    -fx-border-color: rgba(148, 163, 184, 0.34);
+    -fx-text-fill: #e2e8f0;
+}
+
 .flashscore-odds-card {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(224, 242, 254, 0.9) 100%);
     -fx-border-color: rgba(13, 148, 136, 0.22);
@@ -2562,16 +2838,31 @@
 }
 
 .odds-market-card {
-    -fx-background-color: rgba(255, 255, 255, 0.62);
-    -fx-background-radius: 14;
+    -fx-background-color: rgba(255, 255, 255, 0.68);
+    -fx-background-radius: 11;
     -fx-border-color: rgba(13, 148, 136, 0.2);
-    -fx-border-radius: 14;
-    -fx-padding: 12;
+    -fx-border-radius: 11;
+    -fx-padding: 9 10 9 10;
+}
+
+.odds-market-winner {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.88) 0%, rgba(220, 252, 231, 0.74) 100%);
+    -fx-border-color: rgba(34, 197, 94, 0.32);
+}
+
+.odds-market-goals {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(224, 242, 254, 0.88) 0%, rgba(204, 251, 241, 0.72) 100%);
+    -fx-border-color: rgba(14, 165, 233, 0.3);
+}
+
+.odds-market-handicap {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(254, 249, 195, 0.76) 0%, rgba(236, 253, 245, 0.82) 100%);
+    -fx-border-color: rgba(245, 158, 11, 0.28);
 }
 
 .odds-market-title {
     -fx-font-family: "Bahnschrift SemiBold";
-    -fx-font-size: 18px;
+    -fx-font-size: 15px;
     -fx-font-weight: 900;
     -fx-text-fill: #042f2e;
 }
@@ -2581,7 +2872,7 @@
     -fx-background-radius: 999;
     -fx-border-color: rgba(13, 148, 136, 0.2);
     -fx-border-radius: 999;
-    -fx-padding: 4 8 4 8;
+    -fx-padding: 3 7 3 7;
     -fx-font-size: 11px;
     -fx-font-weight: 900;
     -fx-text-fill: #0f766e;
@@ -2590,7 +2881,7 @@
 .odds-market-state {
     -fx-background-radius: 999;
     -fx-border-radius: 999;
-    -fx-padding: 5 9 5 9;
+    -fx-padding: 4 8 4 8;
     -fx-font-size: 11px;
     -fx-font-weight: 900;
 }
@@ -2609,15 +2900,15 @@
 
 .odds-table {
     -fx-background-color: rgba(15, 23, 42, 0.04);
-    -fx-background-radius: 12;
+    -fx-background-radius: 10;
     -fx-border-color: rgba(15, 23, 42, 0.08);
-    -fx-border-radius: 12;
-    -fx-padding: 4;
+    -fx-border-radius: 10;
+    -fx-padding: 2;
 }
 
 .odds-bookmaker-row {
-    -fx-padding: 8 8 8 8;
-    -fx-background-radius: 10;
+    -fx-padding: 5 6 5 6;
+    -fx-background-radius: 8;
 }
 
 .odds-bookmaker-row:hover {
@@ -2625,17 +2916,17 @@
 }
 
 .odds-bookmaker-label {
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: 900;
     -fx-text-fill: #0f172a;
 }
 
 .odds-selection-cell {
     -fx-background-color: #ffffff;
-    -fx-background-radius: 10;
+    -fx-background-radius: 8;
     -fx-border-color: rgba(148, 163, 184, 0.28);
-    -fx-border-radius: 10;
-    -fx-padding: 7 9 7 9;
+    -fx-border-radius: 8;
+    -fx-padding: 4 7 4 7;
 }
 
 .odds-selection-label {
@@ -2646,7 +2937,7 @@
 
 .odds-selection-odd {
     -fx-font-family: "Bahnschrift SemiBold";
-    -fx-font-size: 15px;
+    -fx-font-size: 13px;
     -fx-font-weight: 900;
     -fx-text-fill: #0f172a;
 }
@@ -2658,6 +2949,7 @@
 }
 
 .odds-trend-up {
+    -fx-background-color: rgba(220, 252, 231, 0.92);
     -fx-border-color: rgba(34, 197, 94, 0.48);
 }
 
@@ -2667,12 +2959,19 @@
 }
 
 .odds-trend-down {
+    -fx-background-color: rgba(254, 226, 226, 0.9);
     -fx-border-color: rgba(239, 68, 68, 0.42);
 }
 
 .odds-trend-down .odds-selection-signal,
 .odds-trend-down .odds-selection-odd {
     -fx-text-fill: #dc2626;
+}
+
+.odds-trend-stable,
+.odds-trend-neutral {
+    -fx-background-color: rgba(239, 246, 255, 0.9);
+    -fx-border-color: rgba(14, 165, 233, 0.24);
 }
 
 .odds-selection-locked {
@@ -2779,6 +3078,21 @@
     -fx-border-color: rgba(45, 212, 191, 0.22);
 }
 
+.theme-dark .odds-market-winner {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 78, 59, 0.54) 0%, rgba(15, 23, 42, 0.62) 100%);
+    -fx-border-color: rgba(74, 222, 128, 0.32);
+}
+
+.theme-dark .odds-market-goals {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(8, 47, 73, 0.7) 0%, rgba(15, 23, 42, 0.62) 100%);
+    -fx-border-color: rgba(56, 189, 248, 0.32);
+}
+
+.theme-dark .odds-market-handicap {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(113, 63, 18, 0.34) 0%, rgba(6, 78, 59, 0.36) 100%);
+    -fx-border-color: rgba(251, 191, 36, 0.28);
+}
+
 .theme-dark .odds-table {
     -fx-background-color: rgba(2, 6, 23, 0.42);
     -fx-border-color: rgba(148, 163, 184, 0.14);
@@ -2791,6 +3105,22 @@
 .theme-dark .odds-selection-cell {
     -fx-background-color: rgba(2, 6, 23, 0.62);
     -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.theme-dark .odds-trend-up {
+    -fx-background-color: rgba(6, 95, 70, 0.5);
+    -fx-border-color: rgba(74, 222, 128, 0.44);
+}
+
+.theme-dark .odds-trend-down {
+    -fx-background-color: rgba(127, 29, 29, 0.42);
+    -fx-border-color: rgba(248, 113, 113, 0.42);
+}
+
+.theme-dark .odds-trend-stable,
+.theme-dark .odds-trend-neutral {
+    -fx-background-color: rgba(8, 47, 73, 0.58);
+    -fx-border-color: rgba(56, 189, 248, 0.28);
 }
 
 .theme-dark .odds-meta-caption,

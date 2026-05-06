@@ -165,6 +165,7 @@ C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchDetails.jav
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchIncident.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballOddsService.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballOddsSnapshot.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballPlayerMatchStats.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballPlayerSeasonStats.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballScorerEntry.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballStatisticRow.java

@@ -26,6 +26,9 @@ public class Matchs {
     private String apiFootballLineupJson;
     private String apiFootballIncidentsJson;
     private LocalDateTime apiFootballSyncedAt;
+    private String oddsSnapshotJson;
+    private String oddsSource;
+    private LocalDateTime oddsSyncedAt;
 
     public Matchs() {
     }
@@ -229,6 +232,30 @@ public class Matchs {
         this.apiFootballSyncedAt = apiFootballSyncedAt;
     }
 
+    public String getOddsSnapshotJson() {
+        return oddsSnapshotJson;
+    }
+
+    public void setOddsSnapshotJson(String oddsSnapshotJson) {
+        this.oddsSnapshotJson = oddsSnapshotJson;
+    }
+
+    public String getOddsSource() {
+        return oddsSource;
+    }
+
+    public void setOddsSource(String oddsSource) {
+        this.oddsSource = oddsSource;
+    }
+
+    public LocalDateTime getOddsSyncedAt() {
+        return oddsSyncedAt;
+    }
+
+    public void setOddsSyncedAt(LocalDateTime oddsSyncedAt) {
+        this.oddsSyncedAt = oddsSyncedAt;
+    }
+
     @Override
     public String toString() {
         return "Matchs{" +
@@ -251,6 +278,8 @@ public class Matchs {
                 ", apiFootballId=" + apiFootballId +
                 ", apiFootballIncidentsJson='" + apiFootballIncidentsJson + '\'' +
                 ", apiFootballSyncedAt=" + apiFootballSyncedAt +
+                ", oddsSource='" + oddsSource + '\'' +
+                ", oddsSyncedAt=" + oddsSyncedAt +
                 '}';
     }
 }

@@ -60,6 +60,10 @@ public class ApiFootballClient {
         return getJson("/fixtures/statistics", Map.of("fixture", String.valueOf(fixtureId)));
     }
 
+    public JsonNode fetchFixturePlayers(long fixtureId) throws IOException, InterruptedException {
+        return getJson("/fixtures/players", Map.of("fixture", String.valueOf(fixtureId)));
+    }
+
     public JsonNode fetchFixtureEvents(long fixtureId) throws IOException, InterruptedException {
         return getJson("/fixtures/events", Map.of("fixture", String.valueOf(fixtureId)));
     }

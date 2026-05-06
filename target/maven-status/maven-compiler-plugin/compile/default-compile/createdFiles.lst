@@ -94,6 +94,7 @@ tn\esprit\services\FootballDataSyncService$NameParts.class
 tn\esprit\services\FootballDataSyncSummary.class
 tn\esprit\Controller\JoueurListController$1.class
 tn\esprit\entities\OrderItem.class
+tn\esprit\services\football\ApiFootballPlayerMatchStats.class
 tn\esprit\gui\HomeLauncher.class
 tn\esprit\services\OrderNotificationService$NotificationContent.class
 tn\esprit\services\football\ApiFootballCompetitionMappings$CompetitionMapping.class
@@ -174,6 +175,7 @@ tn\esprit\Controller\EntrainementAdminController$UserOption.class
 tn\esprit\Controller\MatchDetailController$UserSessionTarget.class
 tn\esprit\assistant\AssistantClapPatternDetector.class
 tn\esprit\Controller\LeagueTableController$2.class
+tn\esprit\Controller\MatchDetailController$PlayerStatEntry.class
 tn\esprit\Controller\SponsorAdminController.class
 tn\esprit\Controller\FootballNewsController$TopicFilter.class
 tn\esprit\services\FootballNewsService.class
@@ -190,6 +192,7 @@ tn\esprit\Controller\MatchDetailController$LiveRefreshPayload.class
 tn\esprit\entities\Participation.class
 tn\esprit\gui\ChromiumBrowserView$LocalPlayerServer.class
 tn\esprit\Controller\EntrainementAdminController$TrainingOption.class
+tn\esprit\Controller\MatchDetailController$PlayerStatCategory.class
 tn\esprit\Controller\LeagueTableController$1.class
 tn\esprit\repositories\ProductRepository.class
 tn\esprit\entities\Joueur.class
@@ -333,6 +336,7 @@ tn\esprit\Controller\ProductController$5.class
 tn\esprit\Controller\OrderController$5.class
 tn\esprit\gui\ThemeManager.class
 tn\esprit\Controller\NotificationCenterController$1.class
+tn\esprit\Controller\MatchDetailController$5.class
 tn\esprit\Controller\StoreController$StripeChargePreview.class
 tn\esprit\services\football\TheSportsDbCompetitionMappings.class
 tn\esprit\Controller\OrderController$2.class
