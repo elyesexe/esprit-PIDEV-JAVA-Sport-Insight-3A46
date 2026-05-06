@@ -141,7 +141,7 @@ public final class AssistantOverlay extends StackPane {
         panel.setPrefHeight(560);
         panel.setMaxHeight(560);
 
-        Label titleLabel = new Label("Sport Insight AI");
+        Label titleLabel = new Label("Jarvis AI");
         titleLabel.getStyleClass().add("assistant-title");
         VBox titleBox = new VBox(titleLabel);
         titleBox.getStyleClass().add("assistant-title-box");
@@ -471,7 +471,7 @@ public final class AssistantOverlay extends StackPane {
 
     private void updateLauncherLabel() {
         launcherButton.setText("");
-        launcherButton.setAccessibleText(panelVisible ? "Hide Sport Insight AI" : "Open Sport Insight AI");
+        launcherButton.setAccessibleText(panelVisible ? "Hide Jarvis AI" : "Open Jarvis AI");
         if (panelVisible) {
             launcherButton.getStyleClass().add("assistant-launcher-open");
         } else {
