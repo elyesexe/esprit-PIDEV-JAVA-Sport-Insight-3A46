@@ -74,6 +74,7 @@ tn\esprit\assistant\VoiceCaptureUpdate$Type.class
 tn\esprit\Controller\MatchController.class
 tn\esprit\Controller\HomeController$DashboardCounts.class
 tn\esprit\services\ProductPdfExportService.class
+tn\esprit\services\football\TheOddsApiClient.class
 tn\esprit\assistant\AssistantIntentType.class
 tn\esprit\repositories\ProductRepository$ProductSortField.class
 tn\esprit\services\CommentaireService.class
@@ -100,6 +101,8 @@ tn\esprit\assistant\AssistantClapWakeService$AudioEnergy.class
 tn\esprit\services\ProductAnalyticsService$TrendingProductSnapshot.class
 tn\esprit\assistant\AssistantService$TeamPairQuery.class
 tn\esprit\services\JoueurService.class
+tn\esprit\services\football\ApiFootballOddsSnapshot$GestureInsight.class
+tn\esprit\services\football\ApiFootballOddsSnapshot.class
 tn\esprit\entities\Notification.class
 tn\esprit\Controller\StoreController.class
 tn\esprit\services\MatchApiServer.class
@@ -159,6 +162,7 @@ tn\esprit\gui\MatchCrudMain.class
 tn\esprit\services\StripeCheckoutService$CheckoutVerificationStatus.class
 tn\esprit\Controller\PlayerPerformanceController.class
 tn\esprit\Controller\FoodTrackingController.class
+tn\esprit\services\football\ApiFootballOddsService.class
 tn\esprit\services\OrderPdfExportService$Invoice.class
 tn\esprit\services\StripeCheckoutService$StripeCheckoutLine.class
 tn\esprit\services\DailyNutritionSummaryService.class
@@ -174,6 +178,7 @@ tn\esprit\Controller\SponsorAdminController.class
 tn\esprit\Controller\FootballNewsController$TopicFilter.class
 tn\esprit\services\FootballNewsService.class
 tn\esprit\services\wikidata\WikidataApiClient.class
+tn\esprit\services\football\ApiFootballOddsService$MarketBuilder.class
 tn\esprit\assistant\OllamaClient.class
 tn\esprit\services\football\SofaScoreClient$CacheEntry.class
 tn\esprit\services\AnnoncePdfExportService$DocumentWriter.class
@@ -202,6 +207,7 @@ tn\esprit\services\MatchLiveCompanionAnalyzer$ParsedMatchData.class
 tn\esprit\Controller\StoreController$StoreSection.class
 tn\esprit\mains\UserMain.class
 tn\esprit\assistant\AssistantTeamDetailSnapshot.class
+tn\esprit\services\football\ApiFootballOddsSnapshot$Market.class
 tn\esprit\entities\MessengerMessage.class
 tn\esprit\services\PerformanceAnalyticsService$PerformanceStats.class
 tn\esprit\Controller\JoueurDetailController.class
@@ -256,6 +262,7 @@ tn\esprit\services\football\SportsCafeCompetitionMappings.class
 tn\esprit\services\ProductAiService$SmartProductQuery.class
 tn\esprit\services\StoreCartSession$CartEntry.class
 tn\esprit\Controller\LeagueCompetitionController.class
+tn\esprit\tools\TheOddsApiConfig.class
 tn\esprit\Controller\MatchListController.class
 tn\esprit\Controller\OrderController$ChoiceItem.class
 tn\esprit\services\MatchLiveCompanionAnalyzer$MomentumSnapshot.class
@@ -318,6 +325,7 @@ tn\esprit\Controller\SponsorAdminController$TeamOption.class
 tn\esprit\Controller\AdminDashboardController$AnnonceRow.class
 tn\esprit\Controller\JoueurListController$2.class
 tn\esprit\assistant\AssistantPlayerProfileProvider.class
+tn\esprit\services\football\ApiFootballOddsSnapshot$BookmakerRow.class
 tn\esprit\services\SponsorMapViewService.class
 tn\esprit\Controller\FootballNewsController$2.class
 tn\esprit\assistant\AssistantContextProvider.class
@@ -419,6 +427,7 @@ tn\esprit\Controller\AdminDashboardController$SponsoringDashboard.class
 tn\esprit\Controller\JoueurController$4.class
 tn\esprit\Controller\SponsorAdminController$2.class
 tn\esprit\services\NotificationService.class
+tn\esprit\services\football\ApiFootballOddsSnapshot$Selection.class
 tn\esprit\entities\Matchs.class
 tn\esprit\Controller\JoueurController$3.class
 tn\esprit\gui\UserNavbarMenu.class

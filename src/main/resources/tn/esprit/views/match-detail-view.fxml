@@ -230,6 +230,10 @@
                                     onAction="#handleShowLineupTab"
                                     text="Compositions"
                                     styleClass="detail-tab-button"/>
+                            <Button fx:id="oddsTabButton"
+                                    onAction="#handleShowOddsTab"
+                                    text="Odds"
+                                    styleClass="detail-tab-button"/>
                             <Button fx:id="videosTabButton"
                                     onAction="#handleShowVideosTab"
                                     text="Videos"
@@ -390,6 +394,53 @@
                                    styleClass="section-subtitle"/>
 
                             <VBox fx:id="matchStatsContainer" spacing="12"/>
+                        </VBox>
+
+                        <VBox fx:id="oddsSection" spacing="12" styleClass="panel-card flashscore-odds-card" visible="false" managed="false">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Odds" styleClass="section-title flashscore-section-title"/>
+                                    <Label fx:id="oddsMessageLabel"
+                                           text="Les cotes seront chargees depuis API-Football."
+                                           wrapText="true"
+                                           styleClass="section-subtitle odds-message-label"/>
+                                </VBox>
+                                <Label fx:id="oddsStateLabel" text="ODDS" styleClass="flashscore-inline-badge odds-state-pending"/>
+                                <Button fx:id="refreshOddsButton"
+                                        onAction="#handleRefreshOdds"
+                                        text="Refresh odds"
+                                        styleClass="ghost-button"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="odds-meta-row">
+                                <Label text="Source" styleClass="odds-meta-caption"/>
+                                <Label fx:id="oddsSourceLabel" text="API-Football free API" styleClass="odds-meta-value"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Update" styleClass="odds-meta-caption"/>
+                                <Label fx:id="oddsUpdatedLabel" text="Derniere mise a jour inconnue" styleClass="odds-meta-value"/>
+                            </HBox>
+
+                            <VBox fx:id="oddsMarketsContainer" spacing="10"/>
+
+                            <VBox spacing="8" styleClass="odds-gesture-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Match Gesture" styleClass="odds-gesture-kicker"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label text="Sport Insight Edge" styleClass="flashscore-inline-badge odds-gesture-badge"/>
+                                </HBox>
+                                <Label fx:id="oddsGestureTitleLabel"
+                                       text="API watch"
+                                       wrapText="true"
+                                       styleClass="odds-gesture-title"/>
+                                <Label fx:id="oddsGestureBodyLabel"
+                                       text="Le panneau suit l'etat du match et recharge les marches disponibles via API-Football."
+                                       wrapText="true"
+                                       styleClass="odds-gesture-body"/>
+                                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="odds-gesture-actions-row">
+                                    <Label fx:id="oddsGesturePrimaryLabel" text="Refresh odds" styleClass="odds-gesture-action"/>
+                                    <Label fx:id="oddsGestureSecondaryLabel" text="Sync fixture" styleClass="odds-gesture-action odds-gesture-action-secondary"/>
+                                </HBox>
+                            </VBox>
                         </VBox>
 
                         <VBox fx:id="videosSection" spacing="10" styleClass="panel-card flashscore-videos-card" visible="false" managed="false">

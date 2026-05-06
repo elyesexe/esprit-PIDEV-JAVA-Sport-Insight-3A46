@@ -58,6 +58,8 @@ import tn.esprit.services.football.ApiFootballLineupPlayer;
 import tn.esprit.services.football.ApiFootballLineupSide;
 import tn.esprit.services.football.ApiFootballMatchIncident;
 import tn.esprit.services.football.ApiFootballMatchDetails;
+import tn.esprit.services.football.ApiFootballOddsService;
+import tn.esprit.services.football.ApiFootballOddsSnapshot;
 import tn.esprit.services.football.ApiFootballStatisticRow;
 import tn.esprit.services.football.FootballDataCompetitions;
 import tn.esprit.services.football.YouTubeService;
@@ -199,6 +201,8 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Button videosTabButton;
     @FXML
+    private Button oddsTabButton;
+    @FXML
     private Button followHomeTeamButton;
     @FXML
     private Button followAwayTeamButton;
@@ -214,6 +218,8 @@ public class MatchDetailController implements AssistantContextProvider {
     private VBox lineupSection;
     @FXML
     private VBox videosSection;
+    @FXML
+    private VBox oddsSection;
     @FXML
     private Label summaryHomeTeamLabel;
     @FXML
@@ -294,10 +300,31 @@ public class MatchDetailController implements AssistantContextProvider {
     private Label matchVideoEmptyTitleLabel;
     @FXML
     private Label matchVideoEmptyBodyLabel;
+    @FXML
+    private Button refreshOddsButton;
+    @FXML
+    private Label oddsStateLabel;
+    @FXML
+    private Label oddsSourceLabel;
+    @FXML
+    private Label oddsUpdatedLabel;
+    @FXML
+    private Label oddsMessageLabel;
+    @FXML
+    private VBox oddsMarketsContainer;
+    @FXML
+    private Label oddsGestureTitleLabel;
+    @FXML
+    private Label oddsGestureBodyLabel;
+    @FXML
+    private Label oddsGesturePrimaryLabel;
+    @FXML
+    private Label oddsGestureSecondaryLabel;
 
     private MatchsService matchsService;
     private EquipeService equipeService;
     private ApiFootballInsightsService apiFootballInsightsService;
+    private ApiFootballOddsService apiFootballOddsService;
     private MatchFollowTargetService matchFollowTargetService;
     private YouTubeService youtubeService;
     private Matchs match;
@@ -306,6 +333,7 @@ public class MatchDetailController implements AssistantContextProvider {
     private SidebarModuleGroup sidebarModuleGroup;
     private final AtomicLong apiRequestSequence = new AtomicLong();
     private final AtomicLong videoRequestSequence = new AtomicLong();
+    private final AtomicLong oddsRequestSequence = new AtomicLong();
     private List<ApiFootballMatchIncident> currentIncidents = List.of();
     private ApiFootballLineupSide currentHomeLineup;
     private ApiFootballLineupSide currentAwayLineup;
@@ -327,6 +355,7 @@ public class MatchDetailController implements AssistantContextProvider {
     private File currentLocalMp4File;
     private boolean matchVideoLookupCompleted;
     private boolean matchVideoRefreshInProgress;
+    private boolean oddsRefreshInProgress;
 
     @FXML
     public void initialize() {
@@ -343,6 +372,7 @@ public class MatchDetailController implements AssistantContextProvider {
         applyActiveTab();
         configureLiveRefreshLifecycle();
         youtubeService = new YouTubeService();
+        apiFootballOddsService = new ApiFootballOddsService();
 
         try {
             matchsService = new MatchsService();
@@ -868,6 +898,12 @@ public class MatchDetailController implements AssistantContextProvider {
         applyActiveTab();
     }
 
+    public void openOddsTabFromAssistant() {
+        activeTab = MatchDetailTab.ODDS;
+        applyActiveTab();
+        refreshOddsAsync(false);
+    }
+
     public void openMatchListFromAssistant() {
         openMatchList();
     }
@@ -980,6 +1016,18 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     @FXML
+    private void handleShowOddsTab() {
+        activeTab = MatchDetailTab.ODDS;
+        applyActiveTab();
+        refreshOddsAsync(false);
+    }
+
+    @FXML
+    private void handleRefreshOdds() {
+        refreshOddsAsync(true);
+    }
+
+    @FXML
     private void handleRefreshVideos() {
         refreshMatchVideosAsync(true);
     }
@@ -1076,6 +1124,7 @@ public class MatchDetailController implements AssistantContextProvider {
             currentMvpPlayerId = null;
             currentMvpPlayerNameKey = null;
             resetMatchVideoUiForNewMatch();
+            resetOddsUiForNewMatch();
             renderSummary(List.of());
             renderStoredLineups();
             renderStatistics(List.of());
@@ -1085,6 +1134,7 @@ public class MatchDetailController implements AssistantContextProvider {
             refreshFollowButtons();
             renderCachedInsights();
             ensureFinishedMatchHighlightsLoaded(false);
+            refreshOddsAsync(false);
             refreshLiveMatchAsync(true);
             startLiveRefreshIfNeeded();
         } catch (SQLException e) {
@@ -1165,6 +1215,7 @@ public class MatchDetailController implements AssistantContextProvider {
             }
 
             applyFixtureSnapshot(payload.snapshot());
+            refreshOddsAsync(false);
             if (payload.details() != null) {
                 renderApiFootballInsights(payload.details());
             }
@@ -1207,6 +1258,299 @@ public class MatchDetailController implements AssistantContextProvider {
         });
 
         API_EXECUTOR.execute(task);
+    }
+
+    private void refreshOddsAsync(boolean force) {
+        if (match == null || apiFootballOddsService == null) {
+            return;
+        }
+        if (oddsRefreshInProgress && !force) {
+            return;
+        }
+
+        long requestId = oddsRequestSequence.incrementAndGet();
+        Matchs requestedMatch = match;
+        String requestedHomeName = detailHomeNameLabel == null ? "Domicile" : detailHomeNameLabel.getText();
+        String requestedAwayName = detailAwayNameLabel == null ? "Exterieur" : detailAwayNameLabel.getText();
+        oddsRefreshInProgress = true;
+        setOddsLoading(true);
+        if (oddsMarketsContainer != null && oddsMarketsContainer.getChildren().isEmpty()) {
+            renderOddsPlaceholder("Chargement des cotes API-Football...");
+        }
+        if (oddsMessageLabel != null) {
+            oddsMessageLabel.setText("Chargement des cotes API-Football...");
+        }
+
+        Task<ApiFootballOddsSnapshot> task = new Task<>() {
+            @Override
+            protected ApiFootballOddsSnapshot call() throws Exception {
+                return apiFootballOddsService.loadMatchOdds(requestedMatch, requestedHomeName, requestedAwayName);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestId != oddsRequestSequence.get()) {
+                return;
+            }
+            oddsRefreshInProgress = false;
+            setOddsLoading(false);
+            renderOddsSnapshot(task.getValue());
+        });
+
+        task.setOnFailed(event -> {
+            if (requestId != oddsRequestSequence.get()) {
+                return;
+            }
+            oddsRefreshInProgress = false;
+            setOddsLoading(false);
+            Throwable throwable = task.getException();
+            renderOddsError(shortError(throwable));
+        });
+
+        task.setOnCancelled(event -> {
+            if (requestId == oddsRequestSequence.get()) {
+                oddsRefreshInProgress = false;
+                setOddsLoading(false);
+                renderOddsError("Chargement des cotes annule.");
+            }
+        });
+
+        API_EXECUTOR.execute(task);
+    }
+
+    private void resetOddsUiForNewMatch() {
+        oddsRequestSequence.incrementAndGet();
+        oddsRefreshInProgress = false;
+        setOddsLoading(false);
+        if (oddsStateLabel != null) {
+            oddsStateLabel.setText("ODDS");
+            applyOddsStateStyle("pending");
+        }
+        if (oddsSourceLabel != null) {
+            oddsSourceLabel.setText("API-Football free API");
+        }
+        if (oddsUpdatedLabel != null) {
+            oddsUpdatedLabel.setText("Derniere mise a jour inconnue");
+        }
+        if (oddsMessageLabel != null) {
+            oddsMessageLabel.setText("Les cotes seront chargees depuis API-Football.");
+        }
+        renderOddsPlaceholder("Les cotes API apparaitront ici.");
+        renderOddsGesture(null);
+    }
+
+    private void setOddsLoading(boolean loading) {
+        if (refreshOddsButton == null) {
+            return;
+        }
+        refreshOddsButton.setDisable(loading);
+        refreshOddsButton.setText(loading ? "Loading..." : "Refresh odds");
+    }
+
+    private void renderOddsSnapshot(ApiFootballOddsSnapshot snapshot) {
+        if (snapshot == null) {
+            renderOddsError("Aucune reponse API-Football pour les cotes.");
+            return;
+        }
+
+        if (oddsStateLabel != null) {
+            oddsStateLabel.setText(emptyToFallback(snapshot.stateLabel(), "ODDS"));
+            applyOddsStateStyle(snapshot.locked() ? "closed" : (snapshot.statusLabel() == null ? "pending" : snapshot.statusLabel()));
+        }
+        if (oddsSourceLabel != null) {
+            oddsSourceLabel.setText(emptyToFallback(snapshot.sourceLabel(), "API-Football odds"));
+        }
+        if (oddsUpdatedLabel != null) {
+            oddsUpdatedLabel.setText(emptyToFallback(snapshot.updatedAt(), "Derniere mise a jour inconnue"));
+        }
+        if (oddsMessageLabel != null) {
+            oddsMessageLabel.setText(emptyToFallback(snapshot.message(), "Cotes indisponibles pour ce match."));
+        }
+
+        if (oddsMarketsContainer != null) {
+            oddsMarketsContainer.getChildren().clear();
+            if (!snapshot.hasMarkets()) {
+                renderOddsPlaceholder(emptyToFallback(snapshot.message(), "Aucune cote API disponible pour ce match."));
+            } else {
+                for (ApiFootballOddsSnapshot.Market market : snapshot.markets()) {
+                    oddsMarketsContainer.getChildren().add(buildOddsMarketCard(market, snapshot.locked()));
+                }
+            }
+        }
+        renderOddsGesture(snapshot.gestureInsight());
+    }
+
+    private void renderOddsError(String message) {
+        if (oddsStateLabel != null) {
+            oddsStateLabel.setText("ODDS");
+            applyOddsStateStyle("unavailable");
+        }
+        if (oddsSourceLabel != null) {
+            oddsSourceLabel.setText("API-Football odds");
+        }
+        if (oddsUpdatedLabel != null) {
+            oddsUpdatedLabel.setText("Derniere mise a jour inconnue");
+        }
+        if (oddsMessageLabel != null) {
+            oddsMessageLabel.setText(emptyToFallback(message, "Cotes indisponibles."));
+        }
+        renderOddsPlaceholder(emptyToFallback(message, "Cotes indisponibles."));
+        renderOddsGesture(new ApiFootballOddsSnapshot.GestureInsight(
+                "API watch",
+                "Relancez les cotes apres la synchronisation du match ou quand le quota API-Football est disponible.",
+                "Refresh odds",
+                "Sync fixture",
+                40,
+                "pending"
+        ));
+    }
+
+    private void renderOddsPlaceholder(String message) {
+        if (oddsMarketsContainer == null) {
+            return;
+        }
+        oddsMarketsContainer.getChildren().clear();
+        Label placeholder = new Label(message);
+        placeholder.setWrapText(true);
+        placeholder.getStyleClass().add("odds-placeholder");
+        oddsMarketsContainer.getChildren().add(placeholder);
+    }
+
+    private VBox buildOddsMarketCard(ApiFootballOddsSnapshot.Market market, boolean locked) {
+        VBox card = new VBox(8);
+        card.getStyleClass().add("odds-market-card");
+
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+        Label title = new Label(emptyToFallback(market == null ? null : market.name(), "Market"));
+        title.getStyleClass().add("odds-market-title");
+        Label description = new Label(emptyToFallback(market == null ? null : market.description(), "API"));
+        description.getStyleClass().add("odds-market-description");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Label lockLabel = new Label(locked ? "Closed" : "Open");
+        lockLabel.getStyleClass().addAll("odds-market-state", locked ? "odds-market-state-closed" : "odds-market-state-open");
+        header.getChildren().addAll(title, description, spacer, lockLabel);
+
+        VBox rows = new VBox(0);
+        rows.getStyleClass().add("odds-table");
+        if (market != null && market.rows() != null) {
+            for (ApiFootballOddsSnapshot.BookmakerRow row : market.rows()) {
+                rows.getChildren().add(buildOddsBookmakerRow(row, locked));
+            }
+        }
+
+        card.getChildren().addAll(header, rows);
+        return card;
+    }
+
+    private HBox buildOddsBookmakerRow(ApiFootballOddsSnapshot.BookmakerRow row, boolean locked) {
+        HBox container = new HBox(10);
+        container.setAlignment(Pos.CENTER_LEFT);
+        container.getStyleClass().add("odds-bookmaker-row");
+
+        Label bookmakerLabel = new Label(emptyToFallback(row == null ? null : row.bookmaker(), "Bookmaker"));
+        bookmakerLabel.setMinWidth(150);
+        bookmakerLabel.setPrefWidth(150);
+        bookmakerLabel.getStyleClass().add("odds-bookmaker-label");
+
+        HBox selectionsBox = new HBox(8);
+        selectionsBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(selectionsBox, Priority.ALWAYS);
+
+        if (row != null && row.selections() != null) {
+            for (ApiFootballOddsSnapshot.Selection selection : row.selections()) {
+                selectionsBox.getChildren().add(buildOddsSelectionCell(selection, locked));
+            }
+        }
+
+        container.getChildren().addAll(bookmakerLabel, selectionsBox);
+        return container;
+    }
+
+    private VBox buildOddsSelectionCell(ApiFootballOddsSnapshot.Selection selection, boolean locked) {
+        VBox cell = new VBox(2);
+        cell.setAlignment(Pos.CENTER);
+        cell.setMinWidth(92);
+        cell.setPrefWidth(108);
+        cell.getStyleClass().add("odds-selection-cell");
+        if (locked || (selection != null && selection.suspended())) {
+            cell.getStyleClass().add("odds-selection-locked");
+        }
+        String trend = selection == null ? "neutral" : emptyToFallback(selection.trend(), "neutral").toLowerCase(Locale.ROOT);
+        cell.getStyleClass().add("odds-trend-" + trend);
+
+        Label label = new Label(selection == null ? "-" : emptyToFallback(selection.label(), "-"));
+        label.setTextOverrun(OverrunStyle.ELLIPSIS);
+        label.getStyleClass().add("odds-selection-label");
+
+        Label odd = new Label(selection == null ? "-" : emptyToFallback(selection.odd(), "-"));
+        odd.getStyleClass().add("odds-selection-odd");
+
+        Label signal = new Label(oddsTrendLabel(trend, locked || (selection != null && selection.suspended())));
+        signal.getStyleClass().add("odds-selection-signal");
+
+        cell.getChildren().addAll(label, odd, signal);
+        return cell;
+    }
+
+    private String oddsTrendLabel(String trend, boolean locked) {
+        if (locked || "locked".equals(trend)) {
+            return "LOCK";
+        }
+        if ("up".equals(trend)) {
+            return "UP";
+        }
+        if ("down".equals(trend)) {
+            return "DOWN";
+        }
+        return "STABLE";
+    }
+
+    private void renderOddsGesture(ApiFootballOddsSnapshot.GestureInsight insight) {
+        String title = insight == null ? "API watch" : emptyToFallback(insight.title(), "API watch");
+        String body = insight == null
+                ? "Le panneau suit l'etat du match et recharge les marches disponibles via API-Football."
+                : emptyToFallback(insight.body(), "Le panneau suit l'etat du match et recharge les marches disponibles via API-Football.");
+        if (oddsGestureTitleLabel != null) {
+            oddsGestureTitleLabel.setText(title);
+        }
+        if (oddsGestureBodyLabel != null) {
+            oddsGestureBodyLabel.setText(body);
+        }
+        if (oddsGesturePrimaryLabel != null) {
+            oddsGesturePrimaryLabel.setText(insight == null ? "Refresh odds" : emptyToFallback(insight.primaryAction(), "Refresh odds"));
+        }
+        if (oddsGestureSecondaryLabel != null) {
+            oddsGestureSecondaryLabel.setText(insight == null ? "Sync fixture" : emptyToFallback(insight.secondaryAction(), "Sync fixture"));
+        }
+    }
+
+    private void applyOddsStateStyle(String state) {
+        if (oddsStateLabel == null) {
+            return;
+        }
+        oddsStateLabel.getStyleClass().removeAll(
+                "odds-state-live",
+                "odds-state-programmed",
+                "odds-state-closed",
+                "odds-state-unavailable",
+                "odds-state-pending"
+        );
+        String normalized = lowercase(state);
+        String styleClass;
+        if (normalized != null && normalized.contains("live")) {
+            styleClass = "odds-state-live";
+        } else if (normalized != null && (normalized.contains("finished") || normalized.contains("closed"))) {
+            styleClass = "odds-state-closed";
+        } else if (normalized != null && normalized.contains("unavailable")) {
+            styleClass = "odds-state-unavailable";
+        } else if (normalized != null && (normalized.contains("programme") || normalized.contains("programmed") || normalized.contains("pre"))) {
+            styleClass = "odds-state-programmed";
+        } else {
+            styleClass = "odds-state-pending";
+        }
+        oddsStateLabel.getStyleClass().add(styleClass);
     }
 
     private void refreshMatchVideosAsync(boolean force) {
@@ -2267,10 +2611,12 @@ public class MatchDetailController implements AssistantContextProvider {
         updateSectionVisibility(statsSection, activeTab == MatchDetailTab.STATS);
         updateSectionVisibility(lineupSection, activeTab == MatchDetailTab.LINEUP);
         updateSectionVisibility(videosSection, activeTab == MatchDetailTab.VIDEOS);
+        updateSectionVisibility(oddsSection, activeTab == MatchDetailTab.ODDS);
         updateTabButton(summaryTabButton, activeTab == MatchDetailTab.SUMMARY);
         updateTabButton(statsTabButton, activeTab == MatchDetailTab.STATS);
         updateTabButton(lineupTabButton, activeTab == MatchDetailTab.LINEUP);
         updateTabButton(videosTabButton, activeTab == MatchDetailTab.VIDEOS);
+        updateTabButton(oddsTabButton, activeTab == MatchDetailTab.ODDS);
         if (activeTab == MatchDetailTab.VIDEOS) {
             renderSelectedMatchVideo();
         } else {
@@ -4885,6 +5231,7 @@ public class MatchDetailController implements AssistantContextProvider {
         SUMMARY,
         STATS,
         LINEUP,
+        ODDS,
         VIDEOS
     }
 

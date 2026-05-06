@@ -163,6 +163,8 @@ C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballLineupPlayer.jav
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballLineupSide.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchDetails.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchIncident.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballOddsService.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballOddsSnapshot.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballPlayerSeasonStats.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballScorerEntry.java
 C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballStatisticRow.java
@@ -175,6 +177,7 @@ C:\PI Java\src\main\java\tn\esprit\services\football\SofaScoreClient.java
 C:\PI Java\src\main\java\tn\esprit\services\football\SofaScoreCompetitionMappings.java
 C:\PI Java\src\main\java\tn\esprit\services\football\SportsCafeClient.java
 C:\PI Java\src\main\java\tn\esprit\services\football\SportsCafeCompetitionMappings.java
+C:\PI Java\src\main\java\tn\esprit\services\football\TheOddsApiClient.java
 C:\PI Java\src\main\java\tn\esprit\services\football\TheSportsDbClient.java
 C:\PI Java\src\main\java\tn\esprit\services\football\TheSportsDbCompetitionMappings.java
 C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeService.java
@@ -231,3 +234,4 @@ C:\PI Java\src\main\java\tn\esprit\tools\ResendConfig.java
 C:\PI Java\src\main\java\tn\esprit\tools\SchemaMigration.java
 C:\PI Java\src\main\java\tn\esprit\tools\SponsorAssets.java
 C:\PI Java\src\main\java\tn\esprit\tools\StripeConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\TheOddsApiConfig.java
