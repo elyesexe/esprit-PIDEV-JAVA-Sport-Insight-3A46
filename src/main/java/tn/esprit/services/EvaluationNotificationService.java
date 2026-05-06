@@ -45,7 +45,7 @@ public class EvaluationNotificationService {
         SmtpConfig config = SmtpConfig.load();
         if (!config.isConfigured()) {
             return new DeliveryResult(false,
-                    "Configuration SMTP manquante. Cree evaluation-mail.local.properties a la racine du projet, ou ~/.sport-insight/evaluation-mail.local.properties, puis renseigne les valeurs SMTP. " +
+                    "SMTP configuration missing. Create evaluation-mail.local.properties at project root, or ~/.sport-insight/evaluation-mail.local.properties, then fill in SMTP values. " +
                             config.describeConfigurationStatus());
         }
 
@@ -213,7 +213,7 @@ public class EvaluationNotificationService {
         }
 
         String describeConfigurationStatus() {
-            return "SMTP attendu dans: " + String.join(", ", CHECKED_LOCATIONS);
+            return "SMTP expected in: " + String.join(", ", CHECKED_LOCATIONS);
         }
 
         String host() { return host; }
@@ -297,9 +297,9 @@ public class EvaluationNotificationService {
                 ((SSLSocket) socket).startHandshake();
             } else {
                 socket = new Socket();
-                socket.connect(new InetSocketAddress(config.host(), config.port()), 10000);
+                socket.connect(new InetSocketAddress(config.host(), config.port()), 30000);
             }
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(30000);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
 

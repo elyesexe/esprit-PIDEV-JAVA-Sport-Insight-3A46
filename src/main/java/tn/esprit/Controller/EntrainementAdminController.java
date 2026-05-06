@@ -16,6 +16,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.util.StringConverter;
 import tn.esprit.entities.Entrainement;
 import tn.esprit.entities.Evaluation;
 import tn.esprit.entities.Participation;
@@ -169,15 +173,31 @@ public class EntrainementAdminController {
         searchField.textProperty().addListener((obs, oldValue, newValue) -> applyFilters());
         sortChoiceBox.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
 
-        // Make entrainement table editable with double-click
+        // Make entrainement table editable
+        tableView.setEditable(true);
         dateColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatDate(cell.getValue().getDateEntrainement())));
+        
         typeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getType(), "-")));
+        typeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        typeColumn.setOnEditCommit(event -> {
+            Entrainement entrainement = event.getRowValue();
+            entrainement.setType(event.getNewValue());
+            updateEntrainementInDatabase(entrainement);
+        });
+        
         lieuColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getLieu(), "-")));
+        lieuColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        lieuColumn.setOnEditCommit(event -> {
+            Entrainement entrainement = event.getRowValue();
+            entrainement.setLieu(event.getNewValue());
+            updateEntrainementInDatabase(entrainement);
+        });
+        
         horaireColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatTimeRange(cell.getValue())));
         coachColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolveCoachLabel(cell.getValue().getEntraineurId())));
         tableView.setItems(filtered);
         
-        // Double-click to edit entrainement
+        // Double-click to edit entrainement in dialog for complex fields
         tableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 Entrainement selected = tableView.getSelectionModel().getSelectedItem();
@@ -191,22 +211,28 @@ public class EntrainementAdminController {
             selected = newValue;
             if (newValue != null) {
                 populateForm(newValue);
-                formHintLabel.setText("Double-cliquez sur une ligne pour modifier");
+                formHintLabel.setText("Click on Type or Location to edit directly, or double-click for full edit");
             } else {
-                formHintLabel.setText("Double-cliquez sur une ligne pour modifier");
+                formHintLabel.setText("Click on Type or Location to edit directly, or double-click for full edit");
             }
             clearValidation();
         });
 
-        evaluationSortBox.setItems(FXCollections.observableArrayList("Moyenne", "Note physique", "Note technique", "Note tactique"));
+        // Make evaluation table editable
+        evaluationTableView.setEditable(true);
+        evaluationSortBox.setItems(FXCollections.observableArrayList("Average", "Physical Score", "Technical Score", "Tactical Score"));
         evaluationSearchField.textProperty().addListener((obs, oldValue, newValue) -> applyEvaluationFilters());
         evaluationSortBox.valueProperty().addListener((obs, oldValue, newValue) -> applyEvaluationFilters());
         evaluationEntrColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolveTrainingLabel(cell.getValue().getEntrainementId())));
         evaluationPlayerColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolvePlayerLabel(cell.getValue().getJoueurId())));
+        
+        // Make score columns editable
         evaluationScoreColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(buildScoreLabel(cell.getValue())));
         evaluationAvgColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatAverage(cell.getValue())));
         
-        // Double-click to edit evaluation
+        // Add editable comment column if needed - for now keep double-click for full edit
+        
+        // Double-click to edit evaluation with all fields
         evaluationTableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 Evaluation selected = evaluationTableView.getSelectionModel().getSelectedItem();
@@ -220,21 +246,39 @@ public class EntrainementAdminController {
             selectedEvaluation = newValue;
             if (newValue != null) {
                 populateEvaluationForm(newValue);
-                evaluationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
+                evaluationHintLabel.setText("Double-click to edit evaluation details");
             } else {
-                evaluationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
+                evaluationHintLabel.setText("Double-click to edit evaluation details");
             }
             clearEvaluationValidation();
         });
 
-        participationSortBox.setItems(FXCollections.observableArrayList("Presence", "Joueur", "Entrainement"));
+        // Make participation table editable
+        participationTableView.setEditable(true);
+        participationSortBox.setItems(FXCollections.observableArrayList("Presence", "Player", "Training"));
         participationPresenceFormField.setItems(FXCollections.observableArrayList("Present", "Absent"));
         participationSearchField.textProperty().addListener((obs, oldValue, newValue) -> applyParticipationFilters());
         participationSortBox.valueProperty().addListener((obs, oldValue, newValue) -> applyParticipationFilters());
         participationEntrColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolveTrainingLabel(cell.getValue().getEntrainementId())));
         participationPlayerColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolvePlayerLabel(cell.getValue().getJoueurId())));
+        
+        // Make presence editable with dropdown
         participationPresenceColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getPresence(), "-")));
+        participationPresenceColumn.setCellFactory(ComboBoxTableCell.forTableColumn("Present", "Absent"));
+        participationPresenceColumn.setOnEditCommit(event -> {
+            Participation participation = event.getRowValue();
+            participation.setPresence(event.getNewValue());
+            updateParticipationInDatabase(participation);
+        });
+        
+        // Make justification editable
         participationJustifColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getJustificationAbsence(), "-")));
+        participationJustifColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        participationJustifColumn.setOnEditCommit(event -> {
+            Participation participation = event.getRowValue();
+            participation.setJustificationAbsence(event.getNewValue());
+            updateParticipationInDatabase(participation);
+        });
         
         // Double-click to edit participation or evaluate if present
         participationTableView.setOnMouseClicked(event -> {
@@ -255,9 +299,9 @@ public class EntrainementAdminController {
             selectedParticipation = newValue;
             if (newValue != null) {
                 populateParticipationForm(newValue);
-                participationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
+                participationHintLabel.setText("Click Presence or Justification to edit directly");
             } else {
-                participationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
+                participationHintLabel.setText("Click Presence or Justification to edit directly");
             }
             clearParticipationValidation();
         });
@@ -275,13 +319,13 @@ public class EntrainementAdminController {
             refreshEvaluations();
             refreshParticipations();
         } catch (SQLException e) {
-            showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
+            showError("Loading Error", "Unable to load training sessions.\n" + e.getMessage());
         }
     }
 
     @FXML
     private void handleOpenHome() {
-        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
+        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Home");
     }
 
     @FXML
@@ -306,7 +350,7 @@ public class EntrainementAdminController {
             refreshData();
             clearForm();
         } catch (SQLException e) {
-            showError("Ajout", "Erreur lors de l'ajout.\n" + e.getMessage());
+            showError("Add Error", "Failed to add training session.\n" + e.getMessage());
         }
     }
 
@@ -314,7 +358,7 @@ public class EntrainementAdminController {
     private void handleUpdate() {
         clearValidation();
         if (selected == null) {
-            showValidation("Selectionnez un entrainement.");
+            showValidation("Please select a training session.");
             return;
         }
         Entrainement entrainement = buildFromForm(true);
@@ -327,7 +371,7 @@ public class EntrainementAdminController {
             refreshData();
             clearForm();
         } catch (SQLException e) {
-            showError("Modification", "Erreur lors de la modification.\n" + e.getMessage());
+            showError("Update Error", "Failed to update training session.\n" + e.getMessage());
         }
     }
 
@@ -335,13 +379,15 @@ public class EntrainementAdminController {
     private void handleDelete() {
         clearValidation();
         if (selected == null) {
-            showValidation("Selectionnez un entrainement.");
+            showValidation("Please select a training session.");
             return;
         }
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Suppression");
-        alert.setHeaderText("Supprimer cet entrainement ?");
-        alert.setContentText("Cette action est definitive.");
+        alert.setTitle("Delete Training");
+        alert.setHeaderText("Delete this training session?");
+        alert.setContentText("This action cannot be undone.");
+        alert.getDialogPane().setMinWidth(400);
+        alert.getDialogPane().setMinHeight(150);
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -351,7 +397,7 @@ public class EntrainementAdminController {
             refreshData();
             clearForm();
         } catch (SQLException e) {
-            showError("Suppression", "Erreur lors de la suppression.\n" + e.getMessage());
+            showError("Delete Error", "Failed to delete training session.\n" + e.getMessage());
         }
     }
 
@@ -377,9 +423,9 @@ public class EntrainementAdminController {
             String emailStatus = notifyPlayerAboutEvaluation(evaluation, false);
             refreshEvaluations();
             clearEvaluationForm();
-            showInfo("Evaluation", "Evaluation ajoutee avec succes!\n" + emailStatus);
+            showSuccess("Evaluation", "Evaluation added successfully!\n" + emailStatus);
         } catch (SQLException e) {
-            showError("Evaluation", "Erreur lors de l'ajout.\n" + e.getMessage());
+            showError("Evaluation", "Failed to add evaluation.\n" + e.getMessage());
         }
     }
 
@@ -400,9 +446,9 @@ public class EntrainementAdminController {
             String emailStatus = notifyPlayerAboutEvaluation(evaluation, true);
             refreshEvaluations();
             clearEvaluationForm();
-            showInfo("Evaluation", "Evaluation mise a jour avec succes!\n" + emailStatus);
+            showSuccess("Evaluation", "Evaluation updated successfully!\n" + emailStatus);
         } catch (SQLException e) {
-            showError("Evaluation", "Erreur lors de la modification.\n" + e.getMessage());
+            showError("Evaluation", "Failed to update evaluation.\n" + e.getMessage());
         }
     }
 
@@ -413,7 +459,7 @@ public class EntrainementAdminController {
             showEvaluationValidation("Selectionnez une evaluation.");
             return;
         }
-        if (!confirmDelete("Supprimer cette evaluation ?")) {
+        if (!confirmDelete("Delete this evaluation?")) {
             return;
         }
         try {
@@ -421,7 +467,7 @@ public class EntrainementAdminController {
             refreshEvaluations();
             clearEvaluationForm();
         } catch (SQLException e) {
-            showError("Evaluation", "Erreur lors de la suppression.\n" + e.getMessage());
+            showError("Evaluation", "Failed to delete evaluation.\n" + e.getMessage());
         }
     }
 
@@ -432,12 +478,12 @@ public class EntrainementAdminController {
 
     private String notifyPlayerAboutEvaluation(Evaluation evaluation, boolean updated) {
         if (evaluationNotificationService == null || userService == null || entrainementService == null) {
-            return "Notification email indisponible.";
+            return "Email notification unavailable.";
         }
         try {
             User player = userService.getById(evaluation.getJoueurId());
             if (player == null || player.getEmail() == null || player.getEmail().isBlank()) {
-                return "Evaluation enregistree, mais aucune adresse e-mail valide n'a ete trouvee pour ce joueur.";
+                return "Evaluation saved, but no valid email address found for this player.";
             }
 
             Entrainement training = entrainementService.getById(evaluation.getEntrainementId());
@@ -445,7 +491,7 @@ public class EntrainementAdminController {
                     evaluationNotificationService.sendEvaluationNotification(player, training, evaluation, updated);
             return result.message();
         } catch (SQLException e) {
-            return "Evaluation enregistree, mais l'e-mail n'a pas pu etre prepare: " + e.getMessage();
+            return "Evaluation saved, but email could not be prepared: " + e.getMessage();
         }
     }
 
@@ -466,7 +512,7 @@ public class EntrainementAdminController {
             refreshParticipations();
             clearParticipationForm();
         } catch (SQLException e) {
-            showError("Participation", "Erreur lors de l'ajout.\n" + e.getMessage());
+            showError("Participation", "Failed to add participation.\n" + e.getMessage());
         }
     }
 
@@ -487,7 +533,7 @@ public class EntrainementAdminController {
             refreshParticipations();
             clearParticipationForm();
         } catch (SQLException e) {
-            showError("Participation", "Erreur lors de la modification.\n" + e.getMessage());
+            showError("Participation", "Failed to update participation.\n" + e.getMessage());
         }
     }
 
@@ -498,7 +544,7 @@ public class EntrainementAdminController {
             showParticipationValidation("Selectionnez une participation.");
             return;
         }
-        if (!confirmDelete("Supprimer cette participation ?")) {
+        if (!confirmDelete("Delete this participation?")) {
             return;
         }
         try {
@@ -506,7 +552,7 @@ public class EntrainementAdminController {
             refreshParticipations();
             clearParticipationForm();
         } catch (SQLException e) {
-            showError("Participation", "Erreur lors de la suppression.\n" + e.getMessage());
+            showError("Participation", "Failed to delete participation.\n" + e.getMessage());
         }
     }
 
@@ -521,7 +567,7 @@ public class EntrainementAdminController {
             loadTrainingOptions();
             applyFilters();
         } catch (SQLException e) {
-            showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
+            showError("Loading Error", "Unable to load training sessions.\n" + e.getMessage());
         }
     }
 
@@ -548,7 +594,7 @@ public class EntrainementAdminController {
             evaluationMaster.setAll(evaluationService.getAll());
             applyEvaluationFilters();
         } catch (SQLException e) {
-            showError("Evaluation", "Impossible de charger les evaluations.\n" + e.getMessage());
+            showError("Evaluation", "Unable to load evaluations.\n" + e.getMessage());
         }
     }
 
@@ -561,13 +607,13 @@ public class EntrainementAdminController {
                     .collect(Collectors.toList());
         }
         List<Evaluation> sorted = switch (evaluationSortBox.getValue() == null ? "" : evaluationSortBox.getValue()) {
-            case "Note physique" -> items.stream()
+            case "Physical Score" -> items.stream()
                     .sorted(Comparator.comparingDouble(Evaluation::getNotePhysique).reversed())
                     .collect(Collectors.toList());
-            case "Note technique" -> items.stream()
+            case "Technical Score" -> items.stream()
                     .sorted(Comparator.comparingDouble(Evaluation::getNoteTechnique).reversed())
                     .collect(Collectors.toList());
-            case "Note tactique" -> items.stream()
+            case "Tactical Score" -> items.stream()
                     .sorted(Comparator.comparingDouble(Evaluation::getNoteTactique).reversed())
                     .collect(Collectors.toList());
             default -> items.stream()
@@ -583,7 +629,7 @@ public class EntrainementAdminController {
             participationMaster.setAll(participationService.getAll());
             applyParticipationFilters();
         } catch (SQLException e) {
-            showError("Participation", "Impossible de charger les participations.\n" + e.getMessage());
+            showError("Participation", "Unable to load participations.\n" + e.getMessage());
         }
     }
 
@@ -596,10 +642,10 @@ public class EntrainementAdminController {
                     .collect(Collectors.toList());
         }
         List<Participation> sorted = switch (participationSortBox.getValue() == null ? "" : participationSortBox.getValue()) {
-            case "Joueur" -> items.stream()
+            case "Player" -> items.stream()
                     .sorted(Comparator.comparing(p -> p.getJoueurId() == null ? 0 : p.getJoueurId()))
                     .collect(Collectors.toList());
-            case "Entrainement" -> items.stream()
+            case "Training" -> items.stream()
                     .sorted(Comparator.comparing(p -> p.getEntrainementId() == null ? 0 : p.getEntrainementId()))
                     .collect(Collectors.toList());
             default -> items.stream()
@@ -655,7 +701,7 @@ public class EntrainementAdminController {
         objectifField.clear();
         lieuField.clear();
         coachField.getSelectionModel().clearSelection();
-        formHintLabel.setText("Selectionnez une ligne ou saisissez une nouvelle session.");
+        formHintLabel.setText("Click on Type or Location to edit directly, or add new training session");
         clearValidation();
     }
 
@@ -667,7 +713,7 @@ public class EntrainementAdminController {
         evaluationTechField.clear();
         evaluationTactField.clear();
         evaluationCommentField.clear();
-        evaluationHintLabel.setText("Selectionnez une evaluation ou creez-en une.");
+        evaluationHintLabel.setText("Double-click to edit or create new evaluation");
         clearEvaluationValidation();
     }
 
@@ -677,7 +723,7 @@ public class EntrainementAdminController {
         participationPlayerField.getSelectionModel().clearSelection();
         participationPresenceFormField.getSelectionModel().clearSelection();
         participationJustifField.clear();
-        participationHintLabel.setText("Selectionnez une participation ou creez-en une.");
+        participationHintLabel.setText("Click Presence or Justification to edit, or create new");
         clearParticipationValidation();
     }
 
@@ -685,26 +731,26 @@ public class EntrainementAdminController {
         LocalDate date = dateField.getValue();
         if (date == null) {
             markInvalid(dateField);
-            showValidation("La date est obligatoire.");
+            showValidation("Date is required.");
             return null;
         }
         if (date.isBefore(LocalDate.now())) {
             markInvalid(dateField);
-            showValidation("La date doit etre aujourd'hui ou dans le futur.");
+            showValidation("Date must be today or in the future.");
             return null;
         }
 
-        LocalTime start = parseTime(startField, "Heure debut");
+        LocalTime start = parseTime(startField, "Start time");
         if (start == null) {
             return null;
         }
-        LocalTime end = parseTime(endField, "Heure fin");
+        LocalTime end = parseTime(endField, "End time");
         if (end == null) {
             return null;
         }
         if (!end.isAfter(start)) {
             markInvalid(endField);
-            showValidation("L'heure de fin doit etre apres l'heure de debut.");
+            showValidation("End time must be after start time.");
             return null;
         }
 
@@ -724,13 +770,13 @@ public class EntrainementAdminController {
         CoachOption coach = coachField.getValue();
         if (coach == null) {
             markInvalid(coachField);
-            showValidation("Le coach est obligatoire.");
+            showValidation("Coach is required.");
             return null;
         }
 
         Entrainement entrainement = new Entrainement(date, start, end, type, objectif, lieu, coach.id());
         if (updateMode && selected == null) {
-            showValidation("Selectionnez un entrainement a modifier.");
+            showValidation("Please select a training session to update.");
             return null;
         }
         return entrainement;
@@ -741,29 +787,29 @@ public class EntrainementAdminController {
         UserOption player = evaluationPlayerField.getValue();
         if (training == null) {
             markInvalid(evaluationTrainingField);
-            showEvaluationValidation("Entrainement obligatoire.");
+            showEvaluationValidation("Training session is required.");
             return null;
         }
         if (player == null) {
             markInvalid(evaluationPlayerField);
-            showEvaluationValidation("Joueur obligatoire.");
+            showEvaluationValidation("Player is required.");
             return null;
         }
-        Double phys = parseDouble(evaluationPhysField, "Note physique");
-        Double tech = parseDouble(evaluationTechField, "Note technique");
-        Double tact = parseDouble(evaluationTactField, "Note tactique");
+        Double phys = parseDouble(evaluationPhysField, "Physical score");
+        Double tech = parseDouble(evaluationTechField, "Technical score");
+        Double tact = parseDouble(evaluationTactField, "Tactical score");
         if (phys == null || tech == null || tact == null) {
             return null;
         }
         String comment = evaluationCommentField.getText();
         if (comment == null || comment.isBlank()) {
             markInvalid(evaluationCommentField);
-            showEvaluationValidation("Commentaire obligatoire.");
+            showEvaluationValidation("Comment is required.");
             return null;
         }
         Evaluation evaluation = new Evaluation(phys, tech, tact, comment.trim(), training.id(), player.id());
         if (updateMode && selectedEvaluation == null) {
-            showEvaluationValidation("Selectionnez une evaluation a modifier.");
+            showEvaluationValidation("Please select an evaluation to update.");
             return null;
         }
         return evaluation;
@@ -775,22 +821,22 @@ public class EntrainementAdminController {
         String presence = participationPresenceFormField.getValue();
         if (training == null) {
             markInvalid(participationTrainingField);
-            showParticipationValidation("Entrainement obligatoire.");
+            showParticipationValidation("Training session is required.");
             return null;
         }
         if (player == null) {
             markInvalid(participationPlayerField);
-            showParticipationValidation("Joueur obligatoire.");
+            showParticipationValidation("Player is required.");
             return null;
         }
         if (presence == null || presence.isBlank()) {
             markInvalid(participationPresenceFormField);
-            showParticipationValidation("Presence obligatoire.");
+            showParticipationValidation("Presence status is required.");
             return null;
         }
         Participation participation = new Participation(presence, emptyIfNull(participationJustifField.getText(), null), training.id(), player.id());
         if (updateMode && selectedParticipation == null) {
-            showParticipationValidation("Selectionnez une participation a modifier.");
+            showParticipationValidation("Please select a participation to update.");
             return null;
         }
         return participation;
@@ -800,7 +846,7 @@ public class EntrainementAdminController {
         String value = field.getText() == null ? "" : field.getText().trim();
         if (value.isEmpty()) {
             markInvalid(field);
-            showValidation(label + " est obligatoire.");
+            showValidation(label + " is required.");
             return null;
         }
         try {
@@ -816,7 +862,7 @@ public class EntrainementAdminController {
         String value = field.getText();
         if (value == null || value.isBlank()) {
             markInvalid(field);
-            showValidation(label + " est obligatoire.");
+            showValidation(label + " is required.");
             return null;
         }
         return value.trim();
@@ -876,7 +922,7 @@ public class EntrainementAdminController {
             return false;
         }
         String value = roles.toLowerCase();
-        return value.contains("coach") || value.contains("entraineur") || value.contains("entraîneur");
+        return value.contains("coach") || value.contains("entraineur") || value.contains("entraîneur") || value.contains("trainer");
     }
 
     private boolean isPlayer(User user) {
@@ -1092,14 +1138,14 @@ public class EntrainementAdminController {
         String value = field.getText();
         if (value == null || value.isBlank()) {
             markInvalid(field);
-            showEvaluationValidation(label + " obligatoire.");
+            showEvaluationValidation(label + " is required.");
             return null;
         }
         try {
             return Double.parseDouble(value.trim());
         } catch (NumberFormatException e) {
             markInvalid(field);
-            showEvaluationValidation(label + " invalide.");
+            showEvaluationValidation(label + " is invalid.");
             return null;
         }
     }
@@ -1109,6 +1155,9 @@ public class EntrainementAdminController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setMinWidth(400);
+        alert.getDialogPane().setMinHeight(150);
+        alert.getDialogPane().getStyleClass().add("custom-alert");
         alert.showAndWait();
     }
 
@@ -1117,7 +1166,67 @@ public class EntrainementAdminController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setMinWidth(400);
+        alert.getDialogPane().setMinHeight(150);
+        alert.getDialogPane().getStyleClass().add("custom-alert");
         alert.showAndWait();
+    }
+    
+    private void showSuccess(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText("✓ Success");
+        alert.setContentText(message);
+        alert.getDialogPane().setMinWidth(400);
+        alert.getDialogPane().setMinHeight(150);
+        alert.getDialogPane().getStyleClass().add("custom-alert");
+        alert.getDialogPane().getStyleClass().add("success-alert");
+        alert.showAndWait();
+    }
+    
+    private void showWarning(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.getDialogPane().setMinWidth(400);
+        alert.getDialogPane().setMinHeight(150);
+        alert.getDialogPane().getStyleClass().add("custom-alert");
+        alert.showAndWait();
+    }
+    
+    // Inline editing helper methods
+    private void updateEntrainementInDatabase(Entrainement entrainement) {
+        try {
+            entrainementService.update(entrainement);
+            showSuccess("Updated", "Training session updated successfully!");
+            refreshData();
+        } catch (SQLException e) {
+            showError("Update Error", "Failed to update training session.\n" + e.getMessage());
+            refreshData(); // Refresh to revert changes in UI
+        }
+    }
+    
+    private void updateEvaluationInDatabase(Evaluation evaluation) {
+        try {
+            evaluationService.update(evaluation);
+            showSuccess("Updated", "Evaluation updated successfully!");
+            refreshEvaluations();
+        } catch (SQLException e) {
+            showError("Update Error", "Failed to update evaluation.\n" + e.getMessage());
+            refreshEvaluations(); // Refresh to revert changes in UI
+        }
+    }
+    
+    private void updateParticipationInDatabase(Participation participation) {
+        try {
+            participationService.update(participation);
+            showSuccess("Updated", "Participation updated successfully!");
+            refreshParticipations();
+        } catch (SQLException e) {
+            showError("Update Error", "Failed to update participation.\n" + e.getMessage());
+            refreshParticipations(); // Refresh to revert changes in UI
+        }
     }
 
     private void openEvaluationDialog(Participation participation) {
@@ -1127,7 +1236,7 @@ public class EntrainementAdminController {
 
         javafx.stage.Stage dialog = new javafx.stage.Stage();
         dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-        dialog.setTitle("Évaluer la performance");
+        dialog.setTitle("Evaluate Performance");
         dialog.setResizable(false);
 
         javafx.scene.layout.VBox root = new javafx.scene.layout.VBox(0);
@@ -1139,7 +1248,7 @@ public class EntrainementAdminController {
         header.getStyleClass().add("evaluation-dialog-header");
         header.setPadding(new javafx.geometry.Insets(30, 30, 30, 30));
         
-        Label titleLabel = new Label("Évaluer la performance");
+        Label titleLabel = new Label("Evaluate Performance");
         titleLabel.getStyleClass().add("evaluation-dialog-title");
         
         Label playerLabel = new Label("Joueur: " + resolvePlayerLabel(participation.getJoueurId()));
@@ -1155,7 +1264,7 @@ public class EntrainementAdminController {
         content.setPadding(new javafx.geometry.Insets(30, 30, 30, 30));
         content.getStyleClass().add("evaluation-dialog-content");
 
-        Label instructionLabel = new Label("Évaluez les performances du joueur sur 20 points");
+        Label instructionLabel = new Label("Rate the player's performance out of 20 points");
         instructionLabel.getStyleClass().add("evaluation-dialog-instruction");
         instructionLabel.setWrapText(true);
 
@@ -1332,13 +1441,13 @@ public class EntrainementAdminController {
                 dialog.close();
                 
                 Alert success = new Alert(Alert.AlertType.INFORMATION);
-                success.setTitle("Succès");
+                success.setTitle("Success");
                 success.setHeaderText(null);
-                success.setContentText("Évaluation enregistrée avec succès!\n" + emailStatus);
+                success.setContentText("Evaluation saved successfully!\n" + emailStatus);
                 success.showAndWait();
                 
             } catch (SQLException ex) {
-                showError("Évaluation", "Erreur lors de l'enregistrement.\n" + ex.getMessage());
+                showError("Evaluation", "Failed to save evaluation.\n" + ex.getMessage());
             }
         });
 
@@ -1389,7 +1498,7 @@ public class EntrainementAdminController {
         // Time range
         javafx.scene.layout.HBox timeBox = new javafx.scene.layout.HBox(15);
         javafx.scene.layout.VBox startBox = new javafx.scene.layout.VBox(6);
-        Label startLabel = new Label("🕐 Heure début");
+        Label startLabel = new Label("🕐 Start time");
         startLabel.getStyleClass().add("evaluation-dialog-label");
         TextField startField = new TextField(entrainement.getHeureDebut() != null ? entrainement.getHeureDebut().toString() : "");
         startField.setPromptText("HH:MM");
@@ -1397,7 +1506,7 @@ public class EntrainementAdminController {
         startBox.getChildren().addAll(startLabel, startField);
         
         javafx.scene.layout.VBox endBox = new javafx.scene.layout.VBox(6);
-        Label endLabel = new Label("🕐 Heure fin");
+        Label endLabel = new Label("🕐 End time");
         endLabel.getStyleClass().add("evaluation-dialog-label");
         TextField endField = new TextField(entrainement.getHeureFin() != null ? entrainement.getHeureFin().toString() : "");
         endField.setPromptText("HH:MM");
@@ -1455,15 +1564,15 @@ public class EntrainementAdminController {
         saveBtn.setOnAction(e -> {
             try {
                 if (datePicker.getValue() == null) {
-                    showError("Validation", "La date est obligatoire");
+                    showError("Validation", "Date is required");
                     return;
                 }
                 if (locField.getText().trim().isEmpty()) {
-                    showError("Validation", "Le lieu est obligatoire");
+                    showError("Validation", "Location is required");
                     return;
                 }
                 if (coachCombo.getValue() == null) {
-                    showError("Validation", "L'entraineur est obligatoire");
+                    showError("Validation", "Coach is required");
                     return;
                 }
 
