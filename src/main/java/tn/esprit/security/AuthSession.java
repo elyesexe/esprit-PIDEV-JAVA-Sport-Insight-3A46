@@ -20,6 +20,11 @@ public final class AuthSession {
         currentUser = null;
     }
 
+    public static void logoutAndForget() {
+        RememberMeService.forget();
+        logout();
+    }
+
     public static User getCurrentUser() {
         return currentUser;
     }
@@ -70,11 +75,8 @@ public final class AuthSession {
         }
         return null;
     }
-<<<<<<< HEAD
 
     public static void setCurrentUser(User user) {
         currentUser = user;
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

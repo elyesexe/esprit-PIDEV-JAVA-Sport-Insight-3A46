@@ -83,13 +83,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-<<<<<<< HEAD
                                     <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
                                     <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
-=======
-                                    <Label text="â˜€" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="â˜¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -188,13 +183,8 @@
                     <VBox spacing="14" styleClass="panel-card results-panel">
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
-<<<<<<< HEAD
                                 <Label text="Catalogue des matchs" styleClass="section-title"/>
                                 <Label text="Logo domicile, adversaire, date et heure. Les autres informations sont dans la fiche detail."
-=======
-                                <Label text="Cartes des matchs" styleClass="section-title"/>
-                                <Label text="Chaque carte ouvre directement une page detail. Aucun formulaire ni action CRUD ici."
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                        wrapText="true"
                                        styleClass="section-subtitle"/>
                             </VBox>
@@ -226,9 +216,3 @@
         </ScrollPane>
     </center>
 </BorderPane>
-
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

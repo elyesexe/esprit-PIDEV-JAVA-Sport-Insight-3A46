@@ -11,23 +11,17 @@ public class Product {
     private String size;
     private String brand;
     private String image;
-<<<<<<< HEAD
     private String description;
     private String tags;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     public Product() {
     }
 
     public Product(String name, String category, BigDecimal price, int stock, String size, String brand, String image) {
-<<<<<<< HEAD
         this(name, category, price, stock, size, brand, image, null, null);
     }
 
     public Product(String name, String category, BigDecimal price, int stock, String size, String brand, String image, String description, String tags) {
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         this.name = name;
         this.category = category;
         this.price = price;
@@ -35,7 +29,6 @@ public class Product {
         this.size = size;
         this.brand = brand;
         this.image = image;
-<<<<<<< HEAD
         this.description = description;
         this.tags = tags;
     }
@@ -45,11 +38,6 @@ public class Product {
     }
 
     public Product(Integer id, String name, String category, BigDecimal price, int stock, String size, String brand, String image, String description, String tags) {
-=======
-    }
-
-    public Product(Integer id, String name, String category, BigDecimal price, int stock, String size, String brand, String image) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         this.id = id;
         this.name = name;
         this.category = category;
@@ -58,11 +46,8 @@ public class Product {
         this.size = size;
         this.brand = brand;
         this.image = image;
-<<<<<<< HEAD
         this.description = description;
         this.tags = tags;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     public Integer getId() {
@@ -129,7 +114,6 @@ public class Product {
         this.image = image;
     }
 
-<<<<<<< HEAD
     public String getDescription() {
         return description;
     }
@@ -146,8 +130,6 @@ public class Product {
         this.tags = tags;
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @Override
     public String toString() {
         return "Product{" +
@@ -159,11 +141,8 @@ public class Product {
                 ", size='" + size + '\'' +
                 ", brand='" + brand + '\'' +
                 ", image='" + image + '\'' +
-<<<<<<< HEAD
                 ", description='" + description + '\'' +
                 ", tags='" + tags + '\'' +
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 '}';
     }
 }

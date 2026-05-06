@@ -1,5 +1,4 @@
 .idea/
-<<<<<<< HEAD
 .vscode/
 .settings/
 out/
@@ -7,11 +6,6 @@ target/
 *.class
 *.log
 *.iml
-=======
-target/
-*.class
-*.log
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 # Local test helpers
 Check*.java
@@ -19,7 +13,6 @@ Check*.java
 # OS files
 Thumbs.db
 Desktop.ini
-<<<<<<< HEAD
 .DS_Store
 
 # Local asset workspace and generated verification helpers
@@ -40,10 +33,3 @@ jcef-cache/
 # Java / Maven local metadata
 hs_err_pid*
 replay_pid*
-=======
-
-# Local asset workspace
-image/
-football-data.local.properties
-evaluation-mail.local.properties
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

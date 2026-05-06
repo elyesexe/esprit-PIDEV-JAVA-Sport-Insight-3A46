@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Copy this file to `evaluation-mail.local.properties` and fill in the real Gmail app password.
 
 mail.smtp.host=smtp.gmail.com
@@ -7,14 +6,3 @@ mail.smtp.auth=true
 mail.smtp.starttls.enable=true
 mail.sender=bennjimamariem99@gmail.com
 mail.password=your-gmail-app-password
-=======
-# Copy this file to `evaluation-mail.local.properties` and fill in real SMTP values.
-
-smtp.host=smtp.gmail.com
-smtp.port=587
-smtp.username=your-email@example.com
-smtp.password=your-app-password
-smtp.from=your-email@example.com
-smtp.tls=true
-smtp.ssl=false
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

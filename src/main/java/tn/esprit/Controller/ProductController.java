@@ -5,10 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-<<<<<<< HEAD
 import javafx.concurrent.Task;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -25,10 +22,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-<<<<<<< HEAD
 import javafx.scene.control.TextArea;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
@@ -46,12 +40,9 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.repositories.ProductRepository;
-<<<<<<< HEAD
 import tn.esprit.services.OrderService;
 import tn.esprit.services.ProductAiService;
 import tn.esprit.services.ProductAnalyticsService;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.services.ProductPdfExportService;
 import tn.esprit.services.ProductService;
 
@@ -66,25 +57,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-<<<<<<< HEAD
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.stream.Collectors;
 
 public class ProductController {
     private static final int LOW_STOCK_THRESHOLD = 5;
-<<<<<<< HEAD
     private static final int TRENDING_LIMIT = 6;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("product-db"));
     private static final ExecutorService AI_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("product-ai"));
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private BorderPane pageRoot;
     @FXML private ScrollPane pageScroll;
@@ -106,21 +91,15 @@ public class ProductController {
     @FXML private Label visibleProductsMetricLabel;
     @FXML private Label lowStockMetricLabel;
     @FXML private Label outOfStockMetricLabel;
-<<<<<<< HEAD
     @FXML private Label restockSoonMetricLabel;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private Label stockChartSummaryLabel;
     @FXML private Label categoryChartSummaryLabel;
     @FXML private BarChart<String, Number> stockStatusChart;
     @FXML private PieChart categoryDistributionChart;
 
     @FXML private TextField searchField;
-<<<<<<< HEAD
     @FXML private Label smartSearchSummaryLabel;
     @FXML private Button trendingFilterButton;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private ComboBox<ProductRepository.ProductSortField> sortByComboBox;
     @FXML private ComboBox<ProductRepository.SortDirection> sortDirectionComboBox;
 
@@ -142,12 +121,9 @@ public class ProductController {
     @FXML private Label detailCategoryValueLabel;
     @FXML private Label detailBrandValueLabel;
     @FXML private Label detailSizeValueLabel;
-<<<<<<< HEAD
     @FXML private Label detailTagsValueLabel;
     @FXML private Label detailDescriptionValueLabel;
     @FXML private Label detailForecastValueLabel;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private Label detailImagePathLabel;
     @FXML private ImageView detailImageView;
     @FXML private Label detailImagePlaceholderLabel;
@@ -162,29 +138,22 @@ public class ProductController {
     @FXML private TextField stockField;
     @FXML private TextField sizeField;
     @FXML private TextField imageField;
-<<<<<<< HEAD
     @FXML private TextField tagsField;
     @FXML private TextArea descriptionField;
     @FXML private Label formInsightLabel;
     @FXML private Label formForecastLabel;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private Button addButton;
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
     @FXML private Button detailEditButton;
     @FXML private Button detailDeleteButton;
     @FXML private Button exportPdfButton;
-<<<<<<< HEAD
     @FXML private Button generateAiButton;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private final ObservableList<Product> products = FXCollections.observableArrayList();
     private final Map<String, Image> imageCache = new HashMap<>();
 
     private ProductService productService;
-<<<<<<< HEAD
     private OrderService orderService;
     private ProductPdfExportService productPdfExportService;
     private ProductAiService productAiService;
@@ -199,12 +168,6 @@ public class ProductController {
     private ProductAnalyticsService.DashboardDemandSummary demandSummary =
             new ProductAnalyticsService.DashboardDemandSummary(0, ProductAnalyticsService.ProductDemandSnapshot.empty());
     private boolean trendingFilterActive;
-=======
-    private ProductPdfExportService productPdfExportService;
-    private Product selectedProduct;
-    private boolean serviceReady;
-    private SidebarModuleGroup sidebarModuleGroup;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -214,10 +177,7 @@ public class ProductController {
         configureFormatters();
         configureTable();
         configureCharts();
-<<<<<<< HEAD
         updateTrendingButtonState();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateDetailPanel();
         updateActionAvailability();
         if (pageScroll != null) {
@@ -230,7 +190,6 @@ public class ProductController {
             productService = new ProductService();
             productPdfExportService = new ProductPdfExportService();
             serviceReady = true;
-<<<<<<< HEAD
             orderService = createOptionalOrderService();
             productAiService = new ProductAiService();
             productAnalyticsService = new ProductAnalyticsService();
@@ -238,10 +197,6 @@ public class ProductController {
                     ? "Module produits pret. Analyse commandes indisponible."
                     : "Module produits pret.", "status-success");
             refreshProducts(null, "Chargement des produits...", "status-muted");
-=======
-            setStatus("Module produits pret.", "status-success");
-            refreshProducts(null, null, null);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException exception) {
             serviceReady = false;
             setStatus("Module produits indisponible.", "status-error");
@@ -250,10 +205,7 @@ public class ProductController {
     }
 
     public void setDarkMode(boolean darkMode) {
-<<<<<<< HEAD
         this.darkMode = darkMode;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Platform.runLater(this::applyWorkspaceSurface);
         if (productTableView != null) {
             productTableView.refresh();
@@ -264,10 +216,7 @@ public class ProductController {
         if (categoryDistributionChart != null) {
             categoryDistributionChart.applyCss();
         }
-<<<<<<< HEAD
         updateCharts();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Platform.runLater(() -> applyPieChartTheme(categoryDistributionChart, darkMode));
     }
 
@@ -358,11 +307,8 @@ public class ProductController {
         if (searchField != null) {
             searchField.clear();
         }
-<<<<<<< HEAD
         trendingFilterActive = false;
         updateTrendingButtonState();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (sortByComboBox != null) {
             sortByComboBox.setValue(ProductRepository.ProductSortField.NAME);
         }
@@ -373,7 +319,6 @@ public class ProductController {
     }
 
     @FXML
-<<<<<<< HEAD
     private void handleToggleTrending() {
         trendingFilterActive = !trendingFilterActive;
         updateTrendingButtonState();
@@ -466,8 +411,6 @@ public class ProductController {
     }
 
     @FXML
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void handleExportPdf() {
         if (!serviceReady || productPdfExportService == null) {
             showValidation("Le service d'export PDF n'est pas disponible.");
@@ -504,7 +447,6 @@ public class ProductController {
 
         try {
             productService.add(product);
-<<<<<<< HEAD
             selectedProduct = null;
             clearFormFields();
             clearValidation();
@@ -516,10 +458,6 @@ public class ProductController {
             selectionStateLabel.setText("Selectionnez un produit");
             updateActionAvailability();
             refreshProducts(null, "Produit ajoute avec succes.", "status-success");
-=======
-            refreshProducts(product.getId(), "Produit ajoute avec succes.", "status-success");
-            clearValidation();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (IllegalArgumentException | SQLException exception) {
             setStatus("Ajout impossible.", "status-error");
             showValidation(resolvePersistenceMessage(exception));
@@ -674,7 +612,6 @@ public class ProductController {
             return;
         }
 
-<<<<<<< HEAD
         long requestId = refreshSequence.incrementAndGet();
         String search = searchField == null ? null : searchField.getText();
         boolean trendingActive = trendingFilterActive;
@@ -734,17 +671,6 @@ public class ProductController {
             if (smartSearchSummaryLabel != null) {
                 smartSearchSummaryLabel.setText(emptyIfNull(payload.searchSummary(), "Recherche texte standard."));
             }
-=======
-        try {
-            List<Product> foundProducts = productService.findProducts(
-                    searchField == null ? null : searchField.getText(),
-                    sortByComboBox.getValue(),
-                    sortDirectionComboBox.getValue()
-            );
-            products.setAll(foundProducts);
-            updateMetrics();
-            updateCharts();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
             if (selectedId != null) {
                 selectProductById(selectedId);
@@ -762,7 +688,6 @@ public class ProductController {
             } else {
                 setStatus(products.size() + " produit(s) charges.", "status-muted");
             }
-<<<<<<< HEAD
         });
 
         loadTask.setOnFailed(event -> {
@@ -852,14 +777,6 @@ public class ProductController {
         return baseSummary + " | " + trendSummary;
     }
 
-=======
-        } catch (SQLException exception) {
-            setStatus("Chargement impossible.", "status-error");
-            showAlert(Alert.AlertType.ERROR, "Produit", resolveSqlMessage(exception));
-        }
-    }
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void populateForm(Product product) {
         if (product == null) {
             return;
@@ -872,11 +789,8 @@ public class ProductController {
         stockField.setText(String.valueOf(product.getStock()));
         sizeField.setText(emptyIfNull(product.getSize(), ""));
         imageField.setText(emptyIfNull(product.getImage(), ""));
-<<<<<<< HEAD
         tagsField.setText(emptyIfNull(product.getTags(), ""));
         descriptionField.setText(emptyIfNull(product.getDescription(), ""));
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         formModeLabel.setText("Modifier le produit");
         formHintLabel.setText("Les modifications seront appliquees au produit selectionne.");
         clearValidation();
@@ -904,13 +818,9 @@ public class ProductController {
                 stock,
                 trimToNull(sizeField.getText()),
                 trimToNull(brandField.getText()),
-<<<<<<< HEAD
                 trimToNull(imageField.getText()),
                 trimToNull(descriptionField.getText()),
                 trimToNull(tagsField.getText())
-=======
-                trimToNull(imageField.getText())
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         );
 
         Map<String, String> errors = productService.validate(product);
@@ -960,12 +870,9 @@ public class ProductController {
 
     private void selectProduct(Product product) {
         selectedProduct = product;
-<<<<<<< HEAD
         if (product != null) {
             populateForm(product);
         }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateDetailPanel();
         updateActionAvailability();
         selectionStateLabel.setText(product == null
@@ -999,12 +906,9 @@ public class ProductController {
         visibleProductsMetricLabel.setText(String.valueOf(products.size()));
         lowStockMetricLabel.setText(String.valueOf(lowStock));
         outOfStockMetricLabel.setText(String.valueOf(outOfStock));
-<<<<<<< HEAD
         if (restockSoonMetricLabel != null) {
             restockSoonMetricLabel.setText(String.valueOf(demandSummary.restockSoonCount()));
         }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updateCharts() {
@@ -1019,7 +923,6 @@ public class ProductController {
             XYChart.Data<String, Number> outData = new XYChart.Data<>("Out", outOfStock);
             series.getData().addAll(healthyData, lowData, outData);
             stockStatusChart.getData().setAll(series);
-<<<<<<< HEAD
             if (isDarkModeEnabled()) {
                 applyBarColor(healthyData, "#22c55e");
                 applyBarColor(lowData, "#f59e0b");
@@ -1029,11 +932,6 @@ public class ProductController {
                 applyBarColor(lowData, "#f59e0b");
                 applyBarColor(outData, "#ef4444");
             }
-=======
-            applyBarColor(healthyData, "#22c55e");
-            applyBarColor(lowData, "#f59e0b");
-            applyBarColor(outData, "#ef4444");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         Map<String, Long> categories = products.stream()
@@ -1057,15 +955,11 @@ public class ProductController {
         }
 
         if (stockChartSummaryLabel != null) {
-<<<<<<< HEAD
             StringBuilder summary = new StringBuilder(products.size() + " visible product(s) | " + healthyStock + " healthy | " + lowStock + " low | " + outOfStock + " out");
             if (demandSummary != null && demandSummary.restockSoonCount() > 0) {
                 summary.append(" | ").append(demandSummary.restockSoonCount()).append(" restock soon");
             }
             stockChartSummaryLabel.setText(summary.toString());
-=======
-            stockChartSummaryLabel.setText(products.size() + " visible product(s) | " + healthyStock + " healthy | " + lowStock + " low | " + outOfStock + " out");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         if (categoryChartSummaryLabel != null) {
             String topCategory = categories.entrySet().stream()
@@ -1074,7 +968,6 @@ public class ProductController {
                     .map(entry -> entry.getKey() + " leads with " + entry.getValue())
                     .findFirst()
                     .orElse("No category data available.");
-<<<<<<< HEAD
             ProductAnalyticsService.ProductDemandSnapshot topRisk = demandSummary == null
                     ? ProductAnalyticsService.ProductDemandSnapshot.empty()
                     : demandSummary.topRiskProduct();
@@ -1082,9 +975,6 @@ public class ProductController {
                     ? "No demand alert."
                     : "Top alert: " + topRisk.productName() + " | " + topRisk.summary();
             categoryChartSummaryLabel.setText(topCategory + " | " + demandLabel);
-=======
-            categoryChartSummaryLabel.setText(topCategory);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -1098,12 +988,9 @@ public class ProductController {
             detailCategoryValueLabel.setText("-");
             detailBrandValueLabel.setText("-");
             detailSizeValueLabel.setText("-");
-<<<<<<< HEAD
             detailTagsValueLabel.setText("-");
             detailDescriptionValueLabel.setText("Aucune description");
             detailForecastValueLabel.setText("Aucune prevision");
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             detailImagePathLabel.setText("Aucune image");
             detailStockChipLabel.setText("-");
             detailStockChipLabel.getStyleClass().setAll("status-pill", "product-stock-chip", "product-stock-good");
@@ -1112,15 +999,12 @@ public class ProductController {
             detailImageView.setManaged(false);
             detailImagePlaceholderLabel.setVisible(true);
             detailImagePlaceholderLabel.setManaged(true);
-<<<<<<< HEAD
             if (formInsightLabel != null) {
                 formInsightLabel.setText("Mode ajout. Selectionnez un produit dans la liste pour passer en mode edition.");
             }
             if (formForecastLabel != null) {
                 formForecastLabel.setText("Prevision indisponible tant qu'aucun produit n'est selectionne.");
             }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
 
@@ -1137,7 +1021,6 @@ public class ProductController {
         detailCategoryValueLabel.setText(emptyIfNull(selectedProduct.getCategory()));
         detailBrandValueLabel.setText(emptyIfNull(selectedProduct.getBrand()));
         detailSizeValueLabel.setText(emptyIfNull(selectedProduct.getSize()));
-<<<<<<< HEAD
         detailTagsValueLabel.setText(emptyIfNull(selectedProduct.getTags()));
         detailDescriptionValueLabel.setText(emptyIfNull(selectedProduct.getDescription(), "Aucune description"));
         detailImagePathLabel.setText(emptyIfNull(selectedProduct.getImage(), "Aucune image"));
@@ -1158,11 +1041,6 @@ public class ProductController {
         } else if (formForecastLabel != null) {
             formForecastLabel.setText("Prevision indisponible.");
         }
-=======
-        detailImagePathLabel.setText(emptyIfNull(selectedProduct.getImage(), "Aucune image"));
-        detailStockChipLabel.setText(selectedProduct.getStock() + " en stock");
-        applyStockStyle(detailStockChipLabel, selectedProduct.getStock());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateDetailImage(selectedProduct.getImage(), selectedProduct.getName());
     }
 
@@ -1181,11 +1059,7 @@ public class ProductController {
             return;
         }
         if (builder.length() > 0) {
-<<<<<<< HEAD
             builder.append(" | ");
-=======
-            builder.append(" • ");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         builder.append(normalized);
     }
@@ -1276,11 +1150,8 @@ public class ProductController {
         clearFieldError(stockField);
         clearFieldError(sizeField);
         clearFieldError(imageField);
-<<<<<<< HEAD
         clearFieldError(descriptionField);
         clearFieldError(tagsField);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         if (errors.containsKey("name")) {
             markFieldInvalid(nameField);
@@ -1303,21 +1174,17 @@ public class ProductController {
         if (errors.containsKey("image")) {
             markFieldInvalid(imageField);
         }
-<<<<<<< HEAD
         if (errors.containsKey("description")) {
             markFieldInvalid(descriptionField);
         }
         if (errors.containsKey("tags")) {
             markFieldInvalid(tagsField);
         }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         showValidation(errors.values().stream().collect(Collectors.joining("\n")));
     }
 
     private void updateActionAvailability() {
-<<<<<<< HEAD
         boolean editMode = selectedProduct != null;
 
         if (addButton != null) {
@@ -1350,13 +1217,6 @@ public class ProductController {
         trendingFilterButton.setText(trendingFilterActive ? "Tendances ON" : "Tendances");
         trendingFilterButton.getStyleClass().removeAll("primary-button", "soft-button");
         trendingFilterButton.getStyleClass().add(trendingFilterActive ? "primary-button" : "soft-button");
-=======
-        boolean hasSelection = selectedProduct != null;
-        updateButton.setDisable(!hasSelection);
-        deleteButton.setDisable(!hasSelection);
-        detailEditButton.setDisable(!hasSelection);
-        detailDeleteButton.setDisable(!hasSelection);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void clearFormFields() {
@@ -1367,11 +1227,8 @@ public class ProductController {
         stockField.clear();
         sizeField.clear();
         imageField.clear();
-<<<<<<< HEAD
         tagsField.clear();
         descriptionField.clear();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void showValidation(String message) {
@@ -1392,11 +1249,8 @@ public class ProductController {
         clearFieldError(stockField);
         clearFieldError(sizeField);
         clearFieldError(imageField);
-<<<<<<< HEAD
         clearFieldError(descriptionField);
         clearFieldError(tagsField);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void markFieldInvalid(Control control) {
@@ -1421,7 +1275,6 @@ public class ProductController {
         }
     }
 
-<<<<<<< HEAD
     private BigDecimal parseOptionalPrice() {
         String value = trimToNull(priceField.getText());
         if (value == null) {
@@ -1434,8 +1287,6 @@ public class ProductController {
         }
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Integer parseStock() {
         String value = trimToNull(stockField.getText());
         if (value == null) {
@@ -1565,17 +1416,10 @@ public class ProductController {
         if (chart == null) {
             return;
         }
-<<<<<<< HEAD
         String labelColor = darkMode ? "#eef3ff" : "#475569";
         String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
         String legendColor = darkMode ? "#eef3ff" : "#475569";
         String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
-=======
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node ->
@@ -1591,17 +1435,12 @@ public class ProductController {
     }
 
     private boolean isDarkModeEnabled() {
-<<<<<<< HEAD
         return darkMode || (themeToggleButton != null && themeToggleButton.isSelected());
-=======
-        return themeToggleButton != null && themeToggleButton.isSelected();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private Node resolveNavigationSource(Node preferred, Node fallback) {
         return preferred != null ? preferred : fallback;
     }
-<<<<<<< HEAD
 
     private record ProductRefreshPayload(
             List<Product> products,
@@ -1619,6 +1458,4 @@ public class ProductController {
             return thread;
         };
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

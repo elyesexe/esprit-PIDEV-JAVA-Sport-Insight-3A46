@@ -1,231 +1,233 @@
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantClapPatternDetector.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantClapWakeService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantCommand.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantContextProvider.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantConversationMemory.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantEntityLexicon.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantFuzzyMatcher.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantIntent.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantIntentResolver.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantIntentScope.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantIntentTarget.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantIntentType.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantMessage.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantNavigationTarget.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantOverlay.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantPlayerProfileProvider.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantPlayerProfileSnapshot.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantResponsePolicy.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantScreenCatalog.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantTeamDetailProvider.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantTeamDetailSnapshot.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\AssistantWakeSignal.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\OllamaClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\VoiceCaptureResult.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\VoiceCaptureUpdate.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\VoiceInputService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\assistant\VoiceOutputService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\AdminDashboardController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\AdminShellController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\AdminUserModerationController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\AnnonceController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\AnnonceUserController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EntrainementAdminController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EntrainementUserController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EquipeCompetitionController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EquipeController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EquipeDetailController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EquipeFormController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\EquipeListController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\FaceLoginController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\FaceRegisterController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\FoodTrackingController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\FootballNewsController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\ForgotPasswordController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\GoogleLoginController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\HomeController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\JoueurCompetitionController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\JoueurController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\JoueurDetailController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\JoueurListController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\JoueurTeamController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\LeagueCompetitionController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\LeagueTableController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\LoginController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\MatchApiController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\MatchCompetitionController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\MatchController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\MatchDetailController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\MatchFormController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\MatchListController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\NotificationCenterController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\OrderController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\PlayerPerformanceController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\ProductController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\ProfileController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\SignupController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\SponsorAdminController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\SponsorUserController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\Controller\StoreController.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\AiChecklistProgress.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Annonce.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\ChatMessage.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Commentaire.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\ContratSponsor.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\DailyNutritionSummary.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\DoctrineMigrationVersion.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Entrainement.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\EntrainementUser.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Equipe.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Evaluation.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\FoodLog.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Joueur.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\MatchFollowTarget.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\MatchLineup.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Matchs.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Message.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\MessengerMessage.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Notification.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Order.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\OrderItem.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Participation.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Product.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\Sponsor.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\entities\User.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\face\FaceRecognitionService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\face\WebcamService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\AdminNavigation.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\AdminTableButtons.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\AdminTableScrollSupport.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\ChromiumBrowserView.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\EquipeCrudMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\EquipeUiSupport.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\HomeLauncher.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\HomeMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\JoueurCrudMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\JoueurUiSupport.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\LiveMatchNotificationRuntime.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\MatchAlertPopupManager.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\MatchCrudMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\NavbarNotificationCenter.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\ProductImageResolver.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\SceneNavigator.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\SidebarModuleGroup.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\ThemeManager.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\gui\UserNavbarMenu.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\i18n\I18n.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\i18n\LiteralTranslationCatalog.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\i18n\MachineTranslationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\i18n\UiTextLocalizer.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\AnnonceMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\EntrainementMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\LauncherMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\Main.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\MatchApiMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\MatchMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\ProductMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\SponsorMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\mains\UserMain.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\repositories\ProductRepository.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\security\AuthSession.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\security\PasswordSupport.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\security\UserRoles.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\AdminExcelExportService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\AiChecklistProgressService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\AIRecommendationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\AnnoncePdfExportService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\AnnonceService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\CommentaireService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\CommentCvStorageService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ContractQrCodeService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ContratSponsorService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\CurrencyConversionService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\DailyNutritionSummaryService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\EmailService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\EntrainementService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\EquipeService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\EvaluationNotificationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\EvaluationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ExercisePlanGenerator.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\faceid\FaceIdApiClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\FoodLogService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballCompetitionMappings.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballFixtureSnapshot.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballInsightsService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballLineupPlayer.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballLineupSide.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballMatchDetails.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballMatchIncident.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballPlayerSeasonStats.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballScorerEntry.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\ApiFootballStatisticRow.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\FootballDataApiClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\FootballDataCompetitions.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\FootballDataStandingsService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\LeagueStandingEntry.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\LeagueStandingsSnapshot.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\SofaScoreClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\SofaScoreCompetitionMappings.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\SportsCafeClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\SportsCafeCompetitionMappings.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\TheSportsDbClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\TheSportsDbCompetitionMappings.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\YouTubeService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\football\YouTubeVideo.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\FootballDataSyncService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\FootballDataSyncSummary.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\FootballNewsArticle.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\FootballNewsService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\GoogleOAuthService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\IService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\JoueurService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MatchApiServer.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MatchFollowTargetService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MatchLiveCompanionAnalyzer.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MatchLiveCompanionResponse.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MatchNotFoundException.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MatchsService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\MealPlanGenerator.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\NotificationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\NutritionApiService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\OrderIntelligenceService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\OrderNotificationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\OrderPdfExportService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\OrderService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\OrderWorkflowNotificationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ParticipationService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\PasswordResetService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\PerformanceAnalyticsService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\PlayerPortraitService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ProductAiService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ProductAnalyticsService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ProductPdfExportService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\ProductService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\SponsoringPdfService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\SponsoringWorkspaceService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\SponsorMapViewService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\SponsorSentimentAnalysisService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\SponsorService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\StoreCartSession.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\StripeCheckoutService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\StripeCheckoutSessionStore.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\UserPdfExportService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\UserService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\wikidata\WikidataApiClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\wikidata\WikidataPlayerImageService.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\services\wikidata\WikidataSparqlClient.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\ApiFootballConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\BrevoConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\DatabaseBootstrap.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\FaceIdConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\FootballDataConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\JoueurAvatarGenerator.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\MailtrapConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\MyConnection.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\OpenAiConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\ResendConfig.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\SchemaMigration.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\SponsorAssets.java
-C:\xampp\htdocs\esprit-PIDEV-JAVA-Sport-Insight-3A46\src\main\java\tn\esprit\tools\StripeConfig.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantClapPatternDetector.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantClapWakeService.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantCommand.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantContextProvider.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantConversationMemory.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantEntityLexicon.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantFuzzyMatcher.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantIntent.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantIntentResolver.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantIntentScope.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantIntentTarget.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantIntentType.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantMessage.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantNavigationTarget.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantOverlay.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantPlayerProfileProvider.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantPlayerProfileSnapshot.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantResponsePolicy.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantScreenCatalog.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantService.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantTeamDetailProvider.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantTeamDetailSnapshot.java
+C:\PI Java\src\main\java\tn\esprit\assistant\AssistantWakeSignal.java
+C:\PI Java\src\main\java\tn\esprit\assistant\OllamaClient.java
+C:\PI Java\src\main\java\tn\esprit\assistant\VoiceCaptureResult.java
+C:\PI Java\src\main\java\tn\esprit\assistant\VoiceCaptureUpdate.java
+C:\PI Java\src\main\java\tn\esprit\assistant\VoiceInputService.java
+C:\PI Java\src\main\java\tn\esprit\assistant\VoiceOutputService.java
+C:\PI Java\src\main\java\tn\esprit\Controller\AdminDashboardController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\AdminShellController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\AdminUserModerationController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\AnnonceController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\AnnonceUserController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EntrainementAdminController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EntrainementUserController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EquipeCompetitionController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EquipeController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EquipeDetailController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EquipeFormController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\EquipeListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FaceLoginController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FaceRegisterController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FoodTrackingController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\FootballNewsController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\ForgotPasswordController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\GoogleLoginController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\HomeController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\JoueurCompetitionController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\JoueurController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\JoueurDetailController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\JoueurListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\JoueurTeamController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\LeagueCompetitionController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\LeagueTableController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\LoginController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchApiController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchCompetitionController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchDetailController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchFormController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\MatchListController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\NotificationCenterController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\OrderController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\PlayerPerformanceController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\ProductController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\ProfileController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\SignupController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\SponsorAdminController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\SponsorUserController.java
+C:\PI Java\src\main\java\tn\esprit\Controller\StoreController.java
+C:\PI Java\src\main\java\tn\esprit\entities\AiChecklistProgress.java
+C:\PI Java\src\main\java\tn\esprit\entities\Annonce.java
+C:\PI Java\src\main\java\tn\esprit\entities\ChatMessage.java
+C:\PI Java\src\main\java\tn\esprit\entities\Commentaire.java
+C:\PI Java\src\main\java\tn\esprit\entities\ContratSponsor.java
+C:\PI Java\src\main\java\tn\esprit\entities\DailyNutritionSummary.java
+C:\PI Java\src\main\java\tn\esprit\entities\DoctrineMigrationVersion.java
+C:\PI Java\src\main\java\tn\esprit\entities\Entrainement.java
+C:\PI Java\src\main\java\tn\esprit\entities\EntrainementUser.java
+C:\PI Java\src\main\java\tn\esprit\entities\Equipe.java
+C:\PI Java\src\main\java\tn\esprit\entities\Evaluation.java
+C:\PI Java\src\main\java\tn\esprit\entities\FoodLog.java
+C:\PI Java\src\main\java\tn\esprit\entities\Joueur.java
+C:\PI Java\src\main\java\tn\esprit\entities\MatchFollowTarget.java
+C:\PI Java\src\main\java\tn\esprit\entities\MatchLineup.java
+C:\PI Java\src\main\java\tn\esprit\entities\Matchs.java
+C:\PI Java\src\main\java\tn\esprit\entities\Message.java
+C:\PI Java\src\main\java\tn\esprit\entities\MessengerMessage.java
+C:\PI Java\src\main\java\tn\esprit\entities\Notification.java
+C:\PI Java\src\main\java\tn\esprit\entities\Order.java
+C:\PI Java\src\main\java\tn\esprit\entities\OrderItem.java
+C:\PI Java\src\main\java\tn\esprit\entities\Participation.java
+C:\PI Java\src\main\java\tn\esprit\entities\Product.java
+C:\PI Java\src\main\java\tn\esprit\entities\Sponsor.java
+C:\PI Java\src\main\java\tn\esprit\entities\User.java
+C:\PI Java\src\main\java\tn\esprit\face\FaceRecognitionService.java
+C:\PI Java\src\main\java\tn\esprit\face\WebcamService.java
+C:\PI Java\src\main\java\tn\esprit\gui\AdminNavigation.java
+C:\PI Java\src\main\java\tn\esprit\gui\AdminTableButtons.java
+C:\PI Java\src\main\java\tn\esprit\gui\AdminTableScrollSupport.java
+C:\PI Java\src\main\java\tn\esprit\gui\ChromiumBrowserView.java
+C:\PI Java\src\main\java\tn\esprit\gui\EquipeCrudMain.java
+C:\PI Java\src\main\java\tn\esprit\gui\EquipeUiSupport.java
+C:\PI Java\src\main\java\tn\esprit\gui\HomeLauncher.java
+C:\PI Java\src\main\java\tn\esprit\gui\HomeMain.java
+C:\PI Java\src\main\java\tn\esprit\gui\JoueurCrudMain.java
+C:\PI Java\src\main\java\tn\esprit\gui\JoueurUiSupport.java
+C:\PI Java\src\main\java\tn\esprit\gui\LiveMatchNotificationRuntime.java
+C:\PI Java\src\main\java\tn\esprit\gui\MatchAlertPopupManager.java
+C:\PI Java\src\main\java\tn\esprit\gui\MatchCrudMain.java
+C:\PI Java\src\main\java\tn\esprit\gui\NavbarNotificationCenter.java
+C:\PI Java\src\main\java\tn\esprit\gui\ProductImageResolver.java
+C:\PI Java\src\main\java\tn\esprit\gui\SceneNavigator.java
+C:\PI Java\src\main\java\tn\esprit\gui\SidebarModuleGroup.java
+C:\PI Java\src\main\java\tn\esprit\gui\ThemeManager.java
+C:\PI Java\src\main\java\tn\esprit\gui\UserNavbarMenu.java
+C:\PI Java\src\main\java\tn\esprit\i18n\I18n.java
+C:\PI Java\src\main\java\tn\esprit\i18n\LiteralTranslationCatalog.java
+C:\PI Java\src\main\java\tn\esprit\i18n\MachineTranslationService.java
+C:\PI Java\src\main\java\tn\esprit\i18n\UiTextLocalizer.java
+C:\PI Java\src\main\java\tn\esprit\mains\AnnonceMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\EntrainementMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\LauncherMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\Main.java
+C:\PI Java\src\main\java\tn\esprit\mains\MatchApiMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\MatchMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\ProductMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\SponsorMain.java
+C:\PI Java\src\main\java\tn\esprit\mains\UserMain.java
+C:\PI Java\src\main\java\tn\esprit\repositories\ProductRepository.java
+C:\PI Java\src\main\java\tn\esprit\security\AuthSession.java
+C:\PI Java\src\main\java\tn\esprit\security\PasswordSupport.java
+C:\PI Java\src\main\java\tn\esprit\security\RememberMeService.java
+C:\PI Java\src\main\java\tn\esprit\security\UserRoles.java
+C:\PI Java\src\main\java\tn\esprit\services\AdminExcelExportService.java
+C:\PI Java\src\main\java\tn\esprit\services\AiChecklistProgressService.java
+C:\PI Java\src\main\java\tn\esprit\services\AIRecommendationService.java
+C:\PI Java\src\main\java\tn\esprit\services\AnnoncePdfExportService.java
+C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
+C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
+C:\PI Java\src\main\java\tn\esprit\services\CommentCvStorageService.java
+C:\PI Java\src\main\java\tn\esprit\services\ContractQrCodeService.java
+C:\PI Java\src\main\java\tn\esprit\services\ContratSponsorService.java
+C:\PI Java\src\main\java\tn\esprit\services\CurrencyConversionService.java
+C:\PI Java\src\main\java\tn\esprit\services\DailyNutritionSummaryService.java
+C:\PI Java\src\main\java\tn\esprit\services\EmailService.java
+C:\PI Java\src\main\java\tn\esprit\services\EntrainementService.java
+C:\PI Java\src\main\java\tn\esprit\services\EquipeService.java
+C:\PI Java\src\main\java\tn\esprit\services\EvaluationNotificationService.java
+C:\PI Java\src\main\java\tn\esprit\services\EvaluationService.java
+C:\PI Java\src\main\java\tn\esprit\services\ExercisePlanGenerator.java
+C:\PI Java\src\main\java\tn\esprit\services\faceid\FaceIdApiClient.java
+C:\PI Java\src\main\java\tn\esprit\services\FoodLogService.java
+C:\PI Java\src\main\java\tn\esprit\services\FootballDataSyncService.java
+C:\PI Java\src\main\java\tn\esprit\services\FootballDataSyncSummary.java
+C:\PI Java\src\main\java\tn\esprit\services\FootballNewsArticle.java
+C:\PI Java\src\main\java\tn\esprit\services\FootballNewsService.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballClient.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballCompetitionMappings.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballFixtureSnapshot.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballInsightsService.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballLineupPlayer.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballLineupSide.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchDetails.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballMatchIncident.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballPlayerSeasonStats.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballScorerEntry.java
+C:\PI Java\src\main\java\tn\esprit\services\football\ApiFootballStatisticRow.java
+C:\PI Java\src\main\java\tn\esprit\services\football\FootballDataApiClient.java
+C:\PI Java\src\main\java\tn\esprit\services\football\FootballDataCompetitions.java
+C:\PI Java\src\main\java\tn\esprit\services\football\FootballDataStandingsService.java
+C:\PI Java\src\main\java\tn\esprit\services\football\LeagueStandingEntry.java
+C:\PI Java\src\main\java\tn\esprit\services\football\LeagueStandingsSnapshot.java
+C:\PI Java\src\main\java\tn\esprit\services\football\SofaScoreClient.java
+C:\PI Java\src\main\java\tn\esprit\services\football\SofaScoreCompetitionMappings.java
+C:\PI Java\src\main\java\tn\esprit\services\football\SportsCafeClient.java
+C:\PI Java\src\main\java\tn\esprit\services\football\SportsCafeCompetitionMappings.java
+C:\PI Java\src\main\java\tn\esprit\services\football\TheSportsDbClient.java
+C:\PI Java\src\main\java\tn\esprit\services\football\TheSportsDbCompetitionMappings.java
+C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeService.java
+C:\PI Java\src\main\java\tn\esprit\services\football\YouTubeVideo.java
+C:\PI Java\src\main\java\tn\esprit\services\GoogleOAuthService.java
+C:\PI Java\src\main\java\tn\esprit\services\IService.java
+C:\PI Java\src\main\java\tn\esprit\services\JoueurService.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchApiServer.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchFollowTargetService.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchLiveCompanionAnalyzer.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchLiveCompanionResponse.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchNotFoundException.java
+C:\PI Java\src\main\java\tn\esprit\services\MatchsService.java
+C:\PI Java\src\main\java\tn\esprit\services\MealPlanGenerator.java
+C:\PI Java\src\main\java\tn\esprit\services\NotificationService.java
+C:\PI Java\src\main\java\tn\esprit\services\NutritionApiService.java
+C:\PI Java\src\main\java\tn\esprit\services\OrderIntelligenceService.java
+C:\PI Java\src\main\java\tn\esprit\services\OrderNotificationService.java
+C:\PI Java\src\main\java\tn\esprit\services\OrderPdfExportService.java
+C:\PI Java\src\main\java\tn\esprit\services\OrderService.java
+C:\PI Java\src\main\java\tn\esprit\services\OrderWorkflowNotificationService.java
+C:\PI Java\src\main\java\tn\esprit\services\ParticipationService.java
+C:\PI Java\src\main\java\tn\esprit\services\PasswordResetService.java
+C:\PI Java\src\main\java\tn\esprit\services\PerformanceAnalyticsService.java
+C:\PI Java\src\main\java\tn\esprit\services\PlayerPortraitService.java
+C:\PI Java\src\main\java\tn\esprit\services\ProductAiService.java
+C:\PI Java\src\main\java\tn\esprit\services\ProductAnalyticsService.java
+C:\PI Java\src\main\java\tn\esprit\services\ProductPdfExportService.java
+C:\PI Java\src\main\java\tn\esprit\services\ProductService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsoringPdfService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsoringWorkspaceService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsorMapViewService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsorSentimentAnalysisService.java
+C:\PI Java\src\main\java\tn\esprit\services\SponsorService.java
+C:\PI Java\src\main\java\tn\esprit\services\StoreCartSession.java
+C:\PI Java\src\main\java\tn\esprit\services\StripeCheckoutService.java
+C:\PI Java\src\main\java\tn\esprit\services\StripeCheckoutSessionStore.java
+C:\PI Java\src\main\java\tn\esprit\services\UserPdfExportService.java
+C:\PI Java\src\main\java\tn\esprit\services\UserService.java
+C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataApiClient.java
+C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataPlayerImageService.java
+C:\PI Java\src\main\java\tn\esprit\services\wikidata\WikidataSparqlClient.java
+C:\PI Java\src\main\java\tn\esprit\test\NutritionTrackingTest.java
+C:\PI Java\src\main\java\tn\esprit\tools\ApiFootballConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\BrevoConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\DatabaseBootstrap.java
+C:\PI Java\src\main\java\tn\esprit\tools\FaceIdConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\FootballDataConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\JoueurAvatarGenerator.java
+C:\PI Java\src\main\java\tn\esprit\tools\MailtrapConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\MyConnection.java
+C:\PI Java\src\main\java\tn\esprit\tools\OpenAiConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\ResendConfig.java
+C:\PI Java\src\main\java\tn\esprit\tools\SchemaMigration.java
+C:\PI Java\src\main\java\tn\esprit\tools\SponsorAssets.java
+C:\PI Java\src\main\java\tn\esprit\tools\StripeConfig.java

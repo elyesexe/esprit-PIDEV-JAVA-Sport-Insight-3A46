@@ -167,18 +167,14 @@
     -fx-max-width: Infinity;
 }
 
-<<<<<<< HEAD
 .product-page-root .order-empty-card {
     -fx-min-height: 420;
 }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .product-page-root .product-info-pill {
     -fx-padding: 12 14 12 14;
 }
 
-<<<<<<< HEAD
 .product-page-root .order-section-card,
 .product-page-root .order-insight-card {
     -fx-padding: 14 16 14 16;
@@ -214,8 +210,6 @@
     -fx-line-spacing: 3px;
 }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .product-page-root .data-table {
     -fx-fixed-cell-size: 58;
 }
@@ -350,7 +344,6 @@
     -fx-border-color: rgba(148, 163, 184, 0.32);
 }
 
-<<<<<<< HEAD
 .theme-dark.product-page-root .order-section-card,
 .theme-dark .product-page-root .order-section-card,
 .admin-dark.product-page-root .order-section-card,
@@ -390,8 +383,6 @@
     -fx-text-fill: #f8fafc;
 }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .theme-dark.product-page-root .product-thumbnail-placeholder,
 .theme-dark.product-page-root .product-detail-image-placeholder,
 .theme-dark .product-page-root .product-thumbnail-placeholder,

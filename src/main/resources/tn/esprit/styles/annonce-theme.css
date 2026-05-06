@@ -179,10 +179,7 @@
 
 .form-text-field,
 .glass-combo,
-<<<<<<< HEAD
 .annonce-date-picker,
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .annonce-text-area {
     -fx-background-color: rgba(255, 255, 255, 0.96);
     -fx-background-radius: 16;
@@ -200,13 +197,10 @@
     -fx-padding: 6 10 6 10;
 }
 
-<<<<<<< HEAD
 .annonce-date-picker {
     -fx-padding: 6 10 6 10;
 }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .annonce-text-area {
     -fx-font-size: 13px;
 }
@@ -218,12 +212,8 @@
 
 .primary-button,
 .ghost-button,
-<<<<<<< HEAD
 .soft-button,
 .danger-button {
-=======
-.soft-button {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     -fx-background-radius: 16;
     -fx-border-radius: 16;
     -fx-padding: 10 16 10 16;
@@ -253,7 +243,6 @@
     -fx-background-color: rgba(226, 232, 240, 0.96);
 }
 
-<<<<<<< HEAD
 .danger-button {
     -fx-background-color: rgba(239, 68, 68, 0.96);
     -fx-text-fill: white;
@@ -271,8 +260,6 @@
     -fx-spacing: 10;
 }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .annonce-urgent-check {
     -fx-font-size: 12px;
     -fx-font-weight: 800;
@@ -295,7 +282,6 @@
 }
 
 .annonce-post-card {
-<<<<<<< HEAD
     -fx-background-color: rgba(255, 255, 255, 0.98);
     -fx-background-radius: 14;
     -fx-border-color: rgba(148, 163, 184, 0.24);
@@ -314,26 +300,6 @@
 .annonce-post-card-urgent .annonce-comment-card {
     -fx-background-color: rgba(69, 10, 10, 0.34);
     -fx-border-color: rgba(248, 113, 113, 0.34);
-=======
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
-    -fx-background-radius: 24;
-    -fx-border-color: rgba(148, 163, 184, 0.18);
-    -fx-border-radius: 24;
-    -fx-padding: 18 18 18 18;
-    -fx-spacing: 14;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0.14, 0, 8);
-}
-
-.annonce-post-card-urgent {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(254, 226, 226, 0.99) 0%, rgba(254, 202, 202, 0.99) 52%, rgba(254, 242, 242, 0.99) 100%);
-    -fx-border-color: rgba(239, 68, 68, 0.56);
-    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.16), 28, 0.2, 0, 10);
-}
-
-.annonce-post-card-urgent .annonce-comment-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(254, 242, 242, 0.99) 0%, rgba(254, 226, 226, 0.99) 100%);
-    -fx-border-color: rgba(248, 113, 113, 0.36);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 
 .annonce-post-header {
@@ -358,15 +324,9 @@
 }
 
 .annonce-post-title {
-<<<<<<< HEAD
     -fx-font-family: "Segoe UI Semibold";
     -fx-font-size: 22px;
     -fx-font-weight: 800;
-=======
-    -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 28px;
-    -fx-font-weight: 700;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     -fx-text-fill: #0f172a;
 }
 
@@ -387,7 +347,6 @@
 }
 
 .annonce-user-description-box {
-<<<<<<< HEAD
     -fx-background-color: rgba(248, 250, 252, 0.68);
     -fx-background-radius: 10;
     -fx-border-color: rgba(15, 23, 42, 0.12);
@@ -401,19 +360,6 @@
     -fx-font-size: 15px;
     -fx-line-spacing: 4px;
     -fx-text-fill: #1f2937;
-=======
-    -fx-background-color: rgba(248, 250, 252, 0.96);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(226, 232, 240, 0.86);
-    -fx-border-radius: 20;
-    -fx-padding: 14 16 14 16;
-}
-
-.annonce-user-description-text {
-    -fx-font-size: 13px;
-    -fx-line-spacing: 2px;
-    -fx-text-fill: #334155;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 
 .annonce-comments-title {
@@ -427,19 +373,11 @@
 }
 
 .annonce-comment-card {
-<<<<<<< HEAD
     -fx-background-color: rgba(248, 250, 252, 0.88);
     -fx-background-radius: 12;
     -fx-border-color: rgba(148, 163, 184, 0.18);
     -fx-border-radius: 12;
     -fx-padding: 16 18 16 18;
-=======
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(248, 250, 252, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(148, 163, 184, 0.2);
-    -fx-border-radius: 18;
-    -fx-padding: 14 16 14 16;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     -fx-spacing: 10;
 }
 
@@ -513,16 +451,10 @@
 }
 
 .annonce-comment-body {
-<<<<<<< HEAD
     -fx-font-family: "Segoe UI";
     -fx-font-size: 14px;
     -fx-line-spacing: 3px;
     -fx-text-fill: #1f2937;
-=======
-    -fx-font-size: 12px;
-    -fx-line-spacing: 2px;
-    -fx-text-fill: #334155;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 
 .annonce-comment-empty {
@@ -707,7 +639,6 @@
     -fx-fill: #fafafa;
     -fx-text-fill: #fafafa;
 }
-<<<<<<< HEAD
 
 .annonce-comment-icon-actions {
     -fx-spacing: 8;
@@ -798,5 +729,3 @@
     -fx-fill: #fee2e2;
     -fx-text-fill: #fee2e2;
 }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

@@ -174,11 +174,7 @@
                                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                                     <Label text="Search" styleClass="field-label"/>
                                     <TextField fx:id="searchField"
-<<<<<<< HEAD
                                                promptText="cheap | cheap shoes | expensive balls | nike jersey under 120"
-=======
-                                               promptText="Search by name, category, or brand"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                styleClass="form-text-field"/>
                                 </VBox>
                                 <VBox spacing="6">
@@ -202,25 +198,19 @@
                                         <Button text="Reset"
                                                 onAction="#handleResetFilters"
                                                 styleClass="ghost-button"/>
-<<<<<<< HEAD
                                         <Button fx:id="trendingFilterButton"
                                                 text="Trending"
                                                 onAction="#handleToggleTrending"
                                                 styleClass="soft-button"/>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </HBox>
                                 </VBox>
                             </HBox>
 
-<<<<<<< HEAD
                             <Label fx:id="searchSummaryLabel"
                                    text="Local search ready."
                                    wrapText="true"
                                    styleClass="section-subtitle"/>
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="store-section-switcher">
                                 <Button fx:id="catalogSectionButton"
                                         text="Catalogue"
@@ -303,11 +293,7 @@
                             </HBox>
 
                             <HBox spacing="18" alignment="TOP_LEFT">
-<<<<<<< HEAD
                                 <VBox spacing="14" HBox.hgrow="ALWAYS" styleClass="panel-card store-summary-panel">
-=======
-                                <VBox spacing="14" styleClass="panel-card store-summary-panel" HBox.hgrow="ALWAYS">
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     <VBox spacing="4">
                                         <Label text="Order summary" styleClass="section-title"/>
                                         <Label text="Products ready for checkout."
@@ -329,12 +315,8 @@
                                 <VBox spacing="14" minWidth="360" prefWidth="380" styleClass="panel-card store-payment-form">
                                     <VBox spacing="4">
                                         <Label text="Delivery and payment" styleClass="section-title"/>
-<<<<<<< HEAD
                                         <Label fx:id="paymentFlowDescriptionLabel"
                                                text="Paiement a la livraison et enregistrement direct de la commande."
-=======
-                                        <Label text="No external payment API is used. Payment is confirmed locally and the order is saved in the database."
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                wrapText="true"
                                                styleClass="section-subtitle"/>
                                     </VBox>
@@ -382,13 +364,10 @@
                                         <ComboBox fx:id="paymentMethodComboBox"
                                                   prefWidth="220"
                                                   styleClass="glass-combo"/>
-<<<<<<< HEAD
                                         <Label fx:id="paymentMethodHintLabel"
                                                text="Choisissez Stripe pour payer en ligne, ou gardez le paiement a la livraison."
                                                wrapText="true"
                                                styleClass="section-subtitle"/>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </VBox>
 
                                     <HBox spacing="10">
@@ -397,11 +376,7 @@
                                                 styleClass="soft-button"
                                                 HBox.hgrow="ALWAYS"/>
                                         <Button fx:id="payNowButton"
-<<<<<<< HEAD
                                                 text="Valider la commande"
-=======
-                                                text="Pay now"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                 onAction="#handlePayNow"
                                                 styleClass="primary-button"
                                                 HBox.hgrow="ALWAYS"/>

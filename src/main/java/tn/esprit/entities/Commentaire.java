@@ -9,7 +9,6 @@ public class Commentaire {
     private Integer joueurId;
     private Integer annonceId;
     private String auteurAnonyme;
-<<<<<<< HEAD
     private String cvName;
     private String cvTitle;
     private int nbLikes;
@@ -18,17 +17,11 @@ public class Commentaire {
     private String moderationReason;
     private Integer authorUserId;
     private String authorRole;
-=======
-    private int nbLikes;
-    private String moderationStatus;
-    private String moderationReason;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     public Commentaire() {
     }
 
     public Commentaire(String contenu, LocalDate dateCommentaire, Integer joueurId, Integer annonceId, String auteurAnonyme, int nbLikes, String moderationStatus, String moderationReason) {
-<<<<<<< HEAD
         this(contenu, dateCommentaire, joueurId, annonceId, auteurAnonyme, null, nbLikes, moderationStatus, moderationReason);
     }
 
@@ -60,14 +53,11 @@ public class Commentaire {
             Integer authorUserId,
             String authorRole
     ) {
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         this.contenu = contenu;
         this.dateCommentaire = dateCommentaire;
         this.joueurId = joueurId;
         this.annonceId = annonceId;
         this.auteurAnonyme = auteurAnonyme;
-<<<<<<< HEAD
         this.cvName = cvName;
         this.cvTitle = cvTitle;
         this.nbLikes = nbLikes;
@@ -112,21 +102,12 @@ public class Commentaire {
             Integer authorUserId,
             String authorRole
     ) {
-=======
-        this.nbLikes = nbLikes;
-        this.moderationStatus = moderationStatus;
-        this.moderationReason = moderationReason;
-    }
-
-    public Commentaire(Integer id, String contenu, LocalDate dateCommentaire, Integer joueurId, Integer annonceId, String auteurAnonyme, int nbLikes, String moderationStatus, String moderationReason) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         this.id = id;
         this.contenu = contenu;
         this.dateCommentaire = dateCommentaire;
         this.joueurId = joueurId;
         this.annonceId = annonceId;
         this.auteurAnonyme = auteurAnonyme;
-<<<<<<< HEAD
         this.cvName = cvName;
         this.cvTitle = cvTitle;
         this.nbLikes = nbLikes;
@@ -135,11 +116,6 @@ public class Commentaire {
         this.moderationReason = moderationReason;
         this.authorUserId = authorUserId;
         this.authorRole = authorRole;
-=======
-        this.nbLikes = nbLikes;
-        this.moderationStatus = moderationStatus;
-        this.moderationReason = moderationReason;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     public Integer getId() {
@@ -190,7 +166,6 @@ public class Commentaire {
         this.auteurAnonyme = auteurAnonyme;
     }
 
-<<<<<<< HEAD
     public String getCvName() {
         return cvName;
     }
@@ -207,8 +182,6 @@ public class Commentaire {
         this.cvTitle = cvTitle;
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     public int getNbLikes() {
         return nbLikes;
     }
@@ -217,7 +190,6 @@ public class Commentaire {
         this.nbLikes = nbLikes;
     }
 
-<<<<<<< HEAD
     public int getNbDislikes() {
         return nbDislikes;
     }
@@ -226,8 +198,6 @@ public class Commentaire {
         this.nbDislikes = nbDislikes;
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     public String getModerationStatus() {
         return moderationStatus;
     }
@@ -243,7 +213,6 @@ public class Commentaire {
     public void setModerationReason(String moderationReason) {
         this.moderationReason = moderationReason;
     }
-<<<<<<< HEAD
 
     public Integer getAuthorUserId() {
         return authorUserId;
@@ -260,6 +229,4 @@ public class Commentaire {
     public void setAuthorRole(String authorRole) {
         this.authorRole = authorRole;
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

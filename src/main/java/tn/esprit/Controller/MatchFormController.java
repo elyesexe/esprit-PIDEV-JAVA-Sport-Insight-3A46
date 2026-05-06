@@ -528,11 +528,7 @@ public class MatchFormController {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
-<<<<<<< HEAD
         if (isLiveStatusText(normalized)) {
-=======
-        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -547,7 +543,6 @@ public class MatchFormController {
         return null;
     }
 
-<<<<<<< HEAD
     private boolean isLiveStatusText(String normalized) {
         if (normalized == null) {
             return false;
@@ -571,8 +566,6 @@ public class MatchFormController {
                 || normalized.contains("shootout");
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private boolean isScoreLockedStatus(String status) {
         String normalizedStatus = normalizeMatchStatus(status);
         return normalizedStatus == null

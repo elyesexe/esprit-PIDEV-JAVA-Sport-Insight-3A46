@@ -19,22 +19,15 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-<<<<<<< HEAD
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
-=======
-import javafx.scene.control.TableColumn;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.chart.PieChart;
-<<<<<<< HEAD
 import javafx.scene.control.cell.TextFieldTableCell;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.Node;
@@ -47,11 +40,8 @@ import javafx.stage.FileChooser;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
-<<<<<<< HEAD
 import tn.esprit.gui.AdminTableButtons;
 import tn.esprit.gui.AdminTableScrollSupport;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -87,10 +77,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
-<<<<<<< HEAD
 import java.util.function.Consumer;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -272,10 +259,7 @@ public class MatchController {
     private boolean equipesLoaded;
     private boolean syncingData;
     private SidebarModuleGroup sidebarModuleGroup;
-<<<<<<< HEAD
     private TableColumn<Matchs, Void> actionsColumn;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -290,10 +274,7 @@ public class MatchController {
         configureStatusChoices();
         configureFormatters();
         configureMatchList();
-<<<<<<< HEAD
         configureCreateOnlyForm();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         bindFormState();
         updateActionAvailability();
         updateCounters(null);
@@ -639,10 +620,7 @@ public class MatchController {
     private void configureMatchList() {
         if (matchTableView != null) {
             matchReferenceColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchReference(cell.getValue())));
-<<<<<<< HEAD
             matchTableView.getColumns().remove(matchReferenceColumn);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             matchDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDate(cell.getValue().getDateMatch())));
             matchTimeColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatTime(cell.getValue().getHeureDebut())));
             matchHomeColumn.setCellValueFactory(cell -> new SimpleStringProperty(getEquipeName(cell.getValue().getEquipeDomicileId())));
@@ -653,7 +631,6 @@ public class MatchController {
             matchLocationColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveMatchLocation(cell.getValue())));
 
             matchTableView.setItems(filteredMatchs);
-<<<<<<< HEAD
             matchTableView.setEditable(true);
             matchTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
             matchTableView.setTableMenuButtonVisible(true);
@@ -673,12 +650,6 @@ public class MatchController {
             configureEditableTableColumns();
             ensureActionsColumn();
             configureReadableTableLayout();
-=======
-            matchTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-            matchTableView.setPlaceholder(new Label(""));
-            matchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                    handleSelectedMatchChange(newValue));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         if (matchListView != null) {
@@ -704,7 +675,6 @@ public class MatchController {
         }
     }
 
-<<<<<<< HEAD
     private void configureCreateOnlyForm() {
         if (updateButton != null) {
             updateButton.setManaged(false);
@@ -839,12 +809,6 @@ public class MatchController {
         selectedMatch = newValue;
         if (newValue != null) {
             clearFormFieldsOnly();
-=======
-    private void handleSelectedMatchChange(Matchs newValue) {
-        selectedMatch = newValue;
-        if (newValue != null) {
-            populateForm(newValue);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } else if (!hasDraftContent()) {
             clearFormFieldsOnly();
         }
@@ -855,7 +819,6 @@ public class MatchController {
         updateDetailPanel();
     }
 
-<<<<<<< HEAD
     private void startInlineMatchEdit(Matchs match) {
         if (match == null || matchTableView == null) {
             return;
@@ -965,8 +928,6 @@ public class MatchController {
         );
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private VBox buildMatchCard(Matchs match) {
         Label statusChip = new Label(resolveStatus(match));
         statusChip.getStyleClass().add("fixture-status");
@@ -978,14 +939,7 @@ public class MatchController {
         Region headSpacer = new Region();
         HBox.setHgrow(headSpacer, Priority.ALWAYS);
 
-<<<<<<< HEAD
         HBox head = new HBox(10, statusChip, headSpacer, dateLabel);
-=======
-        Label idLabel = new Label(match.getIdMatch() == null ? "#" + match.getId() : match.getIdMatch());
-        idLabel.getStyleClass().add("fixture-id");
-
-        HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         head.setAlignment(Pos.CENTER_LEFT);
         head.getStyleClass().add("fixture-card-head");
 
@@ -1334,7 +1288,6 @@ public class MatchController {
         selectEquipe(equipeExterieurComboBox, selectedExterieurId);
     }
 
-<<<<<<< HEAD
     private Matchs copyMatch(Matchs source) {
         Matchs copy = new Matchs(
                 source.getId(),
@@ -1493,8 +1446,6 @@ public class MatchController {
                 .orElse(null);
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Matchs buildMatchFromForm(boolean updateMode) {
         LocalDate dateMatch = dateMatchPicker.getValue();
         String heureText = emptyToNull(heureDebutField.getText());
@@ -1744,11 +1695,7 @@ public class MatchController {
             detailLieuValueLabel.setText("Non renseigne");
             detailTypeValueLabel.setText("Non renseigne");
             detailStatutValueLabel.setText("Programme");
-<<<<<<< HEAD
             detailIdValueLabel.setText("Creation");
-=======
-            detailIdValueLabel.setText("Nouveau");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             detailHomeNameLabel.setText("Equipe domicile");
             detailAwayNameLabel.setText("Equipe exterieur");
             updateDetailLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, null, "D");
@@ -1774,11 +1721,7 @@ public class MatchController {
         detailLieuValueLabel.setText(resolveFieldValue(lieuField.getText(), effectiveMatch == null ? null : effectiveMatch.getLieu(), "Non renseigne"));
         detailTypeValueLabel.setText(resolveFieldValue(typeField.getText(), effectiveMatch == null ? null : effectiveMatch.getType(), "Non renseigne"));
         detailStatutValueLabel.setText(status);
-<<<<<<< HEAD
         detailIdValueLabel.setText(selectedMatch == null ? "Creation" : "Selection");
-=======
-        detailIdValueLabel.setText(selectedMatch == null ? "Nouveau" : (effectiveMatch.getIdMatch() == null ? "#" + effectiveMatch.getId() : effectiveMatch.getIdMatch()));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         detailHomeNameLabel.setText(homeTeam == null ? "Equipe domicile" : emptyIfNull(homeTeam.getNom()));
         detailAwayNameLabel.setText(awayTeam == null ? "Equipe exterieur" : emptyIfNull(awayTeam.getNom()));
         updateDetailLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, homeTeam, "D");
@@ -1952,18 +1895,7 @@ public class MatchController {
     }
 
     private String resolveMatchReference(Matchs match) {
-<<<<<<< HEAD
         return "";
-=======
-        if (match == null) {
-            return "-";
-        }
-        String reference = emptyToNull(match.getIdMatch());
-        if (reference != null) {
-            return reference;
-        }
-        return match.getId() == null ? "-" : "#" + match.getId();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private String resolveMatchLocation(Matchs match) {
@@ -2003,16 +1935,10 @@ public class MatchController {
     private void updateActionAvailability() {
         boolean hasSelection = selectedMatch != null;
         boolean busy = loadingData || mutatingData || syncingData;
-<<<<<<< HEAD
         boolean createMode = serviceReady && !busy && !hasSelection;
         addButton.setDisable(!createMode);
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
-=======
-        addButton.setDisable(!serviceReady || busy);
-        updateButton.setDisable(!serviceReady || !hasSelection || busy);
-        deleteButton.setDisable(!serviceReady || !hasSelection || busy);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         clearButton.setDisable(!serviceReady || busy);
         refreshButton.setDisable(!serviceReady || busy);
         searchField.setDisable(!serviceReady || busy);
@@ -2021,7 +1947,6 @@ public class MatchController {
         syncCompetitionComboBox.setDisable(!serviceReady || busy);
         syncTeamsButton.setDisable(!serviceReady || busy);
         syncMatchesButton.setDisable(!serviceReady || busy);
-<<<<<<< HEAD
         dateMatchPicker.setDisable(!createMode);
         heureDebutField.setDisable(!createMode);
         lieuField.setDisable(!createMode);
@@ -2031,8 +1956,6 @@ public class MatchController {
         equipeExterieurComboBox.setDisable(!createMode);
         scoreDomicileField.setDisable(!createMode || isScoreLockedStatus(statutComboBox.getValue()));
         scoreExterieurField.setDisable(!createMode || isScoreLockedStatus(statutComboBox.getValue()));
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (matchTableView != null) {
             matchTableView.setDisable(!serviceReady || busy);
         }
@@ -2324,11 +2247,7 @@ public class MatchController {
         if (normalized == null) {
             return "fixture-status-scheduled";
         }
-<<<<<<< HEAD
         if (isLiveStatusText(normalized)) {
-=======
-        if (normalized.contains("cours") || normalized.contains("live")) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -2365,11 +2284,7 @@ public class MatchController {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
-<<<<<<< HEAD
         if (isLiveStatusText(normalized)) {
-=======
-        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -2384,7 +2299,6 @@ public class MatchController {
         return null;
     }
 
-<<<<<<< HEAD
     private boolean isLiveStatusText(String normalized) {
         if (normalized == null) {
             return false;
@@ -2408,8 +2322,6 @@ public class MatchController {
                 || normalized.contains("shootout");
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private boolean isScoreLockedStatus(String status) {
         String normalizedStatus = normalizeMatchStatus(status);
         return normalizedStatus == null

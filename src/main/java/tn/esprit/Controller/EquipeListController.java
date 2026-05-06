@@ -1,10 +1,7 @@
 package tn.esprit.Controller;
 
-<<<<<<< HEAD
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -13,30 +10,16 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-<<<<<<< HEAD
 import javafx.scene.control.Label;
-=======
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-<<<<<<< HEAD
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-=======
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Equipe;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
@@ -59,13 +42,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class EquipeListController {
-<<<<<<< HEAD
     private static final double CARD_LOGO_SIZE = 96;
     private static final int AUTO_REFRESH_SECONDS = 45;
     private static final int AUTO_SYNC_SECONDS = 180;
-=======
-    private static final double CARD_LOGO_SIZE = 82;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-list-db-worker"));
 
@@ -112,11 +91,7 @@ public class EquipeListController {
     @FXML
     private Button addButton;
     @FXML
-<<<<<<< HEAD
     private FlowPane equipeCatalogPane;
-=======
-    private ListView<Equipe> equipeListView;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private VBox emptyStateBox;
 
@@ -132,26 +107,18 @@ public class EquipeListController {
     private boolean serviceReady;
     private boolean loadingData;
     private boolean syncingData;
-<<<<<<< HEAD
     private boolean backgroundSyncing;
     private SidebarModuleGroup sidebarModuleGroup;
     private Timeline autoRefreshTimeline;
     private long lastBackgroundSyncAtMillis;
-=======
-    private SidebarModuleGroup sidebarModuleGroup;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
         configureToolbar();
-<<<<<<< HEAD
         configureCatalogPane();
         configureAutoRefreshLifecycle();
-=======
-        configureListView();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateCompetitionTexts();
         updateSortOrderButtonText();
         updateToolbarState();
@@ -269,17 +236,12 @@ public class EquipeListController {
     }
 
     private void configureToolbar() {
-<<<<<<< HEAD
         sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach"));
-=======
-        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         sortChoiceBox.setValue("Nom");
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFiltersAndSort());
     }
 
-<<<<<<< HEAD
     private void configureCatalogPane() {
         if (equipeCatalogPane == null) {
             return;
@@ -337,11 +299,6 @@ public class EquipeListController {
     private boolean shouldRunBackgroundSync() {
         long now = System.currentTimeMillis();
         return now - lastBackgroundSyncAtMillis >= AUTO_SYNC_SECONDS * 1000L;
-=======
-    private void configureListView() {
-        equipeListView.setItems(displayedEquipes);
-        equipeListView.setCellFactory(listView -> createEquipeCell());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void refreshTableAsync(String loadingMessage) {
@@ -349,27 +306,19 @@ public class EquipeListController {
     }
 
     private void refreshTableAsync(String loadingMessage, String successMessage) {
-<<<<<<< HEAD
         refreshTableAsync(loadingMessage, successMessage, false);
     }
 
     private void refreshTableAsync(String loadingMessage, String successMessage, boolean backgroundRefresh) {
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (equipeService == null) {
             return;
         }
 
         long requestId = refreshSequence.incrementAndGet();
-<<<<<<< HEAD
         loadingData = !backgroundRefresh;
         if (!backgroundRefresh) {
             updateToolbarState();
         }
-=======
-        loadingData = true;
-        updateToolbarState();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (loadingMessage != null) {
             showStatus("status-muted", loadingMessage);
         }
@@ -389,7 +338,6 @@ public class EquipeListController {
             masterEquipes.setAll(loadTask.getValue());
             applyFiltersAndSort();
             loadingData = false;
-<<<<<<< HEAD
             if (!backgroundRefresh) {
                 updateToolbarState();
             }
@@ -400,14 +348,6 @@ public class EquipeListController {
             if (successMessage != null) {
                 showStatus("status-success", successMessage);
             }
-=======
-            updateToolbarState();
-            if (shouldAutoSyncSelectedCompetition()) {
-                syncCompetitionAsync(normalizeCode(competitionFilterCode), true);
-                return;
-            }
-            showStatus("status-success", successMessage);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         });
 
         loadTask.setOnFailed(event -> {
@@ -416,7 +356,6 @@ public class EquipeListController {
             }
 
             loadingData = false;
-<<<<<<< HEAD
             if (!backgroundRefresh) {
                 updateToolbarState();
                 showStatus("status-error", "Erreur lors du chargement des equipes.");
@@ -424,26 +363,16 @@ public class EquipeListController {
                 showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les equipes.\n"
                         + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
             }
-=======
-            updateToolbarState();
-            showStatus("status-error", "Erreur lors du chargement des equipes.");
-            Throwable throwable = loadTask.getException();
-            showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les equipes.\n"
-                    + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         });
 
         DB_EXECUTOR.execute(loadTask);
     }
 
     private void syncCompetitionAsync(String competitionCode, boolean automatic) {
-<<<<<<< HEAD
         syncCompetitionAsync(competitionCode, automatic, false);
     }
 
     private void syncCompetitionAsync(String competitionCode, boolean automatic, boolean backgroundSync) {
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         FootballDataSyncService syncService = ensureSyncService();
         if (syncService == null) {
             return;
@@ -451,11 +380,7 @@ public class EquipeListController {
 
         String normalizedCode = normalizeCode(competitionCode);
         if (normalizedCode == null) {
-<<<<<<< HEAD
             refreshTableAsync(backgroundSync ? null : "Actualisation des equipes...", null, backgroundSync);
-=======
-            refreshTableAsync("Actualisation des equipes...");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
 
@@ -463,7 +388,6 @@ public class EquipeListController {
             lastAutoSyncedCompetitionCode = normalizedCode;
         }
 
-<<<<<<< HEAD
         if (backgroundSync) {
             backgroundSyncing = true;
         } else {
@@ -477,17 +401,6 @@ public class EquipeListController {
                             : "Synchronisation " + resolveCompetitionLabel(normalizedCode) + " en cours..."
             );
         }
-=======
-        syncingData = true;
-        updateToolbarState();
-        showStatus(
-                "status-muted",
-                automatic
-                        ? "Aucune equipe locale pour " + resolveCompetitionLabel(normalizedCode)
-                        + ". Import via football-data.org..."
-                        : "Synchronisation " + resolveCompetitionLabel(normalizedCode) + " en cours..."
-        );
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Task<FootballDataSyncSummary> syncTask = new Task<>() {
             @Override
@@ -500,18 +413,13 @@ public class EquipeListController {
         };
 
         syncTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-<<<<<<< HEAD
             if (backgroundSync || newValue == null || newValue.isBlank()) {
-=======
-            if (newValue == null || newValue.isBlank()) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 return;
             }
             showStatus("status-muted", newValue);
         });
 
         syncTask.setOnSucceeded(event -> {
-<<<<<<< HEAD
             if (backgroundSync) {
                 backgroundSyncing = false;
                 lastBackgroundSyncAtMillis = System.currentTimeMillis();
@@ -519,16 +427,11 @@ public class EquipeListController {
                 syncingData = false;
                 updateToolbarState();
             }
-=======
-            syncingData = false;
-            updateToolbarState();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
             FootballDataSyncSummary summary = syncTask.getValue();
             String summaryMessage = summary == null
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(true, false);
-<<<<<<< HEAD
             refreshTableAsync(null, backgroundSync ? null : summaryMessage, backgroundSync);
         });
 
@@ -541,12 +444,6 @@ public class EquipeListController {
                 return;
             }
 
-=======
-            refreshTableAsync(null, summaryMessage);
-        });
-
-        syncTask.setOnFailed(event -> {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             syncingData = false;
             updateToolbarState();
             Throwable throwable = syncTask.getException();
@@ -571,10 +468,7 @@ public class EquipeListController {
 
         filtered.sort(buildComparator());
         displayedEquipes.setAll(filtered);
-<<<<<<< HEAD
         renderEquipeCatalog(filtered);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         boolean isEmpty = filtered.isEmpty();
         emptyStateBox.setManaged(isEmpty);
@@ -607,13 +501,7 @@ public class EquipeListController {
     private Comparator<Equipe> buildComparator() {
         Comparator<Equipe> comparator;
         String selectedSort = sortChoiceBox.getValue();
-<<<<<<< HEAD
         if ("Coach".equals(selectedSort)) {
-=======
-        if ("Id".equals(selectedSort)) {
-            comparator = Comparator.comparing(Equipe::getId, Comparator.nullsLast(Integer::compareTo));
-        } else if ("Coach".equals(selectedSort)) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             comparator = Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
         } else {
             comparator = Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
@@ -621,7 +509,6 @@ public class EquipeListController {
         return sortDescending ? comparator.reversed() : comparator;
     }
 
-<<<<<<< HEAD
     private void renderEquipeCatalog(List<Equipe> equipes) {
         if (equipeCatalogPane == null) {
             return;
@@ -651,56 +538,6 @@ public class EquipeListController {
         card.getStyleClass().addAll("team-catalog-card", "team-list-card-clickable");
         card.setOnMouseClicked(event -> openEquipeDetail(equipe));
         return card;
-=======
-    private ListCell<Equipe> createEquipeCell() {
-        return new ListCell<>() {
-            @Override
-            protected void updateItem(Equipe equipe, boolean empty) {
-                super.updateItem(equipe, empty);
-                if (empty || equipe == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-
-                StackPane logoPane = createLogoPane(equipe);
-
-                Label nameLabel = new Label(emptyIfNull(equipe.getNom()));
-                nameLabel.getStyleClass().add("card-title");
-                nameLabel.setWrapText(true);
-
-                String coach = emptyToNull(equipe.getCoach());
-                Label coachLabel = new Label(coach == null ? "Coach non renseigne" : "Coach : " + coach);
-                coachLabel.getStyleClass().add(coach == null ? "card-subtitle-muted" : "card-subtitle");
-                coachLabel.setWrapText(true);
-
-                Label competitionLabel = new Label(resolveCompetitionLabel(equipe.getCompetitionCode()));
-                competitionLabel.getStyleClass().add("team-card-competition-badge");
-
-                String logoState = emptyToNull(equipe.getImage()) == null ? "Sans logo" : "Logo disponible";
-                Label metaLabel = new Label("#" + equipe.getId() + "  |  " + logoState);
-                metaLabel.getStyleClass().add("card-meta");
-
-                Label ctaLabel = new Label("Ouvrir la fiche");
-                ctaLabel.getStyleClass().add("card-link");
-
-                VBox textBox = new VBox(6, competitionLabel, nameLabel, coachLabel, metaLabel, ctaLabel);
-                textBox.setAlignment(Pos.CENTER_LEFT);
-                HBox.setHgrow(textBox, Priority.ALWAYS);
-
-                HBox cardContent = new HBox(16, logoPane, textBox);
-                cardContent.setAlignment(Pos.CENTER_LEFT);
-
-                StackPane cardButton = new StackPane(cardContent);
-                cardButton.getStyleClass().addAll("team-list-card", "team-list-card-clickable");
-                cardButton.setOnMouseClicked(event -> openEquipeDetail(equipe));
-
-                setText(null);
-                setGraphic(cardButton);
-                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            }
-        };
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private StackPane createLogoPane(Equipe equipe) {
@@ -730,11 +567,7 @@ public class EquipeListController {
 
     private void openEquipeDetail(Equipe equipe) {
         SceneNavigator.switchScene(
-<<<<<<< HEAD
                 equipeCatalogPane,
-=======
-                equipeListView,
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 "/tn/esprit/views/equipe-detail-view.fxml",
                 "/tn/esprit/styles/equipe-theme.css",
                 emptyIfNull(equipe.getNom()) + " | Equipe",
@@ -822,13 +655,6 @@ public class EquipeListController {
         return value == null ? "" : value;
     }
 
-<<<<<<< HEAD
-=======
-    private String emptyToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
-    }
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static ThreadFactory daemonFactory(String threadName) {
         return runnable -> {
             Thread thread = new Thread(runnable, threadName);

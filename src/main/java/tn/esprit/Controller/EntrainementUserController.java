@@ -406,10 +406,7 @@ public class EntrainementUserController {
             master.setAll(entrainementService.getAll());
             refreshCurrentUserTracking();
             applyFilters();
-<<<<<<< HEAD
             refreshPerformanceSection();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
         }
@@ -710,10 +707,7 @@ public class EntrainementUserController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
-<<<<<<< HEAD
         ThemeManager.registerScene(scene);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -1189,7 +1183,6 @@ public class EntrainementUserController {
         loadPerformanceData();
     }
 
-<<<<<<< HEAD
     private void refreshPerformanceSection() {
         if (currentUserId == null || currentUserIsCoach || analyticsService == null) {
             return;
@@ -1197,8 +1190,6 @@ public class EntrainementUserController {
         loadPerformanceData();
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleTogglePerformance() {
         performanceExpanded = !performanceExpanded;
@@ -1797,7 +1788,6 @@ public class EntrainementUserController {
 
         try {
             List<Evaluation> evaluations = analyticsService.getPlayerEvaluationHistory(currentUserId);
-<<<<<<< HEAD
             double attendanceRate = analyticsService.getAttendanceRate(currentUserId);
             attendanceRateLabel.setText(String.format("%.0f%%", attendanceRate));
             totalEvaluationsLabel.setText(String.valueOf(evaluations.size()));
@@ -1805,27 +1795,11 @@ public class EntrainementUserController {
             if (evaluations.isEmpty()) {
                 avgOverallLabel.setText("N/A");
                 performanceChartContainer.getChildren().clear();
-=======
-            
-            if (evaluations.isEmpty()) {
-                totalEvaluationsLabel.setText("0");
-                attendanceRateLabel.setText("0%");
-                avgOverallLabel.setText("N/A");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 weakAreasBox.getChildren().clear();
                 weakAreasBox.getChildren().add(new Label("Aucune évaluation disponible"));
                 return;
             }
 
-<<<<<<< HEAD
-=======
-            // Update stats
-            totalEvaluationsLabel.setText(String.valueOf(evaluations.size()));
-            
-            double attendanceRate = analyticsService.getAttendanceRate(currentUserId);
-            attendanceRateLabel.setText(String.format("%.0f%%", attendanceRate));
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             PerformanceAnalyticsService.PerformanceStats stats = analyticsService.calculateStats(evaluations);
             avgOverallLabel.setText(String.format("%.1f", stats.avgOverall()));
 
@@ -2174,7 +2148,6 @@ public class EntrainementUserController {
     }
 
     private String generateSpecificExercisePlan(String exerciseType, PerformanceAnalyticsService.PerformanceStats stats, String playerName) {
-<<<<<<< HEAD
         String localPlan = ExercisePlanGenerator.generatePlan(exerciseType, stats, playerName);
         if (aiService == null || !aiService.isConfigured()) {
             return localPlan;
@@ -2261,13 +2234,6 @@ public class EntrainementUserController {
             case "dinner" -> "Diner";
             default -> "Plan nutritionnel";
         };
-=======
-        return ExercisePlanGenerator.generatePlan(exerciseType, stats, playerName);
-    }
-
-    private String generateSpecificMealPlan(String mealType, int totalCalories, PerformanceAnalyticsService.PerformanceStats stats, String playerName) {
-        return MealPlanGenerator.generatePlan(mealType, totalCalories, stats, playerName);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void showInteractiveChecklist(String title, String aiContent, String color) {
@@ -2293,13 +2259,9 @@ public class EntrainementUserController {
         Label titleLabel = new Label(title);
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
         
-<<<<<<< HEAD
         Label aiLabel = new Label(aiService != null && aiService.isConfigured()
                 ? "✨ Généré par IA selon vos performances"
                 : "Plan généré selon vos performances");
-=======
-        Label aiLabel = new Label("✨ Généré par IA selon vos performances");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         aiLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: white; -fx-opacity: 0.9;");
         
         header.getChildren().addAll(titleLabel, aiLabel);

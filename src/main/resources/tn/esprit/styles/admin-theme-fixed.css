@@ -166,16 +166,15 @@
     -fx-background-color: rgba(82, 82, 91, 0.94);
     -fx-background-radius: 999;
 }
-<<<<<<< HEAD
 
 /* Neon admin dark redesign */
 .admin-dark.admin-shell-root,
 .theme-dark.admin-shell-root,
 .theme-dark.admin-page-root.admin-shell-root {
     -fx-background-color:
-        radial-gradient(center 16% 8%, radius 34%, rgba(34, 197, 94, 0.30) 0%, rgba(34, 197, 94, 0.10) 52%, transparent 53%),
-        radial-gradient(center 96% 92%, radius 30%, rgba(20, 184, 166, 0.20) 0%, rgba(20, 184, 166, 0.06) 46%, transparent 47%),
-        linear-gradient(from 0% 0% to 100% 100%, #323752 0%, #2a2f47 55%, #23273b 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
 }
 
 .admin-dark .admin-content-stage,
@@ -1250,9 +1249,9 @@
 .admin-workspace-root.admin-dark,
 .theme-dark.admin-workspace-root {
     -fx-background-color:
-        radial-gradient(center 16% 12%, radius 38%, rgba(34, 197, 94, 0.22) 0%, rgba(34, 197, 94, 0) 100%),
-        radial-gradient(center 84% 14%, radius 34%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 100%),
-        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
 }
 
 .admin-workspace-root.admin-dark .page-scroll,
@@ -1346,7 +1345,7 @@
 .admin-workspace-root.admin-dark .flashscore-summary-card,
 .admin-workspace-root.admin-dark .timeline-event-box,
 .admin-workspace-root.admin-dark .pitch-player-identity-pill {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 118, 110, 0.96) 0%, rgba(29, 23, 71, 0.98) 100%);
+    -fx-background-color: rgba(15, 23, 42, 0.92);
     -fx-border-color: rgba(45, 212, 191, 0.26);
     -fx-effect: dropshadow(gaussian, rgba(9, 7, 24, 0.34), 30, 0.22, 0, 12);
 }
@@ -1613,9 +1612,9 @@
 .theme-dark.admin-shell-root,
 .theme-dark.admin-page-root.admin-shell-root {
     -fx-background-color:
-        radial-gradient(center 14% 10%, radius 44%, rgba(34, 197, 94, 0.28) 0%, rgba(34, 197, 94, 0.08) 50%, transparent 51%),
-        radial-gradient(center 88% 14%, radius 34%, rgba(20, 184, 166, 0.18) 0%, rgba(20, 184, 166, 0.05) 48%, transparent 49%),
-        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
 }
 
 .admin-shell-root.admin-dark .admin-content-stage,
@@ -1634,9 +1633,9 @@
 .theme-dark.admin-shell-root .admin-workspace-root,
 .theme-dark.admin-shell-root .admin-workspace-root.page-root {
     -fx-background-color:
-        radial-gradient(center 14% 10%, radius 44%, rgba(34, 197, 94, 0.26) 0%, rgba(34, 197, 94, 0.08) 48%, transparent 49%),
-        radial-gradient(center 88% 14%, radius 34%, rgba(20, 184, 166, 0.16) 0%, rgba(20, 184, 166, 0.04) 46%, transparent 47%),
-        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
@@ -1668,7 +1667,7 @@
 .admin-shell-root.admin-dark .admin-workspace-root .match-toolbar,
 .admin-shell-root.admin-dark .admin-workspace-root .sync-toolbar-row,
 .admin-shell-root.admin-dark .admin-workspace-root .toolbar-summary-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 118, 110, 0.96) 0%, rgba(33, 23, 82, 0.98) 100%);
+    -fx-background-color: rgba(15, 23, 42, 0.92);
     -fx-border-color: rgba(45, 212, 191, 0.28);
 }
 
@@ -1681,9 +1680,9 @@
 .theme-dark.admin-dark .admin-workspace-root .page-scroll > .viewport,
 .theme-dark.admin-dark .admin-workspace-root .page-scroll > .corner {
     -fx-background-color:
-        radial-gradient(center 16% 10%, radius 44%, rgba(34, 197, 94, 0.26) 0%, rgba(34, 197, 94, 0.08) 48%, transparent 49%),
-        radial-gradient(center 86% 14%, radius 32%, rgba(20, 184, 166, 0.16) 0%, rgba(20, 184, 166, 0.04) 46%, transparent 47%),
-        linear-gradient(from 0% 0% to 100% 100%, #082f49 0%, #0f766e 52%, #064e3b 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
@@ -1706,7 +1705,7 @@
 .theme-dark.admin-dark .admin-workspace-root .training-card-hero,
 .theme-dark.admin-dark .admin-workspace-root .hero-shell,
 .theme-dark.admin-dark .admin-workspace-root .note-card {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(6, 95, 70, 0.96) 0%, rgba(39, 27, 100, 0.98) 100%);
+    -fx-background-color: rgba(15, 23, 42, 0.92);
     -fx-border-color: rgba(45, 212, 191, 0.30);
     -fx-effect: dropshadow(gaussian, rgba(10, 7, 28, 0.30), 26, 0.18, 0, 10);
 }
@@ -2357,9 +2356,9 @@
 .theme-dark.admin-dark.page-root.admin-workspace-root,
 .theme-dark.admin-dark .admin-workspace-root.page-root {
     -fx-background-color:
-        radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%),
-        radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%),
-        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
@@ -2381,9 +2380,9 @@
 .theme-dark.admin-shell-root .admin-workspace-root,
 .theme-dark.admin-shell-root .admin-workspace-root.page-root {
     -fx-background-color:
-        radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%),
-        radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%),
-        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
@@ -2554,6 +2553,53 @@
     -fx-text-fill: #fff7f7;
 }
 
+/* Final canvas correction: pages stay dark blue; green is only an accent. */
+.admin-shell-root.admin-dark,
+.admin-shell-root.admin-dark .admin-content-stage,
+.admin-shell-root.admin-dark .admin-content-stack,
+.admin-shell-root.admin-dark .admin-shell-surface,
+.admin-shell-root.admin-dark .admin-workspace-root,
+.admin-shell-root.admin-dark .admin-workspace-root.page-root,
+.admin-shell-root.admin-dark .admin-embedded-page,
+.admin-shell-root.admin-dark .admin-embedded-page.page-root,
+.admin-shell-root.admin-performance-mode.admin-dark,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-content-stage,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-content-stack,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-shell-surface,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-workspace-root.page-root,
+.admin-shell-root.admin-performance-mode.admin-dark .admin-embedded-page,
+.theme-dark.admin-dark.page-root.admin-workspace-root,
+.theme-dark.admin-dark .admin-workspace-root.page-root,
+.theme-dark.admin-dark .admin-workspace-root.admin-embedded-page {
+    -fx-background-color:
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .viewport,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .corner,
+.admin-shell-root.admin-dark .admin-workspace-root .page-scroll > .viewport > .content,
+.admin-shell-root.admin-dark .admin-embedded-page .page-scroll,
+.admin-shell-root.admin-dark .admin-embedded-page .page-scroll > .viewport,
+.admin-shell-root.admin-dark .admin-embedded-page .page-scroll > .corner,
+.admin-shell-root.admin-dark .admin-embedded-page .page-scroll > .viewport > .content,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll > .viewport,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll > .corner,
+.theme-dark.admin-dark .admin-workspace-root .page-scroll > .viewport > .content {
+    -fx-background-color:
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
 .admin-shell-root.admin-dark .admin-nav-button-active .text,
 .admin-shell-root.admin-dark .admin-nav-button-active .admin-nav-text,
 .admin-shell-root.admin-dark .admin-sidebar-user-button .text,
@@ -2620,9 +2666,9 @@
 .admin-shell-root.admin-dark .admin-embedded-page.page-root,
 .admin-shell-root.admin-performance-mode.admin-dark .admin-embedded-page {
     -fx-background-color:
-        radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%),
-        radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%),
-        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%);
+        radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%),
+        radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%),
+        linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%);
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
@@ -3496,5 +3542,3 @@
     -fx-border-color: rgba(248, 113, 113, 0.34);
     -fx-text-fill: #fff7f7;
 }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

@@ -223,11 +223,7 @@
                                            prefHeight="540"
                                            styleClass="data-table">
                                     <columns>
-<<<<<<< HEAD
                                         <TableColumn fx:id="joueurIdColumn" text="" prefWidth="72" visible="false"/>
-=======
-                                        <TableColumn fx:id="joueurIdColumn" text="ID" prefWidth="72"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         <TableColumn fx:id="joueurNomColumn" text="Nom" prefWidth="140"/>
                                         <TableColumn fx:id="joueurPrenomColumn" text="Prenom" prefWidth="140"/>
                                         <TableColumn fx:id="joueurEquipeColumn" text="Equipe" prefWidth="170"/>
@@ -282,13 +278,8 @@
 
                                 <HBox spacing="10">
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-<<<<<<< HEAD
                                         <Label text="Fiche" styleClass="stat-caption"/>
                                         <Label fx:id="detailIdValueLabel" text="Creation" styleClass="stat-value"/>
-=======
-                                        <Label text="ID" styleClass="stat-caption"/>
-                                        <Label fx:id="detailIdValueLabel" text="Nouveau" styleClass="stat-value"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </VBox>
 
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
@@ -376,11 +367,8 @@
                                             HBox.hgrow="ALWAYS"/>
                                     <Button fx:id="updateButton"
                                             onAction="#handleUpdate"
-<<<<<<< HEAD
                                             managed="false"
                                             visible="false"
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                             text="Modifier"
                                             styleClass="ghost-button"
                                             HBox.hgrow="ALWAYS"/>
@@ -389,11 +377,8 @@
                                 <HBox spacing="10">
                                     <Button fx:id="deleteButton"
                                             onAction="#handleDelete"
-<<<<<<< HEAD
                                             managed="false"
                                             visible="false"
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                             text="Supprimer"
                                             styleClass="danger-button"
                                             HBox.hgrow="ALWAYS"/>

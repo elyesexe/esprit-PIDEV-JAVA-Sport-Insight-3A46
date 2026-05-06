@@ -62,7 +62,7 @@
 }
 
 .auth-hero {
-    -fx-min-height: 220;
+    -fx-min-height: 320;
 }
 
 .auth-hero-glow {
@@ -90,7 +90,7 @@
     -fx-border-radius: 28;
     -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.3), 32, 0.15, 0, 18);
     -fx-padding: 0;
-    -fx-min-height: 220;
+    -fx-min-height: 320;
     -fx-max-width: 1120;
 }
 
@@ -100,17 +100,21 @@
 }
 
 .auth-hero-photo {
-    -fx-background-image: url("../images/home-bg.webp");
+    -fx-background-image: url("../images/ucl%20ball.jpg");
     -fx-background-size: cover;
-    -fx-background-position: center center;
+    -fx-background-position: right bottom;
 }
 
 .auth-hero-overlay {
-    -fx-background-color: linear-gradient(to right, rgba(22, 101, 52, 0.88) 0%, rgba(34, 197, 94, 0.68) 42%, rgba(45, 212, 191, 0.62) 100%);
+    -fx-background-color:
+            linear-gradient(to right, rgba(2, 6, 23, 0.88) 0%, rgba(15, 23, 42, 0.54) 46%, rgba(15, 23, 42, 0.12) 100%),
+            linear-gradient(to bottom, rgba(2, 6, 23, 0.12), rgba(2, 6, 23, 0.42));
 }
 
 .theme-dark .auth-hero-overlay {
-    -fx-background-color: linear-gradient(to right, rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.72) 46%, rgba(16, 185, 129, 0.56) 100%);
+    -fx-background-color:
+            linear-gradient(to right, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.66) 46%, rgba(2, 6, 23, 0.18) 100%),
+            linear-gradient(to bottom, rgba(2, 6, 23, 0.12), rgba(2, 6, 23, 0.50));
 }
 
 .auth-hero-content {
@@ -280,6 +284,38 @@
     -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.18), 16, 0.16, 0, 0);
 }
 
+.auth-remember-check {
+    -fx-padding: 2 0 4 0;
+    -fx-text-fill: #334155;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.theme-dark .auth-remember-check {
+    -fx-text-fill: #cbd5e1;
+}
+
+.auth-remember-check .box {
+    -fx-background-color: rgba(248, 250, 252, 0.96);
+    -fx-border-color: rgba(148, 163, 184, 0.36);
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.theme-dark .auth-remember-check .box {
+    -fx-background-color: rgba(15, 23, 42, 0.82);
+    -fx-border-color: rgba(71, 85, 105, 0.88);
+}
+
+.auth-remember-check:selected .box {
+    -fx-background-color: linear-gradient(to bottom right, #34d399, #10b981);
+    -fx-border-color: rgba(16, 185, 129, 0.64);
+}
+
+.auth-remember-check:selected .mark {
+    -fx-background-color: #f8fafc;
+}
+
 .auth-date-picker .arrow-button {
     -fx-background-color: transparent;
 }
@@ -346,7 +382,6 @@
     -fx-border-color: rgba(148, 163, 184, 0.18) transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
 }
-<<<<<<< HEAD
 
 .auth-feature-root {
     -fx-background-color: transparent;
@@ -561,5 +596,3 @@
     -fx-font-size: 14px;
     -fx-font-weight: 600;
 }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

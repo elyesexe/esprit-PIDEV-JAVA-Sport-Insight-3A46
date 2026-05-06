@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<<<<<<< HEAD
-=======
-<?import javafx.scene.chart.BarChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.ComboBox?>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
-<<<<<<< HEAD
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -140,75 +131,10 @@
                     </TableView>
                 </VBox>
 
-=======
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-
-<ScrollPane xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fitToWidth="true"
-            hbarPolicy="NEVER"
-            styleClass="page-scroll"
-            fx:controller="tn.esprit.Controller.AdminDashboardController">
-    <content>
-        <StackPane styleClass="page-shell-wrap">
-            <VBox spacing="22" styleClass="page-shell admin-dashboard-shell">
-                <padding>
-                    <Insets top="24" right="28" bottom="28" left="28"/>
-                </padding>
-
-                <HBox alignment="CENTER_LEFT" spacing="16">
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Dashboard admin" styleClass="admin-dashboard-title"/>
-                        <Label text="Vue generale de l'administration avec les modules utilisateurs, annonces, entrainements, equipes, joueurs et matchs."
-                               wrapText="true"
-                               styleClass="admin-dashboard-subtitle"/>
-                    </VBox>
-                    <Label fx:id="dashboardStatusLabel"
-                           text="Chargement..."
-                           styleClass="status-pill status-muted"/>
-                </HBox>
-
-                <FlowPane hgap="16" vgap="16" prefWrapLength="1180" styleClass="admin-kpi-row">
-                    <VBox spacing="8" styleClass="admin-kpi-card">
-                        <Label text="Utilisateurs" styleClass="admin-kpi-label"/>
-                        <Label fx:id="userCountLabel" text="..." styleClass="admin-kpi-value"/>
-                        <Label text="comptes enregistres" styleClass="admin-kpi-meta"/>
-                    </VBox>
-                    <VBox spacing="8" styleClass="admin-kpi-card">
-                        <Label text="Annonces" styleClass="admin-kpi-label"/>
-                        <Label fx:id="annonceCountLabel" text="..." styleClass="admin-kpi-value"/>
-                        <Label text="publications disponibles" styleClass="admin-kpi-meta"/>
-                    </VBox>
-                    <VBox spacing="8" styleClass="admin-kpi-card">
-                        <Label text="Entrainements" styleClass="admin-kpi-label"/>
-                        <Label fx:id="entrainementCountLabel" text="..." styleClass="admin-kpi-value"/>
-                        <Label text="sessions planifiees" styleClass="admin-kpi-meta"/>
-                    </VBox>
-                    <VBox spacing="8" styleClass="admin-kpi-card">
-                        <Label text="Equipes" styleClass="admin-kpi-label"/>
-                        <Label fx:id="equipeCountLabel" text="..." styleClass="admin-kpi-value"/>
-                        <Label text="equipes actives" styleClass="admin-kpi-meta"/>
-                    </VBox>
-                    <VBox spacing="8" styleClass="admin-kpi-card">
-                        <Label text="Joueurs" styleClass="admin-kpi-label"/>
-                        <Label fx:id="joueurCountLabel" text="..." styleClass="admin-kpi-value"/>
-                        <Label text="profils disponibles" styleClass="admin-kpi-meta"/>
-                    </VBox>
-                    <VBox spacing="8" styleClass="admin-kpi-card">
-                        <Label text="Matchs" styleClass="admin-kpi-label"/>
-                        <Label fx:id="matchCountLabel" text="..." styleClass="admin-kpi-value"/>
-                        <Label text="rencontres en base" styleClass="admin-kpi-meta"/>
-                    </VBox>
-                </FlowPane>
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 <HBox spacing="18" styleClass="admin-dashboard-grid">
                     <VBox spacing="12" styleClass="panel-card admin-table-card" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
-<<<<<<< HEAD
                             <Label text="%admin.dashboard.users.title" styleClass="section-title admin-section-title"/>
                             <Label text="%admin.dashboard.users.copy"
                                    wrapText="true"
@@ -225,24 +151,6 @@
                                 <TableColumn fx:id="userNameColumn" text="%admin.users.table.user" prefWidth="210"/>
                                 <TableColumn fx:id="userRoleColumn" text="%common.table.role" prefWidth="140"/>
                                 <TableColumn fx:id="userStatusColumn" text="%common.table.status" prefWidth="120"/>
-=======
-                                <Label text="Utilisateurs recents" styleClass="section-title admin-section-title"/>
-                                <Label text="Derniers comptes avec leur role principal et leur statut."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <Label text="6 lignes" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <TableView fx:id="usersTableView"
-                                   prefHeight="280"
-                                   styleClass="data-table admin-dashboard-table">
-                            <columns>
-                                <TableColumn fx:id="userIdColumn" text="ID" prefWidth="70"/>
-                                <TableColumn fx:id="userNameColumn" text="Utilisateur" prefWidth="210"/>
-                                <TableColumn fx:id="userRoleColumn" text="Role" prefWidth="140"/>
-                                <TableColumn fx:id="userStatusColumn" text="Statut" prefWidth="120"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             </columns>
                             <placeholder>
                                 <Label text="Aucun utilisateur disponible." styleClass="empty-text"/>
@@ -253,7 +161,6 @@
                     <VBox spacing="12" styleClass="panel-card admin-table-card" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
-<<<<<<< HEAD
                             <Label text="%admin.dashboard.announcements.title" styleClass="section-title admin-section-title"/>
                             <Label text="%admin.dashboard.announcements.copy"
                                    wrapText="true"
@@ -270,24 +177,6 @@
                                 <TableColumn fx:id="annonceTitleColumn" text="%common.table.title" prefWidth="240"/>
                                 <TableColumn fx:id="annonceLevelColumn" text="%common.table.level" prefWidth="150"/>
                                 <TableColumn fx:id="annonceStatusColumn" text="%common.table.status" prefWidth="130"/>
-=======
-                                <Label text="Annonces recentes" styleClass="section-title admin-section-title"/>
-                                <Label text="Dernieres publications avec leur statut et niveau requis."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <Label text="6 lignes" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <TableView fx:id="annoncesTableView"
-                                   prefHeight="280"
-                                   styleClass="data-table admin-dashboard-table">
-                            <columns>
-                                <TableColumn fx:id="annonceIdColumn" text="ID" prefWidth="70"/>
-                                <TableColumn fx:id="annonceTitleColumn" text="Titre" prefWidth="240"/>
-                                <TableColumn fx:id="annonceLevelColumn" text="Niveau" prefWidth="150"/>
-                                <TableColumn fx:id="annonceStatusColumn" text="Statut" prefWidth="130"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             </columns>
                             <placeholder>
                                 <Label text="Aucune annonce disponible." styleClass="empty-text"/>
@@ -296,7 +185,6 @@
                     </VBox>
                 </HBox>
 
-<<<<<<< HEAD
                 <VBox spacing="12" styleClass="panel-card admin-table-card">
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -323,62 +211,6 @@
                         </placeholder>
                     </TableView>
                 </VBox>
-=======
-                <HBox spacing="18" styleClass="admin-dashboard-grid">
-                    <VBox spacing="12" styleClass="panel-card admin-table-card" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Entrainements recents" styleClass="section-title admin-section-title"/>
-                                <Label text="Sessions recentes avec type, lieu et horaire."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <Label text="6 lignes" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <TableView fx:id="entrainementsTableView"
-                                   prefHeight="280"
-                                   styleClass="data-table admin-dashboard-table">
-                            <columns>
-                                <TableColumn fx:id="entrainementIdColumn" text="ID" prefWidth="70"/>
-                                <TableColumn fx:id="entrainementDateColumn" text="Date" prefWidth="140"/>
-                                <TableColumn fx:id="entrainementTypeColumn" text="Type" prefWidth="160"/>
-                                <TableColumn fx:id="entrainementPlaceColumn" text="Lieu" prefWidth="160"/>
-                                <TableColumn fx:id="entrainementTimeColumn" text="Horaire" prefWidth="170"/>
-                            </columns>
-                            <placeholder>
-                                <Label text="Aucun entrainement disponible." styleClass="empty-text"/>
-                            </placeholder>
-                        </TableView>
-                    </VBox>
-
-                    <VBox spacing="12" styleClass="panel-card admin-table-card" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Vue operationnelle" styleClass="section-title admin-section-title"/>
-                                <Label text="Resume croise des equipes, joueurs et matchs les plus recents."
-                                       wrapText="true"
-                                       styleClass="section-subtitle"/>
-                            </VBox>
-                            <Label text="8 lignes" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <TableView fx:id="operationsTableView"
-                                   prefHeight="280"
-                                   styleClass="data-table admin-dashboard-table">
-                            <columns>
-                                <TableColumn fx:id="operationModuleColumn" text="Module" prefWidth="130"/>
-                                <TableColumn fx:id="operationPrimaryColumn" text="Element" prefWidth="280"/>
-                                <TableColumn fx:id="operationSecondaryColumn" text="Detail" prefWidth="240"/>
-                                <TableColumn fx:id="operationMetaColumn" text="Meta" prefWidth="170"/>
-                            </columns>
-                            <placeholder>
-                                <Label text="Aucune donnee operationnelle disponible." styleClass="empty-text"/>
-                            </placeholder>
-                        </TableView>
-                    </VBox>
-                </HBox>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             </VBox>
         </StackPane>
     </content>

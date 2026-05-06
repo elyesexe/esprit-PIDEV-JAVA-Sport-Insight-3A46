@@ -6,12 +6,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 /**
  * Service to analyze food and calculate nutrition using Edamam Nutrition Analysis API
@@ -24,7 +21,6 @@ import java.util.Properties;
  */
 public class NutritionApiService {
     
-<<<<<<< HEAD
     private static final String API_URL = "https://api.edamam.com/api/nutrition-details";
     private static final String LOCAL_PROPERTIES_FILE = "nutrition-api.local.properties";
     private static final String USER_HOME_PROPERTIES_FILE = ".sport-insight/nutrition-api.local.properties";
@@ -36,15 +32,6 @@ public class NutritionApiService {
         ApiConfig config = ApiConfig.load();
         this.appId = config.appId();
         this.appKey = config.appKey();
-=======
-    // TODO: Replace with your actual Edamam API credentials
-    // Get them from: https://developer.edamam.com/admin/applications
-    private static final String APP_ID = "YOUR_APP_ID_HERE";
-    private static final String APP_KEY = "YOUR_APP_KEY_HERE";
-    private static final String API_URL = "https://api.edamam.com/api/nutrition-details";
-    
-    public NutritionApiService() {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
     
     /**
@@ -55,21 +42,13 @@ public class NutritionApiService {
      * @throws Exception if API call fails
      */
     public NutritionInfo analyzeFood(String foodDescription) throws Exception {
-<<<<<<< HEAD
         if (appId == null || appId.isBlank() || appKey == null || appKey.isBlank()) {
-=======
-        if (APP_ID.equals("YOUR_APP_ID_HERE") || APP_KEY.equals("YOUR_APP_KEY_HERE")) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             // Return mock data for testing without API credentials
             return createMockNutritionInfo(foodDescription);
         }
         
         // Build API URL with credentials
-<<<<<<< HEAD
         String urlString = API_URL + "?app_id=" + appId + "&app_key=" + appKey;
-=======
-        String urlString = API_URL + "?app_id=" + APP_ID + "&app_key=" + APP_KEY;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         URL url = new URL(urlString);
         
         // Create request body (simple JSON without Gson)
@@ -208,7 +187,6 @@ public class NutritionApiService {
         info.setApiResponse("{\"mock\": true, \"message\": \"Using mock data. Configure API credentials for real analysis.\"}");
         return info;
     }
-<<<<<<< HEAD
 
     private record ApiConfig(String appId, String appKey) {
         static ApiConfig load() {
@@ -250,8 +228,6 @@ public class NutritionApiService {
             return null;
         }
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     
     /**
      * Data class to hold nutrition information

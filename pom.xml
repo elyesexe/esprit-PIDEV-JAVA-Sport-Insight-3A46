@@ -41,7 +41,6 @@
         </dependency>
 
         <dependency>
-<<<<<<< HEAD
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>${javafx.version}</version>
@@ -72,8 +71,6 @@
         </dependency>
 
         <dependency>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             <groupId>com.github.gotson</groupId>
             <artifactId>webp-imageio</artifactId>
             <version>0.2.2</version>
@@ -86,7 +83,6 @@
         </dependency>
 
         <dependency>
-<<<<<<< HEAD
             <groupId>com.github.sarxos</groupId>
             <artifactId>webcam-capture</artifactId>
             <version>0.3.12</version>
@@ -105,8 +101,6 @@
         </dependency>
 
         <dependency>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
@@ -125,7 +119,6 @@
         </dependency>
 
         <dependency>
-<<<<<<< HEAD
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>3.5.3</version>
@@ -150,15 +143,12 @@
         </dependency>
 
         <dependency>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
 
-<<<<<<< HEAD
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
@@ -193,26 +183,6 @@
             <version>20231013</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-
-=======
-        <!-- HTTP Client for API calls -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
-        </dependency>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     </dependencies>
 
     <build>
@@ -222,16 +192,8 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-<<<<<<< HEAD
                     <mainClass>tn.esprit.gui.HomeLauncher</mainClass>
                     <runtimePathOption>CLASSPATH</runtimePathOption>
-=======
-                    <mainClass>tn.esprit.gui.HomeMain</mainClass>
-                    <options>
-                        <option>--add-modules</option>
-                        <option>javafx.controls,javafx.fxml,javafx.graphics,javafx.swing</option>
-                    </options>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 </configuration>
             </plugin>
             <plugin>
@@ -240,7 +202,6 @@
                 <version>3.2.5</version>
             </plugin>
         </plugins>
-<<<<<<< HEAD
 
         <resources>
             <resource>
@@ -250,8 +211,6 @@
                 </includes>
             </resource>
         </resources>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     </build>
 
 </project>

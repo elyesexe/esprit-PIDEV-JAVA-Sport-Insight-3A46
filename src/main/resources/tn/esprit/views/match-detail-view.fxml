@@ -3,18 +3,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<<<<<<< HEAD
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
-=======
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
-<<<<<<< HEAD
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -23,12 +17,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.media.MediaView?>
 <?import javafx.scene.web.WebView?>
-=======
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -97,13 +85,8 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
-<<<<<<< HEAD
                                     <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
                                     <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
-=======
-                                    <Label text="☀" styleClass="theme-toggle-icon theme-toggle-sun"/>
-                                    <Label text="☾" styleClass="theme-toggle-icon theme-toggle-moon"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -121,7 +104,6 @@
                     BorderPane.alignment="CENTER">
             <content>
                 <StackPane styleClass="page-shell-wrap">
-<<<<<<< HEAD
                     <VBox spacing="12" maxWidth="1020.0" styleClass="page-shell flashscore-match-shell">
                         <padding>
                             <Insets top="16" right="18" bottom="20" left="18"/>
@@ -501,140 +483,8 @@
                             </HBox>
                         </VBox>
                     </VBox>
-=======
-                <VBox spacing="18" styleClass="page-shell">
-                    <padding>
-                        <Insets top="24" right="28" bottom="28" left="28"/>
-                    </padding>
-
-                    <StackPane styleClass="hero-shell">
-                        <StackPane styleClass="hero-photo"/>
-                        <StackPane styleClass="hero-overlay"/>
-                        <VBox spacing="14" styleClass="hero-content">
-                            <Label text="Fiche Match" styleClass="hero-eyebrow"/>
-                            <Label fx:id="detailTitleLabel" text="Chargement du match..." styleClass="hero-title"/>
-                            <Label fx:id="detailSubtitleLabel"
-                                   text="Consultez toutes les informations du match sur une page detail en lecture seule."
-                                   wrapText="true"
-                                   styleClass="hero-text"/>
-                        </VBox>
-                    </StackPane>
-
-                    <VBox spacing="18" styleClass="panel-card detail-card">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label fx:id="competitionBadgeLabel" text="Competition" styleClass="toolbar-chip"/>
-                            <Label fx:id="detailStatusChipLabel" text="Programme" styleClass="status-pill status-warning"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button onAction="#handleBack" text="Retour" styleClass="ghost-button"/>
-                            <Label text="Lecture seule" styleClass="toolbar-chip-soft"/>
-                        </HBox>
-
-                        <HBox spacing="14" alignment="CENTER" styleClass="match-detail-board">
-                            <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="match-detail-team-shell">
-                                <StackPane styleClass="match-detail-logo-shell">
-                                    <ImageView fx:id="detailHomeLogoView"
-                                               fitWidth="88"
-                                               fitHeight="88"
-                                               preserveRatio="true"
-                                               managed="false"
-                                               visible="false"/>
-                                    <Label fx:id="detailHomeLogoFallbackLabel"
-                                           text="D"
-                                           styleClass="match-detail-logo-fallback"/>
-                                </StackPane>
-                                <Label fx:id="detailHomeNameLabel" text="Equipe domicile" wrapText="true" styleClass="match-detail-team-name"/>
-                                <Label text="Domicile" styleClass="match-detail-team-role"/>
-                            </VBox>
-
-                            <VBox alignment="CENTER" spacing="6" styleClass="match-detail-score-shell">
-                                <Label fx:id="detailScoreValueLabel" text="- : -" styleClass="match-detail-score"/>
-                                <Label text="Score" styleClass="match-detail-score-caption"/>
-                            </VBox>
-
-                            <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="match-detail-team-shell">
-                                <StackPane styleClass="match-detail-logo-shell">
-                                    <ImageView fx:id="detailAwayLogoView"
-                                               fitWidth="88"
-                                               fitHeight="88"
-                                               preserveRatio="true"
-                                               managed="false"
-                                               visible="false"/>
-                                    <Label fx:id="detailAwayLogoFallbackLabel"
-                                           text="E"
-                                           styleClass="match-detail-logo-fallback"/>
-                                </StackPane>
-                                <Label fx:id="detailAwayNameLabel" text="Equipe exterieur" wrapText="true" styleClass="match-detail-team-name"/>
-                                <Label text="Exterieur" styleClass="match-detail-team-role"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Date" styleClass="stat-caption"/>
-                                <Label fx:id="detailDateValueLabel" text="-" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Heure" styleClass="stat-caption"/>
-                                <Label fx:id="detailHeureValueLabel" text="-" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Lieu" styleClass="stat-caption"/>
-                                <Label fx:id="detailLieuValueLabel" text="Non renseigne" styleClass="stat-value"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Type match" styleClass="stat-caption"/>
-                                <Label fx:id="detailTypeValueLabel" text="Non renseigne" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Competition" styleClass="stat-caption"/>
-                                <Label fx:id="detailCompetitionValueLabel" text="Non renseignee" styleClass="stat-value"/>
-                            </VBox>
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Reference" styleClass="stat-caption"/>
-                                <Label fx:id="detailIdValueLabel" text="-" styleClass="stat-value"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
-                                <Label text="Statut" styleClass="stat-caption"/>
-                                <Label fx:id="detailStatutValueLabel" text="Programme" styleClass="stat-value"/>
-                            </VBox>
-                        </HBox>
-                    </VBox>
-
-                    <HBox spacing="18">
-                        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="panel-card lineup-panel">
-                            <Label text="Onze de depart domicile" styleClass="section-title lineup-title"/>
-                            <TextArea fx:id="lineupDomicileArea"
-                                      editable="false"
-                                      focusTraversable="false"
-                                      wrapText="true"
-                                      prefRowCount="8"
-                                      styleClass="lineup-readonly-area"/>
-                        </VBox>
-                        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="panel-card lineup-panel">
-                            <Label text="Onze de depart exterieur" styleClass="section-title lineup-title"/>
-                            <TextArea fx:id="lineupExterieurArea"
-                                      editable="false"
-                                      focusTraversable="false"
-                                      wrapText="true"
-                                      prefRowCount="8"
-                                      styleClass="lineup-readonly-area"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 </StackPane>
             </content>
         </ScrollPane>
     </center>
 </BorderPane>
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

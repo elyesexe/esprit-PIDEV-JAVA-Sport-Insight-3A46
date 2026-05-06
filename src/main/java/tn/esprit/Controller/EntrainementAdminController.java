@@ -16,13 +16,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TabPane;
-<<<<<<< HEAD
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.util.StringConverter;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Entrainement;
 import tn.esprit.entities.Evaluation;
 import tn.esprit.entities.Participation;
@@ -176,7 +173,6 @@ public class EntrainementAdminController {
         searchField.textProperty().addListener((obs, oldValue, newValue) -> applyFilters());
         sortChoiceBox.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
 
-<<<<<<< HEAD
         // Make entrainement table editable
         tableView.setEditable(true);
         dateColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatDate(cell.getValue().getDateEntrainement())));
@@ -197,21 +193,11 @@ public class EntrainementAdminController {
             updateEntrainementInDatabase(entrainement);
         });
         
-=======
-        // Make entrainement table editable with double-click
-        dateColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatDate(cell.getValue().getDateEntrainement())));
-        typeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getType(), "-")));
-        lieuColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getLieu(), "-")));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         horaireColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatTimeRange(cell.getValue())));
         coachColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolveCoachLabel(cell.getValue().getEntraineurId())));
         tableView.setItems(filtered);
         
-<<<<<<< HEAD
         // Double-click to edit entrainement in dialog for complex fields
-=======
-        // Double-click to edit entrainement
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         tableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 Entrainement selected = tableView.getSelectionModel().getSelectedItem();
@@ -225,31 +211,20 @@ public class EntrainementAdminController {
             selected = newValue;
             if (newValue != null) {
                 populateForm(newValue);
-<<<<<<< HEAD
                 formHintLabel.setText("Click on Type or Location to edit directly, or double-click for full edit");
             } else {
                 formHintLabel.setText("Click on Type or Location to edit directly, or double-click for full edit");
-=======
-                formHintLabel.setText("Double-cliquez sur une ligne pour modifier");
-            } else {
-                formHintLabel.setText("Double-cliquez sur une ligne pour modifier");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
             clearValidation();
         });
 
-<<<<<<< HEAD
         // Make evaluation table editable
         evaluationTableView.setEditable(true);
         evaluationSortBox.setItems(FXCollections.observableArrayList("Average", "Physical Score", "Technical Score", "Tactical Score"));
-=======
-        evaluationSortBox.setItems(FXCollections.observableArrayList("Moyenne", "Note physique", "Note technique", "Note tactique"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         evaluationSearchField.textProperty().addListener((obs, oldValue, newValue) -> applyEvaluationFilters());
         evaluationSortBox.valueProperty().addListener((obs, oldValue, newValue) -> applyEvaluationFilters());
         evaluationEntrColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolveTrainingLabel(cell.getValue().getEntrainementId())));
         evaluationPlayerColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolvePlayerLabel(cell.getValue().getJoueurId())));
-<<<<<<< HEAD
         
         // Make score columns editable
         evaluationScoreColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(buildScoreLabel(cell.getValue())));
@@ -258,12 +233,6 @@ public class EntrainementAdminController {
         // Add editable comment column if needed - for now keep double-click for full edit
         
         // Double-click to edit evaluation with all fields
-=======
-        evaluationScoreColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(buildScoreLabel(cell.getValue())));
-        evaluationAvgColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatAverage(cell.getValue())));
-        
-        // Double-click to edit evaluation
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         evaluationTableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 Evaluation selected = evaluationTableView.getSelectionModel().getSelectedItem();
@@ -277,32 +246,21 @@ public class EntrainementAdminController {
             selectedEvaluation = newValue;
             if (newValue != null) {
                 populateEvaluationForm(newValue);
-<<<<<<< HEAD
                 evaluationHintLabel.setText("Double-click to edit evaluation details");
             } else {
                 evaluationHintLabel.setText("Double-click to edit evaluation details");
-=======
-                evaluationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
-            } else {
-                evaluationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
             clearEvaluationValidation();
         });
 
-<<<<<<< HEAD
         // Make participation table editable
         participationTableView.setEditable(true);
         participationSortBox.setItems(FXCollections.observableArrayList("Presence", "Player", "Training"));
-=======
-        participationSortBox.setItems(FXCollections.observableArrayList("Presence", "Joueur", "Entrainement"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         participationPresenceFormField.setItems(FXCollections.observableArrayList("Present", "Absent"));
         participationSearchField.textProperty().addListener((obs, oldValue, newValue) -> applyParticipationFilters());
         participationSortBox.valueProperty().addListener((obs, oldValue, newValue) -> applyParticipationFilters());
         participationEntrColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolveTrainingLabel(cell.getValue().getEntrainementId())));
         participationPlayerColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(resolvePlayerLabel(cell.getValue().getJoueurId())));
-<<<<<<< HEAD
         
         // Make presence editable with dropdown
         participationPresenceColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getPresence(), "-")));
@@ -321,10 +279,6 @@ public class EntrainementAdminController {
             participation.setJustificationAbsence(event.getNewValue());
             updateParticipationInDatabase(participation);
         });
-=======
-        participationPresenceColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getPresence(), "-")));
-        participationJustifColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(emptyIfNull(cell.getValue().getJustificationAbsence(), "-")));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         
         // Double-click to edit participation or evaluate if present
         participationTableView.setOnMouseClicked(event -> {
@@ -345,15 +299,9 @@ public class EntrainementAdminController {
             selectedParticipation = newValue;
             if (newValue != null) {
                 populateParticipationForm(newValue);
-<<<<<<< HEAD
                 participationHintLabel.setText("Click Presence or Justification to edit directly");
             } else {
                 participationHintLabel.setText("Click Presence or Justification to edit directly");
-=======
-                participationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
-            } else {
-                participationHintLabel.setText("Double-cliquez sur une ligne pour modifier");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
             clearParticipationValidation();
         });
@@ -371,21 +319,13 @@ public class EntrainementAdminController {
             refreshEvaluations();
             refreshParticipations();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Loading Error", "Unable to load training sessions.\n" + e.getMessage());
-=======
-            showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
     @FXML
     private void handleOpenHome() {
-<<<<<<< HEAD
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Home");
-=======
-        SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -410,11 +350,7 @@ public class EntrainementAdminController {
             refreshData();
             clearForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Add Error", "Failed to add training session.\n" + e.getMessage());
-=======
-            showError("Ajout", "Erreur lors de l'ajout.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -422,11 +358,7 @@ public class EntrainementAdminController {
     private void handleUpdate() {
         clearValidation();
         if (selected == null) {
-<<<<<<< HEAD
             showValidation("Please select a training session.");
-=======
-            showValidation("Selectionnez un entrainement.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
         Entrainement entrainement = buildFromForm(true);
@@ -439,11 +371,7 @@ public class EntrainementAdminController {
             refreshData();
             clearForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Update Error", "Failed to update training session.\n" + e.getMessage());
-=======
-            showError("Modification", "Erreur lors de la modification.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -451,7 +379,6 @@ public class EntrainementAdminController {
     private void handleDelete() {
         clearValidation();
         if (selected == null) {
-<<<<<<< HEAD
             showValidation("Please select a training session.");
             return;
         }
@@ -461,15 +388,6 @@ public class EntrainementAdminController {
         alert.setContentText("This action cannot be undone.");
         alert.getDialogPane().setMinWidth(400);
         alert.getDialogPane().setMinHeight(150);
-=======
-            showValidation("Selectionnez un entrainement.");
-            return;
-        }
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Suppression");
-        alert.setHeaderText("Supprimer cet entrainement ?");
-        alert.setContentText("Cette action est definitive.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -479,11 +397,7 @@ public class EntrainementAdminController {
             refreshData();
             clearForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Delete Error", "Failed to delete training session.\n" + e.getMessage());
-=======
-            showError("Suppression", "Erreur lors de la suppression.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -509,15 +423,9 @@ public class EntrainementAdminController {
             String emailStatus = notifyPlayerAboutEvaluation(evaluation, false);
             refreshEvaluations();
             clearEvaluationForm();
-<<<<<<< HEAD
             showSuccess("Evaluation", "Evaluation added successfully!\n" + emailStatus);
         } catch (SQLException e) {
             showError("Evaluation", "Failed to add evaluation.\n" + e.getMessage());
-=======
-            showInfo("Evaluation", "Evaluation ajoutee avec succes!\n" + emailStatus);
-        } catch (SQLException e) {
-            showError("Evaluation", "Erreur lors de l'ajout.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -538,15 +446,9 @@ public class EntrainementAdminController {
             String emailStatus = notifyPlayerAboutEvaluation(evaluation, true);
             refreshEvaluations();
             clearEvaluationForm();
-<<<<<<< HEAD
             showSuccess("Evaluation", "Evaluation updated successfully!\n" + emailStatus);
         } catch (SQLException e) {
             showError("Evaluation", "Failed to update evaluation.\n" + e.getMessage());
-=======
-            showInfo("Evaluation", "Evaluation mise a jour avec succes!\n" + emailStatus);
-        } catch (SQLException e) {
-            showError("Evaluation", "Erreur lors de la modification.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -557,11 +459,7 @@ public class EntrainementAdminController {
             showEvaluationValidation("Selectionnez une evaluation.");
             return;
         }
-<<<<<<< HEAD
         if (!confirmDelete("Delete this evaluation?")) {
-=======
-        if (!confirmDelete("Supprimer cette evaluation ?")) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
         try {
@@ -569,11 +467,7 @@ public class EntrainementAdminController {
             refreshEvaluations();
             clearEvaluationForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Evaluation", "Failed to delete evaluation.\n" + e.getMessage());
-=======
-            showError("Evaluation", "Erreur lors de la suppression.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -584,20 +478,12 @@ public class EntrainementAdminController {
 
     private String notifyPlayerAboutEvaluation(Evaluation evaluation, boolean updated) {
         if (evaluationNotificationService == null || userService == null || entrainementService == null) {
-<<<<<<< HEAD
             return "Email notification unavailable.";
-=======
-            return "Notification email indisponible.";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         try {
             User player = userService.getById(evaluation.getJoueurId());
             if (player == null || player.getEmail() == null || player.getEmail().isBlank()) {
-<<<<<<< HEAD
                 return "Evaluation saved, but no valid email address found for this player.";
-=======
-                return "Evaluation enregistree, mais aucune adresse e-mail valide n'a ete trouvee pour ce joueur.";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
 
             Entrainement training = entrainementService.getById(evaluation.getEntrainementId());
@@ -605,11 +491,7 @@ public class EntrainementAdminController {
                     evaluationNotificationService.sendEvaluationNotification(player, training, evaluation, updated);
             return result.message();
         } catch (SQLException e) {
-<<<<<<< HEAD
             return "Evaluation saved, but email could not be prepared: " + e.getMessage();
-=======
-            return "Evaluation enregistree, mais l'e-mail n'a pas pu etre prepare: " + e.getMessage();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -630,11 +512,7 @@ public class EntrainementAdminController {
             refreshParticipations();
             clearParticipationForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Participation", "Failed to add participation.\n" + e.getMessage());
-=======
-            showError("Participation", "Erreur lors de l'ajout.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -655,11 +533,7 @@ public class EntrainementAdminController {
             refreshParticipations();
             clearParticipationForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Participation", "Failed to update participation.\n" + e.getMessage());
-=======
-            showError("Participation", "Erreur lors de la modification.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -670,11 +544,7 @@ public class EntrainementAdminController {
             showParticipationValidation("Selectionnez une participation.");
             return;
         }
-<<<<<<< HEAD
         if (!confirmDelete("Delete this participation?")) {
-=======
-        if (!confirmDelete("Supprimer cette participation ?")) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
         try {
@@ -682,11 +552,7 @@ public class EntrainementAdminController {
             refreshParticipations();
             clearParticipationForm();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Participation", "Failed to delete participation.\n" + e.getMessage());
-=======
-            showError("Participation", "Erreur lors de la suppression.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -701,11 +567,7 @@ public class EntrainementAdminController {
             loadTrainingOptions();
             applyFilters();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Loading Error", "Unable to load training sessions.\n" + e.getMessage());
-=======
-            showError("Chargement", "Impossible de charger les entrainements.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -732,11 +594,7 @@ public class EntrainementAdminController {
             evaluationMaster.setAll(evaluationService.getAll());
             applyEvaluationFilters();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Evaluation", "Unable to load evaluations.\n" + e.getMessage());
-=======
-            showError("Evaluation", "Impossible de charger les evaluations.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -749,7 +607,6 @@ public class EntrainementAdminController {
                     .collect(Collectors.toList());
         }
         List<Evaluation> sorted = switch (evaluationSortBox.getValue() == null ? "" : evaluationSortBox.getValue()) {
-<<<<<<< HEAD
             case "Physical Score" -> items.stream()
                     .sorted(Comparator.comparingDouble(Evaluation::getNotePhysique).reversed())
                     .collect(Collectors.toList());
@@ -757,15 +614,6 @@ public class EntrainementAdminController {
                     .sorted(Comparator.comparingDouble(Evaluation::getNoteTechnique).reversed())
                     .collect(Collectors.toList());
             case "Tactical Score" -> items.stream()
-=======
-            case "Note physique" -> items.stream()
-                    .sorted(Comparator.comparingDouble(Evaluation::getNotePhysique).reversed())
-                    .collect(Collectors.toList());
-            case "Note technique" -> items.stream()
-                    .sorted(Comparator.comparingDouble(Evaluation::getNoteTechnique).reversed())
-                    .collect(Collectors.toList());
-            case "Note tactique" -> items.stream()
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     .sorted(Comparator.comparingDouble(Evaluation::getNoteTactique).reversed())
                     .collect(Collectors.toList());
             default -> items.stream()
@@ -781,11 +629,7 @@ public class EntrainementAdminController {
             participationMaster.setAll(participationService.getAll());
             applyParticipationFilters();
         } catch (SQLException e) {
-<<<<<<< HEAD
             showError("Participation", "Unable to load participations.\n" + e.getMessage());
-=======
-            showError("Participation", "Impossible de charger les participations.\n" + e.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -798,17 +642,10 @@ public class EntrainementAdminController {
                     .collect(Collectors.toList());
         }
         List<Participation> sorted = switch (participationSortBox.getValue() == null ? "" : participationSortBox.getValue()) {
-<<<<<<< HEAD
             case "Player" -> items.stream()
                     .sorted(Comparator.comparing(p -> p.getJoueurId() == null ? 0 : p.getJoueurId()))
                     .collect(Collectors.toList());
             case "Training" -> items.stream()
-=======
-            case "Joueur" -> items.stream()
-                    .sorted(Comparator.comparing(p -> p.getJoueurId() == null ? 0 : p.getJoueurId()))
-                    .collect(Collectors.toList());
-            case "Entrainement" -> items.stream()
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     .sorted(Comparator.comparing(p -> p.getEntrainementId() == null ? 0 : p.getEntrainementId()))
                     .collect(Collectors.toList());
             default -> items.stream()
@@ -864,11 +701,7 @@ public class EntrainementAdminController {
         objectifField.clear();
         lieuField.clear();
         coachField.getSelectionModel().clearSelection();
-<<<<<<< HEAD
         formHintLabel.setText("Click on Type or Location to edit directly, or add new training session");
-=======
-        formHintLabel.setText("Selectionnez une ligne ou saisissez une nouvelle session.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         clearValidation();
     }
 
@@ -880,11 +713,7 @@ public class EntrainementAdminController {
         evaluationTechField.clear();
         evaluationTactField.clear();
         evaluationCommentField.clear();
-<<<<<<< HEAD
         evaluationHintLabel.setText("Double-click to edit or create new evaluation");
-=======
-        evaluationHintLabel.setText("Selectionnez une evaluation ou creez-en une.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         clearEvaluationValidation();
     }
 
@@ -894,11 +723,7 @@ public class EntrainementAdminController {
         participationPlayerField.getSelectionModel().clearSelection();
         participationPresenceFormField.getSelectionModel().clearSelection();
         participationJustifField.clear();
-<<<<<<< HEAD
         participationHintLabel.setText("Click Presence or Justification to edit, or create new");
-=======
-        participationHintLabel.setText("Selectionnez une participation ou creez-en une.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         clearParticipationValidation();
     }
 
@@ -906,16 +731,11 @@ public class EntrainementAdminController {
         LocalDate date = dateField.getValue();
         if (date == null) {
             markInvalid(dateField);
-<<<<<<< HEAD
             showValidation("Date is required.");
-=======
-            showValidation("La date est obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         if (date.isBefore(LocalDate.now())) {
             markInvalid(dateField);
-<<<<<<< HEAD
             showValidation("Date must be today or in the future.");
             return null;
         }
@@ -925,27 +745,12 @@ public class EntrainementAdminController {
             return null;
         }
         LocalTime end = parseTime(endField, "End time");
-=======
-            showValidation("La date doit etre aujourd'hui ou dans le futur.");
-            return null;
-        }
-
-        LocalTime start = parseTime(startField, "Heure debut");
-        if (start == null) {
-            return null;
-        }
-        LocalTime end = parseTime(endField, "Heure fin");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (end == null) {
             return null;
         }
         if (!end.isAfter(start)) {
             markInvalid(endField);
-<<<<<<< HEAD
             showValidation("End time must be after start time.");
-=======
-            showValidation("L'heure de fin doit etre apres l'heure de debut.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
 
@@ -965,21 +770,13 @@ public class EntrainementAdminController {
         CoachOption coach = coachField.getValue();
         if (coach == null) {
             markInvalid(coachField);
-<<<<<<< HEAD
             showValidation("Coach is required.");
-=======
-            showValidation("Le coach est obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
 
         Entrainement entrainement = new Entrainement(date, start, end, type, objectif, lieu, coach.id());
         if (updateMode && selected == null) {
-<<<<<<< HEAD
             showValidation("Please select a training session to update.");
-=======
-            showValidation("Selectionnez un entrainement a modifier.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         return entrainement;
@@ -990,50 +787,29 @@ public class EntrainementAdminController {
         UserOption player = evaluationPlayerField.getValue();
         if (training == null) {
             markInvalid(evaluationTrainingField);
-<<<<<<< HEAD
             showEvaluationValidation("Training session is required.");
-=======
-            showEvaluationValidation("Entrainement obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         if (player == null) {
             markInvalid(evaluationPlayerField);
-<<<<<<< HEAD
             showEvaluationValidation("Player is required.");
             return null;
         }
         Double phys = parseDouble(evaluationPhysField, "Physical score");
         Double tech = parseDouble(evaluationTechField, "Technical score");
         Double tact = parseDouble(evaluationTactField, "Tactical score");
-=======
-            showEvaluationValidation("Joueur obligatoire.");
-            return null;
-        }
-        Double phys = parseDouble(evaluationPhysField, "Note physique");
-        Double tech = parseDouble(evaluationTechField, "Note technique");
-        Double tact = parseDouble(evaluationTactField, "Note tactique");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (phys == null || tech == null || tact == null) {
             return null;
         }
         String comment = evaluationCommentField.getText();
         if (comment == null || comment.isBlank()) {
             markInvalid(evaluationCommentField);
-<<<<<<< HEAD
             showEvaluationValidation("Comment is required.");
-=======
-            showEvaluationValidation("Commentaire obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         Evaluation evaluation = new Evaluation(phys, tech, tact, comment.trim(), training.id(), player.id());
         if (updateMode && selectedEvaluation == null) {
-<<<<<<< HEAD
             showEvaluationValidation("Please select an evaluation to update.");
-=======
-            showEvaluationValidation("Selectionnez une evaluation a modifier.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         return evaluation;
@@ -1045,38 +821,22 @@ public class EntrainementAdminController {
         String presence = participationPresenceFormField.getValue();
         if (training == null) {
             markInvalid(participationTrainingField);
-<<<<<<< HEAD
             showParticipationValidation("Training session is required.");
-=======
-            showParticipationValidation("Entrainement obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         if (player == null) {
             markInvalid(participationPlayerField);
-<<<<<<< HEAD
             showParticipationValidation("Player is required.");
-=======
-            showParticipationValidation("Joueur obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         if (presence == null || presence.isBlank()) {
             markInvalid(participationPresenceFormField);
-<<<<<<< HEAD
             showParticipationValidation("Presence status is required.");
-=======
-            showParticipationValidation("Presence obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         Participation participation = new Participation(presence, emptyIfNull(participationJustifField.getText(), null), training.id(), player.id());
         if (updateMode && selectedParticipation == null) {
-<<<<<<< HEAD
             showParticipationValidation("Please select a participation to update.");
-=======
-            showParticipationValidation("Selectionnez une participation a modifier.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         return participation;
@@ -1086,11 +846,7 @@ public class EntrainementAdminController {
         String value = field.getText() == null ? "" : field.getText().trim();
         if (value.isEmpty()) {
             markInvalid(field);
-<<<<<<< HEAD
             showValidation(label + " is required.");
-=======
-            showValidation(label + " est obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         try {
@@ -1106,11 +862,7 @@ public class EntrainementAdminController {
         String value = field.getText();
         if (value == null || value.isBlank()) {
             markInvalid(field);
-<<<<<<< HEAD
             showValidation(label + " is required.");
-=======
-            showValidation(label + " est obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         return value.trim();
@@ -1170,11 +922,7 @@ public class EntrainementAdminController {
             return false;
         }
         String value = roles.toLowerCase();
-<<<<<<< HEAD
         return value.contains("coach") || value.contains("entraineur") || value.contains("entraîneur") || value.contains("trainer");
-=======
-        return value.contains("coach") || value.contains("entraineur") || value.contains("entraîneur");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private boolean isPlayer(User user) {
@@ -1390,22 +1138,14 @@ public class EntrainementAdminController {
         String value = field.getText();
         if (value == null || value.isBlank()) {
             markInvalid(field);
-<<<<<<< HEAD
             showEvaluationValidation(label + " is required.");
-=======
-            showEvaluationValidation(label + " obligatoire.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
         try {
             return Double.parseDouble(value.trim());
         } catch (NumberFormatException e) {
             markInvalid(field);
-<<<<<<< HEAD
             showEvaluationValidation(label + " is invalid.");
-=======
-            showEvaluationValidation(label + " invalide.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
     }
@@ -1415,12 +1155,9 @@ public class EntrainementAdminController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-<<<<<<< HEAD
         alert.getDialogPane().setMinWidth(400);
         alert.getDialogPane().setMinHeight(150);
         alert.getDialogPane().getStyleClass().add("custom-alert");
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         alert.showAndWait();
     }
 
@@ -1429,7 +1166,6 @@ public class EntrainementAdminController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-<<<<<<< HEAD
         alert.getDialogPane().setMinWidth(400);
         alert.getDialogPane().setMinHeight(150);
         alert.getDialogPane().getStyleClass().add("custom-alert");
@@ -1492,10 +1228,6 @@ public class EntrainementAdminController {
             refreshParticipations(); // Refresh to revert changes in UI
         }
     }
-=======
-        alert.showAndWait();
-    }
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private void openEvaluationDialog(Participation participation) {
         if (participation == null || participation.getJoueurId() == null || participation.getEntrainementId() == null) {
@@ -1504,11 +1236,7 @@ public class EntrainementAdminController {
 
         javafx.stage.Stage dialog = new javafx.stage.Stage();
         dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-<<<<<<< HEAD
         dialog.setTitle("Evaluate Performance");
-=======
-        dialog.setTitle("Évaluer la performance");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         dialog.setResizable(false);
 
         javafx.scene.layout.VBox root = new javafx.scene.layout.VBox(0);
@@ -1520,11 +1248,7 @@ public class EntrainementAdminController {
         header.getStyleClass().add("evaluation-dialog-header");
         header.setPadding(new javafx.geometry.Insets(30, 30, 30, 30));
         
-<<<<<<< HEAD
         Label titleLabel = new Label("Evaluate Performance");
-=======
-        Label titleLabel = new Label("Évaluer la performance");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         titleLabel.getStyleClass().add("evaluation-dialog-title");
         
         Label playerLabel = new Label("Joueur: " + resolvePlayerLabel(participation.getJoueurId()));
@@ -1540,11 +1264,7 @@ public class EntrainementAdminController {
         content.setPadding(new javafx.geometry.Insets(30, 30, 30, 30));
         content.getStyleClass().add("evaluation-dialog-content");
 
-<<<<<<< HEAD
         Label instructionLabel = new Label("Rate the player's performance out of 20 points");
-=======
-        Label instructionLabel = new Label("Évaluez les performances du joueur sur 20 points");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         instructionLabel.getStyleClass().add("evaluation-dialog-instruction");
         instructionLabel.setWrapText(true);
 
@@ -1721,7 +1441,6 @@ public class EntrainementAdminController {
                 dialog.close();
                 
                 Alert success = new Alert(Alert.AlertType.INFORMATION);
-<<<<<<< HEAD
                 success.setTitle("Success");
                 success.setHeaderText(null);
                 success.setContentText("Evaluation saved successfully!\n" + emailStatus);
@@ -1729,15 +1448,6 @@ public class EntrainementAdminController {
                 
             } catch (SQLException ex) {
                 showError("Evaluation", "Failed to save evaluation.\n" + ex.getMessage());
-=======
-                success.setTitle("Succès");
-                success.setHeaderText(null);
-                success.setContentText("Évaluation enregistrée avec succès!\n" + emailStatus);
-                success.showAndWait();
-                
-            } catch (SQLException ex) {
-                showError("Évaluation", "Erreur lors de l'enregistrement.\n" + ex.getMessage());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
         });
 
@@ -1747,10 +1457,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
-<<<<<<< HEAD
         ThemeManager.registerScene(scene);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -1791,11 +1498,7 @@ public class EntrainementAdminController {
         // Time range
         javafx.scene.layout.HBox timeBox = new javafx.scene.layout.HBox(15);
         javafx.scene.layout.VBox startBox = new javafx.scene.layout.VBox(6);
-<<<<<<< HEAD
         Label startLabel = new Label("🕐 Start time");
-=======
-        Label startLabel = new Label("🕐 Heure début");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         startLabel.getStyleClass().add("evaluation-dialog-label");
         TextField startField = new TextField(entrainement.getHeureDebut() != null ? entrainement.getHeureDebut().toString() : "");
         startField.setPromptText("HH:MM");
@@ -1803,11 +1506,7 @@ public class EntrainementAdminController {
         startBox.getChildren().addAll(startLabel, startField);
         
         javafx.scene.layout.VBox endBox = new javafx.scene.layout.VBox(6);
-<<<<<<< HEAD
         Label endLabel = new Label("🕐 End time");
-=======
-        Label endLabel = new Label("🕐 Heure fin");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         endLabel.getStyleClass().add("evaluation-dialog-label");
         TextField endField = new TextField(entrainement.getHeureFin() != null ? entrainement.getHeureFin().toString() : "");
         endField.setPromptText("HH:MM");
@@ -1865,7 +1564,6 @@ public class EntrainementAdminController {
         saveBtn.setOnAction(e -> {
             try {
                 if (datePicker.getValue() == null) {
-<<<<<<< HEAD
                     showError("Validation", "Date is required");
                     return;
                 }
@@ -1875,17 +1573,6 @@ public class EntrainementAdminController {
                 }
                 if (coachCombo.getValue() == null) {
                     showError("Validation", "Coach is required");
-=======
-                    showError("Validation", "La date est obligatoire");
-                    return;
-                }
-                if (locField.getText().trim().isEmpty()) {
-                    showError("Validation", "Le lieu est obligatoire");
-                    return;
-                }
-                if (coachCombo.getValue() == null) {
-                    showError("Validation", "L'entraineur est obligatoire");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     return;
                 }
 
@@ -1930,10 +1617,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
-<<<<<<< HEAD
         ThemeManager.registerScene(scene);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -2118,10 +1802,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
-<<<<<<< HEAD
         ThemeManager.registerScene(scene);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         
         dialog.setScene(scene);
         dialog.showAndWait();
@@ -2262,10 +1943,7 @@ public class EntrainementAdminController {
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root);
         scene.getStylesheets().add(getClass().getResource("/tn/esprit/styles/entrainement-theme.css").toExternalForm());
-<<<<<<< HEAD
         ThemeManager.registerScene(scene);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         
         dialog.setScene(scene);
         dialog.showAndWait();

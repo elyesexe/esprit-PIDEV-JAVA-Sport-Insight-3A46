@@ -1,7 +1,6 @@
 package tn.esprit.Controller;
 
 import javafx.application.Platform;
-<<<<<<< HEAD
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,19 +10,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-=======
-import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-<<<<<<< HEAD
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -37,33 +28,21 @@ import tn.esprit.entities.Matchs;
 import tn.esprit.entities.User;
 import tn.esprit.i18n.I18n;
 import tn.esprit.gui.LiveMatchNotificationRuntime;
-=======
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Circle;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
-import tn.esprit.entities.User;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
-<<<<<<< HEAD
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.MatchFollowTargetService;
 import tn.esprit.services.MatchsService;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.services.UserService;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-<<<<<<< HEAD
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -76,15 +55,6 @@ import java.util.Set;
 
 public class ProfileController {
     private static final int MAX_MATCH_SUGGESTIONS = 6;
-=======
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Objects;
-
-public class ProfileController {
-    private static final DateTimeFormatter MEMBER_SINCE_FORMATTER =
-            DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private HBox navbarRoot;
@@ -146,7 +116,6 @@ public class ProfileController {
     private PasswordField confirmPasswordField;
     @FXML
     private Button saveButton;
-<<<<<<< HEAD
     @FXML
     private ComboBox<String> favouriteLeagueComboBox;
     @FXML
@@ -174,12 +143,6 @@ public class ProfileController {
     private User currentUser;
     private final ObservableList<EquipeSelectionItem> teamOptions = FXCollections.observableArrayList();
     private final Map<Integer, EquipeSelectionItem> teamOptionsById = new LinkedHashMap<>();
-=======
-
-    private SidebarModuleGroup sidebarModuleGroup;
-    private UserService userService;
-    private User currentUser;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -212,44 +175,30 @@ public class ProfileController {
         currentUser = AuthSession.getCurrentUser();
         if (currentUser == null) {
             saveButton.setDisable(true);
-<<<<<<< HEAD
             configureFavouriteControlsDisabled();
             showStatus(I18n.get("profile.status.sessionExpired"), "status-error");
-=======
-            showStatus("Your session expired. Please sign in again.", "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
 
         try {
             userService = new UserService();
-<<<<<<< HEAD
             matchFollowTargetService = new MatchFollowTargetService();
             equipeService = new EquipeService();
             matchsService = new MatchsService();
             configureFavouriteControls();
             loadFavouriteTeamOptions();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             User freshUser = userService.getById(currentUser.getId());
             if (freshUser != null) {
                 currentUser = freshUser;
                 AuthSession.login(freshUser);
             }
             populateProfile(currentUser);
-<<<<<<< HEAD
             refreshFavouriteChips();
         } catch (Exception ex) {
             saveButton.setDisable(true);
             configureFavouriteControlsDisabled();
             populateProfile(currentUser);
             showStatus(I18n.get("profile.status.serviceUnavailable"), "status-error");
-=======
-        } catch (Exception ex) {
-            saveButton.setDisable(true);
-            populateProfile(currentUser);
-            showStatus("The profile service is unavailable right now.", "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -358,11 +307,7 @@ public class ProfileController {
     @FXML
     private void handleBrowsePhoto() {
         FileChooser chooser = new FileChooser();
-<<<<<<< HEAD
         chooser.setTitle(I18n.get("profile.photo.dialogTitle"));
-=======
-        chooser.setTitle("Select a profile picture");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif")
         );
@@ -381,19 +326,11 @@ public class ProfileController {
         hideStatus();
 
         if (currentUser == null) {
-<<<<<<< HEAD
             showStatus(I18n.get("profile.status.noAuthenticatedProfile"), "status-error");
             return;
         }
         if (userService == null) {
             showStatus(I18n.get("profile.status.serviceUnavailable"), "status-error");
-=======
-            showStatus("No authenticated profile was found.", "status-error");
-            return;
-        }
-        if (userService == null) {
-            showStatus("The profile service is not available.", "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
 
@@ -406,7 +343,6 @@ public class ProfileController {
         String confirmPassword = confirmPasswordField.getText();
 
         if (email == null || prenom == null || nom == null) {
-<<<<<<< HEAD
             showStatus(I18n.get("profile.status.emailNameRequired"), "status-error");
             return;
         }
@@ -416,45 +352,22 @@ public class ProfileController {
         }
         if (dateNaissancePicker.getValue() == null) {
             showStatus(I18n.get("common.validation.birthDateRequired"), "status-error");
-=======
-            showStatus("Email, first name, and last name are required.", "status-error");
-            return;
-        }
-        if (telephone == null) {
-            showStatus("Telephone is required.", "status-error");
-            return;
-        }
-        if (dateNaissancePicker.getValue() == null) {
-            showStatus("Birth date is required.", "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
         if (newPassword != null && !newPassword.isBlank()) {
             if (newPassword.length() < 8) {
-<<<<<<< HEAD
                 showStatus(I18n.get("profile.status.passwordTooShort"), "status-error");
                 return;
             }
             if (!Objects.equals(newPassword, confirmPassword)) {
                 showStatus(I18n.get("common.validation.passwordMismatch"), "status-error");
-=======
-                showStatus("New passwords must contain at least 8 characters.", "status-error");
-                return;
-            }
-            if (!Objects.equals(newPassword, confirmPassword)) {
-                showStatus("Password confirmation does not match.", "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 return;
             }
         }
 
         try {
             if (userService.emailExists(email, currentUser.getId())) {
-<<<<<<< HEAD
                 showStatus(I18n.get("profile.status.emailInUse"), "status-error");
-=======
-                showStatus("Another account already uses this email address.", "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 return;
             }
 
@@ -481,7 +394,6 @@ public class ProfileController {
             passwordField.clear();
             confirmPasswordField.clear();
             populateProfile(currentUser);
-<<<<<<< HEAD
             showStatus(I18n.get("profile.status.updated"), "status-success");
         } catch (Exception ex) {
             showStatus(I18n.format("profile.status.updateFailed", ex.getMessage()), "status-error");
@@ -542,11 +454,6 @@ public class ProfileController {
                     added ? "status-success" : "status-muted");
         } catch (Exception e) {
             showStatus(I18n.format("profile.alerts.teamAddFailed", e.getMessage()), "status-error");
-=======
-            showStatus("Your profile has been updated successfully.", "status-success");
-        } catch (Exception ex) {
-            showStatus("The profile could not be updated. " + ex.getMessage(), "status-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -561,7 +468,6 @@ public class ProfileController {
         sidebarModuleGroup.initialize(SidebarModuleGroup.ActiveModule.NONE);
     }
 
-<<<<<<< HEAD
     private void configureFavouriteControls() {
         if (favouriteLeagueComboBox != null) {
             favouriteLeagueComboBox.setItems(FXCollections.observableArrayList(
@@ -957,8 +863,6 @@ public class ProfileController {
         return status != null && status.toLowerCase(Locale.ROOT).contains("fini");
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void populateProfile(User user) {
         if (user == null) {
             return;
@@ -972,11 +876,7 @@ public class ProfileController {
             profileNameLabel.setText(displayName);
         }
         if (profileEmailLabel != null) {
-<<<<<<< HEAD
             profileEmailLabel.setText(emptyIfBlank(user.getEmail(), I18n.get("profile.value.noEmail")));
-=======
-            profileEmailLabel.setText(emptyIfBlank(user.getEmail(), "No email"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         if (roleValueLabel != null) {
             roleValueLabel.setText(roleDisplay);
@@ -986,7 +886,6 @@ public class ProfileController {
         }
         if (memberSinceValueLabel != null) {
             memberSinceValueLabel.setText(user.getDateInscription() == null
-<<<<<<< HEAD
                     ? I18n.get("common.value.unknown")
                     : DateTimeFormatter.ofPattern("dd MMM yyyy", I18n.getLocale()).format(user.getDateInscription()));
         }
@@ -997,18 +896,6 @@ public class ProfileController {
             formSubtitleLabel.setText(AuthSession.isAdmin()
                     ? I18n.get("profile.form.subtitleAdmin")
                     : I18n.get("profile.form.subtitleUser"));
-=======
-                    ? "Unknown"
-                    : MEMBER_SINCE_FORMATTER.format(user.getDateInscription()));
-        }
-        if (formTitleLabel != null) {
-            formTitleLabel.setText(AuthSession.isAdmin() ? "Admin profile" : "My profile");
-        }
-        if (formSubtitleLabel != null) {
-            formSubtitleLabel.setText(AuthSession.isAdmin()
-                    ? "Review your admin account, update your picture, and keep your contact details current."
-                    : "Review your account, update your picture, and keep your contact details current.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         emailField.setText(emptyIfBlank(user.getEmail(), ""));
@@ -1033,11 +920,7 @@ public class ProfileController {
             profileNameLabel.setText(displayName);
         }
         if (profileEmailLabel != null) {
-<<<<<<< HEAD
             profileEmailLabel.setText(emptyIfBlank(emailField == null ? null : emailField.getText(), I18n.get("profile.value.noEmail")));
-=======
-            profileEmailLabel.setText(emptyIfBlank(emailField == null ? null : emailField.getText(), "No email"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         if (profileInitialsLabel != null) {
             profileInitialsLabel.setText(buildInitials(displayName));
@@ -1119,17 +1002,10 @@ public class ProfileController {
     private String normalizeStatus(String status) {
         String value = emptyIfBlank(status, "ACTIVE");
         if ("ACTIF".equalsIgnoreCase(value)) {
-<<<<<<< HEAD
             return I18n.get("common.status.active");
         }
         if ("INACTIF".equalsIgnoreCase(value)) {
             return I18n.get("common.status.inactive");
-=======
-            return "Active";
-        }
-        if ("INACTIF".equalsIgnoreCase(value)) {
-            return "Inactive";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         String normalized = value.trim().toUpperCase(Locale.ROOT);
         return normalized.substring(0, 1) + normalized.substring(1).toLowerCase(Locale.ROOT);
@@ -1140,11 +1016,7 @@ public class ProfileController {
         if (!fullName.isBlank()) {
             return fullName;
         }
-<<<<<<< HEAD
         return emptyIfBlank(email, I18n.get("profile.user.fallback"));
-=======
-        return emptyIfBlank(email, "Sport Insight user");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private String buildInitials(String displayName) {
@@ -1163,7 +1035,6 @@ public class ProfileController {
     private String clean(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }
-<<<<<<< HEAD
 
     private record EquipeSelectionItem(Integer teamId, String label, String competitionLabel) {
         private String displayLabel() {
@@ -1172,6 +1043,4 @@ public class ProfileController {
                     : label + "  |  " + competitionLabel;
         }
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

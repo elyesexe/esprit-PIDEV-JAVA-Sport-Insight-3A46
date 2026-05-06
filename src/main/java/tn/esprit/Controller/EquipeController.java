@@ -15,21 +15,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-<<<<<<< HEAD
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
-=======
-import javafx.scene.control.TableColumn;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
-<<<<<<< HEAD
 import javafx.scene.control.cell.TextFieldTableCell;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -37,19 +30,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
-<<<<<<< HEAD
 import tn.esprit.assistant.AssistantContextProvider;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
 import tn.esprit.gui.AdminNavigation;
-<<<<<<< HEAD
 import tn.esprit.gui.AdminTableButtons;
 import tn.esprit.gui.AdminTableScrollSupport;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -77,16 +64,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
-<<<<<<< HEAD
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class EquipeController implements AssistantContextProvider {
-=======
-import java.util.regex.Pattern;
-
-public class EquipeController {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
     private static final String ALL_COMPETITIONS_LABEL = "Toutes competitions";
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
@@ -206,19 +187,13 @@ public class EquipeController {
     private boolean serviceReady;
     private boolean loadingData;
     private boolean mutatingData;
-<<<<<<< HEAD
     private boolean darkMode;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private SidebarModuleGroup sidebarModuleGroup;
     private String selectedCompetitionCode;
     private final Map<String, Button> competitionFilterButtons = new java.util.LinkedHashMap<>();
     private List<Matchs> teamStatsMatchs = List.of();
     private List<Joueur> teamStatsJoueurs = List.of();
-<<<<<<< HEAD
     private TableColumn<Equipe, Void> actionsColumn;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -227,10 +202,7 @@ public class EquipeController {
         configureToolbar();
         configureFieldRestrictions();
         configureTableView();
-<<<<<<< HEAD
         configureCreateOnlyForm();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         bindFormPreview();
         configureStatsSection();
         updateSortOrderButtonText();
@@ -253,7 +225,6 @@ public class EquipeController {
         }
     }
 
-<<<<<<< HEAD
     public void setDarkMode(boolean darkMode) {
         this.darkMode = darkMode;
         if (teamRateChart != null) {
@@ -293,8 +264,6 @@ public class EquipeController {
         );
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleAdd() {
         clearValidation();
@@ -434,14 +403,11 @@ public class EquipeController {
 
     @FXML
     private void handleBrowseImage() {
-<<<<<<< HEAD
         if (equipeTableView != null && equipeTableView.getSelectionModel().getSelectedItem() != null) {
             showStatus("status-muted", "Le formulaire sert uniquement a l'ajout. Modifiez l'equipe depuis le tableau.");
             return;
         }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir un logo");
         fileChooser.getExtensionFilters().add(
@@ -518,11 +484,7 @@ public class EquipeController {
     }
 
     private void configureToolbar() {
-<<<<<<< HEAD
         sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach"));
-=======
-        sortChoiceBox.setItems(FXCollections.observableArrayList("Nom", "Coach", "Id"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         sortChoiceBox.setValue("Nom");
         configureCompetitionFilterBar();
 
@@ -580,10 +542,7 @@ public class EquipeController {
 
     private void configureTableView() {
         idColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
-<<<<<<< HEAD
         equipeTableView.getColumns().remove(idColumn);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         nomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
         coachColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getCoach(), "Non renseigne")));
         competitionColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveCompetitionLabel(cell.getValue())));
@@ -591,7 +550,6 @@ public class EquipeController {
         logoColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveLogoState(cell.getValue())));
 
         equipeTableView.setItems(displayedEquipes);
-<<<<<<< HEAD
         equipeTableView.setEditable(true);
         equipeTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         equipeTableView.setTableMenuButtonVisible(true);
@@ -608,12 +566,6 @@ public class EquipeController {
         equipeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 clearFormFieldsOnly();
-=======
-        equipeTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        equipeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                populateForm(newValue);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             } else if (!hasDraftContent()) {
                 clearFormFieldsOnly();
             }
@@ -623,7 +575,6 @@ public class EquipeController {
             updateDetailCard();
             updateActionAvailability();
         });
-<<<<<<< HEAD
 
         configureEditableTableColumns();
         ensureActionsColumn();
@@ -816,8 +767,6 @@ public class EquipeController {
         }
 
         return null;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void bindFormPreview() {
@@ -995,13 +944,9 @@ public class EquipeController {
             series.getData().add(new XYChart.Data<>("Defaites", roundRate(losses, total)));
         }
         teamRateChart.getData().add(series);
-<<<<<<< HEAD
         applyBarColors(series, darkMode
                 ? List.of("#22c55e", "#f59e0b", "#ef4444")
                 : List.of("#16a34a", "#f59e0b", "#dc2626"));
-=======
-        applyBarColors(series, List.of("#16a34a", "#f59e0b", "#dc2626"));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         if (teamStatsSummaryLabel != null) {
             long pendingMatches = teamMatches.size() - completedMatches.size();
@@ -1021,13 +966,7 @@ public class EquipeController {
         Comparator<Equipe> comparator;
         String selectedSort = sortChoiceBox.getValue();
 
-<<<<<<< HEAD
         if ("Coach".equals(selectedSort)) {
-=======
-        if ("Id".equals(selectedSort)) {
-            comparator = Comparator.comparing(Equipe::getId, Comparator.nullsLast(Integer::compareTo));
-        } else if ("Coach".equals(selectedSort)) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             comparator = Comparator.comparing(Equipe::getCoach, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
         } else {
             comparator = Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
@@ -1129,13 +1068,8 @@ public class EquipeController {
             detailBadgeLabel.setText(hasDraftContent() ? "Brouillon" : "Apercu");
         } else {
             selectionStateLabel.setText("Selection : " + emptyIfNull(selectedEquipe.getNom()));
-<<<<<<< HEAD
             formHintLabel.setText("Double-cliquez la ligne pour modifier. Utilisez l'icone corbeille pour supprimer.");
             detailBadgeLabel.setText("Edition en ligne");
-=======
-            formHintLabel.setText("Modification en cours de la fiche #" + selectedEquipe.getId() + ".");
-            detailBadgeLabel.setText("Equipe selectionnee");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -1148,11 +1082,7 @@ public class EquipeController {
         if (selectedEquipe == null && !hasDraftContent()) {
             detailNameLabel.setText("Aucune equipe selectionnee");
             detailSubtitleLabel.setText("Selectionnez une ligne du tableau ou creez une nouvelle fiche pour afficher le detail.");
-<<<<<<< HEAD
             detailIdValueLabel.setText("Creation");
-=======
-            detailIdValueLabel.setText("Nouveau");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             detailCoachValueLabel.setText("Non renseigne");
             detailStatusValueLabel.setText("Sans logo");
             updateDetailLogo(null, "SI");
@@ -1169,11 +1099,7 @@ public class EquipeController {
                         ? "Coach non renseigne. Le nom seul suffit pour enregistrer la fiche."
                         : "Coach principal : " + effectiveCoach
         );
-<<<<<<< HEAD
         detailIdValueLabel.setText(selectedEquipe == null ? "Creation" : "Selection");
-=======
-        detailIdValueLabel.setText(selectedEquipe == null ? "Nouveau" : "#" + selectedEquipe.getId());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         detailCoachValueLabel.setText(effectiveCoach == null ? "Non renseigne" : effectiveCoach);
         detailStatusValueLabel.setText(effectiveImage == null ? "Sans logo" : "Logo pret");
         updateDetailLogo(effectiveImage, effectiveName);
@@ -1194,18 +1120,11 @@ public class EquipeController {
     private void updateActionAvailability() {
         boolean hasSelection = equipeTableView.getSelectionModel().getSelectedItem() != null;
         boolean busy = loadingData || mutatingData;
-<<<<<<< HEAD
         boolean createMode = serviceReady && !busy && !hasSelection;
 
         addButton.setDisable(!createMode);
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
-=======
-
-        addButton.setDisable(!serviceReady || busy);
-        updateButton.setDisable(!serviceReady || !hasSelection || busy);
-        deleteButton.setDisable(!serviceReady || !hasSelection || busy);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         refreshButton.setDisable(!serviceReady || busy);
         clearButton.setDisable(!serviceReady || busy);
         searchField.setDisable(!serviceReady || busy);
@@ -1213,12 +1132,9 @@ public class EquipeController {
         sortOrderButton.setDisable(!serviceReady || busy);
         competitionFilterButtons.values().forEach(button -> button.setDisable(!serviceReady || busy));
         equipeTableView.setDisable(!serviceReady || busy);
-<<<<<<< HEAD
         nomField.setDisable(!createMode);
         coachField.setDisable(!createMode);
         imageField.setDisable(!createMode);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updateCompetitionFilterButtonState() {

@@ -66,11 +66,8 @@ public class ProductPdfExportService {
                 writer.writeBody("Stock: " + product.getStock());
                 writer.writeBody("Size: " + fallback(product.getSize(), "-"));
                 writer.writeBody("Image: " + fallback(product.getImage(), "-"));
-<<<<<<< HEAD
                 writer.writeBody("Tags: " + fallback(product.getTags(), "-"));
                 writer.writeBody("Description: " + fallback(product.getDescription(), "-"));
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 writer.writeDivider();
             }
 

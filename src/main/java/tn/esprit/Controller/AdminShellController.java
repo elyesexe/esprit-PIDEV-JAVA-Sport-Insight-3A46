@@ -2,22 +2,16 @@ package tn.esprit.Controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-<<<<<<< HEAD
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-=======
-import javafx.scene.Node;
-import javafx.scene.control.Button;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.Parent;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-<<<<<<< HEAD
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -25,24 +19,15 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.i18n.I18n;
 import tn.esprit.i18n.UiTextLocalizer;
-=======
-import javafx.scene.layout.StackPane;
-import tn.esprit.gui.SceneNavigator;
-import tn.esprit.gui.ThemeManager;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-<<<<<<< HEAD
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-=======
-import java.util.List;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 /**
  * Admin layout: left sidebar (dashboard + CRUD + return to user UI), center hosts panels.
  * CRUD panels reuse existing FXML; the user navbar strip is removed so only the workspace shows.
@@ -50,13 +35,12 @@ import java.util.List;
 public class AdminShellController {
     private static final String ADMIN_LIGHT_CLASS = "admin-light";
     private static final String ADMIN_DARK_CLASS = "admin-dark";
-<<<<<<< HEAD
     private static final String ADMIN_PERFORMANCE_CLASS = "admin-performance-mode";
     private static final String ADMIN_EMBEDDED_PAGE_CLASS = "admin-embedded-page";
     private static final String ADMIN_DARK_BACKGROUND_STYLE =
-            "-fx-background-color: radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 100%), " +
-                    "radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.10) 0%, rgba(59, 130, 246, 0) 100%), " +
-                    "linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0f172a 48%, #111827 100%); " +
+            "-fx-background-color: radial-gradient(center 10% 8%, radius 38%, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 58%), " +
+                    "radial-gradient(center 90% 18%, radius 34%, rgba(30, 64, 175, 0.10) 0%, rgba(30, 64, 175, 0) 60%), " +
+                    "linear-gradient(from 0% 0% to 100% 100%, #071019 0%, #0b1220 52%, #111827 100%); " +
                     "-fx-background-insets: 0; " +
                     "-fx-background-radius: 0; " +
                     "-fx-border-color: transparent;";
@@ -135,8 +119,6 @@ public class AdminShellController {
             "sponsor-meta-chip", "product-stock-chip", "team-card-competition-badge", "team-top-scorer-pill",
             "flashscore-inline-badge", "timeline-minute-chip", "timeline-score-chip", "pitch-side-badge"
     );
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private static final String DASHBOARD = "/tn/esprit/views/admin-dashboard.fxml";
     private static final String EQUIPE_CRUD = "/tn/esprit/views/equipe-crud-view.fxml";
@@ -148,16 +130,12 @@ public class AdminShellController {
     private static final String ENTRAINEMENT_CRUD = "/tn/esprit/views/entrainement-admin-view.fxml";
     private static final String SPONSOR_CRUD = "/tn/esprit/views/sponsor-admin-view.fxml";
     private static final String USER_MODERATION = "/tn/esprit/views/admin-users-view.fxml";
-<<<<<<< HEAD
     private static final double SIDEBAR_EXPANDED_WIDTH = 286;
     private static final double SIDEBAR_COLLAPSED_WIDTH = 104;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private BorderPane adminRoot;
     @FXML
-<<<<<<< HEAD
     private ScrollPane adminSidebarScroll;
     @FXML
     private VBox adminSidebarRoot;
@@ -168,8 +146,6 @@ public class AdminShellController {
     @FXML
     private Button sidebarToggleButton;
     @FXML
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private StackPane contentStack;
     @FXML
     private ToggleButton themeToggleButton;
@@ -197,21 +173,15 @@ public class AdminShellController {
     private Button usersNavButton;
 
     private Object activeContentController;
-<<<<<<< HEAD
     private boolean sidebarCollapsed;
     private final Map<String, LoadedWorkspace> workspaceCache = new HashMap<>();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
         ThemeManager.bindToggle(themeToggleButton);
         themeToggleButton.selectedProperty().addListener((observable, oldValue, selected) -> applyAdminModeStyles(selected));
-<<<<<<< HEAD
         enableAdminPerformanceMode();
         configureSidebarCollapse();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         applyAdminModeStyles(themeToggleButton.isSelected());
         showDashboard();
     }
@@ -285,7 +255,6 @@ public class AdminShellController {
         );
     }
 
-<<<<<<< HEAD
     @FXML
     private void handleToggleSidebar() {
         setSidebarCollapsed(!sidebarCollapsed);
@@ -295,28 +264,11 @@ public class AdminShellController {
         LoadedWorkspace workspace = getOrLoadWorkspace(DASHBOARD, false);
         if (workspace != null) {
             showWorkspace(workspace);
-=======
-    private void showDashboard() {
-        URL url = AdminShellController.class.getResource(DASHBOARD);
-        if (url == null) {
-            return;
-        }
-        try {
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent panel = loader.load();
-            activeContentController = loader.getController();
-            applyWorkspaceModeStyles(panel);
-            applyControllerModeStyles(activeContentController);
-            contentStack.getChildren().setAll(Collections.singletonList(panel));
-        } catch (IOException e) {
-            e.printStackTrace();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         highlightNav(dashboardNavButton);
     }
 
     private void loadStrippedCrud(String resourcePath) {
-<<<<<<< HEAD
         LoadedWorkspace workspace = getOrLoadWorkspace(resourcePath, true);
         if (workspace != null) {
             showWorkspace(workspace);
@@ -369,33 +321,12 @@ public class AdminShellController {
         applyWorkspaceModeStyles(workspace.root(), themeToggleButton != null && themeToggleButton.isSelected(), workspace.embeddedPage());
         applyControllerModeStyles(activeContentController);
         contentStack.getChildren().setAll(Collections.singletonList(workspace.root()));
-=======
-        URL url = AdminShellController.class.getResource(resourcePath);
-        if (url == null) {
-            return;
-        }
-        try {
-            FXMLLoader loader = new FXMLLoader(url);
-            BorderPane root = loader.load();
-            activeContentController = loader.getController();
-            root.setTop(null);
-            root.getStyleClass().add("admin-workspace-root");
-            stripNodesByStyleClass(root, "hero-shell");
-            stripNodesByStyleClass(root, "home-hero-shell");
-            applyWorkspaceModeStyles(root);
-            applyControllerModeStyles(activeContentController);
-            contentStack.getChildren().setAll(Collections.singletonList(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void applyAdminModeStyles(boolean darkMode) {
         if (adminRoot == null) {
             return;
         }
-<<<<<<< HEAD
         adminRoot.getStyleClass().removeAll("theme-light", "theme-dark");
         adminRoot.getStyleClass().add(darkMode ? "theme-dark" : "theme-light");
         adminRoot.getStyleClass().removeAll(ADMIN_LIGHT_CLASS, ADMIN_DARK_CLASS);
@@ -497,22 +428,6 @@ public class AdminShellController {
             }
         }
         return false;
-=======
-        adminRoot.getStyleClass().removeAll(ADMIN_LIGHT_CLASS, ADMIN_DARK_CLASS);
-        adminRoot.getStyleClass().add(darkMode ? ADMIN_DARK_CLASS : ADMIN_LIGHT_CLASS);
-        for (Node child : contentStack.getChildren()) {
-            applyWorkspaceModeStyles(child);
-        }
-        applyControllerModeStyles(activeContentController);
-    }
-
-    private void applyWorkspaceModeStyles(Node node) {
-        if (node == null) {
-            return;
-        }
-        node.getStyleClass().removeAll(ADMIN_LIGHT_CLASS, ADMIN_DARK_CLASS);
-        node.getStyleClass().add(themeToggleButton != null && themeToggleButton.isSelected() ? ADMIN_DARK_CLASS : ADMIN_LIGHT_CLASS);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void stripNodesByStyleClass(Parent root, String styleClass) {
@@ -553,7 +468,6 @@ public class AdminShellController {
     }
 
     private void highlightNav(Button active) {
-<<<<<<< HEAD
         for (Button b : getSidebarNavButtons()) {
             if (b == null) {
                 continue;
@@ -595,9 +509,6 @@ public class AdminShellController {
 
     private Button[] getSidebarNavButtons() {
         return new Button[] {
-=======
-        for (Button b : new Button[] {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 dashboardNavButton,
                 equipesNavButton,
                 joueursNavButton,
@@ -608,7 +519,6 @@ public class AdminShellController {
                 entrainementsNavButton,
                 sponsorsNavButton,
                 usersNavButton
-<<<<<<< HEAD
         };
     }
 
@@ -710,21 +620,10 @@ public class AdminShellController {
     private void addStyleClass(Node node, String styleClass) {
         if (node != null && !node.getStyleClass().contains(styleClass)) {
             node.getStyleClass().add(styleClass);
-=======
-        }) {
-            if (b == null) {
-                continue;
-            }
-            b.getStyleClass().remove("admin-nav-button-active");
-        }
-        if (active != null && !active.getStyleClass().contains("admin-nav-button-active")) {
-            active.getStyleClass().add("admin-nav-button-active");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
     private void applyControllerModeStyles(Object controller) {
-<<<<<<< HEAD
         applyControllerModeStyles(controller, themeToggleButton != null && themeToggleButton.isSelected());
     }
 
@@ -748,18 +647,4 @@ public class AdminShellController {
 
     private record LoadedWorkspace(Parent root, Object controller, boolean embeddedPage) {
     }
-=======
-        if (controller instanceof AdminDashboardController adminDashboardController) {
-            adminDashboardController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
-        } else if (controller instanceof AdminUserModerationController adminUserModerationController) {
-            adminUserModerationController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
-        } else if (controller instanceof SponsorAdminController sponsorAdminController) {
-            sponsorAdminController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
-        } else if (controller instanceof ProductController productController) {
-            productController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
-        } else if (controller instanceof OrderController orderController) {
-            orderController.setDarkMode(themeToggleButton != null && themeToggleButton.isSelected());
-        }
-    }
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

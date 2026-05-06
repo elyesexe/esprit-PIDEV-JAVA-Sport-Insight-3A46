@@ -1,7 +1,6 @@
 package tn.esprit.Controller;
 
 import javafx.application.Platform;
-<<<<<<< HEAD
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -9,12 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-=======
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
@@ -24,16 +17,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-<<<<<<< HEAD
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-=======
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -50,7 +38,6 @@ import tn.esprit.entities.Sponsor;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
-<<<<<<< HEAD
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.ContratSponsorService;
 import tn.esprit.services.ContractQrCodeService;
@@ -58,10 +45,6 @@ import tn.esprit.services.NotificationService;
 import tn.esprit.services.SponsorService;
 import tn.esprit.services.SponsorMapViewService;
 import tn.esprit.services.SponsorSentimentAnalysisService;
-=======
-import tn.esprit.services.ContratSponsorService;
-import tn.esprit.services.SponsorService;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.services.SponsoringPdfService;
 import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.tools.SponsorAssets;
@@ -80,13 +63,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-<<<<<<< HEAD
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 public class SponsorAdminController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -97,11 +77,8 @@ public class SponsorAdminController {
     private static final String CONTRACT_SORT_RECENT = "Newest";
     private static final String CONTRACT_SORT_AMOUNT = "Highest amount";
     private static final String CONTRACT_SORT_SPONSOR = "Sponsor name";
-<<<<<<< HEAD
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("sponsor-admin-db"));
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private Button adminNavButton;
     @FXML private HBox sidebarBrandBox;
@@ -116,22 +93,16 @@ public class SponsorAdminController {
     @FXML private Label overviewStatusLabel;
     @FXML private BarChart<String, Number> budgetChart;
     @FXML private PieChart paymentChart;
-<<<<<<< HEAD
     @FXML private TabPane sponsorTabPane;
     @FXML private Tab overviewTab;
     @FXML private Tab sponsorsTab;
     @FXML private Tab contractsTab;
     @FXML private Tab sentimentTab;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private TextField sponsorSearchField;
     @FXML private ComboBox<String> sponsorSortComboBox;
     @FXML private TableView<SponsorRow> sponsorTableView;
-<<<<<<< HEAD
     @FXML private TableColumn<SponsorRow, Node> sponsorLogoColumn;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private TableColumn<SponsorRow, String> sponsorNameColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorEmailColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorPhoneColumn;
@@ -172,7 +143,6 @@ public class SponsorAdminController {
     @FXML private TextArea contractDescriptionArea;
     @FXML private Label contractValidationLabel;
 
-<<<<<<< HEAD
     @FXML private ComboBox<SponsorOption> sentimentSponsorField;
     @FXML private TextArea sentimentMessageArea;
     @FXML private Label sentimentResultLabel;
@@ -183,8 +153,6 @@ public class SponsorAdminController {
     @FXML private TextArea sentimentReplyArea;
     @FXML private Label sentimentStatusLabel;
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private final ObservableList<SponsorRow> sponsorRows = FXCollections.observableArrayList();
     private final ObservableList<ContractRow> contractRows = FXCollections.observableArrayList();
     private final ObservableList<SponsorOption> sponsorOptions = FXCollections.observableArrayList();
@@ -192,33 +160,24 @@ public class SponsorAdminController {
 
     private SponsoringWorkspaceService workspaceService;
     private SponsoringPdfService pdfService;
-<<<<<<< HEAD
     private ContractQrCodeService qrCodeService;
     private SponsorMapViewService sponsorMapViewService;
     private SponsorSentimentAnalysisService sentimentAnalysisService;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private SponsorService sponsorService;
     private ContratSponsorService contratSponsorService;
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
     private SponsorRow selectedSponsorRow;
     private ContractRow selectedContractRow;
-<<<<<<< HEAD
     private boolean darkMode;
     private final AtomicLong refreshSequence = new AtomicLong();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
         ThemeManager.bindToggle(themeToggleButton);
         pdfService = new SponsoringPdfService();
-<<<<<<< HEAD
         qrCodeService = new ContractQrCodeService();
         sponsorMapViewService = new SponsorMapViewService();
         sentimentAnalysisService = new SponsorSentimentAnalysisService();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         configureOverview();
         configureSponsorTable();
         configureContractTable();
@@ -229,11 +188,7 @@ public class SponsorAdminController {
             workspaceService = new SponsoringWorkspaceService();
             sponsorService = new SponsorService();
             contratSponsorService = new ContratSponsorService();
-<<<<<<< HEAD
             refreshWorkspace("Loading sponsoring workspace...", "status-muted");
-=======
-            refreshWorkspace("Sponsoring workspace ready.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showError("Sponsoring", "Could not load sponsor administration.\n" + e.getMessage());
         }
@@ -254,11 +209,7 @@ public class SponsorAdminController {
 
     @FXML
     private void handleRefreshOverview() {
-<<<<<<< HEAD
         refreshWorkspace("Overview refreshed.", "status-success");
-=======
-        refreshWorkspace("Overview refreshed.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -282,10 +233,7 @@ public class SponsorAdminController {
     }
 
     public void setDarkMode(boolean darkMode) {
-<<<<<<< HEAD
         this.darkMode = darkMode;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (budgetChart != null) {
             budgetChart.applyCss();
         }
@@ -309,7 +257,6 @@ public class SponsorAdminController {
     }
 
     private void configureSponsorTable() {
-<<<<<<< HEAD
         sponsorLogoColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
                 buildLogoNode(
                         cell.getValue().sponsor().getLogoName(),
@@ -332,8 +279,6 @@ public class SponsorAdminController {
                 setAlignment(Pos.CENTER);
             }
         });
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         sponsorNameColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getNom(), "Sponsor")));
         sponsorEmailColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getEmail(), "-")));
         sponsorPhoneColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getTelephone(), "-")));
@@ -349,10 +294,7 @@ public class SponsorAdminController {
                 return;
             }
             populateSponsorForm(newValue.sponsor());
-<<<<<<< HEAD
             selectSentimentSponsor(newValue.sponsor());
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             sponsorFormHintLabel.setText("Editing sponsor #" + newValue.sponsor().getId());
         });
     }
@@ -399,10 +341,7 @@ public class SponsorAdminController {
 
         contractSponsorField.setItems(sponsorOptions);
         contractTeamField.setItems(teamOptions);
-<<<<<<< HEAD
         sentimentSponsorField.setItems(sponsorOptions);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         contractStatusField.setItems(FXCollections.observableArrayList("ACTIVE", "RENEWED", "DRAFT", "EXPIRED"));
         contractPaymentField.setItems(FXCollections.observableArrayList("PENDING", "PAID", "PARTIAL"));
         contractStatusField.setValue("ACTIVE");
@@ -417,19 +356,12 @@ public class SponsorAdminController {
         contractSortComboBox.valueProperty().addListener((obs, oldValue, newValue) -> applyContractFilters());
         sponsorLogoField.textProperty().addListener((obs, oldValue, newValue) -> updateSponsorPreview());
         sponsorNameField.textProperty().addListener((obs, oldValue, newValue) -> updateSponsorPreview());
-<<<<<<< HEAD
         sentimentMessageArea.textProperty().addListener((obs, oldValue, newValue) -> clearInvalid(sentimentMessageArea));
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleRefreshSponsors() {
-<<<<<<< HEAD
         refreshWorkspace("Sponsors refreshed.", "status-success");
-=======
-        refreshWorkspace("Sponsors refreshed.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -462,11 +394,7 @@ public class SponsorAdminController {
         }
         try {
             sponsorService.add(sponsor);
-<<<<<<< HEAD
             refreshWorkspace("Sponsor added.", "status-success");
-=======
-            refreshWorkspace("Sponsor added.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearSponsorForm();
             showSponsorStatus("Sponsor added successfully.", "status-success");
         } catch (SQLException e) {
@@ -489,11 +417,7 @@ public class SponsorAdminController {
         sponsor.setId(selectedSponsorRow.sponsor().getId());
         try {
             sponsorService.update(sponsor);
-<<<<<<< HEAD
             refreshWorkspace("Sponsor updated.", "status-success");
-=======
-            refreshWorkspace("Sponsor updated.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearSponsorForm();
             showSponsorStatus("Sponsor updated successfully.", "status-success");
         } catch (SQLException e) {
@@ -514,11 +438,7 @@ public class SponsorAdminController {
         }
         try {
             sponsorService.delete(selectedSponsorRow.sponsor().getId());
-<<<<<<< HEAD
             refreshWorkspace("Sponsor deleted.", "status-success");
-=======
-            refreshWorkspace("Sponsor deleted.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearSponsorForm();
             showSponsorStatus("Sponsor deleted successfully.", "status-success");
         } catch (SQLException e) {
@@ -533,7 +453,6 @@ public class SponsorAdminController {
     }
 
     @FXML
-<<<<<<< HEAD
     private void handleOpenSponsorMap() {
         Sponsor sponsor = selectedSponsorRow == null ? buildSponsorPreviewFromForm() : selectedSponsorRow.sponsor();
         if (sponsor == null) {
@@ -550,10 +469,6 @@ public class SponsorAdminController {
     @FXML
     private void handleRefreshContracts() {
         refreshWorkspace("Contracts refreshed.", "status-success");
-=======
-    private void handleRefreshContracts() {
-        refreshWorkspace("Contracts refreshed.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -565,11 +480,7 @@ public class SponsorAdminController {
         }
         try {
             contratSponsorService.add(contrat);
-<<<<<<< HEAD
             refreshWorkspace("Contract added.", "status-success");
-=======
-            refreshWorkspace("Contract added.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearContractForm();
             showContractStatus("Contract added successfully.", "status-success");
         } catch (SQLException e) {
@@ -592,11 +503,7 @@ public class SponsorAdminController {
         contrat.setId(selectedContractRow.contrat().getId());
         try {
             contratSponsorService.update(contrat);
-<<<<<<< HEAD
             refreshWorkspace("Contract updated.", "status-success");
-=======
-            refreshWorkspace("Contract updated.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearContractForm();
             showContractStatus("Contract updated successfully.", "status-success");
         } catch (SQLException e) {
@@ -617,11 +524,7 @@ public class SponsorAdminController {
         }
         try {
             contratSponsorService.delete(selectedContractRow.contrat().getId());
-<<<<<<< HEAD
             refreshWorkspace("Contract deleted.", "status-success");
-=======
-            refreshWorkspace("Contract deleted.");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearContractForm();
             showContractStatus("Contract deleted successfully.", "status-success");
         } catch (SQLException e) {
@@ -661,7 +564,6 @@ public class SponsorAdminController {
         }
     }
 
-<<<<<<< HEAD
     @FXML
     private void handleGenerateContractQr() {
         clearContractValidation();
@@ -919,19 +821,10 @@ public class SponsorAdminController {
                 return;
             }
             snapshot = loadTask.getValue();
-=======
-    private void refreshWorkspace(String overviewMessage) {
-        if (workspaceService == null) {
-            return;
-        }
-        try {
-            snapshot = workspaceService.loadSnapshot();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             rebuildChoiceBoxData();
             updateOverview();
             applySponsorFilters();
             applyContractFilters();
-<<<<<<< HEAD
             showOverviewStatus(overviewMessage == null ? "Sponsoring workspace ready." : overviewMessage,
                     styleClass == null ? "status-success" : styleClass);
             showExpiredContractNotifications();
@@ -947,22 +840,12 @@ public class SponsorAdminController {
         });
 
         DB_EXECUTOR.execute(loadTask);
-=======
-            showOverviewStatus(overviewMessage, "status-success");
-        } catch (SQLException e) {
-            showOverviewStatus("Refresh failed.", "status-error");
-            showError("Sponsoring", "Could not refresh sponsor data.\n" + e.getMessage());
-        }
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void rebuildChoiceBoxData() {
         String currentFilter = contractStatusFilterComboBox.getValue();
         SponsorOption currentSponsor = contractSponsorField.getValue();
-<<<<<<< HEAD
         SponsorOption currentSentimentSponsor = sentimentSponsorField.getValue();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         TeamOption currentTeam = contractTeamField.getValue();
 
         sponsorOptions.setAll(snapshot.sponsors().stream()
@@ -992,7 +875,6 @@ public class SponsorAdminController {
         } else {
             contractSponsorField.getSelectionModel().clearSelection();
         }
-<<<<<<< HEAD
         if (currentSentimentSponsor != null) {
             sponsorOptions.stream()
                     .filter(option -> Objects.equals(option.id(), currentSentimentSponsor.id()))
@@ -1001,8 +883,6 @@ public class SponsorAdminController {
         } else {
             sentimentSponsorField.getSelectionModel().clearSelection();
         }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (currentTeam != null) {
             teamOptions.stream()
                     .filter(option -> Objects.equals(option.id(), currentTeam.id()))
@@ -1034,7 +914,6 @@ public class SponsorAdminController {
         Platform.runLater(() -> applyPieChartTheme(paymentChart, isDarkModeEnabled()));
     }
 
-<<<<<<< HEAD
     private void showExpiredContractNotifications() {
         if (snapshot == null || snapshot.newlyExpiredContracts() == null || snapshot.newlyExpiredContracts().isEmpty()) {
             return;
@@ -1072,8 +951,6 @@ public class SponsorAdminController {
         }
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void applySponsorFilters() {
         if (snapshot == null) {
             sponsorRows.clear();
@@ -1184,7 +1061,6 @@ public class SponsorAdminController {
         return sponsor;
     }
 
-<<<<<<< HEAD
     private Sponsor buildSponsorPreviewFromForm() {
         String name = optionalText(sponsorNameField.getText());
         String address = optionalText(sponsorAddressField.getText());
@@ -1197,8 +1073,6 @@ public class SponsorAdminController {
         return sponsor;
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private ContratSponsor buildContractFromForm() {
         LocalDate startDate = contractStartDateField.getValue();
         LocalDate endDate = contractEndDateField.getValue();
@@ -1426,7 +1300,6 @@ public class SponsorAdminController {
         return selected == null ? null : selected.toPath();
     }
 
-<<<<<<< HEAD
     private Path chooseImageTarget(String suggestedName) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Save QR code image");
@@ -1438,8 +1311,6 @@ public class SponsorAdminController {
         return selected == null ? null : selected.toPath();
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void openFile(Path path) {
         if (path == null) {
             return;
@@ -1535,13 +1406,10 @@ public class SponsorAdminController {
         setStatusLabel(contractTabStatusLabel, message, styleClass);
     }
 
-<<<<<<< HEAD
     private void showSentimentStatus(String message, String styleClass) {
         setStatusLabel(sentimentStatusLabel, message, styleClass);
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void setStatusLabel(Label label, String message, String styleClass) {
         label.setText(message);
         label.getStyleClass().removeAll("status-muted", "status-success", "status-warning", "status-error");
@@ -1554,17 +1422,10 @@ public class SponsorAdminController {
         if (chart == null) {
             return;
         }
-<<<<<<< HEAD
         String labelColor = darkMode ? "#eef3ff" : "#475569";
         String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
         String legendColor = darkMode ? "#eef3ff" : "#475569";
         String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
-=======
-        String labelColor = darkMode ? "#f8fafc" : "#475569";
-        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
-        String legendColor = darkMode ? "#f8fafc" : "#475569";
-        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node ->
@@ -1580,11 +1441,7 @@ public class SponsorAdminController {
     }
 
     private boolean isDarkModeEnabled() {
-<<<<<<< HEAD
         return darkMode || (themeToggleButton != null && themeToggleButton.isSelected());
-=======
-        return themeToggleButton != null && themeToggleButton.isSelected();
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private boolean confirm(String message) {
@@ -1634,7 +1491,6 @@ public class SponsorAdminController {
             return label;
         }
     }
-<<<<<<< HEAD
 
     private static ThreadFactory daemonFactory(String name) {
         return runnable -> {
@@ -1643,6 +1499,4 @@ public class SponsorAdminController {
             return thread;
         };
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

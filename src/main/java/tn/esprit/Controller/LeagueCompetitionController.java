@@ -1,10 +1,7 @@
 package tn.esprit.Controller;
 
 import javafx.fxml.FXML;
-<<<<<<< HEAD
 import javafx.geometry.Insets;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
@@ -14,15 +11,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-<<<<<<< HEAD
 import javafx.scene.layout.Region;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
-<<<<<<< HEAD
 import tn.esprit.gui.LiveMatchNotificationRuntime;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
@@ -35,13 +28,6 @@ import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-=======
-import tn.esprit.gui.SceneNavigator;
-import tn.esprit.gui.SidebarModuleGroup;
-import tn.esprit.gui.ThemeManager;
-import tn.esprit.services.football.FootballDataCompetitions;
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 public class LeagueCompetitionController {
     private static final double COMPETITION_CARD_WIDTH = 220;
     private static final double COMPETITION_CARD_HEIGHT = 238;
@@ -71,17 +57,13 @@ public class LeagueCompetitionController {
     private FlowPane competitionCardsPane;
 
     private SidebarModuleGroup sidebarModuleGroup;
-<<<<<<< HEAD
     private MatchFollowTargetService matchFollowTargetService;
     private Set<String> followedCompetitionCodes = Set.of();
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
-<<<<<<< HEAD
         try {
             if (AuthSession.isAuthenticated()) {
                 matchFollowTargetService = new MatchFollowTargetService();
@@ -90,8 +72,6 @@ public class LeagueCompetitionController {
         } catch (SQLException ignored) {
             followedCompetitionCodes = Set.of();
         }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         populateCompetitionCards();
     }
 
@@ -151,11 +131,7 @@ public class LeagueCompetitionController {
         }
     }
 
-<<<<<<< HEAD
     private StackPane createCompetitionCard(String competitionCode) {
-=======
-    private Button createCompetitionCard(String competitionCode) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         String competitionLabel = FootballDataCompetitions.labelOf(competitionCode);
 
         ImageView imageView = new ImageView();
@@ -196,7 +172,6 @@ public class LeagueCompetitionController {
         cardButton.setMinSize(COMPETITION_CARD_WIDTH, COMPETITION_CARD_HEIGHT);
         cardButton.setMaxSize(COMPETITION_CARD_WIDTH, COMPETITION_CARD_HEIGHT);
         cardButton.setOnAction(event -> openCompetition(cardButton, competitionCode));
-<<<<<<< HEAD
 
         Button favouriteButton = createFavouriteButton(competitionCode);
 
@@ -264,9 +239,6 @@ public class LeagueCompetitionController {
 
     private Integer currentUserId() {
         return AuthSession.getCurrentUser() == null ? null : AuthSession.getCurrentUser().getId();
-=======
-        return cardButton;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void openCompetition(Button source, String competitionCode) {

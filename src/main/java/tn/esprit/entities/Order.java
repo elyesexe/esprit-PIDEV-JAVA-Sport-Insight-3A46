@@ -7,10 +7,7 @@ public class Order {
     private Integer id;
     private Integer quantity;
     private LocalDate orderDate;
-<<<<<<< HEAD
     private String clientName;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String status;
     private String paymentMethod;
     private String paymentStatus;
@@ -27,7 +24,6 @@ public class Order {
     }
 
     public Order(Integer quantity, LocalDate orderDate, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
-<<<<<<< HEAD
         this(quantity, orderDate, null, status, paymentMethod, paymentStatus, size, contactEmail, contactPhone, shippingAddress, billingAddress, totalAmount, productId, entraineurId);
     }
 
@@ -35,10 +31,6 @@ public class Order {
         this.quantity = quantity;
         this.orderDate = orderDate;
         this.clientName = clientName;
-=======
-        this.quantity = quantity;
-        this.orderDate = orderDate;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         this.status = status;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
@@ -53,7 +45,6 @@ public class Order {
     }
 
     public Order(Integer id, Integer quantity, LocalDate orderDate, String status, String paymentMethod, String paymentStatus, String size, String contactEmail, String contactPhone, String shippingAddress, String billingAddress, BigDecimal totalAmount, Integer productId, Integer entraineurId) {
-<<<<<<< HEAD
         this(id, quantity, orderDate, null, status, paymentMethod, paymentStatus, size, contactEmail, contactPhone, shippingAddress, billingAddress, totalAmount, productId, entraineurId);
     }
 
@@ -62,11 +53,6 @@ public class Order {
         this.quantity = quantity;
         this.orderDate = orderDate;
         this.clientName = clientName;
-=======
-        this.id = id;
-        this.quantity = quantity;
-        this.orderDate = orderDate;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         this.status = status;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
@@ -104,7 +90,6 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-<<<<<<< HEAD
     public String getClientName() {
         return clientName;
     }
@@ -113,8 +98,6 @@ public class Order {
         this.clientName = clientName;
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     public String getStatus() {
         return status;
     }
@@ -209,10 +192,7 @@ public class Order {
                 "id=" + id +
                 ", quantity=" + quantity +
                 ", orderDate=" + orderDate +
-<<<<<<< HEAD
                 ", clientName='" + clientName + '\'' +
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 ", status='" + status + '\'' +
                 ", paymentMethod='" + paymentMethod + '\'' +
                 ", paymentStatus='" + paymentStatus + '\'' +

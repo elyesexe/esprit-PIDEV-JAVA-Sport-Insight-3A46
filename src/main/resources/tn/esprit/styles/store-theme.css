@@ -139,7 +139,6 @@
     -fx-vgap: 18;
 }
 
-<<<<<<< HEAD
 .store-notification-card {
     -fx-max-width: 420;
     -fx-background-color: rgba(255, 255, 255, 0.98);
@@ -151,8 +150,6 @@
     -fx-font-size: 18px;
 }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .store-product-card,
 .store-cart-card {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);

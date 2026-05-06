@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-<<<<<<< HEAD
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
@@ -40,15 +39,6 @@ public class CommentaireService implements IService<Commentaire> {
             "contact me", "signal", "forex", "nft"
     );
 
-=======
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class CommentaireService implements IService<Commentaire> {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private final Connection connection;
 
     public CommentaireService() throws SQLException {
@@ -66,7 +56,6 @@ public class CommentaireService implements IService<Commentaire> {
             throw new SQLException("Comments are disabled for the selected announcement.");
         }
 
-<<<<<<< HEAD
         applySpamModeration(commentaire);
 
         String query = """
@@ -75,13 +64,6 @@ public class CommentaireService implements IService<Commentaire> {
                     auteur_anonyme, cv_name, cv_title, nb_likes, nb_dislikes, moderation_status, moderation_reason,
                     author_user_id, author_role
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-=======
-        String query = """
-                INSERT INTO commentaire (
-                    contenu, date_commentaire, joueur_id, annonce_id,
-                    auteur_anonyme, nb_likes, moderation_status, moderation_reason
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 """;
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             fillStatement(statement, commentaire);
@@ -96,28 +78,19 @@ public class CommentaireService implements IService<Commentaire> {
         String query = """
                 UPDATE commentaire
                 SET contenu = ?, date_commentaire = ?, joueur_id = ?, annonce_id = ?,
-<<<<<<< HEAD
                     auteur_anonyme = ?, cv_name = ?, cv_title = ?, nb_likes = ?, nb_dislikes = ?, moderation_status = ?, moderation_reason = ?,
                     author_user_id = ?, author_role = ?
-=======
-                    auteur_anonyme = ?, nb_likes = ?, moderation_status = ?, moderation_reason = ?
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 WHERE id = ?
                 """;
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             fillStatement(statement, commentaire);
-<<<<<<< HEAD
             statement.setInt(14, commentaire.getId());
-=======
-            statement.setInt(9, commentaire.getId());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             statement.executeUpdate();
         }
     }
 
     @Override
     public void delete(int id) throws SQLException {
-<<<<<<< HEAD
         try (PreparedStatement statement = connection.prepareStatement("DELETE FROM comment_reaction WHERE commentaire_id = ?")) {
             statement.setInt(1, id);
             statement.executeUpdate();
@@ -130,8 +103,6 @@ public class CommentaireService implements IService<Commentaire> {
         } catch (SQLException ignored) {
             // Older databases may not have favorite tables yet.
         }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         try (PreparedStatement statement = connection.prepareStatement("DELETE FROM commentaire WHERE id = ?")) {
             statement.setInt(1, id);
             statement.executeUpdate();
@@ -192,10 +163,7 @@ public class CommentaireService implements IService<Commentaire> {
                 WHERE LOWER(contenu) LIKE LOWER(?)
                    OR LOWER(auteur_anonyme) LIKE LOWER(?)
                    OR LOWER(moderation_status) LIKE LOWER(?)
-<<<<<<< HEAD
                    OR LOWER(COALESCE(cv_title, '')) LIKE LOWER(?)
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 ORDER BY date_commentaire DESC, id DESC
                 """;
         String pattern = "%" + keyword + "%";
@@ -203,10 +171,7 @@ public class CommentaireService implements IService<Commentaire> {
             statement.setString(1, pattern);
             statement.setString(2, pattern);
             statement.setString(3, pattern);
-<<<<<<< HEAD
             statement.setString(4, pattern);
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     commentaires.add(mapRow(resultSet));
@@ -250,7 +215,6 @@ public class CommentaireService implements IService<Commentaire> {
     }
 
     public void deleteByAnnonce(int annonceId) throws SQLException {
-<<<<<<< HEAD
         List<Integer> commentIds = new ArrayList<>();
         try (PreparedStatement select = connection.prepareStatement("SELECT id FROM commentaire WHERE annonce_id = ?")) {
             select.setInt(1, annonceId);
@@ -532,10 +496,6 @@ public class CommentaireService implements IService<Commentaire> {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             statement.setInt(2, userId);
-=======
-        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM commentaire WHERE annonce_id = ?")) {
-            statement.setInt(1, annonceId);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             statement.executeUpdate();
         }
     }
@@ -554,7 +514,6 @@ public class CommentaireService implements IService<Commentaire> {
             statement.setNull(4, Types.INTEGER);
         }
         statement.setString(5, commentaire.getAuteurAnonyme());
-<<<<<<< HEAD
         statement.setString(6, commentaire.getCvName());
         statement.setString(7, commentaire.getCvTitle());
         statement.setInt(8, commentaire.getNbLikes());
@@ -567,11 +526,6 @@ public class CommentaireService implements IService<Commentaire> {
             statement.setNull(12, Types.INTEGER);
         }
         statement.setString(13, commentaire.getAuthorRole());
-=======
-        statement.setInt(6, commentaire.getNbLikes());
-        statement.setString(7, commentaire.getModerationStatus());
-        statement.setString(8, commentaire.getModerationReason());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void validateReferences(Commentaire commentaire) throws SQLException {
@@ -579,7 +533,6 @@ public class CommentaireService implements IService<Commentaire> {
             throw new SQLException("The selected announcement does not exist.");
         }
 
-<<<<<<< HEAD
         if (commentaire.getAuthorUserId() != null) {
             String userRoles = tableExists("user") ? getUserRoles(commentaire.getAuthorUserId()) : null;
             if (userRoles == null) {
@@ -593,8 +546,6 @@ public class CommentaireService implements IService<Commentaire> {
             }
         }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (commentaire.getJoueurId() != null) {
             boolean joueurExists = tableExists("joueur") && recordExists("joueur", commentaire.getJoueurId());
             String userRoles = tableExists("user") ? getUserRoles(commentaire.getJoueurId()) : null;
@@ -602,13 +553,9 @@ public class CommentaireService implements IService<Commentaire> {
             if (!joueurExists && !userExists) {
                 throw new SQLException("The selected player does not exist.");
             }
-<<<<<<< HEAD
             if (userExists
                     && !UserRoles.hasRole(userRoles, UserRoles.ROLE_JOUEUR)
                     && !UserRoles.hasRole(userRoles, UserRoles.ROLE_USER)) {
-=======
-            if (userExists && !UserRoles.hasRole(userRoles, UserRoles.ROLE_JOUEUR)) {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 throw new SQLException("Only player accounts can add comments.");
             }
         }
@@ -687,33 +634,17 @@ public class CommentaireService implements IService<Commentaire> {
     }
 
     private Commentaire mapRow(ResultSet resultSet) throws SQLException {
-<<<<<<< HEAD
         Integer joueurId = getNullableInt(resultSet, "joueur_id");
         Integer annonceId = getNullableInt(resultSet, "annonce_id");
 
         Date commentDate = resultSet.getDate("date_commentaire");
         Commentaire commentaire = new Commentaire(
-=======
-        Integer joueurId = resultSet.getInt("joueur_id");
-        if (resultSet.wasNull()) {
-            joueurId = null;
-        }
-
-        Integer annonceId = resultSet.getInt("annonce_id");
-        if (resultSet.wasNull()) {
-            annonceId = null;
-        }
-
-        Date commentDate = resultSet.getDate("date_commentaire");
-        return new Commentaire(
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 resultSet.getInt("id"),
                 resultSet.getString("contenu"),
                 commentDate != null ? commentDate.toLocalDate() : null,
                 joueurId,
                 annonceId,
                 resultSet.getString("auteur_anonyme"),
-<<<<<<< HEAD
                 getNullableString(resultSet, "cv_name"),
                 getNullableString(resultSet, "cv_title"),
                 resultSet.getInt("nb_likes"),
@@ -798,11 +729,5 @@ public class CommentaireService implements IService<Commentaire> {
         } catch (SQLException ignored) {
             return null;
         }
-=======
-                resultSet.getInt("nb_likes"),
-                resultSet.getString("moderation_status"),
-                resultSet.getString("moderation_reason")
-        );
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 }

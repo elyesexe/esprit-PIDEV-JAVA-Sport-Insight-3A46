@@ -55,13 +55,9 @@ class ProductServiceTest extends AbstractServiceTestSupport {
                 15,
                 "L",
                 "Nike",
-<<<<<<< HEAD
                 "product-ajout.png",
                 "Breathable match jersey for weekly sessions.",
                 "jersey, nike, breathable"
-=======
-                "product-ajout.png"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         );
 
         productService.add(product);
@@ -74,11 +70,8 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertEquals("L", productAjoute.getSize());
         assertEquals("Nike", productAjoute.getBrand());
         assertEquals("product-ajout.png", productAjoute.getImage());
-<<<<<<< HEAD
         assertEquals("Breathable match jersey for weekly sessions.", productAjoute.getDescription());
         assertEquals("jersey, nike, breathable", productAjoute.getTags());
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @Test
@@ -94,11 +87,8 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         product.setSize("42");
         product.setBrand("Adidas");
         product.setImage("product-modifie.png");
-<<<<<<< HEAD
         product.setDescription("Updated description for the advanced product workflow.");
         product.setTags("boots, adidas, elite");
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         productService.update(product);
 
@@ -111,11 +101,8 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertEquals("42", productModifie.getSize());
         assertEquals("Adidas", productModifie.getBrand());
         assertEquals("product-modifie.png", productModifie.getImage());
-<<<<<<< HEAD
         assertEquals("Updated description for the advanced product workflow.", productModifie.getDescription());
         assertEquals("boots, adidas, elite", productModifie.getTags());
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @Test
@@ -133,7 +120,6 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertNull(productSupprime);
         assertFalse(existeEncore);
     }
-<<<<<<< HEAD
 
     @Test
     @Order(4)
@@ -173,6 +159,4 @@ class ProductServiceTest extends AbstractServiceTestSupport {
         assertEquals(1, results.size());
         assertEquals(TEST_PREFIX + "ADV_ALPHA", results.get(0).getName());
     }
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

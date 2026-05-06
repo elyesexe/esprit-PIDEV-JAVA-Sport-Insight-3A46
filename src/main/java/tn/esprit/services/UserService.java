@@ -29,12 +29,8 @@ public class UserService implements IService<User> {
 
     @Override
     public void add(User user) throws SQLException {
-<<<<<<< HEAD
         // face_registered added as column 13
         String query = "INSERT INTO `user` (email, roles, password, nom, prenom, telephone, date_naissance, photo, statut, date_inscription, cv_name, updated_at, face_registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-=======
-        String query = "INSERT INTO `user` (email, roles, password, nom, prenom, telephone, date_naissance, photo, statut, date_inscription, cv_name, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             fillStatement(statement, user);
             statement.executeUpdate();
@@ -52,18 +48,11 @@ public class UserService implements IService<User> {
         if (user.getId() == null) {
             throw new IllegalArgumentException("User id is required for updates.");
         }
-<<<<<<< HEAD
         // face_registered added as column 13, WHERE id = ? shifted to param 14
         String query = "UPDATE `user` SET email = ?, roles = ?, password = ?, nom = ?, prenom = ?, telephone = ?, date_naissance = ?, photo = ?, statut = ?, date_inscription = ?, cv_name = ?, updated_at = ?, face_registered = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             fillStatement(statement, user);
             statement.setInt(14, user.getId());   // shifted from 13 → 14
-=======
-        String query = "UPDATE `user` SET email = ?, roles = ?, password = ?, nom = ?, prenom = ?, telephone = ?, date_naissance = ?, photo = ?, statut = ?, date_inscription = ?, cv_name = ?, updated_at = ? WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            fillStatement(statement, user);
-            statement.setInt(13, user.getId());
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             statement.executeUpdate();
             System.out.println("User updated successfully.");
         }
@@ -163,11 +152,8 @@ public class UserService implements IService<User> {
         }
     }
 
-<<<<<<< HEAD
     // ── fillStatement — param 13 added for face_registered ───────────────────
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void fillStatement(PreparedStatement statement, User user) throws SQLException {
         statement.setString(1, user.getEmail());
         statement.setString(2, normalizeRolesForStorage(user));
@@ -181,16 +167,11 @@ public class UserService implements IService<User> {
         statement.setTimestamp(10, user.getDateInscription() != null ? Timestamp.valueOf(user.getDateInscription()) : Timestamp.valueOf(LocalDateTime.now()));
         statement.setString(11, user.getCvName());
         statement.setTimestamp(12, user.getUpdatedAt() != null ? Timestamp.valueOf(user.getUpdatedAt()) : Timestamp.valueOf(LocalDateTime.now()));
-<<<<<<< HEAD
         statement.setBoolean(13, user.isFaceRegistered());   // NEW — param 13
     }
 
     // ── mapRow — face_registered read from ResultSet ──────────────────────────
 
-=======
-    }
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private User mapRow(ResultSet resultSet) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("id"));
@@ -221,11 +202,8 @@ public class UserService implements IService<User> {
             user.setUpdatedAt(updatedAt.toLocalDateTime());
         }
 
-<<<<<<< HEAD
         user.setFaceRegistered(resultSet.getBoolean("face_registered"));   // NEW
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         return user;
     }
 

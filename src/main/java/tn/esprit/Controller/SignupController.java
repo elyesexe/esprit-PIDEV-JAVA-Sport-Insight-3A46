@@ -11,10 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
-<<<<<<< HEAD
 import tn.esprit.i18n.I18n;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.User;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
@@ -67,11 +64,7 @@ public class SignupController {
         hideFeedback();
         Platform.runLater(this::applyAuthThemeChrome);
         userServiceLoading = true;
-<<<<<<< HEAD
         showFeedback(I18n.get("auth.signup.feedback.preparing"), "auth-feedback-muted");
-=======
-        showFeedback("Preparing the registration service...", "auth-feedback-muted");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (dateNaissancePicker != null) {
             dateNaissancePicker.setEditable(false);
         }
@@ -92,7 +85,6 @@ public class SignupController {
         String passwordConfirmation = confirmPasswordField.getText();
 
         if (prenom == null || nom == null) {
-<<<<<<< HEAD
             showFeedback(I18n.get("auth.signup.feedback.nameRequired"), "auth-feedback-error");
             return;
         }
@@ -114,51 +106,19 @@ public class SignupController {
         }
         if (!password.equals(passwordConfirmation)) {
             showFeedback(I18n.get("common.validation.passwordMismatch"), "auth-feedback-error");
-=======
-            showFeedback("First name and last name are required.", "auth-feedback-error");
-            return;
-        }
-        if (email == null) {
-            showFeedback("Email is required.", "auth-feedback-error");
-            return;
-        }
-        if (telephone == null) {
-            showFeedback("Telephone is required.", "auth-feedback-error");
-            return;
-        }
-        if (dateNaissance == null) {
-            showFeedback("Birth date is required.", "auth-feedback-error");
-            return;
-        }
-        if (password == null || password.length() < 8) {
-            showFeedback("Password must contain at least 8 characters.", "auth-feedback-error");
-            return;
-        }
-        if (!password.equals(passwordConfirmation)) {
-            showFeedback("The password confirmation does not match.", "auth-feedback-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
         if (userService == null) {
             showFeedback(userServiceLoading
-<<<<<<< HEAD
                     ? I18n.get("auth.signup.feedback.starting")
                     : I18n.get("auth.signup.feedback.unavailable"),
-=======
-                    ? "Registration is still starting. Please wait a moment and try again."
-                    : "The registration service is unavailable. Please check your database setup and try again.",
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     "auth-feedback-error");
             return;
         }
 
         try {
             if (userService.emailExists(email, null)) {
-<<<<<<< HEAD
                 showFeedback(I18n.get("auth.signup.feedback.emailExists"), "auth-feedback-error");
-=======
-                showFeedback("An account already exists for this email address.", "auth-feedback-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 return;
             }
 
@@ -185,19 +145,11 @@ public class SignupController {
                     controller -> {
                         if (controller instanceof LoginController loginController) {
                             loginController.prefillEmail(email);
-<<<<<<< HEAD
                             loginController.showSuccessMessage(I18n.get("auth.signup.feedback.accountCreated"));
                         }
                     });
         } catch (SQLException ex) {
             showFeedback(I18n.get("auth.signup.feedback.createFailed"), "auth-feedback-error");
-=======
-                            loginController.showSuccessMessage("Your account has been created. You can sign in now.");
-                        }
-                    });
-        } catch (SQLException ex) {
-            showFeedback("Account creation failed because the user record could not be saved.", "auth-feedback-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (IllegalArgumentException ex) {
             showFeedback(ex.getMessage(), "auth-feedback-error");
         }
@@ -266,11 +218,7 @@ public class SignupController {
                     String reason = ex.getCause() != null && ex.getCause().getMessage() != null
                             ? ex.getCause().getMessage()
                             : ex.getMessage();
-<<<<<<< HEAD
                     showFeedback(I18n.format("common.error.databaseConnection", reason), "auth-feedback-error");
-=======
-                    showFeedback("Database connection failed: " + reason, "auth-feedback-error");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 });
             }
         }, "signup-user-service-loader");

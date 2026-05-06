@@ -1,12 +1,9 @@
 package tn.esprit.gui;
 
-<<<<<<< HEAD
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -15,17 +12,13 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
-<<<<<<< HEAD
 import javafx.scene.control.ToggleGroup;
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-<<<<<<< HEAD
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -33,30 +26,16 @@ import javafx.scene.shape.Circle;
 import tn.esprit.entities.User;
 import tn.esprit.i18n.I18n;
 import tn.esprit.security.AuthSession;
-=======
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
-import tn.esprit.entities.User;
-import tn.esprit.security.AuthSession;
-import tn.esprit.security.UserRoles;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
-<<<<<<< HEAD
 import javafx.util.Duration;
 
 public final class UserNavbarMenu {
     private static final String SETTINGS_MENU_KEY = "sportInsight.settingsMenuInjected";
     private static final String EXTRA_NAV_KEY = "sportInsight.extraNavKey";
-=======
-
-public final class UserNavbarMenu {
-    private static final String SETTINGS_MENU_KEY = "sportInsight.settingsMenuInjected";
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final String PROFILE_VIEW = "/tn/esprit/views/profile-view.fxml";
     private static final String PROFILE_CSS = "/tn/esprit/styles/profile-theme.css";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
@@ -67,7 +46,6 @@ public final class UserNavbarMenu {
     private static final String STORE_CSS = "/tn/esprit/styles/store-theme.css";
     private static final String SPONSOR_VIEW = "/tn/esprit/views/sponsor-user-view.fxml";
     private static final String SPONSOR_CSS = "/tn/esprit/styles/sponsor-theme.css";
-<<<<<<< HEAD
     private static final String FOOTBALL_NEWS_VIEW = "/tn/esprit/views/football-news-view.fxml";
     private static final String FOOTBALL_NEWS_CSS = "/tn/esprit/styles/football-news-theme.css";
     private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
@@ -75,10 +53,6 @@ public final class UserNavbarMenu {
     private static final double LANGUAGE_BUTTON_WIDTH = 76;
     private static final double LANGUAGE_BUTTON_SPACING = 8;
     private static final double LANGUAGE_INDICATOR_OFFSET = (LANGUAGE_BUTTON_WIDTH + LANGUAGE_BUTTON_SPACING) / 2.0;
-=======
-    private static final double SETTINGS_MENU_CONTENT_WIDTH = 218;
-    private static final double SETTINGS_MENU_ACTION_WIDTH = 112;
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private UserNavbarMenu() {
     }
@@ -105,16 +79,11 @@ public final class UserNavbarMenu {
         hideNode(themeToggleButton);
         ensureStoreNavButton(navbarRoot);
         ensureSponsorNavButton(navbarRoot);
-<<<<<<< HEAD
         ensureFootballNewsNavButton(navbarRoot);
         ensureTrainingNavButton(navbarRoot);
 
         NavbarNotificationCenter notificationCenter = new NavbarNotificationCenter();
         Button alertsButton = notificationCenter.getButton();
-=======
-        ensureTrainingNavButton(navbarRoot);
-
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Button settingsButton = createSettingsButton();
         Button profileAvatarButton = createProfileAvatarButton();
         ContextMenu settingsMenu = createSettingsMenu(settingsButton);
@@ -144,11 +113,7 @@ public final class UserNavbarMenu {
             return;
         }
 
-<<<<<<< HEAD
         HBox actionsBox = new HBox(10, alertsButton, settingsButton, profileAvatarButton);
-=======
-        HBox actionsBox = new HBox(10, settingsButton, profileAvatarButton);
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         actionsBox.setAlignment(Pos.CENTER_RIGHT);
         actionsBox.getStyleClass().add("navbar-user-actions");
         targetPane.getChildren().add(actionsBox);
@@ -158,11 +123,7 @@ public final class UserNavbarMenu {
     }
 
     private static Button createSettingsButton() {
-<<<<<<< HEAD
         Button settingsButton = new Button(I18n.get("settings.title"));
-=======
-        Button settingsButton = new Button("Settings");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         settingsButton.setMnemonicParsing(false);
         settingsButton.setContentDisplay(ContentDisplay.LEFT);
         settingsButton.setFocusTraversable(false);
@@ -208,11 +169,7 @@ public final class UserNavbarMenu {
 
         avatarShell.getChildren().addAll(imageView, initialsLabel);
         avatarButton.setGraphic(avatarShell);
-<<<<<<< HEAD
         avatarButton.setAccessibleText(I18n.get("profile.open"));
-=======
-        avatarButton.setAccessibleText("Open profile");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         return avatarButton;
     }
 
@@ -220,7 +177,6 @@ public final class UserNavbarMenu {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getStyleClass().add("settings-context-menu");
 
-<<<<<<< HEAD
         ToggleButton menuThemeToggle = createThemeToggle();
         ThemeManager.bindToggle(menuThemeToggle);
 
@@ -228,35 +184,6 @@ public final class UserNavbarMenu {
         lightLabel.getStyleClass().add("settings-menu-mode-label");
 
         Label darkLabel = new Label(I18n.get("theme.dark"));
-=======
-        User currentUser = AuthSession.getCurrentUser();
-        if (currentUser != null) {
-            VBox accountBox = new VBox(2);
-            accountBox.getStyleClass().add("settings-menu-panel");
-            accountBox.setAlignment(Pos.CENTER);
-            accountBox.setMinWidth(SETTINGS_MENU_CONTENT_WIDTH);
-            accountBox.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
-            accountBox.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
-
-            Label nameLabel = new Label(currentUser.getDisplayName());
-            nameLabel.getStyleClass().add("settings-menu-user");
-
-            Label roleLabel = new Label(UserRoles.displayName(currentUser.getPrimaryRole()));
-            roleLabel.getStyleClass().add("settings-menu-role");
-
-            accountBox.getChildren().addAll(nameLabel, roleLabel);
-            contextMenu.getItems().add(wrapNode(accountBox, false));
-            contextMenu.getItems().add(new SeparatorMenuItem());
-        }
-
-        ToggleButton menuThemeToggle = createThemeToggle();
-        ThemeManager.bindToggle(menuThemeToggle);
-
-        Label lightLabel = new Label("Light");
-        lightLabel.getStyleClass().add("settings-menu-mode-label");
-
-        Label darkLabel = new Label("Dark");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         darkLabel.getStyleClass().add("settings-menu-mode-label");
 
         HBox themeRow = new HBox(12, lightLabel, menuThemeToggle, darkLabel);
@@ -266,38 +193,26 @@ public final class UserNavbarMenu {
         themeRow.setPrefWidth(SETTINGS_MENU_CONTENT_WIDTH);
         themeRow.setMaxWidth(SETTINGS_MENU_CONTENT_WIDTH);
         contextMenu.getItems().add(wrapNode(themeRow, false));
-<<<<<<< HEAD
         contextMenu.getItems().add(wrapNode(createLanguageRow(ownerButton, contextMenu), false));
 
         if (AuthSession.isAdmin()) {
             contextMenu.getItems().add(new SeparatorMenuItem());
             contextMenu.getItems().add(wrapActionButton(createActionButton(I18n.get("admin.title"), false, () -> {
-=======
-
-        if (AuthSession.isAdmin()) {
-            contextMenu.getItems().add(new SeparatorMenuItem());
-            contextMenu.getItems().add(wrapActionButton(createActionButton("Admin", false, () -> {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 contextMenu.hide();
                 AdminNavigation.openAdmin(ownerButton);
             }), true));
         }
 
         contextMenu.getItems().add(new SeparatorMenuItem());
-<<<<<<< HEAD
         contextMenu.getItems().add(wrapActionButton(createActionButton(I18n.get("auth.logout"), true, () -> {
-=======
-        contextMenu.getItems().add(wrapActionButton(createActionButton("Logout", true, () -> {
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             contextMenu.hide();
-            AuthSession.logout();
+            AuthSession.logoutAndForget();
             SceneNavigator.switchScene(ownerButton, LOGIN_VIEW, AUTH_CSS, "Sport Insight | Sign in");
         }), true));
 
         return contextMenu;
     }
 
-<<<<<<< HEAD
     private static HBox createLanguageRow(Button ownerButton, ContextMenu contextMenu) {
         ToggleGroup languageGroup = new ToggleGroup();
         ToggleButton frenchButton = createLanguageButton(I18n.get("settings.language.french"), languageGroup);
@@ -403,8 +318,6 @@ public final class UserNavbarMenu {
         }
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static Button createActionButton(String text, boolean danger, Runnable action) {
         Button actionButton = new Button(text);
         actionButton.setMnemonicParsing(false);
@@ -485,25 +398,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-<<<<<<< HEAD
                 .anyMatch(button -> matchesButton(button, "training", "entrainements", "training"));
-=======
-                .anyMatch(button -> "Entrainements".equalsIgnoreCase(button.getText()));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (exists) {
             return;
         }
 
-<<<<<<< HEAD
         Button trainingButton = new Button(I18n.get("nav.training"));
         trainingButton.setMnemonicParsing(false);
         trainingButton.getStyleClass().add("navbar-nav-button");
         trainingButton.getProperties().put(EXTRA_NAV_KEY, "training");
-=======
-        Button trainingButton = new Button("Entrainements");
-        trainingButton.setMnemonicParsing(false);
-        trainingButton.getStyleClass().add("navbar-nav-button");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         trainingButton.setOnAction(event ->
                 SceneNavigator.switchScene(trainingButton, TRAINING_VIEW, TRAINING_CSS, "Entrainements | Sport Insight"));
 
@@ -530,28 +433,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-<<<<<<< HEAD
                 .anyMatch(button -> matchesButton(button, "store", "store", "products", "product", "boutique"));
-=======
-                .anyMatch(button -> {
-                    String label = button.getText() == null ? "" : button.getText().trim().toLowerCase();
-                    return "store".equals(label) || "product".equals(label) || "products".equals(label);
-                });
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (exists) {
             return;
         }
 
-<<<<<<< HEAD
         Button storeButton = new Button(I18n.get("nav.store"));
         storeButton.setMnemonicParsing(false);
         storeButton.getStyleClass().add("navbar-nav-button");
         storeButton.getProperties().put(EXTRA_NAV_KEY, "store");
-=======
-        Button storeButton = new Button("Store");
-        storeButton.setMnemonicParsing(false);
-        storeButton.getStyleClass().add("navbar-nav-button");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         storeButton.setOnAction(event ->
                 SceneNavigator.switchScene(storeButton, STORE_VIEW, STORE_CSS, "Store | Sport Insight"));
 
@@ -578,25 +468,15 @@ public final class UserNavbarMenu {
         boolean exists = modules.getChildren().stream()
                 .filter(node -> node instanceof Button)
                 .map(node -> (Button) node)
-<<<<<<< HEAD
                 .anyMatch(button -> matchesButton(button, "sponsor", "sponsors", "sponsoring"));
-=======
-                .anyMatch(button -> "Sponsors".equalsIgnoreCase(button.getText()) || "Sponsoring".equalsIgnoreCase(button.getText()));
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (exists) {
             return;
         }
 
-<<<<<<< HEAD
         Button sponsorButton = new Button(I18n.get("nav.sponsors"));
         sponsorButton.setMnemonicParsing(false);
         sponsorButton.getStyleClass().add("navbar-nav-button");
         sponsorButton.getProperties().put(EXTRA_NAV_KEY, "sponsor");
-=======
-        Button sponsorButton = new Button("Sponsors");
-        sponsorButton.setMnemonicParsing(false);
-        sponsorButton.getStyleClass().add("navbar-nav-button");
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         sponsorButton.setOnAction(event ->
                 SceneNavigator.switchScene(sponsorButton, SPONSOR_VIEW, SPONSOR_CSS, "Sponsors | Sport Insight"));
 
@@ -614,7 +494,6 @@ public final class UserNavbarMenu {
         modules.getChildren().add(insertIndex, sponsorButton);
     }
 
-<<<<<<< HEAD
     private static void ensureFootballNewsNavButton(HBox navbarRoot) {
         HBox modules = findModulesContainer(navbarRoot);
         if (modules == null) {
@@ -650,8 +529,6 @@ public final class UserNavbarMenu {
         modules.getChildren().add(insertIndex, newsButton);
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static HBox findModulesContainer(HBox navbarRoot) {
         if (navbarRoot == null) {
             return null;
@@ -686,7 +563,6 @@ public final class UserNavbarMenu {
         return null;
     }
 
-<<<<<<< HEAD
     private static boolean matchesButton(Button button, String extraNavKey, String... labels) {
         if (button == null) {
             return false;
@@ -704,8 +580,6 @@ public final class UserNavbarMenu {
         return false;
     }
 
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static <T> T getFieldValue(Object controller, String fieldName, Class<T> type) {
         Field field = findField(controller.getClass(), fieldName);
         if (field == null || !type.isAssignableFrom(field.getType())) {

@@ -2,10 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<<<<<<< HEAD
 <?import javafx.scene.control.ComboBox?>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -15,10 +12,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
-<<<<<<< HEAD
 <?import javafx.scene.layout.FlowPane?>
-=======
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
@@ -42,11 +36,7 @@
 
             <Button fx:id="adminNavButton"
                     onAction="#handleOpenAdmin"
-<<<<<<< HEAD
                     text="%nav.admin"
-=======
-                    text="Admin"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     mnemonicParsing="false"
                     styleClass="navbar-admin-button"/>
 
@@ -68,11 +58,7 @@
                 <HBox alignment="CENTER" spacing="9" styleClass="navbar-modules">
                     <Button fx:id="matchsNavButton"
                             onAction="#handleOpenMatchs"
-<<<<<<< HEAD
                             text="%nav.matches.plus"
-=======
-                            text="Matchs +"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             styleClass="navbar-nav-button"/>
 
                     <HBox fx:id="sidebarModuleChildrenBox"
@@ -83,7 +69,6 @@
                           styleClass="navbar-submenu">
                         <Button fx:id="equipesNavButton"
                                 onAction="#handleOpenEquipes"
-<<<<<<< HEAD
                                 text="%nav.teams"
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                         <Button fx:id="leaguesNavButton"
@@ -93,27 +78,12 @@
                         <Button fx:id="joueursNavButton"
                                 onAction="#handleOpenJoueurs"
                                 text="%nav.players"
-=======
-                                text="Equipes"
-                                styleClass="navbar-nav-button navbar-submenu-button"/>
-                        <Button fx:id="leaguesNavButton"
-                                onAction="#handleOpenLeagues"
-                                text="Leagues"
-                                styleClass="navbar-nav-button navbar-submenu-button"/>
-                        <Button fx:id="joueursNavButton"
-                                onAction="#handleOpenJoueurs"
-                                text="Joueurs"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 styleClass="navbar-nav-button navbar-submenu-button"/>
                     </HBox>
 
                     <Button fx:id="annonceNavButton"
                             onAction="#handleOpenAnnonces"
-<<<<<<< HEAD
                             text="%nav.announcements"
-=======
-                            text="Anonce"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             styleClass="navbar-nav-button"/>
                 </HBox>
             </StackPane>
@@ -153,15 +123,9 @@
 
                         <StackPane styleClass="profile-hero-card">
                             <VBox spacing="10" styleClass="profile-hero-content">
-<<<<<<< HEAD
                                 <Label text="%profile.hero.kicker" styleClass="home-kicker"/>
                                 <Label text="%profile.hero.title" styleClass="profile-hero-title"/>
                                 <Label text="%profile.hero.copy"
-=======
-                                <Label text="Profile workspace" styleClass="home-kicker"/>
-                                <Label text="Manage your Sport Insight account" styleClass="profile-hero-title"/>
-                                <Label text="Keep your profile picture, contact details, and password up to date from one place."
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                        wrapText="true"
                                        styleClass="profile-hero-copy"/>
                             </VBox>
@@ -185,7 +149,6 @@
                                     </StackPane>
 
                                     <VBox spacing="6" alignment="CENTER" styleClass="profile-identity-box">
-<<<<<<< HEAD
                                         <Label fx:id="profileNameLabel" text="%profile.user.fallback" styleClass="profile-title"/>
                                         <Label fx:id="profileEmailLabel" text="%common.prompt.email" styleClass="profile-subtitle"/>
                                     </VBox>
@@ -197,25 +160,11 @@
 
                                     <Button onAction="#handleBrowsePhoto"
                                             text="%profile.photo.choose"
-=======
-                                        <Label fx:id="profileNameLabel" text="Sport Insight user" styleClass="profile-title"/>
-                                        <Label fx:id="profileEmailLabel" text="name@example.com" styleClass="profile-subtitle"/>
-                                    </VBox>
-
-                                    <HBox spacing="8" alignment="CENTER">
-                                        <Label fx:id="roleValueLabel" text="User" styleClass="toolbar-chip"/>
-                                        <Label fx:id="statusValueLabel" text="Active" styleClass="toolbar-chip-soft"/>
-                                    </HBox>
-
-                                    <Button onAction="#handleBrowsePhoto"
-                                            text="Choose photo"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                             maxWidth="Infinity"
                                             styleClass="ghost-button"/>
                                 </VBox>
 
                                 <VBox spacing="12" styleClass="panel-card profile-info-card">
-<<<<<<< HEAD
                                     <Label text="%profile.account.title" styleClass="section-title"/>
 
                                     <VBox spacing="8">
@@ -226,18 +175,6 @@
                                     <VBox spacing="8">
                                         <Label text="%profile.account.roleAccess" styleClass="field-label"/>
                                         <Label text="%profile.account.roleAccessCopy"
-=======
-                                    <Label text="Account overview" styleClass="section-title"/>
-
-                                    <VBox spacing="8">
-                                        <Label text="Member since" styleClass="field-label"/>
-                                        <Label fx:id="memberSinceValueLabel" text="Unknown" styleClass="profile-info-value"/>
-                                    </VBox>
-
-                                    <VBox spacing="8">
-                                        <Label text="Role access" styleClass="field-label"/>
-                                        <Label text="Role changes stay under admin moderation, but your own profile details and picture can be updated here."
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                wrapText="true"
                                                styleClass="profile-note"/>
                                     </VBox>
@@ -246,15 +183,9 @@
 
                             <VBox spacing="16" styleClass="panel-card form-card profile-form-card" HBox.hgrow="ALWAYS">
                                 <VBox spacing="6">
-<<<<<<< HEAD
                                     <Label fx:id="formTitleLabel" text="%profile.form.title" styleClass="section-title"/>
                                     <Label fx:id="formSubtitleLabel"
                                            text="%profile.form.subtitle"
-=======
-                                    <Label fx:id="formTitleLabel" text="My profile" styleClass="section-title"/>
-                                    <Label fx:id="formSubtitleLabel"
-                                           text="Update your contact information, profile picture, and password."
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                            wrapText="true"
                                            styleClass="section-subtitle"/>
                                 </VBox>
@@ -267,74 +198,43 @@
 
                                 <HBox spacing="12">
                                     <VBox spacing="6" HBox.hgrow="ALWAYS">
-<<<<<<< HEAD
                                         <Label text="%common.field.firstName" styleClass="field-label"/>
                                         <TextField fx:id="prenomField" promptText="%common.prompt.firstName" styleClass="form-text-field"/>
                                     </VBox>
                                     <VBox spacing="6" HBox.hgrow="ALWAYS">
                                         <Label text="%common.field.lastName" styleClass="field-label"/>
                                         <TextField fx:id="nomField" promptText="%common.prompt.lastName" styleClass="form-text-field"/>
-=======
-                                        <Label text="First name" styleClass="field-label"/>
-                                        <TextField fx:id="prenomField" promptText="First name" styleClass="form-text-field"/>
-                                    </VBox>
-                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                                        <Label text="Last name" styleClass="field-label"/>
-                                        <TextField fx:id="nomField" promptText="Last name" styleClass="form-text-field"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </VBox>
                                 </HBox>
 
                                 <VBox spacing="6">
-<<<<<<< HEAD
                                     <Label text="%common.field.email" styleClass="field-label"/>
                                     <TextField fx:id="emailField" promptText="%common.prompt.email" styleClass="form-text-field"/>
-=======
-                                    <Label text="Email" styleClass="field-label"/>
-                                    <TextField fx:id="emailField" promptText="name@example.com" styleClass="form-text-field"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </VBox>
 
                                 <HBox spacing="12">
                                     <VBox spacing="6" HBox.hgrow="ALWAYS">
-<<<<<<< HEAD
                                         <Label text="%common.field.phone" styleClass="field-label"/>
                                         <TextField fx:id="telephoneField" promptText="%common.prompt.phone" styleClass="form-text-field"/>
                                     </VBox>
                                     <VBox spacing="6" HBox.hgrow="ALWAYS">
                                         <Label text="%common.field.birthDate" styleClass="field-label"/>
-=======
-                                        <Label text="Telephone" styleClass="field-label"/>
-                                        <TextField fx:id="telephoneField" promptText="+216 ..." styleClass="form-text-field"/>
-                                    </VBox>
-                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                                        <Label text="Birth date" styleClass="field-label"/>
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         <DatePicker fx:id="dateNaissancePicker" styleClass="form-date-picker"/>
                                     </VBox>
                                 </HBox>
 
                                 <VBox spacing="6">
-<<<<<<< HEAD
                                     <Label text="%profile.photo.path" styleClass="field-label"/>
                                     <TextField fx:id="photoPathField"
                                                promptText="%profile.photo.prompt"
                                                styleClass="form-text-field"/>
                                     <Label text="%profile.photo.help"
-=======
-                                    <Label text="Profile picture path" styleClass="field-label"/>
-                                    <TextField fx:id="photoPathField"
-                                               promptText="C:\Users\...\photo.png"
-                                               styleClass="form-text-field"/>
-                                    <Label text="You can paste a local file path or use the Choose photo button to browse."
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                            wrapText="true"
                                            styleClass="profile-note"/>
                                 </VBox>
 
                                 <HBox spacing="12">
                                     <VBox spacing="6" HBox.hgrow="ALWAYS">
-<<<<<<< HEAD
                                         <Label text="%common.field.newPassword" styleClass="field-label"/>
                                         <PasswordField fx:id="passwordField"
                                                        promptText="%profile.password.prompt"
@@ -344,22 +244,10 @@
                                         <Label text="%common.field.confirmPassword" styleClass="field-label"/>
                                         <PasswordField fx:id="confirmPasswordField"
                                                        promptText="%common.prompt.confirmPassword"
-=======
-                                        <Label text="New password" styleClass="field-label"/>
-                                        <PasswordField fx:id="passwordField"
-                                                       promptText="Leave blank to keep the current password"
-                                                       styleClass="form-text-field"/>
-                                    </VBox>
-                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                                        <Label text="Confirm password" styleClass="field-label"/>
-                                        <PasswordField fx:id="confirmPasswordField"
-                                                       promptText="Repeat the new password"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                        styleClass="form-text-field"/>
                                     </VBox>
                                 </HBox>
 
-<<<<<<< HEAD
                                 <VBox spacing="14" styleClass="favorite-manager-card">
                                     <VBox spacing="4">
                                         <Label text="%profile.alerts.title" styleClass="section-title"/>
@@ -432,11 +320,6 @@
                                 <Button fx:id="saveButton"
                                         onAction="#handleSaveProfile"
                                         text="%profile.save"
-=======
-                                <Button fx:id="saveButton"
-                                        onAction="#handleSaveProfile"
-                                        text="Save profile"
->>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         maxWidth="Infinity"
                                         styleClass="primary-button"/>
                             </VBox>
