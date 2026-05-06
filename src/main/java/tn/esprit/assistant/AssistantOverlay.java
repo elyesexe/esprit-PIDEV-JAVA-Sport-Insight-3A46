@@ -29,8 +29,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -41,10 +39,12 @@ import javafx.util.Duration;
 
 public final class AssistantOverlay extends StackPane {
     private static final String JARVIS_ICON_PATH = "/tn/esprit/images/Jarvis.png";
-    private static final String CHATBOT_AVATAR_PATH = "/tn/esprit/images/chatbot/logo-chatbot.png";
     private static final String SEND_ICON_PATH = "/tn/esprit/images/chatbot/msg.png";
+    private static final String MATERIAL_MIC_PATH =
+            "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z";
+    private static final String MATERIAL_MIC_OFF_PATH =
+            "M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z";
     private static final AtomicReference<Image> JARVIS_IMAGE = new AtomicReference<>();
-    private static final AtomicReference<Image> CHATBOT_AVATAR_IMAGE = new AtomicReference<>();
     private static final AtomicReference<Image> SEND_ICON_IMAGE = new AtomicReference<>();
 
     private final AssistantService service = AssistantService.getInstance();
@@ -629,12 +629,12 @@ public final class AssistantOverlay extends StackPane {
         avatar.setPrefSize(30, 30);
         avatar.setMaxSize(30, 30);
 
-        ImageView logo = createImageView(loadChatbotAvatarImage(), 22);
+        ImageView logo = createImageView(loadJarvisImage(), 22);
         if (logo != null) {
             logo.getStyleClass().add("assistant-bot-avatar-image");
             avatar.getChildren().add(logo);
         } else {
-            Label fallback = new Label("AI");
+            Label fallback = new Label("J");
             fallback.getStyleClass().add("assistant-bot-avatar-fallback");
             avatar.getChildren().add(fallback);
         }
@@ -655,38 +655,14 @@ public final class AssistantOverlay extends StackPane {
         icon.setMinSize(30, 30);
         icon.setPrefSize(30, 30);
         icon.setMaxSize(30, 30);
-
-        if (active) {
-            icon.getChildren().addAll(
-                    createMicStroke("M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"),
-                    createMicStroke("M19 10v2a7 7 0 0 1-14 0v-2"),
-                    createMicStroke("M12 19v3"),
-                    createMicStroke("M8 22h8")
-            );
-        } else {
-            icon.getChildren().addAll(
-                    createMicStroke("M2 2l20 20"),
-                    createMicStroke("M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"),
-                    createMicStroke("M5 10v2a7 7 0 0 0 12 5"),
-                    createMicStroke("M15 9.34V5a3 3 0 0 0-5.68-1.33"),
-                    createMicStroke("M9 9v3a3 3 0 0 0 5.12 2.12"),
-                    createMicStroke("M12 19v3"),
-                    createMicStroke("M8 22h8")
-            );
-        }
+        SVGPath glyph = new SVGPath();
+        glyph.setContent(active ? MATERIAL_MIC_PATH : MATERIAL_MIC_OFF_PATH);
+        glyph.setFill(active ? Color.WHITE : Color.web("#d1d5db"));
+        glyph.setScaleX(0.94);
+        glyph.setScaleY(0.94);
+        glyph.getStyleClass().add("assistant-mic-glyph");
+        icon.getChildren().add(glyph);
         return icon;
-    }
-
-    private SVGPath createMicStroke(String content) {
-        SVGPath path = new SVGPath();
-        path.setContent(content);
-        path.setFill(Color.TRANSPARENT);
-        path.setStroke(Color.web("#64748b"));
-        path.setStrokeWidth(2.25);
-        path.setStrokeLineCap(StrokeLineCap.ROUND);
-        path.setStrokeLineJoin(StrokeLineJoin.ROUND);
-        path.getStyleClass().add("assistant-mic-stroke");
-        return path;
     }
 
     private ImageView createImageView(Image image, double size) {
@@ -705,10 +681,6 @@ public final class AssistantOverlay extends StackPane {
 
     private Image loadJarvisImage() {
         return loadImage(JARVIS_ICON_PATH, JARVIS_IMAGE);
-    }
-
-    private Image loadChatbotAvatarImage() {
-        return loadImage(CHATBOT_AVATAR_PATH, CHATBOT_AVATAR_IMAGE);
     }
 
     private Image loadSendIconImage() {

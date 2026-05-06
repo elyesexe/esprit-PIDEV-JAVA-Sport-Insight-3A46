@@ -192,9 +192,8 @@
     -fx-pref-height: 30;
 }
 
-.assistant-mic-stroke {
-    -fx-fill: transparent;
-    -fx-stroke-width: 2.9;
+.assistant-mic-glyph {
+    -fx-fill: #d1d5db;
 }
 
 .assistant-launcher {
@@ -509,29 +508,15 @@
     -fx-border-radius: 14;
 }
 
-.theme-light .assistant-mic-icon-off .assistant-mic-stroke,
-.theme-light .assistant-mic-icon-off .assistant-mic-body {
-    -fx-stroke: #4b5563;
-    -fx-fill: #4b5563;
+.theme-light .assistant-mic-icon-off .assistant-mic-glyph {
+    -fx-fill: #475569;
 }
 
-.theme-dark .assistant-mic-icon-off .assistant-mic-stroke,
-.theme-dark .assistant-mic-icon-off .assistant-mic-body {
-    -fx-stroke: #d1d5db;
-    -fx-fill: #d1d5db;
+.theme-dark .assistant-mic-icon-off .assistant-mic-glyph {
+    -fx-fill: #e5e7eb;
 }
 
-.theme-light .assistant-mic-icon-on .assistant-mic-stroke,
-.theme-light .assistant-mic-icon-on .assistant-mic-body,
-.theme-dark .assistant-mic-icon-on .assistant-mic-stroke,
-.theme-dark .assistant-mic-icon-on .assistant-mic-body {
-    -fx-stroke: #ffffff;
+.theme-light .assistant-mic-icon-on .assistant-mic-glyph,
+.theme-dark .assistant-mic-icon-on .assistant-mic-glyph {
     -fx-fill: #ffffff;
-}
-
-.theme-light .assistant-mic-icon-off .assistant-mic-stroke,
-.theme-dark .assistant-mic-icon-off .assistant-mic-stroke,
-.theme-light .assistant-mic-icon-on .assistant-mic-stroke,
-.theme-dark .assistant-mic-icon-on .assistant-mic-stroke {
-    -fx-fill: transparent;
 }

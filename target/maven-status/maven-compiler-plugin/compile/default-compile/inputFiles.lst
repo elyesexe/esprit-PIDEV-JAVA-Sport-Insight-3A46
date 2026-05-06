@@ -139,6 +139,7 @@ C:\PI Java\src\main\java\tn\esprit\services\AnnoncePdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\AnnonceService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentaireService.java
 C:\PI Java\src\main\java\tn\esprit\services\CommentCvStorageService.java
+C:\PI Java\src\main\java\tn\esprit\services\ContractGenerationService.java
 C:\PI Java\src\main\java\tn\esprit\services\ContractQrCodeService.java
 C:\PI Java\src\main\java\tn\esprit\services\ContratSponsorService.java
 C:\PI Java\src\main\java\tn\esprit\services\CurrencyConversionService.java
@@ -200,6 +201,7 @@ C:\PI Java\src\main\java\tn\esprit\services\OrderNotificationService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderPdfExportService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderService.java
 C:\PI Java\src\main\java\tn\esprit\services\OrderWorkflowNotificationService.java
+C:\PI Java\src\main\java\tn\esprit\services\PaginationResult.java
 C:\PI Java\src\main\java\tn\esprit\services\ParticipationService.java
 C:\PI Java\src\main\java\tn\esprit\services\PasswordResetService.java
 C:\PI Java\src\main\java\tn\esprit\services\PerformanceAnalyticsService.java
