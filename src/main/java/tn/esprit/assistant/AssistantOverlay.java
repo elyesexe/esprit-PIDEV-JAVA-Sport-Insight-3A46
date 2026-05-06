@@ -27,6 +27,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -61,7 +65,7 @@ public final class AssistantOverlay extends StackPane {
     private final FlowPane quickActionsBox = new FlowPane();
     private final TextArea composer = new TextArea();
     private final Button sendButton = new Button("Send");
-    private final Button micButton = new Button("Mic off");
+    private final Button micButton = new Button();
     private final ToggleButton speakToggle = new ToggleButton("Voice");
     private final StackPane launcherOrb = new StackPane();
 
@@ -221,6 +225,10 @@ public final class AssistantOverlay extends StackPane {
         sendButton.setOnAction(event -> sendComposerText());
 
         micButton.getStyleClass().add("assistant-mic-button");
+        micButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        micButton.setMinSize(46, 42);
+        micButton.setPrefSize(46, 42);
+        micButton.setMaxSize(46, 42);
         micButton.setOnAction(event -> handleMicButton());
 
         speakToggle.getStyleClass().add("assistant-toggle-button");
@@ -327,7 +335,7 @@ public final class AssistantOverlay extends StackPane {
 
     private void handleMicButton() {
         if (!service.isVoiceRecording()) {
-            beginVoiceRecording("Microphone on. Speak naturally, then click Mic on to stop and send.");
+            beginVoiceRecording("Microphone on. Speak naturally, then click the mic icon to stop and send.");
             return;
         }
 
@@ -499,11 +507,15 @@ public final class AssistantOverlay extends StackPane {
     private void refreshMicButtonState() {
         micButton.getStyleClass().removeAll("assistant-mic-on", "assistant-mic-off");
         if (service.isVoiceRecording()) {
-            micButton.setText("Mic on");
+            micButton.setText("");
+            micButton.setAccessibleText("Microphone on");
+            micButton.setGraphic(createMicrophoneIcon(true));
             micButton.getStyleClass().add("assistant-mic-on");
             return;
         }
-        micButton.setText("Mic off");
+        micButton.setText("");
+        micButton.setAccessibleText("Microphone off");
+        micButton.setGraphic(createMicrophoneIcon(false));
         micButton.getStyleClass().add("assistant-mic-off");
     }
 
@@ -635,6 +647,44 @@ public final class AssistantOverlay extends StackPane {
             icon.getStyleClass().add("assistant-send-icon");
         }
         return icon;
+    }
+
+    private StackPane createMicrophoneIcon(boolean active) {
+        StackPane icon = new StackPane();
+        icon.getStyleClass().addAll("assistant-mic-icon", active ? "assistant-mic-icon-on" : "assistant-mic-icon-off");
+        icon.setMinSize(30, 30);
+        icon.setPrefSize(30, 30);
+        icon.setMaxSize(30, 30);
+
+        SVGPath outerArc = createMicStroke("M5 11 C7.8 5.8 11.8 3.2 16 3.2 C20.2 3.2 24.2 5.8 27 11");
+        SVGPath innerArc = createMicStroke("M8.6 13 C10.5 9.8 13.1 8.2 16 8.2 C18.9 8.2 21.5 9.8 23.4 13");
+        SVGPath body = new SVGPath();
+        body.setContent("M16 7.2 C12.6 7.2 10.2 9.8 10.2 13.1 L10.2 18.1 C10.2 21.7 12.6 24.3 16 24.3 C19.4 24.3 21.8 21.7 21.8 18.1 L21.8 13.1 C21.8 9.8 19.4 7.2 16 7.2 Z");
+        body.setFill(Color.web("#64748b"));
+        body.getStyleClass().add("assistant-mic-body");
+        SVGPath sideArc = createMicStroke("M6.1 17 C6.1 23 10.2 27 16 27 C21.8 27 25.9 23 25.9 17");
+
+        icon.getChildren().addAll(outerArc, innerArc, body, sideArc);
+        if (active) {
+            SVGPath stem = createMicStroke("M16 27 L16 31");
+            stem.getStyleClass().add("assistant-mic-stand");
+            SVGPath base = createMicStroke("M10.4 31 L21.6 31");
+            base.getStyleClass().add("assistant-mic-stand");
+            icon.getChildren().addAll(stem, base);
+        }
+        return icon;
+    }
+
+    private SVGPath createMicStroke(String content) {
+        SVGPath path = new SVGPath();
+        path.setContent(content);
+        path.setFill(Color.TRANSPARENT);
+        path.setStroke(Color.web("#64748b"));
+        path.setStrokeWidth(2.9);
+        path.setStrokeLineCap(StrokeLineCap.ROUND);
+        path.setStrokeLineJoin(StrokeLineJoin.ROUND);
+        path.getStyleClass().add("assistant-mic-stroke");
+        return path;
     }
 
     private ImageView createImageView(Image image, double size) {

@@ -88,6 +88,12 @@
     -fx-font-weight: 700;
 }
 
+.assistant-mic-button {
+    -fx-padding: 0;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+
 .assistant-quick-action-button,
 .assistant-close-button,
 .assistant-toggle-button,
@@ -177,6 +183,18 @@
 
 .assistant-send-icon {
     -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.16), 3, 0.2, 0, 1);
+}
+
+.assistant-mic-icon {
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-width: 30;
+    -fx-pref-height: 30;
+}
+
+.assistant-mic-stroke {
+    -fx-fill: transparent;
+    -fx-stroke-width: 2.9;
 }
 
 .assistant-launcher {
@@ -302,7 +320,8 @@
 .theme-light .assistant-mic-on {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
     -fx-border-color: rgba(34, 197, 94, 0.42);
-    -fx-border-radius: 999;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
     -fx-border-width: 1;
     -fx-text-fill: #052e16;
 }
@@ -423,7 +442,8 @@
 .theme-dark .assistant-mic-on {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
     -fx-border-color: rgba(52, 211, 153, 0.48);
-    -fx-border-radius: 999;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
     -fx-border-width: 1;
     -fx-text-fill: #052e16;
 }
@@ -481,4 +501,37 @@
 .theme-dark .assistant-bot-avatar {
     -fx-background-color: #0f172a;
     -fx-border-color: #1f5f53;
+}
+
+.theme-light .assistant-mic-off,
+.theme-dark .assistant-mic-off {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+
+.theme-light .assistant-mic-icon-off .assistant-mic-stroke,
+.theme-light .assistant-mic-icon-off .assistant-mic-body {
+    -fx-stroke: #4b5563;
+    -fx-fill: #4b5563;
+}
+
+.theme-dark .assistant-mic-icon-off .assistant-mic-stroke,
+.theme-dark .assistant-mic-icon-off .assistant-mic-body {
+    -fx-stroke: #d1d5db;
+    -fx-fill: #d1d5db;
+}
+
+.theme-light .assistant-mic-icon-on .assistant-mic-stroke,
+.theme-light .assistant-mic-icon-on .assistant-mic-body,
+.theme-dark .assistant-mic-icon-on .assistant-mic-stroke,
+.theme-dark .assistant-mic-icon-on .assistant-mic-body {
+    -fx-stroke: #ffffff;
+    -fx-fill: #ffffff;
+}
+
+.theme-light .assistant-mic-icon-off .assistant-mic-stroke,
+.theme-dark .assistant-mic-icon-off .assistant-mic-stroke,
+.theme-light .assistant-mic-icon-on .assistant-mic-stroke,
+.theme-dark .assistant-mic-icon-on .assistant-mic-stroke {
+    -fx-fill: transparent;
 }
