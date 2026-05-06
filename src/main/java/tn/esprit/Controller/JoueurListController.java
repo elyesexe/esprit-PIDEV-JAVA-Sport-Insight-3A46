@@ -397,11 +397,13 @@ public class JoueurListController {
 
         VBox content = new VBox(14, avatarShell, titleLabel, metaRow);
         content.setAlignment(Pos.CENTER);
+        content.setMouseTransparent(true);
 
         Button cardButton = new Button();
         cardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         cardButton.setGraphic(content);
         cardButton.getStyleClass().addAll("competition-card-button", "player-grid-card");
+        cardButton.setPickOnBounds(true);
         cardButton.setPrefSize(PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT);
         cardButton.setMinSize(PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT);
         cardButton.setMaxSize(PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT);
@@ -751,7 +753,7 @@ public class JoueurListController {
         refreshButton.setDisable(disabled);
         searchField.setDisable(disabled);
         equipeFilterComboBox.setDisable(disabled || contextTeamId != null);
-        joueurCardsPane.setDisable(disabled);
+        joueurCardsPane.setDisable(!serviceReady && !dataLoaded);
     }
 
     private Integer getSelectedFilterEquipeId() {

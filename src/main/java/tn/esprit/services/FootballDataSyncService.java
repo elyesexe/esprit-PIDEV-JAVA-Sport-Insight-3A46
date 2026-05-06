@@ -1,6 +1,8 @@
 package tn.esprit.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import tn.esprit.services.football.ApiFootballClient;
+import tn.esprit.services.football.ApiFootballCompetitionMappings;
 import tn.esprit.services.football.FootballDataApiClient;
 import tn.esprit.services.football.FootballDataCompetitions;
 import tn.esprit.services.wikidata.WikidataPlayerImageService;
@@ -9,6 +11,7 @@ import tn.esprit.tools.JoueurAvatarGenerator;
 import tn.esprit.tools.MyConnection;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -21,19 +24,29 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class FootballDataSyncService {
     private final Connection connection;
     private final FootballDataApiClient apiClient;
+    private final ApiFootballClient apiFootballClient;
     private final WikidataPlayerImageService wikidataImageService;
 
     public FootballDataSyncService() throws SQLException {
         this.connection = MyConnection.getInstance().getConnection();
         this.apiClient = new FootballDataApiClient();
+        ApiFootballClient optionalApiFootballClient;
+        try {
+            optionalApiFootballClient = new ApiFootballClient();
+        } catch (IllegalStateException e) {
+            optionalApiFootballClient = null;
+        }
+        this.apiFootballClient = optionalApiFootballClient;
         this.wikidataImageService = new WikidataPlayerImageService();
     }
 
@@ -88,6 +101,7 @@ public class FootballDataSyncService {
             if (!teamsNode.isArray()) {
                 continue;
             }
+            ApiFootballCompetitionContext apiFootballContext = loadApiFootballCompetitionContext(competitionCode, progressReporter);
 
             for (JsonNode teamNode : teamsNode) {
                 TeamUpsertResult teamResult = upsertTeam(teamNode, competitionCode);
@@ -96,13 +110,20 @@ public class FootballDataSyncService {
                     continue;
                 }
 
+                Long apiFootballTeamId = resolveApiFootballTeamId(apiFootballContext, text(teamNode, "name"));
+                if (apiFootballTeamId != null) {
+                    updateTeamApiFootballId(teamResult.localId, apiFootballTeamId);
+                }
+                Map<String, ApiFootballPlayerProfile> apiFootballPlayers =
+                        loadApiFootballPlayers(apiFootballContext, apiFootballTeamId, progressReporter);
+
                 JsonNode squadNode = teamNode.path("squad");
                 if (!squadNode.isArray()) {
                     continue;
                 }
 
                 for (JsonNode playerNode : squadNode) {
-                    PlayerUpsertOutcome outcome = upsertPlayer(playerNode, teamResult.localId);
+                    PlayerUpsertOutcome outcome = upsertPlayer(playerNode, teamResult.localId, apiFootballPlayers);
                     if (outcome == PlayerUpsertOutcome.UPSERTED) {
                         playersUpserted++;
                     } else {
@@ -267,7 +288,8 @@ public class FootballDataSyncService {
         return new TeamUpsertResult(existing.id, changed(existing, name, null, null, crest, teamCompetitionCode));
     }
 
-    private PlayerUpsertOutcome upsertPlayer(JsonNode playerNode, int equipeId) throws SQLException {
+    private PlayerUpsertOutcome upsertPlayer(JsonNode playerNode, int equipeId, Map<String, ApiFootballPlayerProfile> apiFootballPlayers)
+            throws SQLException {
         long externalId = playerNode.path("id").asLong(0);
         if (externalId <= 0) {
             return PlayerUpsertOutcome.SKIPPED;
@@ -287,10 +309,12 @@ public class FootballDataSyncService {
         String nationalite = normalizeNullable(text(playerNode, "nationality"));
         PlayerRow existing = findPlayer(externalId, equipeId, nameParts);
         int numero = existing != null && existing.numero > 0 ? existing.numero : 0;
-        String image = existing == null ? null : normalizeNullable(existing.image);
-        if (image == null) {
-            image = JoueurAvatarGenerator.ensureAvatarPath(externalId, nameParts.prenom, nameParts.nom);
-        }
+        ApiFootballPlayerProfile apiFootballProfile = resolveApiFootballPlayer(nameParts, apiFootballPlayers);
+        String apiPhoto = firstNonBlank(
+                text(playerNode, "photo"),
+                firstNonBlank(text(playerNode, "image"), apiFootballProfile == null ? null : apiFootballProfile.photoUrl())
+        );
+        String image = choosePlayerImage(existing == null ? null : existing.image, apiPhoto, externalId, nameParts);
 
         if (existing == null) {
             insertPlayer(externalId, nameParts.nom, nameParts.prenom, dateNaissance, numero, image, equipeId, position, nationalite);
@@ -310,6 +334,215 @@ public class FootballDataSyncService {
                 firstNonBlank(nationalite, existing.nationalite)
         );
         return PlayerUpsertOutcome.UPSERTED;
+    }
+
+    private ApiFootballCompetitionContext loadApiFootballCompetitionContext(String competitionCode, Consumer<String> progressReporter)
+            throws InterruptedException {
+        if (apiFootballClient == null || !ApiFootballCompetitionMappings.supportsCompetition(competitionCode)) {
+            return null;
+        }
+
+        Integer leagueId = ApiFootballCompetitionMappings.leagueIdOf(competitionCode);
+        if (leagueId == null) {
+            return null;
+        }
+
+        int seasonYear = ApiFootballCompetitionMappings.resolveSeasonYear(competitionCode, LocalDate.now());
+        try {
+            JsonNode payload = apiFootballClient.fetchCompetitionTeams(leagueId, seasonYear);
+            JsonNode responseNode = payload.path("response");
+            Map<String, Long> teamsByName = new LinkedHashMap<>();
+            if (responseNode.isArray()) {
+                for (JsonNode teamEntry : responseNode) {
+                    JsonNode teamNode = teamEntry.path("team");
+                    long teamId = teamNode.path("id").asLong(0);
+                    String teamName = normalizeNullable(teamNode.path("name").asText(null));
+                    String normalizedTeamName = normalizeNameKey(teamName);
+                    if (teamId > 0 && normalizedTeamName != null) {
+                        teamsByName.put(normalizedTeamName, teamId);
+                    }
+                }
+            }
+            return new ApiFootballCompetitionContext(leagueId, seasonYear, teamsByName);
+        } catch (IOException e) {
+            if (progressReporter != null) {
+                progressReporter.accept("Photos API-Football indisponibles: " + safeOneLine(e.getMessage()));
+            }
+            return null;
+        }
+    }
+
+    private Long resolveApiFootballTeamId(ApiFootballCompetitionContext context, String teamName) {
+        if (context == null || context.teamsByName().isEmpty()) {
+            return null;
+        }
+        return resolveNamedId(context.teamsByName(), teamName);
+    }
+
+    private Map<String, ApiFootballPlayerProfile> loadApiFootballPlayers(
+            ApiFootballCompetitionContext context,
+            Long apiFootballTeamId,
+            Consumer<String> progressReporter
+    ) throws InterruptedException {
+        if (context == null || apiFootballTeamId == null || apiFootballClient == null) {
+            return Map.of();
+        }
+
+        Map<String, ApiFootballPlayerProfile> playersByName = new LinkedHashMap<>();
+        int page = 1;
+        while (true) {
+            try {
+                JsonNode payload = apiFootballClient.fetchTeamPlayers(
+                        Math.toIntExact(apiFootballTeamId),
+                        context.leagueId(),
+                        context.seasonYear(),
+                        page
+                );
+                JsonNode responseNode = payload.path("response");
+                if (!responseNode.isArray() || responseNode.isEmpty()) {
+                    break;
+                }
+
+                for (JsonNode entry : responseNode) {
+                    JsonNode playerNode = entry.path("player");
+                    long playerId = playerNode.path("id").asLong(0);
+                    String playerName = normalizeNullable(playerNode.path("name").asText(null));
+                    String photoUrl = normalizeNullable(playerNode.path("photo").asText(null));
+                    String normalizedPlayerName = normalizeNameKey(playerName);
+                    if (normalizedPlayerName != null && photoUrl != null) {
+                        playersByName.put(normalizedPlayerName, new ApiFootballPlayerProfile(playerId <= 0 ? null : playerId, photoUrl));
+                    }
+                }
+
+                JsonNode pagingNode = payload.path("paging");
+                int totalPages = pagingNode.path("total").asInt(page);
+                if (page >= totalPages || page >= 8) {
+                    break;
+                }
+                page++;
+            } catch (IOException | ArithmeticException e) {
+                if (progressReporter != null) {
+                    progressReporter.accept("Photos joueurs API-Football ignorees: " + safeOneLine(e.getMessage()));
+                }
+                break;
+            }
+        }
+        return playersByName;
+    }
+
+    private ApiFootballPlayerProfile resolveApiFootballPlayer(NameParts nameParts, Map<String, ApiFootballPlayerProfile> playersByName) {
+        if (playersByName == null || playersByName.isEmpty() || nameParts == null) {
+            return null;
+        }
+
+        String fullName = ((nameParts.prenom == null ? "" : nameParts.prenom) + " " + (nameParts.nom == null ? "" : nameParts.nom)).trim();
+        String normalizedName = normalizeNameKey(fullName);
+        if (normalizedName == null) {
+            return null;
+        }
+
+        ApiFootballPlayerProfile exact = playersByName.get(normalizedName);
+        if (exact != null) {
+            return exact;
+        }
+
+        double bestScore = 0.0;
+        ApiFootballPlayerProfile bestMatch = null;
+        for (Map.Entry<String, ApiFootballPlayerProfile> entry : playersByName.entrySet()) {
+            double score = similarity(normalizedName, entry.getKey());
+            if (score > bestScore) {
+                bestScore = score;
+                bestMatch = entry.getValue();
+            }
+        }
+        return bestScore >= 0.82 ? bestMatch : null;
+    }
+
+    private Long resolveNamedId(Map<String, Long> mappedIds, String localName) {
+        String normalizedLocalName = normalizeNameKey(localName);
+        if (normalizedLocalName == null || mappedIds == null || mappedIds.isEmpty()) {
+            return null;
+        }
+
+        Long exact = mappedIds.get(normalizedLocalName);
+        if (exact != null) {
+            return exact;
+        }
+
+        double bestScore = 0.0;
+        Long bestMatch = null;
+        for (Map.Entry<String, Long> entry : mappedIds.entrySet()) {
+            double score = similarity(normalizedLocalName, entry.getKey());
+            if (score > bestScore) {
+                bestScore = score;
+                bestMatch = entry.getValue();
+            }
+        }
+        return bestScore >= 0.72 ? bestMatch : null;
+    }
+
+    private String normalizeNameKey(String value) {
+        String normalized = normalizeNullable(value);
+        if (normalized == null) {
+            return null;
+        }
+
+        normalized = Normalizer.normalize(normalized, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase(Locale.ROOT)
+                .replace('&', ' ')
+                .replaceAll("[^a-z0-9]+", " ")
+                .trim()
+                .replaceAll("\\s+", " ");
+        return normalized.isBlank() ? null : normalized;
+    }
+
+    private double similarity(String left, String right) {
+        if (left == null || right == null) {
+            return 0.0;
+        }
+        if (Objects.equals(left, right)) {
+            return 1.0;
+        }
+        if (left.contains(right) || right.contains(left)) {
+            return 0.86;
+        }
+
+        List<String> leftTokens = List.of(left.split("\\s+"));
+        List<String> rightTokens = List.of(right.split("\\s+"));
+        long overlap = leftTokens.stream()
+                .filter(rightTokens::contains)
+                .distinct()
+                .count();
+        long union = leftTokens.stream().distinct().count()
+                + rightTokens.stream()
+                .filter(token -> !leftTokens.contains(token))
+                .distinct()
+                .count();
+        return union == 0 ? 0.0 : (double) overlap / union;
+    }
+
+    private String choosePlayerImage(String existingImage, String apiPhoto, long externalId, NameParts nameParts) {
+        String normalizedExisting = normalizeNullable(existingImage);
+        String normalizedApiPhoto = normalizeNullable(apiPhoto);
+        if (normalizedApiPhoto != null && shouldReplacePlayerPhoto(normalizedExisting)) {
+            return normalizedApiPhoto;
+        }
+        if (normalizedExisting != null) {
+            return normalizedExisting;
+        }
+        return JoueurAvatarGenerator.ensureAvatarPath(externalId, nameParts.prenom, nameParts.nom);
+    }
+
+    private boolean shouldReplacePlayerPhoto(String image) {
+        if (image == null || image.isBlank()) {
+            return true;
+        }
+        String normalized = image.trim().replace('\\', '/').toLowerCase(Locale.ROOT);
+        return normalized.contains("fd-player-")
+                || normalized.contains("commons.wikimedia.org/wiki/special:filepath")
+                || normalized.contains("wikidata")
+                || normalized.contains("wikipedia.org");
     }
 
     private boolean upsertMatch(JsonNode matchNode, String competitionCode, int homeEquipeId, int awayEquipeId) throws SQLException {
@@ -521,6 +754,20 @@ public class FootballDataSyncService {
             statement.setString(8, FootballDataConfig.SOURCE);
             statement.setString(9, competitionCode);
             statement.setInt(10, id);
+            statement.executeUpdate();
+        }
+    }
+
+    private void updateTeamApiFootballId(Integer teamId, Long apiFootballId) throws SQLException {
+        if (teamId == null || apiFootballId == null) {
+            return;
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE equipe SET api_football_id = ? WHERE id = ? AND (api_football_id IS NULL OR api_football_id <> ?)")) {
+            statement.setLong(1, apiFootballId);
+            statement.setInt(2, teamId);
+            statement.setLong(3, apiFootballId);
             statement.executeUpdate();
         }
     }
@@ -872,5 +1119,11 @@ public class FootballDataSyncService {
     }
 
     private record MatchRow(int id, String lieu, String lineupDomicile, String lineupExterieur) {
+    }
+
+    private record ApiFootballCompetitionContext(int leagueId, int seasonYear, Map<String, Long> teamsByName) {
+    }
+
+    private record ApiFootballPlayerProfile(Long playerId, String photoUrl) {
     }
 }

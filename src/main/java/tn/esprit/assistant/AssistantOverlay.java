@@ -656,21 +656,23 @@ public final class AssistantOverlay extends StackPane {
         icon.setPrefSize(30, 30);
         icon.setMaxSize(30, 30);
 
-        SVGPath outerArc = createMicStroke("M5 11 C7.8 5.8 11.8 3.2 16 3.2 C20.2 3.2 24.2 5.8 27 11");
-        SVGPath innerArc = createMicStroke("M8.6 13 C10.5 9.8 13.1 8.2 16 8.2 C18.9 8.2 21.5 9.8 23.4 13");
-        SVGPath body = new SVGPath();
-        body.setContent("M16 7.2 C12.6 7.2 10.2 9.8 10.2 13.1 L10.2 18.1 C10.2 21.7 12.6 24.3 16 24.3 C19.4 24.3 21.8 21.7 21.8 18.1 L21.8 13.1 C21.8 9.8 19.4 7.2 16 7.2 Z");
-        body.setFill(Color.web("#64748b"));
-        body.getStyleClass().add("assistant-mic-body");
-        SVGPath sideArc = createMicStroke("M6.1 17 C6.1 23 10.2 27 16 27 C21.8 27 25.9 23 25.9 17");
-
-        icon.getChildren().addAll(outerArc, innerArc, body, sideArc);
         if (active) {
-            SVGPath stem = createMicStroke("M16 27 L16 31");
-            stem.getStyleClass().add("assistant-mic-stand");
-            SVGPath base = createMicStroke("M10.4 31 L21.6 31");
-            base.getStyleClass().add("assistant-mic-stand");
-            icon.getChildren().addAll(stem, base);
+            icon.getChildren().addAll(
+                    createMicStroke("M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"),
+                    createMicStroke("M19 10v2a7 7 0 0 1-14 0v-2"),
+                    createMicStroke("M12 19v3"),
+                    createMicStroke("M8 22h8")
+            );
+        } else {
+            icon.getChildren().addAll(
+                    createMicStroke("M2 2l20 20"),
+                    createMicStroke("M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"),
+                    createMicStroke("M5 10v2a7 7 0 0 0 12 5"),
+                    createMicStroke("M15 9.34V5a3 3 0 0 0-5.68-1.33"),
+                    createMicStroke("M9 9v3a3 3 0 0 0 5.12 2.12"),
+                    createMicStroke("M12 19v3"),
+                    createMicStroke("M8 22h8")
+            );
         }
         return icon;
     }
@@ -680,7 +682,7 @@ public final class AssistantOverlay extends StackPane {
         path.setContent(content);
         path.setFill(Color.TRANSPARENT);
         path.setStroke(Color.web("#64748b"));
-        path.setStrokeWidth(2.9);
+        path.setStrokeWidth(2.25);
         path.setStrokeLineCap(StrokeLineCap.ROUND);
         path.setStrokeLineJoin(StrokeLineJoin.ROUND);
         path.getStyleClass().add("assistant-mic-stroke");
