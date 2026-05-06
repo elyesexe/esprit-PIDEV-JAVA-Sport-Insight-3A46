@@ -37,7 +37,11 @@ import javafx.util.Duration;
 
 public final class AssistantOverlay extends StackPane {
     private static final String JARVIS_ICON_PATH = "/tn/esprit/images/Jarvis.png";
+    private static final String CHATBOT_AVATAR_PATH = "/tn/esprit/images/chatbot/logo-chatbot.png";
+    private static final String SEND_ICON_PATH = "/tn/esprit/images/chatbot/msg.png";
     private static final AtomicReference<Image> JARVIS_IMAGE = new AtomicReference<>();
+    private static final AtomicReference<Image> CHATBOT_AVATAR_IMAGE = new AtomicReference<>();
+    private static final AtomicReference<Image> SEND_ICON_IMAGE = new AtomicReference<>();
 
     private final AssistantService service = AssistantService.getInstance();
     private final Stage stage;
@@ -135,14 +139,8 @@ public final class AssistantOverlay extends StackPane {
 
         Label titleLabel = new Label("Sport Insight AI");
         titleLabel.getStyleClass().add("assistant-title");
-        Label subtitleLabel = new Label("Match detail copilot");
-        subtitleLabel.getStyleClass().add("assistant-subtitle");
-        VBox titleBox = new VBox(1, titleLabel, subtitleLabel);
+        VBox titleBox = new VBox(titleLabel);
         titleBox.getStyleClass().add("assistant-title-box");
-        ImageView brandIcon = createLogoView(34);
-        if (brandIcon != null) {
-            brandIcon.getStyleClass().add("assistant-brand-icon");
-        }
 
         screenLabel.setText(screenMeta.title());
         screenLabel.getStyleClass().add("assistant-screen-label");
@@ -160,13 +158,14 @@ public final class AssistantOverlay extends StackPane {
 
         Button closeButton = new Button("X");
         closeButton.getStyleClass().add("assistant-close-button");
+        closeButton.setMinSize(34, 34);
+        closeButton.setPrefSize(34, 34);
+        closeButton.setMaxSize(34, 34);
         closeButton.setOnAction(event -> togglePanel(false));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox headerTop = brandIcon == null
-                ? new HBox(10, titleBox, spacer, closeButton)
-                : new HBox(12, brandIcon, titleBox, spacer, closeButton);
+        HBox headerTop = new HBox(12, titleBox, spacer, closeButton);
         headerTop.setAlignment(Pos.CENTER_LEFT);
         headerTop.getStyleClass().add("assistant-header-top");
 
@@ -178,7 +177,7 @@ public final class AssistantOverlay extends StackPane {
         statusLabel.getStyleClass().add("assistant-status");
         statusLabel.setWrapText(true);
 
-        VBox headerBox = new VBox(8, headerTop, chipRow, statusLabel);
+        VBox headerBox = new VBox(headerTop);
         headerBox.getStyleClass().add("assistant-header");
 
         quickActionsBox.setHgap(8);
@@ -192,11 +191,13 @@ public final class AssistantOverlay extends StackPane {
         messagesScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         messagesScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         messagesScroll.getStyleClass().add("assistant-scroll");
-        messagesScroll.setPrefViewportHeight(258);
+        messagesScroll.setPrefViewportHeight(364);
 
         composer.getStyleClass().add("assistant-composer");
-        composer.setPromptText("Ask about this screen, or say open teams / open Champions League / open Bayern vs Real Madrid details...");
-        composer.setPrefRowCount(2);
+        composer.setPromptText("Posez une question sur ce match");
+        composer.setPrefRowCount(1);
+        composer.setMinHeight(58);
+        composer.setPrefHeight(58);
         composer.setWrapText(true);
         composer.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER && !event.isShiftDown()) {
@@ -206,6 +207,17 @@ public final class AssistantOverlay extends StackPane {
         });
 
         sendButton.getStyleClass().add("assistant-send-button");
+        sendButton.setText("");
+        sendButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        sendButton.setMinSize(64, 58);
+        sendButton.setPrefSize(64, 58);
+        ImageView sendIcon = createSendIconView();
+        if (sendIcon != null) {
+            sendButton.setGraphic(sendIcon);
+        } else {
+            sendButton.setContentDisplay(ContentDisplay.TEXT_ONLY);
+            sendButton.setText(">");
+        }
         sendButton.setOnAction(event -> sendComposerText());
 
         micButton.getStyleClass().add("assistant-mic-button");
@@ -224,15 +236,20 @@ public final class AssistantOverlay extends StackPane {
 
         refreshMicButtonState();
 
-        HBox actions = new HBox(8, speakToggle, micButton, new Region(), sendButton);
+        HBox formRow = new HBox(10, composer, sendButton);
+        formRow.setAlignment(Pos.CENTER_LEFT);
+        formRow.getStyleClass().add("assistant-form-row");
+        HBox.setHgrow(composer, Priority.ALWAYS);
+
+        HBox actions = new HBox(8, speakToggle, micButton, new Region());
         HBox.setHgrow(actions.getChildren().get(2), Priority.ALWAYS);
         actions.setAlignment(Pos.CENTER_LEFT);
         actions.getStyleClass().add("assistant-actions-row");
 
-        VBox composerBox = new VBox(8, composer, actions);
+        VBox composerBox = new VBox(8, formRow, actions);
         composerBox.getStyleClass().add("assistant-composer-box");
 
-        panel.getChildren().addAll(headerBox, quickActionsBox, messagesScroll, composerBox);
+        panel.getChildren().addAll(headerBox, messagesScroll, composerBox);
     }
 
     private void configureLauncher() {
@@ -263,15 +280,15 @@ public final class AssistantOverlay extends StackPane {
             boolean userMessage = message.role() == AssistantMessage.Role.USER;
             Label bubble = new Label(message.content());
             bubble.setWrapText(true);
-            bubble.setMaxWidth(285);
+            bubble.setMaxWidth(userMessage ? 310 : 318);
             bubble.getStyleClass().addAll(
                     "assistant-message-bubble",
                     userMessage ? "assistant-message-user" : "assistant-message-assistant"
             );
 
-            HBox row = new HBox(bubble);
+            HBox row = userMessage ? new HBox(bubble) : new HBox(8, createBotAvatar(), bubble);
             row.setAlignment(userMessage ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-            row.getStyleClass().add("assistant-message-row");
+            row.getStyleClass().addAll("assistant-message-row", userMessage ? "assistant-message-row-user" : "assistant-message-row-assistant");
             messagesBox.getChildren().add(row);
         }
         Platform.runLater(() -> messagesScroll.setVvalue(1.0));
@@ -446,7 +463,7 @@ public final class AssistantOverlay extends StackPane {
 
     private void updateLauncherLabel() {
         launcherButton.setText("");
-        launcherButton.setAccessibleText(panelVisible ? "Hide Jarvis" : "Open Jarvis");
+        launcherButton.setAccessibleText(panelVisible ? "Hide Sport Insight AI" : "Open Sport Insight AI");
         if (panelVisible) {
             launcherButton.getStyleClass().add("assistant-launcher-open");
         } else {
@@ -590,7 +607,37 @@ public final class AssistantOverlay extends StackPane {
     }
 
     private ImageView createLogoView(double size) {
-        Image image = loadJarvisImage();
+        return createImageView(loadJarvisImage(), size);
+    }
+
+    private StackPane createBotAvatar() {
+        StackPane avatar = new StackPane();
+        avatar.getStyleClass().add("assistant-bot-avatar");
+        avatar.setMinSize(30, 30);
+        avatar.setPrefSize(30, 30);
+        avatar.setMaxSize(30, 30);
+
+        ImageView logo = createImageView(loadChatbotAvatarImage(), 22);
+        if (logo != null) {
+            logo.getStyleClass().add("assistant-bot-avatar-image");
+            avatar.getChildren().add(logo);
+        } else {
+            Label fallback = new Label("AI");
+            fallback.getStyleClass().add("assistant-bot-avatar-fallback");
+            avatar.getChildren().add(fallback);
+        }
+        return avatar;
+    }
+
+    private ImageView createSendIconView() {
+        ImageView icon = createImageView(loadSendIconImage(), 22);
+        if (icon != null) {
+            icon.getStyleClass().add("assistant-send-icon");
+        }
+        return icon;
+    }
+
+    private ImageView createImageView(Image image, double size) {
         if (image == null) {
             return null;
         }
@@ -605,16 +652,28 @@ public final class AssistantOverlay extends StackPane {
     }
 
     private Image loadJarvisImage() {
-        Image cached = JARVIS_IMAGE.get();
+        return loadImage(JARVIS_ICON_PATH, JARVIS_IMAGE);
+    }
+
+    private Image loadChatbotAvatarImage() {
+        return loadImage(CHATBOT_AVATAR_PATH, CHATBOT_AVATAR_IMAGE);
+    }
+
+    private Image loadSendIconImage() {
+        return loadImage(SEND_ICON_PATH, SEND_ICON_IMAGE);
+    }
+
+    private Image loadImage(String path, AtomicReference<Image> cache) {
+        Image cached = cache.get();
         if (cached != null) {
             return cached;
         }
 
-        return Optional.ofNullable(AssistantOverlay.class.getResourceAsStream(JARVIS_ICON_PATH))
+        return Optional.ofNullable(AssistantOverlay.class.getResourceAsStream(path))
                 .map(stream -> {
                     try (var input = stream) {
                         Image image = new Image(input);
-                        JARVIS_IMAGE.compareAndSet(null, image);
+                        cache.compareAndSet(null, image);
                         return image;
                     } catch (Exception ignored) {
                         return null;
