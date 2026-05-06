@@ -1480,8 +1480,11 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     private VBox buildOddsMarketCard(ApiFootballOddsSnapshot.Market market, boolean locked) {
-        VBox card = new VBox(6);
+        VBox card = new VBox(5);
         card.getStyleClass().addAll("odds-market-card", oddsMarketToneClass(market == null ? null : market.name()));
+        card.setAlignment(Pos.CENTER);
+        card.setMaxWidth(620);
+        card.setPrefWidth(620);
 
         HBox header = new HBox(8);
         header.setAlignment(Pos.CENTER_LEFT);
@@ -1497,6 +1500,9 @@ public class MatchDetailController implements AssistantContextProvider {
 
         VBox rows = new VBox(0);
         rows.getStyleClass().add("odds-table");
+        rows.setAlignment(Pos.CENTER);
+        rows.setMaxWidth(430);
+        rows.setPrefWidth(430);
         if (market != null && market.rows() != null) {
             for (ApiFootballOddsSnapshot.BookmakerRow row : market.rows()) {
                 rows.getChildren().add(buildOddsBookmakerRow(row, locked));
@@ -1508,13 +1514,14 @@ public class MatchDetailController implements AssistantContextProvider {
     }
 
     private HBox buildOddsBookmakerRow(ApiFootballOddsSnapshot.BookmakerRow row, boolean locked) {
-        HBox container = new HBox(8);
-        container.setAlignment(Pos.CENTER_LEFT);
+        HBox container = new HBox(6);
+        container.setAlignment(Pos.CENTER);
         container.getStyleClass().add("odds-bookmaker-row");
+        container.setMaxWidth(420);
 
         Label bookmakerLabel = new Label(emptyToFallback(row == null ? null : row.bookmaker(), "Bookmaker"));
-        bookmakerLabel.setMinWidth(124);
-        bookmakerLabel.setPrefWidth(124);
+        bookmakerLabel.setMinWidth(96);
+        bookmakerLabel.setPrefWidth(96);
         bookmakerLabel.getStyleClass().add("odds-bookmaker-label");
 
         HBox selectionsBox = new HBox(6);
@@ -1534,8 +1541,10 @@ public class MatchDetailController implements AssistantContextProvider {
     private VBox buildOddsSelectionCell(ApiFootballOddsSnapshot.Selection selection, boolean locked) {
         VBox cell = new VBox(2);
         cell.setAlignment(Pos.CENTER);
-        cell.setMinWidth(76);
-        cell.setPrefWidth(88);
+        cell.setMinWidth(58);
+        cell.setPrefWidth(62);
+        cell.setMinHeight(40);
+        cell.setPrefHeight(42);
         cell.getStyleClass().add("odds-selection-cell");
         if (locked || (selection != null && selection.suspended())) {
             cell.getStyleClass().add("odds-selection-locked");

@@ -7,30 +7,35 @@
 }
 
 .assistant-panel {
-    -fx-background-radius: 24;
-    -fx-border-radius: 24;
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
     -fx-border-width: 1;
-    -fx-padding: 16;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.34), 36, 0.28, 0, 16);
+    -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.42), 32, 0.28, 0, 14);
 }
 
 .assistant-header {
-    -fx-padding: 0 0 2 0;
+    -fx-padding: 16 18 14 18;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 55%, #34d399 100%);
+    -fx-background-radius: 22 22 0 0;
+    -fx-border-radius: 22 22 0 0;
 }
 
 .assistant-header-top {
-    -fx-padding: 0 0 2 0;
+    -fx-padding: 0;
 }
 
 .assistant-title {
     -fx-font-family: "Bahnschrift SemiCondensed";
-    -fx-font-size: 24px;
+    -fx-font-size: 22px;
     -fx-font-weight: 700;
+    -fx-text-fill: #ffffff;
 }
 
 .assistant-subtitle {
     -fx-font-size: 11px;
     -fx-font-weight: 700;
+    -fx-text-fill: rgba(255, 255, 255, 0.82);
 }
 
 .assistant-title-box {
@@ -38,12 +43,13 @@
 }
 
 .assistant-brand-icon {
-    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.24), 18, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(2, 6, 23, 0.24), 14, 0.24, 0, 2);
 }
 
 .assistant-screen-label {
     -fx-font-size: 12px;
     -fx-font-weight: 700;
+    -fx-text-fill: #ecfdf5;
 }
 
 .assistant-chip-row {
@@ -53,17 +59,20 @@
 .assistant-status {
     -fx-font-size: 11px;
     -fx-line-spacing: 2px;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
 }
 
 .assistant-chip {
     -fx-background-radius: 999;
-    -fx-padding: 5 10 5 10;
+    -fx-padding: 4 9 4 9;
     -fx-font-size: 10.5px;
     -fx-font-weight: 700;
+    -fx-background-color: rgba(2, 6, 23, 0.2);
+    -fx-text-fill: #ecfdf5;
 }
 
 .assistant-quick-actions {
-    -fx-padding: 2 0 2 0;
+    -fx-padding: 10 14 8 14;
 }
 
 .assistant-quick-action-button,
@@ -72,7 +81,7 @@
 .assistant-mic-button,
 .assistant-send-button {
     -fx-background-radius: 999;
-    -fx-padding: 8 13 8 13;
+    -fx-padding: 7 12 7 12;
     -fx-font-size: 12px;
     -fx-font-weight: 700;
 }
@@ -92,7 +101,7 @@
 }
 
 .assistant-messages {
-    -fx-padding: 4 2 6 2;
+    -fx-padding: 12 14 12 14;
 }
 
 .assistant-message-row {
@@ -100,15 +109,15 @@
 }
 
 .assistant-message-bubble {
-    -fx-background-radius: 17;
+    -fx-background-radius: 16;
     -fx-padding: 9 12 9 12;
     -fx-font-size: 12px;
     -fx-line-spacing: 3px;
 }
 
 .assistant-composer {
-    -fx-background-radius: 17;
-    -fx-border-radius: 17;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
     -fx-background-insets: 0;
     -fx-border-insets: 0;
     -fx-padding: 10;
@@ -121,7 +130,7 @@
 .assistant-composer .scroll-pane,
 .assistant-composer .scroll-pane > .viewport {
     -fx-background-insets: 0;
-    -fx-background-radius: 16;
+    -fx-background-radius: 13;
 }
 
 .assistant-composer .text {
@@ -129,7 +138,12 @@
 }
 
 .assistant-composer-box {
-    -fx-padding: 6 0 0 0;
+    -fx-padding: 12 14 14 14;
+    -fx-border-width: 1 0 0 0;
+}
+
+.assistant-actions-row {
+    -fx-padding: 0;
 }
 
 .assistant-launcher {
@@ -192,40 +206,73 @@
 
 .theme-light .assistant-panel,
 .theme-light.assistant-panel {
-    -fx-background-color:
-        radial-gradient(center 18% 10%, radius 48%, rgba(56, 189, 248, 0.14) 0%, rgba(56, 189, 248, 0.0) 52%),
-        linear-gradient(from 0% 0% to 100% 100%, rgba(248, 250, 252, 0.98) 0%, rgba(236, 254, 255, 0.95) 50%, rgba(236, 253, 245, 0.97) 100%);
-    -fx-border-color: rgba(15, 23, 42, 0.09);
+    -fx-background-color: #f8fafc;
+    -fx-border-color: rgba(16, 185, 129, 0.24);
 }
 
 .theme-light .assistant-title,
 .theme-light .assistant-screen-label {
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: #ffffff;
 }
 
 .theme-light .assistant-subtitle {
-    -fx-text-fill: #0891b2;
+    -fx-text-fill: rgba(255, 255, 255, 0.84);
 }
 
 .theme-light .assistant-status {
-    -fx-text-fill: #475569;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
 }
 
 .theme-light .assistant-chip {
-    -fx-background-color: rgba(15, 23, 42, 0.06);
-    -fx-text-fill: #0f172a;
+    -fx-background-color: rgba(2, 6, 23, 0.18);
+    -fx-text-fill: #ecfdf5;
+}
+
+.theme-light .assistant-quick-actions,
+.theme-light .assistant-composer-box {
+    -fx-background-color: rgba(240, 253, 244, 0.92);
+}
+
+.theme-light .assistant-composer-box {
+    -fx-border-color: rgba(16, 185, 129, 0.18);
+}
+
+.theme-light .assistant-scroll,
+.theme-light .assistant-scroll > .viewport,
+.theme-light .assistant-messages {
+    -fx-background-color:
+        radial-gradient(center 12% 0%, radius 60%, rgba(16, 185, 129, 0.14) 0%, rgba(16, 185, 129, 0.0) 58%),
+        #f8fafc;
 }
 
 .theme-light .assistant-quick-action-button,
-.theme-light .assistant-close-button,
 .theme-light .assistant-toggle-button,
-.theme-light .assistant-mic-button {
-    -fx-background-color: rgba(15, 23, 42, 0.07);
+.theme-light .assistant-mic-off {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(16, 185, 129, 0.18);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
     -fx-text-fill: #0f172a;
 }
 
+.theme-light .assistant-close-button {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-border-color: rgba(255, 255, 255, 0.36);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+}
+
+.theme-light .assistant-mic-on {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
+    -fx-border-color: rgba(34, 197, 94, 0.42);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-text-fill: #052e16;
+}
+
 .theme-light .assistant-send-button {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #0ea5e9 100%);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
     -fx-text-fill: white;
 }
 
@@ -234,12 +281,15 @@
 }
 
 .theme-light .assistant-message-assistant {
-    -fx-background-color: rgba(15, 23, 42, 0.055);
-    -fx-text-fill: #0f172a;
+    -fx-background-color: rgba(220, 252, 231, 0.82);
+    -fx-border-color: rgba(16, 185, 129, 0.2);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-text-fill: #064e3b;
 }
 
 .theme-light .assistant-message-user {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f766e 0%, #0ea5e9 100%);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
     -fx-text-fill: white;
 }
 
@@ -268,10 +318,8 @@
 
 .theme-dark .assistant-panel,
 .theme-dark.assistant-panel {
-    -fx-background-color:
-        radial-gradient(center 18% 10%, radius 46%, rgba(34, 211, 238, 0.18) 0%, rgba(34, 211, 238, 0.0) 52%),
-        linear-gradient(from 0% 0% to 100% 100%, rgba(5, 12, 27, 0.98) 0%, rgba(8, 27, 46, 0.95) 42%, rgba(7, 58, 52, 0.93) 100%);
-    -fx-border-color: rgba(125, 211, 252, 0.22);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0b1626 0%, #0f172a 100%);
+    -fx-border-color: rgba(45, 212, 191, 0.22);
 }
 
 .theme-dark .assistant-title,
@@ -280,28 +328,63 @@
 }
 
 .theme-dark .assistant-subtitle {
-    -fx-text-fill: #67e8f9;
+    -fx-text-fill: rgba(255, 255, 255, 0.84);
 }
 
 .theme-dark .assistant-status {
-    -fx-text-fill: #cbd5e1;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
 }
 
 .theme-dark .assistant-chip {
-    -fx-background-color: rgba(125, 211, 252, 0.12);
-    -fx-text-fill: #e0f2fe;
+    -fx-background-color: rgba(2, 6, 23, 0.24);
+    -fx-text-fill: #ecfdf5;
+}
+
+.theme-dark .assistant-quick-actions,
+.theme-dark .assistant-composer-box {
+    -fx-background-color: rgba(11, 18, 32, 0.94);
+}
+
+.theme-dark .assistant-composer-box {
+    -fx-border-color: rgba(31, 41, 55, 0.96);
+}
+
+.theme-dark .assistant-scroll,
+.theme-dark .assistant-scroll > .viewport,
+.theme-dark .assistant-messages {
+    -fx-background-color:
+        radial-gradient(center 12% 0%, radius 60%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0.0) 58%),
+        #111827;
 }
 
 .theme-dark .assistant-quick-action-button,
-.theme-dark .assistant-close-button,
 .theme-dark .assistant-toggle-button,
-.theme-dark .assistant-mic-button {
-    -fx-background-color: rgba(148, 163, 184, 0.12);
+.theme-dark .assistant-mic-off {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
     -fx-text-fill: #f8fafc;
 }
 
+.theme-dark .assistant-close-button {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-border-color: rgba(255, 255, 255, 0.26);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+}
+
+.theme-dark .assistant-mic-on {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
+    -fx-border-color: rgba(52, 211, 153, 0.48);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-text-fill: #052e16;
+}
+
 .theme-dark .assistant-send-button {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #22c55e 0%, #06b6d4 100%);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
     -fx-text-fill: #052e16;
 }
 
@@ -310,28 +393,31 @@
 }
 
 .theme-dark .assistant-message-assistant {
-    -fx-background-color: rgba(125, 211, 252, 0.12);
-    -fx-text-fill: #f8fafc;
+    -fx-background-color: #0f2130;
+    -fx-border-color: rgba(34, 197, 94, 0.22);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-text-fill: #bff7e2;
 }
 
 .theme-dark .assistant-message-user {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #22c55e 0%, #06b6d4 100%);
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #22c55e 100%);
     -fx-text-fill: #052e16;
 }
 
 .theme-dark .assistant-composer {
-    -fx-background-color: rgba(2, 6, 23, 0.78);
-    -fx-border-color: rgba(103, 232, 249, 0.18);
-    -fx-control-inner-background: rgba(8, 15, 31, 0.96);
-    -fx-text-fill: #f8fafc;
-    -fx-prompt-text-fill: #cbd5e1;
-    -fx-highlight-fill: #22d3ee;
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-control-inner-background: #0f172a;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #94a3b8;
+    -fx-highlight-fill: #10b981;
 }
 
 .theme-dark .assistant-composer .content,
 .theme-dark .assistant-composer .scroll-pane,
 .theme-dark .assistant-composer .scroll-pane > .viewport {
-    -fx-background-color: rgba(8, 15, 31, 0.96);
+    -fx-background-color: #0f172a;
 }
 
 .theme-dark .assistant-composer .text {

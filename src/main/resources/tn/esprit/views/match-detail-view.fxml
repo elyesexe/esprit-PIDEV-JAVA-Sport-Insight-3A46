@@ -461,7 +461,7 @@
                                 <Label fx:id="oddsUpdatedLabel" text="Derniere mise a jour inconnue" styleClass="odds-meta-value"/>
                             </HBox>
 
-                            <VBox fx:id="oddsMarketsContainer" spacing="10"/>
+                            <VBox fx:id="oddsMarketsContainer" spacing="8" alignment="TOP_CENTER"/>
 
                             <VBox spacing="8" styleClass="odds-gesture-card">
                                 <HBox alignment="CENTER_LEFT" spacing="10">

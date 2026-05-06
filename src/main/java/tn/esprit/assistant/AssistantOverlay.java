@@ -57,7 +57,7 @@ public final class AssistantOverlay extends StackPane {
     private final FlowPane quickActionsBox = new FlowPane();
     private final TextArea composer = new TextArea();
     private final Button sendButton = new Button("Send");
-    private final Button micButton = new Button("Mic");
+    private final Button micButton = new Button("Mic off");
     private final ToggleButton speakToggle = new ToggleButton("Voice");
     private final StackPane launcherOrb = new StackPane();
 
@@ -127,12 +127,15 @@ public final class AssistantOverlay extends StackPane {
 
     private void configurePanel() {
         panel.getStyleClass().add("assistant-panel");
-        panel.setPrefWidth(388);
-        panel.setMaxWidth(388);
+        panel.setSpacing(0);
+        panel.setPrefWidth(420);
+        panel.setMaxWidth(420);
+        panel.setPrefHeight(560);
+        panel.setMaxHeight(560);
 
-        Label titleLabel = new Label("Jarvis");
+        Label titleLabel = new Label("Sport Insight AI");
         titleLabel.getStyleClass().add("assistant-title");
-        Label subtitleLabel = new Label("Voice Copilot");
+        Label subtitleLabel = new Label("Match detail copilot");
         subtitleLabel.getStyleClass().add("assistant-subtitle");
         VBox titleBox = new VBox(1, titleLabel, subtitleLabel);
         titleBox.getStyleClass().add("assistant-title-box");
@@ -155,7 +158,7 @@ public final class AssistantOverlay extends StackPane {
         wakeChip.getStyleClass().add("assistant-chip");
         refreshWakeChip();
 
-        Button closeButton = new Button("Close");
+        Button closeButton = new Button("X");
         closeButton.getStyleClass().add("assistant-close-button");
         closeButton.setOnAction(event -> togglePanel(false));
 
@@ -219,9 +222,12 @@ public final class AssistantOverlay extends StackPane {
                     : "Voice replies are muted. Turn Voice back on for spoken answers.");
         });
 
+        refreshMicButtonState();
+
         HBox actions = new HBox(8, speakToggle, micButton, new Region(), sendButton);
         HBox.setHgrow(actions.getChildren().get(2), Priority.ALWAYS);
         actions.setAlignment(Pos.CENTER_LEFT);
+        actions.getStyleClass().add("assistant-actions-row");
 
         VBox composerBox = new VBox(8, composer, actions);
         composerBox.getStyleClass().add("assistant-composer-box");
@@ -304,7 +310,7 @@ public final class AssistantOverlay extends StackPane {
 
     private void handleMicButton() {
         if (!service.isVoiceRecording()) {
-            beginVoiceRecording("Listening... Speak naturally, then click Stop and I'll answer back with voice.");
+            beginVoiceRecording("Microphone on. Speak naturally, then click Mic on to stop and send.");
             return;
         }
 
@@ -312,7 +318,7 @@ public final class AssistantOverlay extends StackPane {
         refreshStatus("Stopping the microphone and preparing transcription...");
         service.stopVoiceRecording(this::refreshStatus).whenComplete((result, throwable) -> Platform.runLater(() -> {
             micButton.setDisable(false);
-            micButton.setText("Mic");
+            refreshMicButtonState();
             refreshWakeChip();
             updateListeningState();
             if (throwable != null) {
@@ -341,11 +347,12 @@ public final class AssistantOverlay extends StackPane {
 
         try {
             service.startVoiceRecording(update -> Platform.runLater(() -> handleVoiceUpdate(update)));
-            micButton.setText("Stop");
+            refreshMicButtonState();
             refreshWakeChip();
             updateListeningState();
             refreshStatus(statusText);
         } catch (Exception ex) {
+            refreshMicButtonState();
             refreshWakeChip();
             updateListeningState();
             refreshStatus("Microphone setup failed: " + ex.getMessage());
@@ -450,9 +457,7 @@ public final class AssistantOverlay extends StackPane {
     private void setBusy(boolean busy, String statusText) {
         composer.setDisable(busy);
         sendButton.setDisable(busy);
-        if (!service.isVoiceRecording()) {
-            micButton.setText("Mic");
-        }
+        refreshMicButtonState();
         updateListeningState();
         if (!busy) {
             refreshStatus(statusText);
@@ -470,7 +475,19 @@ public final class AssistantOverlay extends StackPane {
         voiceChip.setText("Voice: " + service.voiceLabel() + (voiceEnabled ? " on" : " muted"));
         speakToggle.setText(voiceEnabled ? "Voice on" : "Voice off");
         refreshWakeChip();
+        refreshMicButtonState();
         updateListeningState();
+    }
+
+    private void refreshMicButtonState() {
+        micButton.getStyleClass().removeAll("assistant-mic-on", "assistant-mic-off");
+        if (service.isVoiceRecording()) {
+            micButton.setText("Mic on");
+            micButton.getStyleClass().add("assistant-mic-on");
+            return;
+        }
+        micButton.setText("Mic off");
+        micButton.getStyleClass().add("assistant-mic-off");
     }
 
     private void refreshWakeChip() {

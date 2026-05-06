@@ -2839,10 +2839,10 @@
 
 .odds-market-card {
     -fx-background-color: rgba(255, 255, 255, 0.68);
-    -fx-background-radius: 11;
+    -fx-background-radius: 10;
     -fx-border-color: rgba(13, 148, 136, 0.2);
-    -fx-border-radius: 11;
-    -fx-padding: 9 10 9 10;
+    -fx-border-radius: 10;
+    -fx-padding: 6 7 7 7;
 }
 
 .odds-market-winner {
@@ -2862,7 +2862,7 @@
 
 .odds-market-title {
     -fx-font-family: "Bahnschrift SemiBold";
-    -fx-font-size: 15px;
+    -fx-font-size: 13px;
     -fx-font-weight: 900;
     -fx-text-fill: #042f2e;
 }
@@ -2872,8 +2872,8 @@
     -fx-background-radius: 999;
     -fx-border-color: rgba(13, 148, 136, 0.2);
     -fx-border-radius: 999;
-    -fx-padding: 3 7 3 7;
-    -fx-font-size: 11px;
+    -fx-padding: 2 6 2 6;
+    -fx-font-size: 10px;
     -fx-font-weight: 900;
     -fx-text-fill: #0f766e;
 }
@@ -2881,8 +2881,8 @@
 .odds-market-state {
     -fx-background-radius: 999;
     -fx-border-radius: 999;
-    -fx-padding: 4 8 4 8;
-    -fx-font-size: 11px;
+    -fx-padding: 3 7 3 7;
+    -fx-font-size: 10px;
     -fx-font-weight: 900;
 }
 
@@ -2907,7 +2907,7 @@
 }
 
 .odds-bookmaker-row {
-    -fx-padding: 5 6 5 6;
+    -fx-padding: 3 4 3 4;
     -fx-background-radius: 8;
 }
 
@@ -2916,7 +2916,7 @@
 }
 
 .odds-bookmaker-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 11px;
     -fx-font-weight: 900;
     -fx-text-fill: #0f172a;
 }
@@ -2926,24 +2926,24 @@
     -fx-background-radius: 8;
     -fx-border-color: rgba(148, 163, 184, 0.28);
     -fx-border-radius: 8;
-    -fx-padding: 4 7 4 7;
+    -fx-padding: 2 4 2 4;
 }
 
 .odds-selection-label {
-    -fx-font-size: 11px;
+    -fx-font-size: 10px;
     -fx-font-weight: 900;
     -fx-text-fill: #475569;
 }
 
 .odds-selection-odd {
     -fx-font-family: "Bahnschrift SemiBold";
-    -fx-font-size: 13px;
+    -fx-font-size: 11.5px;
     -fx-font-weight: 900;
     -fx-text-fill: #0f172a;
 }
 
 .odds-selection-signal {
-    -fx-font-size: 9px;
+    -fx-font-size: 8px;
     -fx-font-weight: 900;
     -fx-text-fill: #64748b;
 }
