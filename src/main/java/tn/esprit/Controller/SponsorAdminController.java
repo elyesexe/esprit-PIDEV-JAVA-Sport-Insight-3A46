@@ -27,11 +27,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.util.converter.DefaultStringConverter;
 import tn.esprit.entities.ContratSponsor;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Sponsor;
@@ -40,6 +42,7 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.ContratSponsorService;
+import tn.esprit.services.ContractGenerationService;
 import tn.esprit.services.ContractQrCodeService;
 import tn.esprit.services.NotificationService;
 import tn.esprit.services.SponsorService;
@@ -52,6 +55,7 @@ import tn.esprit.tools.SponsorAssets;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -77,6 +81,8 @@ public class SponsorAdminController {
     private static final String CONTRACT_SORT_RECENT = "Newest";
     private static final String CONTRACT_SORT_AMOUNT = "Highest amount";
     private static final String CONTRACT_SORT_SPONSOR = "Sponsor name";
+    private static final int ADMIN_SPONSOR_PAGE_SIZE = 8;
+    private static final int ADMIN_CONTRACT_PAGE_SIZE = 8;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("sponsor-admin-db"));
 
@@ -109,6 +115,9 @@ public class SponsorAdminController {
     @FXML private TableColumn<SponsorRow, String> sponsorBudgetColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorContractsColumn;
     @FXML private TableColumn<SponsorRow, String> sponsorAddressColumn;
+    @FXML private Button sponsorPreviousPageButton;
+    @FXML private Button sponsorNextPageButton;
+    @FXML private Label sponsorPaginationLabel;
     @FXML private Label sponsorTabStatusLabel;
     @FXML private Label sponsorFormHintLabel;
     @FXML private TextField sponsorNameField;
@@ -130,6 +139,9 @@ public class SponsorAdminController {
     @FXML private TableColumn<ContractRow, String> contractPaymentColumn;
     @FXML private TableColumn<ContractRow, String> contractPeriodColumn;
     @FXML private TableColumn<ContractRow, String> contractStatusColumn;
+    @FXML private Button contractPreviousPageButton;
+    @FXML private Button contractNextPageButton;
+    @FXML private Label contractPaginationLabel;
     @FXML private Label contractTabStatusLabel;
     @FXML private Label contractFormHintLabel;
     @FXML private DatePicker contractStartDateField;
@@ -163,13 +175,18 @@ public class SponsorAdminController {
     private ContractQrCodeService qrCodeService;
     private SponsorMapViewService sponsorMapViewService;
     private SponsorSentimentAnalysisService sentimentAnalysisService;
+    private ContractGenerationService contractGenerationService;
     private SponsorService sponsorService;
     private ContratSponsorService contratSponsorService;
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
+    private List<SponsorRow> filteredSponsorRows = List.of();
+    private List<ContractRow> filteredContractRows = List.of();
     private SponsorRow selectedSponsorRow;
     private ContractRow selectedContractRow;
     private boolean darkMode;
     private final AtomicLong refreshSequence = new AtomicLong();
+    private int sponsorPageIndex;
+    private int contractPageIndex;
 
     @FXML
     public void initialize() {
@@ -178,6 +195,7 @@ public class SponsorAdminController {
         qrCodeService = new ContractQrCodeService();
         sponsorMapViewService = new SponsorMapViewService();
         sentimentAnalysisService = new SponsorSentimentAnalysisService();
+        contractGenerationService = new ContractGenerationService();
         configureOverview();
         configureSponsorTable();
         configureContractTable();
@@ -257,6 +275,7 @@ public class SponsorAdminController {
     }
 
     private void configureSponsorTable() {
+        sponsorTableView.setEditable(true);
         sponsorLogoColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
                 buildLogoNode(
                         cell.getValue().sponsor().getLogoName(),
@@ -285,18 +304,69 @@ public class SponsorAdminController {
         sponsorBudgetColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatCurrency(cell.getValue().sponsor().getBudget())));
         sponsorContractsColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(String.valueOf(cell.getValue().contractCount())));
         sponsorAddressColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(fallbackText(cell.getValue().sponsor().getAdresse(), "-")));
+        configureEditableSponsorColumns();
         sponsorTableView.setItems(sponsorRows);
         sponsorTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         sponsorTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             selectedSponsorRow = newValue;
             if (newValue == null) {
-                sponsorFormHintLabel.setText("Create a new sponsor or select one to edit it.");
+                sponsorFormHintLabel.setText("Create a new sponsor or double-click a table cell to edit it inline.");
                 return;
             }
-            populateSponsorForm(newValue.sponsor());
             selectSentimentSponsor(newValue.sponsor());
-            sponsorFormHintLabel.setText("Editing sponsor #" + newValue.sponsor().getId());
+            sponsorFormHintLabel.setText("Selected sponsor #" + newValue.sponsor().getId() + ". Double-click a cell to edit it inline.");
         });
+    }
+
+    private void configureEditableSponsorColumns() {
+        sponsorNameColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        sponsorEmailColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        sponsorPhoneColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        sponsorAddressColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        sponsorBudgetColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+
+        sponsorNameColumn.setOnEditCommit(event -> updateSponsorInline(event.getRowValue(), sponsor -> sponsor.setNom(event.getNewValue())));
+        sponsorEmailColumn.setOnEditCommit(event -> {
+            String updatedEmail = optionalText(event.getNewValue());
+            if (updatedEmail == null || !updatedEmail.contains("@")) {
+                refreshWorkspace("Invalid sponsor email.", "status-warning");
+                showSponsorStatus("Inline update cancelled: invalid email.", "status-warning");
+                return;
+            }
+            updateSponsorInline(event.getRowValue(), sponsor -> sponsor.setEmail(updatedEmail));
+        });
+        sponsorPhoneColumn.setOnEditCommit(event -> updateSponsorInline(event.getRowValue(), sponsor -> sponsor.setTelephone(fallbackText(event.getNewValue(), "-"))));
+        sponsorAddressColumn.setOnEditCommit(event -> updateSponsorInline(event.getRowValue(), sponsor -> sponsor.setAdresse(fallbackText(event.getNewValue(), "-"))));
+        sponsorBudgetColumn.setOnEditCommit(event -> {
+            try {
+                double parsedBudget = Double.parseDouble(fallbackText(event.getNewValue(), "0").replace("DT", "").replace(",", "").trim());
+                if (parsedBudget <= 0) {
+                    throw new NumberFormatException("non-positive");
+                }
+                updateSponsorInline(event.getRowValue(), sponsor -> sponsor.setBudget(parsedBudget));
+            } catch (NumberFormatException exception) {
+                refreshWorkspace("Invalid sponsor budget.", "status-warning");
+                showSponsorStatus("Inline update cancelled: budget must be a positive number.", "status-warning");
+            }
+        });
+    }
+
+    private void updateSponsorInline(SponsorRow row, SponsorMutation mutation) {
+        if (row == null || row.sponsor() == null) {
+            return;
+        }
+        Sponsor sponsor = row.sponsor();
+        try {
+            mutation.apply(sponsor);
+            sponsor.setUpdatedAt(LocalDateTime.now());
+            sponsorService.update(sponsor);
+            refreshWorkspace("Sponsor updated.", "status-success");
+            showSponsorStatus("Sponsor updated directly from the table.", "status-success");
+        } catch (SQLException e) {
+            refreshWorkspace("Sponsor update failed.", "status-error");
+            showSponsorStatus("Inline sponsor update failed.", "status-error");
+            showError("Sponsor", "Could not update the sponsor.\n" + e.getMessage());
+        }
     }
 
     private void configureContractTable() {
@@ -405,25 +475,7 @@ public class SponsorAdminController {
 
     @FXML
     private void handleUpdateSponsor() {
-        clearSponsorValidation();
-        if (selectedSponsorRow == null) {
-            showSponsorValidation("Select a sponsor before updating.");
-            return;
-        }
-        Sponsor sponsor = buildSponsorFromForm();
-        if (sponsor == null) {
-            return;
-        }
-        sponsor.setId(selectedSponsorRow.sponsor().getId());
-        try {
-            sponsorService.update(sponsor);
-            refreshWorkspace("Sponsor updated.", "status-success");
-            clearSponsorForm();
-            showSponsorStatus("Sponsor updated successfully.", "status-success");
-        } catch (SQLException e) {
-            showSponsorStatus("Sponsor update failed.", "status-error");
-            showError("Sponsor", "Could not update the sponsor.\n" + e.getMessage());
-        }
+        showSponsorStatus("Use double-click on a sponsor table cell to edit it directly.", "status-muted");
     }
 
     @FXML
@@ -469,6 +521,38 @@ public class SponsorAdminController {
     @FXML
     private void handleRefreshContracts() {
         refreshWorkspace("Contracts refreshed.", "status-success");
+    }
+
+    @FXML
+    private void handleSponsorPreviousPage() {
+        if (sponsorPageIndex > 0) {
+            sponsorPageIndex--;
+            updateSponsorPage();
+        }
+    }
+
+    @FXML
+    private void handleSponsorNextPage() {
+        if (sponsorPageIndex + 1 < computeTotalPages(filteredSponsorRows.size(), ADMIN_SPONSOR_PAGE_SIZE)) {
+            sponsorPageIndex++;
+            updateSponsorPage();
+        }
+    }
+
+    @FXML
+    private void handleContractPreviousPage() {
+        if (contractPageIndex > 0) {
+            contractPageIndex--;
+            updateContractPage();
+        }
+    }
+
+    @FXML
+    private void handleContractNextPage() {
+        if (contractPageIndex + 1 < computeTotalPages(filteredContractRows.size(), ADMIN_CONTRACT_PAGE_SIZE)) {
+            contractPageIndex++;
+            updateContractPage();
+        }
     }
 
     @FXML
@@ -536,6 +620,63 @@ public class SponsorAdminController {
     @FXML
     private void handleClearContract() {
         clearContractForm();
+    }
+
+    @FXML
+    private void handleGenerateContractDraft() {
+        clearContractValidation();
+        ContratSponsor contrat = buildContractFromForm();
+        if (contrat == null) {
+            return;
+        }
+        ContractGenerationService.ContractDraft draft = buildContractDraftFromForm();
+        if (draft == null) {
+            return;
+        }
+        Sponsor sponsor = snapshot == null ? null : snapshot.sponsorsById().get(contrat.getSponsorId());
+        Equipe equipe = snapshot == null ? null : snapshot.equipesById().get(contrat.getEquipeId());
+
+        showContractStatus("Generating contract, saving it, and exporting PDF...", "status-muted");
+        Task<GeneratedContractWorkflowResult> generationTask = new Task<>() {
+            @Override
+            protected GeneratedContractWorkflowResult call() throws Exception {
+                ContractGenerationService.GeneratedContract generated = contractGenerationService.generateContractDraft(draft);
+                String description = generated == null || generated.body() == null || generated.body().isBlank()
+                        ? contractGenerationService.generateContractDraft(draft).body()
+                        : generated.body();
+                contrat.setDescription(description);
+                contratSponsorService.add(contrat);
+
+                Path pdfTarget = buildGeneratedContractPdfTarget(
+                        safeSlug(draft.sponsorName()),
+                        safeSlug(draft.teamName())
+                );
+                pdfService.exportContractPdf(pdfTarget, contrat, sponsor, equipe);
+                return new GeneratedContractWorkflowResult(contrat, sponsor, equipe, pdfTarget, generated == null ? ContractGenerationService.SOURCE_LOCAL_TEMPLATE : generated.source());
+            }
+        };
+
+        generationTask.setOnSucceeded(event -> {
+            GeneratedContractWorkflowResult result = generationTask.getValue();
+            contractDescriptionArea.setText(result.contrat().getDescription());
+            refreshWorkspace("Contract generated and added.", "status-success");
+            openFile(result.pdfPath());
+            clearContractForm();
+            String sourceLabel = switch (result.source()) {
+                case ContractGenerationService.SOURCE_OPENAI -> "AI contract generated, saved, and exported to PDF.";
+                case ContractGenerationService.SOURCE_OPENAI_FALLBACK -> "Contract saved and PDF exported with local fallback after AI issue.";
+                default -> "Contract saved and PDF exported with local template.";
+            };
+            showContractStatus(sourceLabel, "status-success");
+        });
+
+        generationTask.setOnFailed(event -> {
+            showContractStatus("Contract generation failed.", "status-error");
+            Throwable exception = generationTask.getException();
+            showError("Contract AI", "Could not generate a contract draft.\n" + (exception == null ? "" : exception.getMessage()));
+        });
+
+        DB_EXECUTOR.execute(generationTask);
     }
 
     @FXML
@@ -953,7 +1094,9 @@ public class SponsorAdminController {
 
     private void applySponsorFilters() {
         if (snapshot == null) {
+            filteredSponsorRows = List.of();
             sponsorRows.clear();
+            updateSponsorPaginationControls();
             return;
         }
 
@@ -976,12 +1119,16 @@ public class SponsorAdminController {
         }
 
         rows.sort(resolveSponsorComparator(sponsorSortComboBox.getValue()));
-        sponsorRows.setAll(rows);
+        filteredSponsorRows = rows;
+        sponsorPageIndex = 0;
+        updateSponsorPage();
     }
 
     private void applyContractFilters() {
         if (snapshot == null) {
+            filteredContractRows = List.of();
             contractRows.clear();
+            updateContractPaginationControls();
             return;
         }
 
@@ -1000,7 +1147,49 @@ public class SponsorAdminController {
                 .sorted(resolveContractComparator(contractSortComboBox.getValue()))
                 .toList();
 
-        contractRows.setAll(rows);
+        filteredContractRows = rows;
+        contractPageIndex = 0;
+        updateContractPage();
+    }
+
+    private void updateSponsorPage() {
+        int totalPages = computeTotalPages(filteredSponsorRows.size(), ADMIN_SPONSOR_PAGE_SIZE);
+        sponsorPageIndex = clampPageIndex(sponsorPageIndex, totalPages);
+        sponsorRows.setAll(slicePage(filteredSponsorRows, sponsorPageIndex, ADMIN_SPONSOR_PAGE_SIZE));
+        updateSponsorPaginationControls();
+    }
+
+    private void updateContractPage() {
+        int totalPages = computeTotalPages(filteredContractRows.size(), ADMIN_CONTRACT_PAGE_SIZE);
+        contractPageIndex = clampPageIndex(contractPageIndex, totalPages);
+        contractRows.setAll(slicePage(filteredContractRows, contractPageIndex, ADMIN_CONTRACT_PAGE_SIZE));
+        updateContractPaginationControls();
+    }
+
+    private void updateSponsorPaginationControls() {
+        int totalPages = computeTotalPages(filteredSponsorRows.size(), ADMIN_SPONSOR_PAGE_SIZE);
+        if (sponsorPaginationLabel != null) {
+            sponsorPaginationLabel.setText(buildPaginationLabel(sponsorPageIndex, totalPages, filteredSponsorRows.size()));
+        }
+        if (sponsorPreviousPageButton != null) {
+            sponsorPreviousPageButton.setDisable(sponsorPageIndex <= 0);
+        }
+        if (sponsorNextPageButton != null) {
+            sponsorNextPageButton.setDisable(sponsorPageIndex + 1 >= totalPages);
+        }
+    }
+
+    private void updateContractPaginationControls() {
+        int totalPages = computeTotalPages(filteredContractRows.size(), ADMIN_CONTRACT_PAGE_SIZE);
+        if (contractPaginationLabel != null) {
+            contractPaginationLabel.setText(buildPaginationLabel(contractPageIndex, totalPages, filteredContractRows.size()));
+        }
+        if (contractPreviousPageButton != null) {
+            contractPreviousPageButton.setDisable(contractPageIndex <= 0);
+        }
+        if (contractNextPageButton != null) {
+            contractNextPageButton.setDisable(contractPageIndex + 1 >= totalPages);
+        }
     }
 
     private Comparator<SponsorRow> resolveSponsorComparator(String sortMode) {
@@ -1123,7 +1312,57 @@ public class SponsorAdminController {
         return contrat;
     }
 
+    private ContractGenerationService.ContractDraft buildContractDraftFromForm() {
+        LocalDate startDate = contractStartDateField.getValue();
+        LocalDate endDate = contractEndDateField.getValue();
+        Double amount = parsePositiveDouble(contractAmountField, "Amount", contractValidationLabel);
+        if (amount == null) {
+            return null;
+        }
+
+        SponsorOption sponsorOption = contractSponsorField.getValue();
+        TeamOption teamOption = contractTeamField.getValue();
+        if (sponsorOption == null) {
+            markInvalid(contractSponsorField);
+            showContractValidation("Sponsor selection is required.");
+            return null;
+        }
+        if (teamOption == null) {
+            markInvalid(contractTeamField);
+            showContractValidation("Team selection is required.");
+            return null;
+        }
+        if (startDate == null) {
+            markInvalid(contractStartDateField);
+            showContractValidation("Start date is required.");
+            return null;
+        }
+        if (endDate == null) {
+            markInvalid(contractEndDateField);
+            showContractValidation("End date is required.");
+            return null;
+        }
+        if (endDate.isBefore(startDate)) {
+            markInvalid(contractEndDateField);
+            showContractValidation("End date must be after the start date.");
+            return null;
+        }
+
+        return new ContractGenerationService.ContractDraft(
+                sponsorOption.label(),
+                teamOption.label(),
+                startDate,
+                endDate,
+                amount,
+                fallbackText(contractStatusField.getValue(), "ACTIVE"),
+                fallbackText(contractPaymentField.getValue(), "PENDING")
+        );
+    }
+
     private void populateSponsorForm(Sponsor sponsor) {
+        if (sponsor == null) {
+            return;
+        }
         sponsorNameField.setText(fallbackText(sponsor.getNom(), ""));
         sponsorEmailField.setText(fallbackText(sponsor.getEmail(), ""));
         sponsorPhoneField.setText(fallbackText(sponsor.getTelephone(), ""));
@@ -1165,7 +1404,7 @@ public class SponsorAdminController {
         sponsorAddressField.clear();
         sponsorLogoField.clear();
         sponsorLogoPreviewBox.getChildren().clear();
-        sponsorFormHintLabel.setText("Create a new sponsor or select one to edit it.");
+        sponsorFormHintLabel.setText("Create a new sponsor or double-click a table cell to edit it inline.");
         clearSponsorValidation();
     }
 
@@ -1311,6 +1550,13 @@ public class SponsorAdminController {
         return selected == null ? null : selected.toPath();
     }
 
+    private Path buildGeneratedContractPdfTarget(String sponsorSlug, String teamSlug) throws IOException {
+        Path directory = Path.of("generated", "contracts");
+        Files.createDirectories(directory);
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        return directory.resolve(fallbackText(sponsorSlug, "contract") + "-" + fallbackText(teamSlug, "team") + "-" + timestamp + ".pdf");
+    }
+
     private void openFile(Path path) {
         if (path == null) {
             return;
@@ -1378,6 +1624,33 @@ public class SponsorAdminController {
     private String normalizeFilter(String value) {
         String normalized = normalize(value);
         return normalized == null || FILTER_ALL.equalsIgnoreCase(value) ? null : normalized;
+    }
+
+    private <T> List<T> slicePage(List<T> items, int pageIndex, int pageSize) {
+        if (items == null || items.isEmpty()) {
+            return List.of();
+        }
+        int fromIndex = Math.max(0, pageIndex * pageSize);
+        if (fromIndex >= items.size()) {
+            return List.of();
+        }
+        int toIndex = Math.min(items.size(), fromIndex + pageSize);
+        return items.subList(fromIndex, toIndex);
+    }
+
+    private int computeTotalPages(int totalItems, int pageSize) {
+        return Math.max(1, (int) Math.ceil((double) Math.max(0, totalItems) / Math.max(1, pageSize)));
+    }
+
+    private int clampPageIndex(int pageIndex, int totalPages) {
+        return Math.max(0, Math.min(pageIndex, Math.max(0, totalPages - 1)));
+    }
+
+    private String buildPaginationLabel(int pageIndex, int totalPages, int totalItems) {
+        if (totalItems <= 0) {
+            return "Page 0/0 | 0 item";
+        }
+        return "Page " + (pageIndex + 1) + "/" + totalPages + " | " + totalItems + " items";
     }
 
     private void markInvalid(Node node) {
@@ -1490,6 +1763,20 @@ public class SponsorAdminController {
         public String toString() {
             return label;
         }
+    }
+
+    @FunctionalInterface
+    private interface SponsorMutation {
+        void apply(Sponsor sponsor) throws SQLException;
+    }
+
+    private record GeneratedContractWorkflowResult(
+            ContratSponsor contrat,
+            Sponsor sponsor,
+            Equipe equipe,
+            Path pdfPath,
+            String source
+    ) {
     }
 
     private static ThreadFactory daemonFactory(String name) {

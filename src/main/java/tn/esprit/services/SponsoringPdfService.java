@@ -10,6 +10,7 @@ import tn.esprit.entities.ContratSponsor;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Sponsor;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +26,14 @@ public class SponsoringPdfService {
     private static final float TITLE_FONT_SIZE = 22f;
     private static final float SUBTITLE_FONT_SIZE = 13f;
     private static final float LINE_HEIGHT = 16f;
+    private static final float SECTION_GAP = 18f;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm", Locale.ENGLISH);
+    private static final Color PRIMARY = new Color(21, 94, 117);
+    private static final Color SECONDARY = new Color(15, 23, 42);
+    private static final Color ACCENT = new Color(14, 165, 164);
+    private static final Color MUTED = new Color(100, 116, 139);
+    private static final Color PANEL = new Color(245, 247, 250);
+    private static final Color BORDER = new Color(203, 213, 225);
 
     private final PDType1Font regularFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
     private final PDType1Font boldFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
@@ -46,27 +54,37 @@ public class SponsoringPdfService {
 
             try (PDPageContentStream content = new PDPageContentStream(document, page)) {
                 float y = page.getMediaBox().getHeight() - PAGE_MARGIN;
-                y = writeTitle(content, "Sponsor Contract", "Sport Insight sponsorship module", y);
+                drawHeaderBand(content, page);
+                y = writeHeroTitle(content, page, "Professional Sponsorship Contract", "Sport Insight | Partnership Office", y - 6f);
 
-                y = writeSectionHeading(content, "Contract summary", y);
-                y = writeWrapped(content, "Sponsor: " + safeName(sponsor == null ? null : sponsor.getNom(), "Unknown sponsor"), y);
-                y = writeWrapped(content, "Team: " + safeName(equipe == null ? null : equipe.getNom(), "Unknown team"), y);
-                y = writeWrapped(content, "Amount: " + formatCurrency(contrat == null ? 0.0 : contrat.getMontant()), y);
-                y = writeWrapped(content, "Start date: " + formatDate(contrat == null ? null : contrat.getDateDebut()), y);
-                y = writeWrapped(content, "End date: " + formatDate(contrat == null ? null : contrat.getDateFin()), y);
-                y = writeWrapped(content, "Status: " + safeName(contrat == null ? null : contrat.getStatut(), "ACTIVE"), y);
-                y = writeWrapped(content, "Payment status: " + safeName(contrat == null ? null : contrat.getStatutPaiement(), "PENDING"), y);
+                y = writeContractMetaPanel(content, page, contrat, sponsor, equipe, y - 8f);
+                y = writeProfessionalSection(content, page, "Parties", List.of(
+                        "Sponsor: " + safeName(sponsor == null ? null : sponsor.getNom(), "Unknown sponsor"),
+                        "Team: " + safeName(equipe == null ? null : equipe.getNom(), "Unknown team")
+                ), y);
 
-                y -= 6f;
-                y = writeSectionHeading(content, "Sponsor contact", y);
-                y = writeWrapped(content, "Email: " + safeName(sponsor == null ? null : sponsor.getEmail(), "-"), y);
-                y = writeWrapped(content, "Phone: " + safeName(sponsor == null ? null : sponsor.getTelephone(), "-"), y);
-                y = writeWrapped(content, "Address: " + safeName(sponsor == null ? null : sponsor.getAdresse(), "-"), y);
+                y = writeProfessionalSection(content, page, "Commercial Terms", List.of(
+                        "Contract value: " + formatCurrency(contrat == null ? 0.0 : contrat.getMontant()),
+                        "Contract status: " + safeName(contrat == null ? null : contrat.getStatut(), "ACTIVE"),
+                        "Payment status: " + safeName(contrat == null ? null : contrat.getStatutPaiement(), "PENDING"),
+                        "Effective period: " + formatDate(contrat == null ? null : contrat.getDateDebut()) + " to " + formatDate(contrat == null ? null : contrat.getDateFin())
+                ), y);
 
-                y -= 6f;
-                y = writeSectionHeading(content, "Description", y);
-                y = writeWrapped(content, safeName(contrat == null ? null : contrat.getDescription(), "No description provided."), y);
+                y = writeProfessionalSection(content, page, "Sponsor Contact", List.of(
+                        "Email: " + safeName(sponsor == null ? null : sponsor.getEmail(), "-"),
+                        "Phone: " + safeName(sponsor == null ? null : sponsor.getTelephone(), "-"),
+                        "Address: " + safeName(sponsor == null ? null : sponsor.getAdresse(), "-")
+                ), y);
 
+                y = writeDescriptionSection(
+                        content,
+                        page,
+                        "Contract Clauses",
+                        safeName(contrat == null ? null : contrat.getDescription(), "No description provided."),
+                        y
+                );
+
+                writeSignatureBlock(content, page);
                 writeFooter(content, page, "Generated " + DATE_TIME_FORMATTER.format(LocalDateTime.now()));
             }
 
@@ -199,6 +217,7 @@ public class SponsoringPdfService {
     }
 
     private void writeFooter(PDPageContentStream content, PDPage page, String footer) throws IOException {
+        content.setNonStrokingColor(MUTED);
         beginText(content, italicFont, 9.5f, PAGE_MARGIN, PAGE_MARGIN - 12f);
         content.showText(footer);
         content.endText();
@@ -212,6 +231,136 @@ public class SponsoringPdfService {
         );
         content.showText("Page 1");
         content.endText();
+        content.setNonStrokingColor(Color.BLACK);
+    }
+
+    private void drawHeaderBand(PDPageContentStream content, PDPage page) throws IOException {
+        content.setNonStrokingColor(PRIMARY);
+        content.addRect(0, page.getMediaBox().getHeight() - 110f, page.getMediaBox().getWidth(), 110f);
+        content.fill();
+        content.setNonStrokingColor(Color.WHITE);
+    }
+
+    private float writeHeroTitle(PDPageContentStream content, PDPage page, String title, String subtitle, float startY) throws IOException {
+        beginText(content, boldFont, TITLE_FONT_SIZE, PAGE_MARGIN, startY);
+        content.showText(title);
+        content.endText();
+
+        beginText(content, italicFont, SUBTITLE_FONT_SIZE, PAGE_MARGIN, startY - 24f);
+        content.showText(subtitle);
+        content.endText();
+
+        content.setNonStrokingColor(new Color(210, 250, 250));
+        drawRoundedPanel(content, page.getMediaBox().getWidth() - PAGE_MARGIN - 122f, startY - 34f, 122f, 26f, ACCENT);
+        content.setNonStrokingColor(Color.WHITE);
+        beginText(content, boldFont, 10.5f, page.getMediaBox().getWidth() - PAGE_MARGIN - 106f, startY - 18f);
+        content.showText("READY TO SIGN");
+        content.endText();
+        content.setNonStrokingColor(SECONDARY);
+        return startY - 52f;
+    }
+
+    private float writeContractMetaPanel(PDPageContentStream content, PDPage page, ContratSponsor contrat, Sponsor sponsor, Equipe equipe, float startY) throws IOException {
+        float panelHeight = 110f;
+        float panelWidth = page.getMediaBox().getWidth() - (PAGE_MARGIN * 2);
+        drawPanel(content, PAGE_MARGIN, startY - panelHeight + 12f, panelWidth, panelHeight);
+
+        float textY = startY - 12f;
+        textY = writeLabelValue(content, "Contract Reference", "#" + safeName(contrat == null || contrat.getId() == null ? null : String.valueOf(contrat.getId()), "Pending"), PAGE_MARGIN + 16f, textY);
+        textY = writeLabelValue(content, "Sponsor", safeName(sponsor == null ? null : sponsor.getNom(), "Unknown sponsor"), PAGE_MARGIN + 16f, textY - 3f);
+        textY = writeLabelValue(content, "Team", safeName(equipe == null ? null : equipe.getNom(), "Unknown team"), PAGE_MARGIN + 16f, textY - 3f);
+
+        float rightX = PAGE_MARGIN + (panelWidth / 2f) + 8f;
+        float rightY = startY - 12f;
+        rightY = writeLabelValue(content, "Amount", formatCurrency(contrat == null ? 0.0 : contrat.getMontant()), rightX, rightY);
+        rightY = writeLabelValue(content, "Start Date", formatDate(contrat == null ? null : contrat.getDateDebut()), rightX, rightY - 3f);
+        writeLabelValue(content, "End Date", formatDate(contrat == null ? null : contrat.getDateFin()), rightX, rightY - 3f);
+        return startY - panelHeight - 6f;
+    }
+
+    private float writeProfessionalSection(PDPageContentStream content, PDPage page, String title, List<String> lines, float startY) throws IOException {
+        float currentY = startY - SECTION_GAP;
+        currentY = writeSectionHeadingStyled(content, title, currentY);
+        for (String line : lines) {
+            currentY = writeWrapped(content, line, currentY);
+        }
+        return currentY;
+    }
+
+    private float writeDescriptionSection(PDPageContentStream content, PDPage page, String title, String description, float startY) throws IOException {
+        float currentY = startY - SECTION_GAP;
+        currentY = writeSectionHeadingStyled(content, title, currentY);
+        float boxY = currentY - 8f;
+        float boxHeight = 188f;
+        drawPanel(content, PAGE_MARGIN, boxY - boxHeight + 10f, page.getMediaBox().getWidth() - (PAGE_MARGIN * 2), boxHeight);
+        content.setNonStrokingColor(SECONDARY);
+        return writeWrappedInsideBox(content, description, PAGE_MARGIN + 18f, boxY - 14f, page.getMediaBox().getWidth() - (PAGE_MARGIN * 2) - 36f);
+    }
+
+    private float writeWrappedInsideBox(PDPageContentStream content, String text, float x, float startY, float width) throws IOException {
+        List<String> lines = wrapText(text, width, regularFont, BODY_FONT_SIZE);
+        float currentY = startY;
+        for (String line : lines) {
+            beginText(content, regularFont, BODY_FONT_SIZE, x, currentY);
+            content.showText(line);
+            content.endText();
+            currentY -= LINE_HEIGHT;
+        }
+        return currentY;
+    }
+
+    private void writeSignatureBlock(PDPageContentStream content, PDPage page) throws IOException {
+        float blockY = 126f;
+        float blockWidth = (page.getMediaBox().getWidth() - (PAGE_MARGIN * 2) - 18f) / 2f;
+        drawPanel(content, PAGE_MARGIN, blockY, blockWidth, 64f);
+        drawPanel(content, PAGE_MARGIN + blockWidth + 18f, blockY, blockWidth, 64f);
+
+        content.setNonStrokingColor(MUTED);
+        beginText(content, boldFont, 11f, PAGE_MARGIN + 16f, blockY + 44f);
+        content.showText("Sponsor Signature");
+        content.endText();
+        beginText(content, boldFont, 11f, PAGE_MARGIN + blockWidth + 34f, blockY + 44f);
+        content.showText("Team Representative");
+        content.endText();
+        content.setNonStrokingColor(SECONDARY);
+    }
+
+    private float writeSectionHeadingStyled(PDPageContentStream content, String heading, float startY) throws IOException {
+        content.setNonStrokingColor(ACCENT);
+        content.addRect(PAGE_MARGIN, startY - 9f, 4f, 18f);
+        content.fill();
+        content.setNonStrokingColor(SECONDARY);
+        beginText(content, boldFont, 13.5f, PAGE_MARGIN + 12f, startY);
+        content.showText(heading);
+        content.endText();
+        return startY - 18f;
+    }
+
+    private float writeLabelValue(PDPageContentStream content, String label, String value, float x, float y) throws IOException {
+        content.setNonStrokingColor(MUTED);
+        beginText(content, boldFont, 10f, x, y);
+        content.showText(label.toUpperCase(Locale.ROOT));
+        content.endText();
+        content.setNonStrokingColor(SECONDARY);
+        beginText(content, regularFont, 11.5f, x, y - 13f);
+        content.showText(safeName(value, "-"));
+        content.endText();
+        return y - 28f;
+    }
+
+    private void drawPanel(PDPageContentStream content, float x, float y, float width, float height) throws IOException {
+        content.setNonStrokingColor(PANEL);
+        content.addRect(x, y, width, height);
+        content.fill();
+        content.setStrokingColor(BORDER);
+        content.addRect(x, y, width, height);
+        content.stroke();
+    }
+
+    private void drawRoundedPanel(PDPageContentStream content, float x, float y, float width, float height, Color color) throws IOException {
+        content.setNonStrokingColor(color);
+        content.addRect(x, y, width, height);
+        content.fill();
     }
 
     private void beginText(PDPageContentStream content, PDType1Font font, float fontSize, float x, float y) throws IOException {

@@ -65,12 +65,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>jdk-jsobject</artifactId>
-            <version>25.0.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.github.gotson</groupId>
             <artifactId>webp-imageio</artifactId>
             <version>0.2.2</version>

@@ -79,6 +79,34 @@ public class SponsorService implements IService<Sponsor> {
         return sponsors;
     }
 
+    public PaginationResult<Sponsor> getPage(int page, int pageSize) throws SQLException {
+        int safePage = Math.max(0, page);
+        int safePageSize = Math.max(1, pageSize);
+        long totalItems = countSponsors();
+        int totalPages = totalItems == 0 ? 1 : (int) Math.ceil((double) totalItems / safePageSize);
+
+        List<Sponsor> sponsors = new ArrayList<>();
+        String query = "SELECT * FROM sponsor ORDER BY budget DESC, nom ASC LIMIT ? OFFSET ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, safePageSize);
+            statement.setInt(2, safePage * safePageSize);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    sponsors.add(mapResultSetToSponsor(resultSet));
+                }
+            }
+        }
+        return new PaginationResult<>(sponsors, safePage, safePageSize, totalItems, totalPages);
+    }
+
+    public long countSponsors() throws SQLException {
+        String query = "SELECT COUNT(*) FROM sponsor";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            return resultSet.next() ? resultSet.getLong(1) : 0L;
+        }
+    }
+
     @Override
     public Sponsor getById(int id) throws SQLException {
         String query = "SELECT * FROM sponsor WHERE id = ?";

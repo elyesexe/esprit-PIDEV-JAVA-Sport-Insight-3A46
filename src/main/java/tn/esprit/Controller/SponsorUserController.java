@@ -54,6 +54,8 @@ public class SponsorUserController {
     private static final String SORT_RECENT = "Most recent";
     private static final String SORT_AMOUNT = "Highest amount";
     private static final String SORT_NAME = "Sponsor name";
+    private static final int USER_SPONSOR_PAGE_SIZE = 6;
+    private static final int USER_CONTRACT_PAGE_SIZE = 4;
     private static final String LIGHT_PAGE_BACKGROUND = "-fx-background-color:"
             + " radial-gradient(center 16% 14%, radius 34%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 100%),"
             + " radial-gradient(center 86% 18%, radius 28%, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0) 100%),"
@@ -115,6 +117,18 @@ public class SponsorUserController {
     @FXML
     private Label contractCountLabel;
     @FXML
+    private Button sponsorPreviousPageButton;
+    @FXML
+    private Button sponsorNextPageButton;
+    @FXML
+    private Label sponsorPaginationLabel;
+    @FXML
+    private Button contractPreviousPageButton;
+    @FXML
+    private Button contractNextPageButton;
+    @FXML
+    private Label contractPaginationLabel;
+    @FXML
     private Label toolbarSummaryLabel;
     @FXML
     private Label statusLabel;
@@ -128,6 +142,10 @@ public class SponsorUserController {
     private ContractQrCodeService qrCodeService;
     private SponsorMapViewService sponsorMapViewService;
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
+    private List<Sponsor> filteredSponsors = List.of();
+    private List<ContractViewModel> filteredContracts = List.of();
+    private int sponsorPageIndex;
+    private int contractPageIndex;
 
     @FXML
     public void initialize() {
@@ -218,6 +236,38 @@ public class SponsorUserController {
     @FXML
     private void handleRefresh() {
         refreshData("Sponsor feed refreshed.");
+    }
+
+    @FXML
+    private void handleSponsorPreviousPage() {
+        if (sponsorPageIndex > 0) {
+            sponsorPageIndex--;
+            updateSponsorPage();
+        }
+    }
+
+    @FXML
+    private void handleSponsorNextPage() {
+        if (sponsorPageIndex + 1 < computeTotalPages(filteredSponsors.size(), USER_SPONSOR_PAGE_SIZE)) {
+            sponsorPageIndex++;
+            updateSponsorPage();
+        }
+    }
+
+    @FXML
+    private void handleContractPreviousPage() {
+        if (contractPageIndex > 0) {
+            contractPageIndex--;
+            updateContractPage();
+        }
+    }
+
+    @FXML
+    private void handleContractNextPage() {
+        if (contractPageIndex + 1 < computeTotalPages(filteredContracts.size(), USER_CONTRACT_PAGE_SIZE)) {
+            contractPageIndex++;
+            updateContractPage();
+        }
     }
 
     @FXML
@@ -356,8 +406,12 @@ public class SponsorUserController {
 
     private void applyFilters() {
         if (snapshot == null) {
+            filteredSponsors = List.of();
+            filteredContracts = List.of();
             sponsorCardsPane.getChildren().clear();
             contractCardsPane.getChildren().clear();
+            updateSponsorPaginationControls();
+            updateContractPaginationControls();
             return;
         }
 
@@ -383,12 +437,56 @@ public class SponsorUserController {
                         .thenComparing(sponsor -> emptyIfNull(sponsor.getNom()), String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
-        renderSponsorCards(visibleSponsors);
-        renderContractCards(visibleContracts);
+        filteredSponsors = visibleSponsors;
+        filteredContracts = visibleContracts;
+        sponsorPageIndex = 0;
+        contractPageIndex = 0;
+        updateSponsorPage();
+        updateContractPage();
 
         sponsorCountLabel.setText(visibleSponsors.size() + " visible");
         contractCountLabel.setText(visibleContracts.size() + " visible");
         toolbarSummaryLabel.setText(snapshot.stats().totalSponsors() + " sponsors / " + snapshot.stats().totalContrats() + " contracts");
+    }
+
+    private void updateSponsorPage() {
+        int totalPages = computeTotalPages(filteredSponsors.size(), USER_SPONSOR_PAGE_SIZE);
+        sponsorPageIndex = clampPageIndex(sponsorPageIndex, totalPages);
+        renderSponsorCards(slicePage(filteredSponsors, sponsorPageIndex, USER_SPONSOR_PAGE_SIZE));
+        updateSponsorPaginationControls();
+    }
+
+    private void updateContractPage() {
+        int totalPages = computeTotalPages(filteredContracts.size(), USER_CONTRACT_PAGE_SIZE);
+        contractPageIndex = clampPageIndex(contractPageIndex, totalPages);
+        renderContractCards(slicePage(filteredContracts, contractPageIndex, USER_CONTRACT_PAGE_SIZE));
+        updateContractPaginationControls();
+    }
+
+    private void updateSponsorPaginationControls() {
+        int totalPages = computeTotalPages(filteredSponsors.size(), USER_SPONSOR_PAGE_SIZE);
+        if (sponsorPaginationLabel != null) {
+            sponsorPaginationLabel.setText(buildPaginationLabel(sponsorPageIndex, totalPages, filteredSponsors.size()));
+        }
+        if (sponsorPreviousPageButton != null) {
+            sponsorPreviousPageButton.setDisable(sponsorPageIndex <= 0);
+        }
+        if (sponsorNextPageButton != null) {
+            sponsorNextPageButton.setDisable(sponsorPageIndex + 1 >= totalPages);
+        }
+    }
+
+    private void updateContractPaginationControls() {
+        int totalPages = computeTotalPages(filteredContracts.size(), USER_CONTRACT_PAGE_SIZE);
+        if (contractPaginationLabel != null) {
+            contractPaginationLabel.setText(buildPaginationLabel(contractPageIndex, totalPages, filteredContracts.size()));
+        }
+        if (contractPreviousPageButton != null) {
+            contractPreviousPageButton.setDisable(contractPageIndex <= 0);
+        }
+        if (contractNextPageButton != null) {
+            contractNextPageButton.setDisable(contractPageIndex + 1 >= totalPages);
+        }
     }
 
     private Comparator<ContractViewModel> resolveContractComparator(String sortMode) {
@@ -803,6 +901,33 @@ public class SponsorUserController {
 
     private String emptyIfNull(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private <T> List<T> slicePage(List<T> items, int pageIndex, int pageSize) {
+        if (items == null || items.isEmpty()) {
+            return List.of();
+        }
+        int fromIndex = Math.max(0, pageIndex * pageSize);
+        if (fromIndex >= items.size()) {
+            return List.of();
+        }
+        int toIndex = Math.min(items.size(), fromIndex + pageSize);
+        return items.subList(fromIndex, toIndex);
+    }
+
+    private int computeTotalPages(int totalItems, int pageSize) {
+        return Math.max(1, (int) Math.ceil((double) Math.max(0, totalItems) / Math.max(1, pageSize)));
+    }
+
+    private int clampPageIndex(int pageIndex, int totalPages) {
+        return Math.max(0, Math.min(pageIndex, Math.max(0, totalPages - 1)));
+    }
+
+    private String buildPaginationLabel(int pageIndex, int totalPages, int totalItems) {
+        if (totalItems <= 0) {
+            return "Page 0/0 | 0 item";
+        }
+        return "Page " + (pageIndex + 1) + "/" + totalPages + " | " + totalItems + " items";
     }
 
     private void showMutedStatus(String message) {

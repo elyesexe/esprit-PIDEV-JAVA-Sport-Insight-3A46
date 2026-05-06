@@ -227,6 +227,11 @@
     -fx-spacing: 12;
 }
 
+.pagination-bar {
+    -fx-alignment: center-right;
+    -fx-padding: 2 0 0 0;
+}
+
 .sentiment-metric-card {
     -fx-background-color: rgba(255, 255, 255, 0.94);
     -fx-background-radius: 18;

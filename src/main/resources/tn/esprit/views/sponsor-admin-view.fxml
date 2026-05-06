@@ -192,13 +192,19 @@
                                                 </columns>
                                             </TableView>
 
+                                            <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="pagination-bar">
+                                                <Label fx:id="sponsorPaginationLabel" text="Page 0/0 | 0 item" styleClass="section-subtitle"/>
+                                                <Button fx:id="sponsorPreviousPageButton" text="Previous" onAction="#handleSponsorPreviousPage" styleClass="ghost-button"/>
+                                                <Button fx:id="sponsorNextPageButton" text="Next" onAction="#handleSponsorNextPage" styleClass="primary-button"/>
+                                            </HBox>
+
                                             <Label fx:id="sponsorTabStatusLabel" text="Sponsor table ready" styleClass="status-muted"/>
                                         </VBox>
 
                                         <VBox spacing="12" prefWidth="390" styleClass="panel-card">
-                                            <Label text="Create / update sponsor" styleClass="section-title"/>
+                                            <Label text="Create sponsor" styleClass="section-title"/>
                                             <Label fx:id="sponsorFormHintLabel"
-                                                   text="Create a new sponsor or select one to edit it."
+                                                   text="Create a new sponsor or double-click a table cell to edit it inline."
                                                    styleClass="section-subtitle"/>
 
                                             <StackPane fx:id="sponsorLogoPreviewBox" styleClass="sponsor-logo-preview-shell" prefHeight="120"/>
@@ -221,8 +227,7 @@
 
                                             <HBox spacing="10">
                                                 <Button text="Add" onAction="#handleAddSponsor" styleClass="primary-button"/>
-                                                <Button text="Update" onAction="#handleUpdateSponsor" styleClass="ghost-button"/>
-                                                <Button text="Delete" onAction="#handleDeleteSponsor" styleClass="danger-button"/>
+                                                <Button text="&#128465;" onAction="#handleDeleteSponsor" styleClass="danger-button"/>
                                             </HBox>
                                             <HBox spacing="10">
                                                 <Button text="Clear" onAction="#handleClearSponsor" styleClass="ghost-button"/>
@@ -258,6 +263,12 @@
                                                 </columns>
                                             </TableView>
 
+                                            <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="pagination-bar">
+                                                <Label fx:id="contractPaginationLabel" text="Page 0/0 | 0 item" styleClass="section-subtitle"/>
+                                                <Button fx:id="contractPreviousPageButton" text="Previous" onAction="#handleContractPreviousPage" styleClass="ghost-button"/>
+                                                <Button fx:id="contractNextPageButton" text="Next" onAction="#handleContractNextPage" styleClass="primary-button"/>
+                                            </HBox>
+
                                             <Label fx:id="contractTabStatusLabel" text="Contract table ready" styleClass="status-muted"/>
                                         </VBox>
 
@@ -286,8 +297,9 @@
                                             <HBox spacing="10">
                                                 <Button text="Add" onAction="#handleAddContract" styleClass="primary-button"/>
                                                 <Button text="Update" onAction="#handleUpdateContract" styleClass="ghost-button"/>
-                                                <Button text="Delete" onAction="#handleDeleteContract" styleClass="danger-button"/>
+                                                <Button text="&#128465;" onAction="#handleDeleteContract" styleClass="danger-button"/>
                                             </HBox>
+                                            <Button text="Generate With AI" onAction="#handleGenerateContractDraft" styleClass="primary-button"/>
                                             <HBox spacing="10">
                                                 <Button text="Clear" onAction="#handleClearContract" styleClass="ghost-button"/>
                                                 <Button text="Export PDF" onAction="#handleExportContractPdf" styleClass="primary-button"/>

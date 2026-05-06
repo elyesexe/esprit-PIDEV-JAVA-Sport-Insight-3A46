@@ -31,14 +31,20 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import tn.esprit.entities.ContratSponsor;
+import tn.esprit.entities.Notification;
+import tn.esprit.entities.Sponsor;
 import tn.esprit.entities.User;
 import tn.esprit.i18n.I18n;
 import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.NavbarNotificationCenter;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.MatchsService;
+import tn.esprit.services.NotificationService;
+import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.security.AuthSession;
 
 import java.io.IOException;
@@ -54,6 +60,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 public class HomeController {
     private static final String MATCH_STATUS_PROGRAMME = "Programme";
@@ -153,6 +160,8 @@ public class HomeController {
             installNavbarHoverAnimations();
             playHomeIntroAnimations();
         });
+
+        loadExpiredContractNotificationsOnStartup();
     }
 
     private void refreshWelcomeTitle() {
@@ -352,6 +361,84 @@ public class HomeController {
             }
         });
         DB_EXECUTOR.execute(task);
+    }
+
+    private void loadExpiredContractNotificationsOnStartup() {
+        User currentUser = AuthSession.getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null) {
+            return;
+        }
+
+        Task<java.util.List<Notification>> task = new Task<>() {
+            @Override
+            protected java.util.List<Notification> call() throws Exception {
+                SponsoringWorkspaceService workspaceService = new SponsoringWorkspaceService();
+                NotificationService notificationService = new NotificationService();
+
+                SponsoringWorkspaceService.SponsoringSnapshot snapshot = workspaceService.loadSnapshot();
+                for (ContratSponsor contrat : snapshot.contrats()) {
+                    if (!workspaceService.isExpired(contrat)) {
+                        continue;
+                    }
+                    Sponsor sponsor = snapshot.sponsorOf(contrat);
+                    notificationService.addSponsorContractExpiredNotification(
+                            currentUser.getId(),
+                            contrat,
+                            sponsor == null ? null : sponsor.getNom()
+                    );
+                }
+
+                return notificationService.getRecentByUser(currentUser.getId(), 50).stream()
+                        .filter(notification -> notification != null
+                                && NotificationService.TYPE_SPONSOR_CONTRACT_EXPIRED.equalsIgnoreCase(notification.getType())
+                                && !notification.isRead())
+                        .sorted(java.util.Comparator
+                                .comparing(Notification::getCreatedAt, java.util.Comparator.nullsLast(java.time.LocalDateTime::compareTo))
+                                .thenComparing(Notification::getId, java.util.Comparator.nullsLast(Integer::compareTo))
+                                .reversed())
+                        .toList();
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            NavbarNotificationCenter.requestRefreshAll();
+            java.util.List<Notification> notifications = task.getValue();
+            if (notifications == null || notifications.isEmpty()) {
+                return;
+            }
+            showExpiredContractStartupAlert(notifications);
+        });
+
+        task.setOnFailed(event -> {
+            Throwable throwable = task.getException();
+            if (throwable != null) {
+                throwable.printStackTrace();
+            }
+        });
+
+        DB_EXECUTOR.execute(task);
+    }
+
+    private void showExpiredContractStartupAlert(java.util.List<Notification> notifications) {
+        if (notifications == null || notifications.isEmpty()) {
+            return;
+        }
+
+        String details = notifications.stream()
+                .limit(6)
+                .map(notification -> "• " + (notification.getMessage() == null ? "Contrat expire." : notification.getMessage()))
+                .collect(Collectors.joining("\n"));
+
+        String suffix = notifications.size() > 6
+                ? "\n\nEt " + (notifications.size() - 6) + " autre(s) notification(s) dans le centre de notifications."
+                : "\n\nConsulte aussi la cloche de notifications pour le detail complet.";
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Contrats expires");
+        alert.setHeaderText("Des contrats sponsor sont expires");
+        alert.setContentText(details + suffix);
+        alert.initOwner(sidebarBrandBox != null && sidebarBrandBox.getScene() != null ? sidebarBrandBox.getScene().getWindow() : null);
+        alert.show();
     }
 
     /**

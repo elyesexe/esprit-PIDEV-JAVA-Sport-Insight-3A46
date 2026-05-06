@@ -82,6 +82,34 @@ public class ContratSponsorService implements IService<ContratSponsor> {
         return contrats;
     }
 
+    public PaginationResult<ContratSponsor> getPage(int page, int pageSize) throws SQLException {
+        int safePage = Math.max(0, page);
+        int safePageSize = Math.max(1, pageSize);
+        long totalItems = countContrats();
+        int totalPages = totalItems == 0 ? 1 : (int) Math.ceil((double) totalItems / safePageSize);
+
+        List<ContratSponsor> contrats = new ArrayList<>();
+        String query = "SELECT * FROM contrat_sponsor ORDER BY date_debut DESC, id DESC LIMIT ? OFFSET ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, safePageSize);
+            statement.setInt(2, safePage * safePageSize);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    contrats.add(mapResultSetToContrat(resultSet));
+                }
+            }
+        }
+        return new PaginationResult<>(contrats, safePage, safePageSize, totalItems, totalPages);
+    }
+
+    public long countContrats() throws SQLException {
+        String query = "SELECT COUNT(*) FROM contrat_sponsor";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            return resultSet.next() ? resultSet.getLong(1) : 0L;
+        }
+    }
+
     @Override
     public ContratSponsor getById(int id) throws SQLException {
         String query = "SELECT * FROM contrat_sponsor WHERE id = ?";
