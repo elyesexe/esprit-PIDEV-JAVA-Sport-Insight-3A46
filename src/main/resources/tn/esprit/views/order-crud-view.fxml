@@ -40,9 +40,19 @@
                             <HBox alignment="CENTER_LEFT" spacing="16">
                                 <VBox spacing="4" HBox.hgrow="ALWAYS">
                                     <Label text="Gestion des commandes" styleClass="section-title"/>
+<<<<<<< HEAD
                                 </VBox>
                                 <HBox spacing="10">
                                     <Button fx:id="exportPdfButton" onAction="#handleExportPdf" text="Export PDF" styleClass="ghost-button"/>
+=======
+                                    <Label text="Administrez les commandes avec la meme logique visuelle que le module produits, incluant CRUD, recherche, tri et graphiques."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+                                </VBox>
+                                <HBox spacing="10">
+                                    <Button fx:id="exportPdfButton" onAction="#handleExportPdf" text="Export PDF" styleClass="ghost-button"/>
+                                    <Button onAction="#handleNewOrder" text="Ajouter une commande" styleClass="primary-button"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </HBox>
                             </HBox>
                             <HBox spacing="10">
@@ -65,10 +75,13 @@
                                 <Label text="Paiements en attente" styleClass="toolbar-summary-caption"/>
                                 <Label fx:id="pendingPaymentsMetricLabel" text="0" styleClass="toolbar-summary-value"/>
                             </VBox>
+<<<<<<< HEAD
                             <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
                                 <Label text="Anomalies" styleClass="toolbar-summary-caption"/>
                                 <Label fx:id="anomalyOrdersMetricLabel" text="0" styleClass="toolbar-summary-value"/>
                             </VBox>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                         </FlowPane>
 
                         <HBox spacing="18" styleClass="product-chart-grid">
@@ -95,7 +108,11 @@
                         <VBox spacing="14" styleClass="panel-card toolbar-panel product-toolbar-panel">
                             <VBox spacing="4">
                                 <Label text="Recherche et tri" styleClass="section-title"/>
+<<<<<<< HEAD
                                 <Label text="Filtrez par statut, paiement, produit ou client puis ordonnez la liste selon vos priorites."
+=======
+                                <Label text="Filtrez par statut, paiement, produit ou coach puis ordonnez la liste selon vos priorites."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                        wrapText="true"
                                        styleClass="section-subtitle"/>
                             </VBox>
@@ -103,7 +120,11 @@
                             <HBox alignment="CENTER_LEFT" spacing="12">
                                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                                     <Label text="Recherche" styleClass="field-label"/>
+<<<<<<< HEAD
                                     <TextField fx:id="searchField" promptText="Commande, produit, client, email..." styleClass="form-text-field"/>
+=======
+                                    <TextField fx:id="searchField" promptText="Commande, produit, coach, email..." styleClass="form-text-field"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </VBox>
                                 <VBox spacing="6">
                                     <Label text="Trier par" styleClass="field-label"/>
@@ -127,7 +148,11 @@
                             <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
                                 <VBox spacing="4">
                                     <Label text="Liste des commandes" styleClass="section-title"/>
+<<<<<<< HEAD
                                     <Label text="Suivez rapidement le produit, le client, le statut et le paiement depuis une table d'administration dediee."
+=======
+                                    <Label text="Suivez rapidement le produit, le coach, le statut et le paiement depuis une table d'administration dediee."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                            wrapText="true"
                                            styleClass="section-subtitle"/>
                                 </VBox>
@@ -136,7 +161,11 @@
                                     <columns>
                                         <TableColumn fx:id="orderIdColumn" text="ID" prefWidth="70"/>
                                         <TableColumn fx:id="orderProductColumn" text="Produit" prefWidth="180"/>
+<<<<<<< HEAD
                                         <TableColumn fx:id="orderCoachColumn" text="Client" prefWidth="170"/>
+=======
+                                        <TableColumn fx:id="orderCoachColumn" text="Coach" prefWidth="170"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         <TableColumn fx:id="orderQuantityColumn" text="Qt" prefWidth="60"/>
                                         <TableColumn fx:id="orderTotalColumn" text="Montant" prefWidth="110"/>
                                         <TableColumn fx:id="orderStatusColumn" text="Statut" prefWidth="120"/>
@@ -151,6 +180,7 @@
                             </VBox>
 
                             <VBox spacing="18" minWidth="390" prefWidth="420">
+<<<<<<< HEAD
                                 <HBox spacing="10" styleClass="product-form-actions">
                                     <Button onAction="#handleNewOrder"
                                             text="Nouvelle commande"
@@ -188,6 +218,12 @@
                                         <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
                                         <Label fx:id="detailPaymentChipLabel" text="-" styleClass="status-pill product-stock-chip product-stock-good"/>
                                         <Label fx:id="detailAnomalyChipLabel" text="LOW" styleClass="status-pill product-stock-chip product-stock-low"/>
+=======
+                                <VBox spacing="14" styleClass="panel-card detail-card product-detail-card">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
+                                        <Label fx:id="detailPaymentChipLabel" text="-" styleClass="status-pill product-stock-chip product-stock-good"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </HBox>
 
                                     <VBox spacing="6">
@@ -207,7 +243,11 @@
                                             <Label fx:id="detailProductValueLabel" text="-" styleClass="detail-title"/>
                                         </VBox>
                                         <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="product-info-pill">
+<<<<<<< HEAD
                                             <Label text="Client" styleClass="field-label"/>
+=======
+                                            <Label text="Coach" styleClass="field-label"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                             <Label fx:id="detailCoachValueLabel" text="-" styleClass="detail-title"/>
                                         </VBox>
                                         <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="product-info-pill">
@@ -240,6 +280,7 @@
                                         <Label fx:id="detailBillingValueLabel" text="-" wrapText="true" styleClass="detail-subtitle"/>
                                     </VBox>
 
+<<<<<<< HEAD
                                     <VBox spacing="8" styleClass="order-section-card">
                                         <Label text="Conversion live" styleClass="field-label"/>
                                         <Label fx:id="detailLiveFxValueLabel"
@@ -276,17 +317,23 @@
                                         <Button fx:id="sendNotificationButton" onAction="#handleSendNotification" text="Notifier" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
                                     </HBox>
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     <HBox spacing="10" styleClass="product-form-actions">
                                         <Button fx:id="detailEditButton" onAction="#handleEditSelectedOrder" text="Modifier" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
                                         <Button fx:id="detailDeleteButton" onAction="#handleDeleteSelectedOrder" text="Supprimer" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
                                     </HBox>
                                 </VBox>
 
+<<<<<<< HEAD
                                 <VBox fx:id="formCard"
                                       spacing="14"
                                       managed="false"
                                       visible="false"
                                       styleClass="panel-card form-card product-form-card">
+=======
+                                <VBox spacing="14" styleClass="panel-card form-card product-form-card">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     <VBox spacing="4">
                                         <Label fx:id="formModeLabel" text="Ajouter une commande" styleClass="section-title"/>
                                         <Label fx:id="formHintLabel" text="Renseignez les informations ci-dessous pour enregistrer une nouvelle commande." wrapText="true" styleClass="section-subtitle"/>
@@ -300,8 +347,13 @@
                                             <ComboBox fx:id="productComboBox" styleClass="glass-combo"/>
                                         </VBox>
                                         <VBox spacing="8" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                             <Label text="Client" styleClass="field-label"/>
                                             <TextField fx:id="clientNameField" promptText="Nom du client" styleClass="form-text-field"/>
+=======
+                                            <Label text="Coach" styleClass="field-label"/>
+                                            <ComboBox fx:id="coachComboBox" styleClass="glass-combo"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         </VBox>
                                     </HBox>
 
@@ -363,12 +415,20 @@
                                     </VBox>
 
                                     <HBox spacing="10" styleClass="product-form-actions">
+<<<<<<< HEAD
                                         <Button fx:id="createOrderButton" onAction="#handleAddOrder" text="Enregistrer" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
+=======
+                                        <Button onAction="#handleAddOrder" text="Enregistrer" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         <Button fx:id="updateButton" onAction="#handleUpdateOrder" text="Mettre a jour" styleClass="ghost-button" HBox.hgrow="ALWAYS"/>
                                     </HBox>
                                     <HBox spacing="10" styleClass="product-form-actions">
                                         <Button fx:id="deleteButton" onAction="#handleDeleteSelectedOrder" text="Supprimer" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+<<<<<<< HEAD
                                         <Button fx:id="cancelFormButton" onAction="#handleClearForm" text="Annuler" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+=======
+                                        <Button onAction="#handleClearForm" text="Annuler / Effacer" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </HBox>
                                 </VBox>
                             </VBox>

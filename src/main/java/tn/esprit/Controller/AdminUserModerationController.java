@@ -2,17 +2,25 @@ package tn.esprit.Controller;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
+<<<<<<< HEAD
 import javafx.application.Platform;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+<<<<<<< HEAD
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+=======
+import javafx.fxml.FXML;
+import javafx.scene.Node;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
@@ -27,11 +35,15 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
+<<<<<<< HEAD
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import tn.esprit.entities.User;
 import tn.esprit.face.FaceRecognitionService;
 import tn.esprit.gui.ThemeManager;
+=======
+import tn.esprit.entities.User;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.UserPdfExportService;
@@ -49,20 +61,27 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+<<<<<<< HEAD
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+=======
+import java.util.Objects;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 public class AdminUserModerationController {
     private static final String DARK_TABLE_CLASS = "admin-dashboard-force-dark";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final String SORT_A_TO_Z = "A-Z";
     private static final String SORT_Z_TO_A = "Z-A";
+<<<<<<< HEAD
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("admin-users-db"));
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private Label statusLabel;
@@ -128,10 +147,13 @@ public class AdminUserModerationController {
     private Button saveButton;
     @FXML
     private Button deleteButton;
+<<<<<<< HEAD
     @FXML
     private Button registerFaceBtn;
     @FXML
     private Button deleteFaceBtn;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private final ObservableList<User> users = FXCollections.observableArrayList();
     private final FilteredList<User> filteredUsers = new FilteredList<>(users, user -> true);
@@ -139,10 +161,14 @@ public class AdminUserModerationController {
 
     private UserService userService;
     private UserPdfExportService userPdfExportService;
+<<<<<<< HEAD
     private FaceRecognitionService faceService;
     private User selectedUser;
     private boolean darkMode;
     private final AtomicLong refreshSequence = new AtomicLong();
+=======
+    private User selectedUser;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -154,6 +180,7 @@ public class AdminUserModerationController {
         try {
             userService = new UserService();
             userPdfExportService = new UserPdfExportService();
+<<<<<<< HEAD
             faceService = new FaceRecognitionService();
             refreshUsersAsync(null, "Loading user moderation data...", "status-muted");
         } catch (IllegalStateException ex) {
@@ -165,11 +192,18 @@ public class AdminUserModerationController {
             if (deleteFaceBtn != null) {
                 deleteFaceBtn.setDisable(true);
             }
+=======
+            refreshUsers(null);
+        } catch (IllegalStateException ex) {
+            saveButton.setDisable(true);
+            deleteButton.setDisable(true);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             showStatus("User moderation is unavailable because the database connection failed.", "status-error");
         }
     }
 
     public void setDarkMode(boolean darkMode) {
+<<<<<<< HEAD
         this.darkMode = darkMode;
         if (userTableView == null) {
             if (accountStatusPieChart != null) {
@@ -192,11 +226,27 @@ public class AdminUserModerationController {
             Platform.runLater(this::applyPieChartTheme);
         }
         Platform.runLater(this::updateCharts);
+=======
+        if (userTableView == null) {
+            return;
+        }
+        if (darkMode) {
+            if (!userTableView.getStyleClass().contains(DARK_TABLE_CLASS)) {
+                userTableView.getStyleClass().add(DARK_TABLE_CLASS);
+            }
+            return;
+        }
+        userTableView.getStyleClass().remove(DARK_TABLE_CLASS);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleRefresh() {
+<<<<<<< HEAD
         refreshUsersAsync(selectedUser == null ? null : selectedUser.getId(), "Refreshing user moderation data...", "status-muted");
+=======
+        refreshUsers(selectedUser == null ? null : selectedUser.getId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -313,8 +363,13 @@ public class AdminUserModerationController {
             }
 
             userService.update(selectedUser);
+<<<<<<< HEAD
             refreshFaceLabel(selectedUser);
             refreshUsersAsync(selectedUser.getId(), "User profile updated successfully.", "status-success");
+=======
+            refreshUsers(selectedUser.getId());
+            showStatus("User profile updated successfully.", "status-success");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException | IllegalArgumentException ex) {
             showValidation("The user could not be updated. " + ex.getMessage());
         }
@@ -351,6 +406,7 @@ public class AdminUserModerationController {
         }
 
         try {
+<<<<<<< HEAD
             int deletedId = selectedUser.getId();
             userService.delete(deletedId);
             if (faceService != null) {
@@ -358,6 +414,12 @@ public class AdminUserModerationController {
             }
             clearForm();
             refreshUsersAsync(null, "User deleted successfully.", "status-success");
+=======
+            userService.delete(selectedUser.getId());
+            clearForm();
+            refreshUsers(null);
+            showStatus("User deleted successfully.", "status-success");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException ex) {
             showValidation("The user could not be deleted. " + ex.getMessage());
         }
@@ -369,6 +431,7 @@ public class AdminUserModerationController {
         showStatus("Selection cleared.", "status-muted");
     }
 
+<<<<<<< HEAD
     @FXML
     private void handleRegisterFace() {
         hideValidation();
@@ -443,6 +506,8 @@ public class AdminUserModerationController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void configureInputs() {
         roleComboBox.setItems(FXCollections.observableArrayList(UserRoles.allowedRoles()));
         statusComboBox.setItems(FXCollections.observableArrayList(
@@ -500,11 +565,16 @@ public class AdminUserModerationController {
         }
     }
 
+<<<<<<< HEAD
     private void refreshUsersAsync(Integer preferredUserId, String successMessage, String styleClass) {
+=======
+    private void refreshUsers(Integer preferredUserId) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (userService == null) {
             return;
         }
 
+<<<<<<< HEAD
         long requestId = refreshSequence.incrementAndGet();
         showStatus(successMessage == null ? "Loading user moderation data..." : successMessage,
                 styleClass == null ? "status-muted" : styleClass);
@@ -526,11 +596,20 @@ public class AdminUserModerationController {
             }
             users.setAll(loadTask.getValue());
             refreshFaceLabels(loadTask.getValue());
+=======
+        try {
+            users.setAll(userService.getAll().stream()
+                    .sorted(Comparator
+                            .comparing(User::getDateInscription, Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(User::getId, Comparator.nullsLast(Comparator.reverseOrder())))
+                    .toList());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             applyFilter();
             updateMetrics();
             if (preferredUserId != null) {
                 selectUserById(preferredUserId);
             }
+<<<<<<< HEAD
             showStatus(successMessage == null ? "User moderation data loaded." : successMessage,
                     styleClass == null ? "status-muted" : styleClass);
         });
@@ -543,6 +622,12 @@ public class AdminUserModerationController {
         });
 
         DB_EXECUTOR.execute(loadTask);
+=======
+            showStatus("User moderation data loaded.", "status-muted");
+        } catch (SQLException ex) {
+            showStatus("User moderation data could not be loaded.", "status-error");
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void applyFilter() {
@@ -586,6 +671,7 @@ public class AdminUserModerationController {
             series.getData().add(new XYChart.Data<>("Blocked", blockedCount));
             series.getData().add(new XYChart.Data<>("Other", otherCount));
             accountStatusBarChart.getData().setAll(series);
+<<<<<<< HEAD
             if (darkMode) {
                 applyBarColor(series.getData().get(0), "#22c55e");
                 applyBarColor(series.getData().get(1), "#ef4444");
@@ -595,6 +681,11 @@ public class AdminUserModerationController {
                 applyBarColor(series.getData().get(1), "#ef4444");
                 applyBarColor(series.getData().get(2), "#f59e0b");
             }
+=======
+            applyBarColor(series.getData().get(0), "#22c55e");
+            applyBarColor(series.getData().get(1), "#ef4444");
+            applyBarColor(series.getData().get(2), "#f59e0b");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         if (accountStatusPieChart != null) {
@@ -612,7 +703,10 @@ public class AdminUserModerationController {
                 chartData.add(new PieChart.Data("No users", 1));
             }
             accountStatusPieChart.setData(chartData);
+<<<<<<< HEAD
             Platform.runLater(this::applyPieChartTheme);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         if (chartSummaryLabel != null) {
@@ -623,7 +717,10 @@ public class AdminUserModerationController {
     private void populateForm(User user) {
         selectedUser = user;
         hideValidation();
+<<<<<<< HEAD
         updateFaceButtonState(user);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         if (user == null) {
             selectionStateLabel.setText("Select a user");
@@ -772,6 +869,7 @@ public class AdminUserModerationController {
         }
     }
 
+<<<<<<< HEAD
     private void applyPieChartTheme() {
         if (accountStatusPieChart == null) {
             return;
@@ -820,6 +918,8 @@ public class AdminUserModerationController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String emptyIfNull(String value) {
         return emptyIfNull(value, "");
     }
@@ -827,6 +927,7 @@ public class AdminUserModerationController {
     private String emptyIfNull(String value, String fallback) {
         return value == null ? fallback : value;
     }
+<<<<<<< HEAD
 
     private static ThreadFactory daemonFactory(String name) {
         return runnable -> {
@@ -835,4 +936,6 @@ public class AdminUserModerationController {
             return thread;
         };
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

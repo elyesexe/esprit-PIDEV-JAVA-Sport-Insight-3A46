@@ -82,7 +82,10 @@ class CommentaireServiceTest extends AbstractServiceTestSupport {
                 player.getId(),
                 annonce.getId(),
                 "Auteur Ajout",
+<<<<<<< HEAD
                 "uploads/comment-cvs/test-ajout.pdf",
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 4,
                 "PENDING",
                 "Reason Ajout"
@@ -96,7 +99,10 @@ class CommentaireServiceTest extends AbstractServiceTestSupport {
         assertEquals(player.getId(), commentaireAjoute.getJoueurId());
         assertEquals(annonce.getId(), commentaireAjoute.getAnnonceId());
         assertEquals("Auteur Ajout", commentaireAjoute.getAuteurAnonyme());
+<<<<<<< HEAD
         assertEquals("uploads/comment-cvs/test-ajout.pdf", commentaireAjoute.getCvName());
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         assertEquals(4, commentaireAjoute.getNbLikes());
         assertEquals("PENDING", commentaireAjoute.getModerationStatus());
         assertEquals("Reason Ajout", commentaireAjoute.getModerationReason());
@@ -114,7 +120,10 @@ class CommentaireServiceTest extends AbstractServiceTestSupport {
         commentaire.setContenu(TEST_PREFIX + "MODIFIE");
         commentaire.setDateCommentaire(LocalDate.of(2026, 6, 11));
         commentaire.setAuteurAnonyme("Auteur Modifie");
+<<<<<<< HEAD
         commentaire.setCvName("uploads/comment-cvs/test-modifie.pdf");
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         commentaire.setNbLikes(7);
         commentaire.setModerationStatus("APPROVED");
         commentaire.setModerationReason("Reason Modifiee");
@@ -126,7 +135,10 @@ class CommentaireServiceTest extends AbstractServiceTestSupport {
         assertEquals(TEST_PREFIX + "MODIFIE", commentaireModifie.getContenu());
         assertEquals(LocalDate.of(2026, 6, 11), commentaireModifie.getDateCommentaire());
         assertEquals("Auteur Modifie", commentaireModifie.getAuteurAnonyme());
+<<<<<<< HEAD
         assertEquals("uploads/comment-cvs/test-modifie.pdf", commentaireModifie.getCvName());
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         assertEquals(7, commentaireModifie.getNbLikes());
         assertEquals("APPROVED", commentaireModifie.getModerationStatus());
         assertEquals("Reason Modifiee", commentaireModifie.getModerationReason());

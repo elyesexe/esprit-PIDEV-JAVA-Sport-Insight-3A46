@@ -55,7 +55,10 @@ public class ProductMain {
         System.out.println("4. Delete product");
         System.out.println("5. Search product");
         System.out.println("6. Sort products");
+<<<<<<< HEAD
         System.out.println("7. Advanced search");
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         System.out.print("Choice: ");
         int choice = Integer.parseInt(SCANNER.nextLine());
 
@@ -114,12 +117,21 @@ public class ProductMain {
             }
             case 5 -> {
                 System.out.print("Keyword: ");
+<<<<<<< HEAD
                 List<Product> products = productService.search(SCANNER.nextLine());
                 if (products.isEmpty()) {
                     System.out.println("No products found.");
                 } else {
                     products.forEach(System.out::println);
                 }
+=======
+                String keyword = SCANNER.nextLine().trim().toLowerCase();
+                productService.getAll().stream()
+                        .filter(product -> containsIgnoreCase(product.getName(), keyword)
+                                || containsIgnoreCase(product.getCategory(), keyword)
+                                || containsIgnoreCase(product.getBrand(), keyword))
+                        .forEach(System.out::println);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
             case 6 -> {
                 List<Product> products = productService.getAll();
@@ -137,6 +149,7 @@ public class ProductMain {
                 }
                 products.forEach(System.out::println);
             }
+<<<<<<< HEAD
             case 7 -> {
                 System.out.print("Keyword (Enter to skip): ");
                 String keyword = emptyToNull(SCANNER.nextLine());
@@ -165,6 +178,8 @@ public class ProductMain {
                     products.forEach(System.out::println);
                 }
             }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             default -> System.out.println("Invalid choice.");
         }
     }
@@ -291,6 +306,7 @@ public class ProductMain {
     private static boolean containsIgnoreCase(String value, String keyword) {
         return value != null && value.toLowerCase().contains(keyword);
     }
+<<<<<<< HEAD
 
     private static String emptyToNull(String value) {
         String trimmed = value == null ? null : value.trim();
@@ -306,4 +322,6 @@ public class ProductMain {
         String trimmed = emptyToNull(value);
         return trimmed == null ? null : Integer.parseInt(trimmed);
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

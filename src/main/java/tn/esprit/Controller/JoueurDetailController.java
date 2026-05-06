@@ -1,5 +1,9 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
+=======
+import javafx.application.Platform;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -9,10 +13,13 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+<<<<<<< HEAD
 import javafx.scene.shape.Circle;
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.assistant.AssistantPlayerProfileProvider;
 import tn.esprit.assistant.AssistantPlayerProfileSnapshot;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -22,10 +29,14 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+<<<<<<< HEAD
 import tn.esprit.services.PlayerPortraitService;
 import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.ApiFootballPlayerSeasonStats;
 import tn.esprit.services.football.FootballDataCompetitions;
+=======
+import tn.esprit.services.wikidata.WikidataPlayerImageService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -33,17 +44,28 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Optional;
+=======
+import java.util.Objects;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+<<<<<<< HEAD
 public class JoueurDetailController implements AssistantContextProvider, AssistantPlayerProfileProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-detail-image-import"));
     private static final ExecutorService STATS_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-detail-stats"));
+=======
+public class JoueurDetailController {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
+            Executors.newSingleThreadExecutor(daemonFactory("joueur-detail-image-import"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private HBox navbarRoot;
@@ -89,6 +111,7 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
     private Label detailNationaliteValueLabel;
     @FXML
     private Label detailSourceValueLabel;
+<<<<<<< HEAD
     @FXML
     private Label detailStatsStatusLabel;
     @FXML
@@ -111,6 +134,12 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
     private Joueur joueur;
     private Equipe contextTeam;
     private String contextCompetitionCode;
+=======
+
+    private JoueurService joueurService;
+    private EquipeService equipeService;
+    private Joueur joueur;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private SidebarModuleGroup sidebarModuleGroup;
     private boolean imageImportInProgress;
 
@@ -122,8 +151,11 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
         try {
             joueurService = new JoueurService();
             equipeService = new EquipeService();
+<<<<<<< HEAD
             apiFootballInsightsService = new ApiFootballInsightsService();
             playerPortraitService = new PlayerPortraitService();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de preparer la fiche joueur.\n" + e.getMessage());
         }
@@ -134,6 +166,7 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
     }
 
     public void setJoueurContext(Joueur joueur) {
+<<<<<<< HEAD
         setJoueurContext(joueur, null, null);
     }
 
@@ -141,11 +174,15 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
         this.joueur = joueur;
         this.contextTeam = equipe;
         this.contextCompetitionCode = FootballDataCompetitions.normalizeCode(competitionCode);
+=======
+        this.joueur = joueur;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (detailNameLabel != null) {
             renderJoueur();
         }
     }
 
+<<<<<<< HEAD
     @Override
     public String assistantContextSummary() {
         AssistantPlayerProfileSnapshot profile = assistantPlayerProfileSnapshot();
@@ -204,6 +241,8 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
         );
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleOpenHome() {
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
@@ -234,11 +273,16 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
 
     @FXML
     private void handleOpenJoueurs() {
+<<<<<<< HEAD
         SceneNavigator.switchScene(joueursNavButton, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Competitions");
+=======
+        SceneNavigator.switchScene(joueursNavButton, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Sport Insight");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleBack() {
+<<<<<<< HEAD
         if (contextTeam != null && contextTeam.getId() != null) {
             SceneNavigator.switchScene(
                     detailNameLabel,
@@ -254,6 +298,9 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
             return;
         }
         SceneNavigator.switchScene(detailNameLabel, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Competitions");
+=======
+        SceneNavigator.switchScene(detailNameLabel, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Sport Insight");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
 
@@ -285,11 +332,15 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
                 }
             }
 
+<<<<<<< HEAD
             Equipe equipe = contextTeam != null ? contextTeam : resolveEquipe(joueur.getEquipeId());
             contextTeam = equipe;
             if (contextCompetitionCode == null && equipe != null) {
                 contextCompetitionCode = FootballDataCompetitions.normalizeCode(equipe.getCompetitionCode());
             }
+=======
+            Equipe equipe = resolveEquipe(joueur.getEquipeId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             String equipeName = equipe == null ? "Sans equipe" : emptyToFallback(equipe.getNom(), "Sans equipe");
             String position = emptyToFallback(joueur.getPosition(), "Non renseigne");
             String nationalite = emptyToFallback(joueur.getNationalite(), "Non renseignee");
@@ -297,7 +348,11 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
 
             detailNameLabel.setText(buildFullName(joueur));
             detailSubtitleLabel.setText(buildSubtitle(equipeName, joueur.getDateNaissance(), position, nationalite));
+<<<<<<< HEAD
             detailIdValueLabel.setText("Joueur");
+=======
+            detailIdValueLabel.setText(joueur.getId() == null ? "-" : "#" + joueur.getId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             detailEquipeValueLabel.setText(equipeName);
             detailNumeroValueLabel.setText(joueur.getNumero() > 0 ? "#" + joueur.getNumero() : "Non defini");
             detailDateNaissanceValueLabel.setText(formatDate(joueur.getDateNaissance()));
@@ -308,7 +363,10 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
 
             JoueurUiSupport.clearImageCache();
             updatePhoto();
+<<<<<<< HEAD
             loadSeasonStatsAsync(equipe);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             triggerLazyImageImport();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations du joueur.\n" + e.getMessage());
@@ -321,6 +379,7 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
 
     private void updatePhoto() {
         Image image = JoueurUiSupport.loadJoueurImage(joueur.getImage());
+<<<<<<< HEAD
         boolean hasImage = image != null && image.getProgress() >= 1.0 && !image.isError();
         detailImageView.setPreserveRatio(false);
         detailImageView.setSmooth(true);
@@ -345,10 +404,15 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
     }
 
     private void setPhotoVisibility(boolean hasImage) {
+=======
+        boolean hasImage = image != null;
+        detailImageView.setImage(image);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         detailImageView.setManaged(hasImage);
         detailImageView.setVisible(hasImage);
         detailImageFallbackLabel.setManaged(!hasImage);
         detailImageFallbackLabel.setVisible(!hasImage);
+<<<<<<< HEAD
     }
 
     private void triggerLazyImageImport() {
@@ -357,11 +421,22 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
 
     private void triggerLazyImageImport(boolean force) {
         if (imageImportInProgress || joueur == null || joueur.getId() == null || !force && !needsLazyImageImport(joueur)) {
+=======
+        detailImageFallbackLabel.setText(JoueurUiSupport.buildInitials(joueur.getPrenom(), joueur.getNom(), "J"));
+    }
+
+    private void triggerLazyImageImport() {
+        if (imageImportInProgress || joueur == null || joueur.getId() == null || !needsLazyImageImport(joueur)) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
 
         imageImportInProgress = true;
+<<<<<<< HEAD
         detailSourceValueLabel.setText("Import photo...");
+=======
+        detailSourceValueLabel.setText("Importing photo...");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Integer joueurId = joueur.getId();
 
@@ -374,10 +449,15 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
                     return null;
                 }
 
+<<<<<<< HEAD
                 PlayerPortraitService portraitService = playerPortraitService == null
                         ? new PlayerPortraitService()
                         : playerPortraitService;
                 String imagePath = portraitService.resolvePortrait(fresh, contextTeam);
+=======
+                WikidataPlayerImageService imageService = new WikidataPlayerImageService();
+                String imagePath = imageService.resolvePlayerImagePath(fresh);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 if (imagePath == null || imagePath.isBlank()) {
                     return null;
                 }
@@ -399,7 +479,11 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
             joueur = imported;
             JoueurUiSupport.clearImageCache();
             updatePhoto();
+<<<<<<< HEAD
             detailSourceValueLabel.setText(emptyToFallback(joueur.getExternalSource(), "Manuel") + " | Photo importee");
+=======
+            detailSourceValueLabel.setText(emptyToFallback(joueur.getExternalSource(), "Manuel") + " | Photo imported");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         });
 
         imageImportTask.setOnFailed(event -> {
@@ -414,6 +498,7 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
         IMAGE_IMPORT_EXECUTOR.execute(imageImportTask);
     }
 
+<<<<<<< HEAD
     private void loadSeasonStatsAsync(Equipe equipe) {
         resetSeasonStats("Chargement des statistiques de saison...");
         if (apiFootballInsightsService == null || joueur == null || equipe == null) {
@@ -529,6 +614,18 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
                 ? new PlayerPortraitService()
                 : playerPortraitService;
         return portraitService.shouldRefreshPortrait(currentJoueur);
+=======
+    private boolean needsLazyImageImport(Joueur currentJoueur) {
+        if (currentJoueur == null) {
+            return false;
+        }
+        String image = currentJoueur.getImage();
+        if (image == null || image.isBlank()) {
+            return true;
+        }
+        String normalized = image.replace('\\', '/').toLowerCase();
+        return normalized.contains("fd-player-");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private String buildSubtitle(String equipeName, LocalDate dateNaissance, String position, String nationalite) {
@@ -560,10 +657,13 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
         return Period.between(date, LocalDate.now()).getYears() + " ans";
     }
 
+<<<<<<< HEAD
     private String textOf(Label label) {
         return label == null ? null : label.getText();
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
     }
@@ -583,6 +683,9 @@ public class JoueurDetailController implements AssistantContextProvider, Assista
             return thread;
         };
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 

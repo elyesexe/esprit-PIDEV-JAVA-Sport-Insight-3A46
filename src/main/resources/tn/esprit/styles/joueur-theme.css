@@ -84,16 +84,26 @@
 
 .player-avatar-shell {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(241, 245, 249, 0.96) 100%);
+<<<<<<< HEAD
     -fx-background-radius: 999;
     -fx-border-color: rgba(148, 163, 184, 0.18);
     -fx-border-radius: 999;
+=======
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 22;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     -fx-padding: 8;
     -fx-alignment: center;
 }
 
 .player-avatar-fallback {
     -fx-font-family: "Bahnschrift SemiCondensed";
+<<<<<<< HEAD
     -fx-font-size: 34px;
+=======
+    -fx-font-size: 28px;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     -fx-font-weight: 700;
     -fx-text-fill: #94a3b8;
 }
@@ -105,6 +115,7 @@
     -fx-text-fill: #0f172a;
 }
 
+<<<<<<< HEAD
 .player-grid-card .player-card-title,
 .player-grid-card .player-card-team,
 .player-grid-card .player-card-meta {
@@ -128,6 +139,8 @@
     -fx-font-size: 12px;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .player-number-badge {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #34d399 0%, #10b981 100%);
     -fx-background-radius: 999;
@@ -161,6 +174,7 @@
     -fx-text-fill: #475569;
 }
 
+<<<<<<< HEAD
 .competition-card-subtitle {
     -fx-font-size: 12px;
     -fx-font-weight: 700;
@@ -174,6 +188,13 @@
     -fx-background-radius: 999;
     -fx-border-color: rgba(148, 163, 184, 0.18);
     -fx-border-radius: 999;
+=======
+.player-detail-photo-shell {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(236, 253, 245, 0.94) 0%, rgba(241, 245, 249, 0.96) 100%);
+    -fx-background-radius: 26;
+    -fx-border-color: rgba(148, 163, 184, 0.18);
+    -fx-border-radius: 26;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     -fx-padding: 22;
     -fx-alignment: center;
 }
@@ -285,10 +306,13 @@
     -fx-text-fill: #cbd5e1;
 }
 
+<<<<<<< HEAD
 .theme-dark .competition-card-subtitle {
     -fx-text-fill: #94a3b8;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .theme-dark .form-date-picker .text-field {
     -fx-text-fill: #e2e8f0;
     -fx-prompt-text-fill: #94a3b8;

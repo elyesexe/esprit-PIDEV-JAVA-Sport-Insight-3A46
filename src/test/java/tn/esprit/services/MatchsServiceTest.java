@@ -1,6 +1,9 @@
 package tn.esprit.services;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.databind.ObjectMapper;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Matchs;
+<<<<<<< HEAD
 import tn.esprit.services.football.ApiFootballLineupPlayer;
 import tn.esprit.services.football.ApiFootballLineupSide;
 import tn.esprit.services.football.ApiFootballMatchIncident;
@@ -27,11 +31,23 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+=======
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Objects;
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertThrows;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -39,7 +55,10 @@ class MatchsServiceTest {
 
     private static final String TEST_MATCH_PREFIX = "JUNIT_MATCH_" + System.currentTimeMillis() + "_";
     private static final String TEST_EQUIPE_PREFIX = TEST_MATCH_PREFIX + "TEAM_";
+<<<<<<< HEAD
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private static MatchsService matchsService;
     private static EquipeService equipeService;
@@ -209,6 +228,7 @@ class MatchsServiceTest {
         assertFalse(existeEncore);
     }
 
+<<<<<<< HEAD
     @Test
     @Order(4)
     void findsNextFixturesAndLastResultsForTeam() throws SQLException {
@@ -418,6 +438,8 @@ class MatchsServiceTest {
         assertTrue(Math.abs(response.momentum().homePressure() - response.momentum().awayPressure()) <= 8);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Matchs buildMatch(
             String idMatch,
             Integer equipeDomicileId,
@@ -451,6 +473,7 @@ class MatchsServiceTest {
         return matchs;
     }
 
+<<<<<<< HEAD
     private Matchs createStoredMatch(
             String label,
             TeamPair teams,
@@ -552,6 +575,8 @@ class MatchsServiceTest {
         ));
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private TeamPair createTeamPair(String label, String competitionCode) throws SQLException {
         String homeName = testTeamName(label + "_HOME");
         String awayName = testTeamName(label + "_AWAY");

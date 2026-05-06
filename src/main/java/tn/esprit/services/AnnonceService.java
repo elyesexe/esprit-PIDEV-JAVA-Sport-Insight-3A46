@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Locale;
 
 public class AnnonceService implements IService<Annonce> {
@@ -23,17 +24,31 @@ public class AnnonceService implements IService<Annonce> {
     public AnnonceService() throws SQLException {
         this.connection = MyConnection.getInstance().getConnection();
         this.notificationService = new NotificationService(this.connection);
+=======
+
+public class AnnonceService implements IService<Annonce> {
+    private final Connection connection;
+
+    public AnnonceService() throws SQLException {
+        this.connection = MyConnection.getInstance().getConnection();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     public AnnonceService(Connection connection) {
         this.connection = connection;
+<<<<<<< HEAD
         this.notificationService = new NotificationService(connection);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @Override
     public void add(Annonce annonce) throws SQLException {
         validateCoachAuthor(annonce);
+<<<<<<< HEAD
         boolean inserted = false;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         String query = """
                 INSERT INTO annonce (
                     titre, description, poste_recherche, niveau_requis,
@@ -43,7 +58,10 @@ public class AnnonceService implements IService<Annonce> {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             fillStatement(statement, annonce, false);
             statement.executeUpdate();
+<<<<<<< HEAD
             inserted = true;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException ignored) {
             String fallback = """
                     INSERT INTO annonce (
@@ -54,6 +72,7 @@ public class AnnonceService implements IService<Annonce> {
             try (PreparedStatement statement = connection.prepareStatement(fallback)) {
                 fillStatement(statement, annonce, true);
                 statement.executeUpdate();
+<<<<<<< HEAD
                 inserted = true;
             }
         }
@@ -61,6 +80,10 @@ public class AnnonceService implements IService<Annonce> {
         if (inserted) {
             notifyPlayersForUrgentAnnonce(annonce);
         }
+=======
+            }
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @Override
@@ -290,6 +313,7 @@ public class AnnonceService implements IService<Annonce> {
         return null;
     }
 
+<<<<<<< HEAD
     private void notifyPlayersForUrgentAnnonce(Annonce annonce) {
         if (annonce == null || !Boolean.TRUE.equals(annonce.getUrgent())) {
             return;
@@ -401,6 +425,8 @@ public class AnnonceService implements IService<Annonce> {
     private record CoachNotificationProfile(String displayName, String photo) {
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private List<Annonce> executeListQuery(String query) throws SQLException {
         List<Annonce> annonces = new ArrayList<>();
         try (Statement statement = connection.createStatement();

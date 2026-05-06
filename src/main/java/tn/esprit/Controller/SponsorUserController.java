@@ -21,7 +21,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+<<<<<<< HEAD
 import javafx.embed.swing.SwingFXUtils;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.ContratSponsor;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Sponsor;
@@ -29,12 +32,18 @@ import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
+<<<<<<< HEAD
 import tn.esprit.services.ContractQrCodeService;
 import tn.esprit.services.SponsorMapViewService;
 import tn.esprit.services.SponsoringWorkspaceService;
 import tn.esprit.tools.SponsorAssets;
 
 import java.awt.image.BufferedImage;
+=======
+import tn.esprit.services.SponsoringWorkspaceService;
+import tn.esprit.tools.SponsorAssets;
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -125,8 +134,11 @@ public class SponsorUserController {
 
     private SidebarModuleGroup sidebarModuleGroup;
     private SponsoringWorkspaceService workspaceService;
+<<<<<<< HEAD
     private ContractQrCodeService qrCodeService;
     private SponsorMapViewService sponsorMapViewService;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private SponsoringWorkspaceService.SponsoringSnapshot snapshot;
 
     @FXML
@@ -145,8 +157,11 @@ public class SponsorUserController {
 
         try {
             workspaceService = new SponsoringWorkspaceService();
+<<<<<<< HEAD
             qrCodeService = new ContractQrCodeService();
             sponsorMapViewService = new SponsorMapViewService();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             refreshData("Sponsor feed ready.");
         } catch (SQLException e) {
             showErrorStatus("Sponsor feed unavailable.");
@@ -515,6 +530,7 @@ public class SponsorUserController {
                 buildInfoLine("Address", fallbackText(sponsor == null ? null : sponsor.getAdresse(), "-"))
         );
 
+<<<<<<< HEAD
         HBox actionRow = new HBox(10);
         Button mapButton = new Button("View map");
         mapButton.getStyleClass().add("primary-button");
@@ -526,6 +542,9 @@ public class SponsorUserController {
         actionRow.getChildren().add(mapButton);
 
         card.getChildren().addAll(header, budgetLabel, body, actionRow);
+=======
+        card.getChildren().addAll(header, budgetLabel, body);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         return card;
     }
 
@@ -588,6 +607,7 @@ public class SponsorUserController {
         descriptionLabel.setWrapText(true);
         descriptionLabel.getStyleClass().add("sponsor-contract-description");
 
+<<<<<<< HEAD
         HBox qrSection = buildQrSection(model);
         HBox mapSection = buildContractMapSection(model);
 
@@ -656,6 +676,12 @@ public class SponsorUserController {
         }
     }
 
+=======
+        card.getChildren().addAll(header, infoFlow, descriptionLabel);
+        return card;
+    }
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private VBox buildEmptyCard(String title, String subtitle) {
         VBox emptyCard = new VBox(8);
         emptyCard.setAlignment(Pos.CENTER_LEFT);

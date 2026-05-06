@@ -108,9 +108,15 @@
                         <Label fx:id="overviewStatusLabel" text="Workspace ready" styleClass="status-muted"/>
                     </VBox>
 
+<<<<<<< HEAD
                     <TabPane fx:id="sponsorTabPane" tabClosingPolicy="UNAVAILABLE" styleClass="sponsor-tab-pane">
                         <tabs>
                             <Tab fx:id="overviewTab" text="Overview">
+=======
+                    <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="sponsor-tab-pane">
+                        <tabs>
+                            <Tab text="Overview">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 <content>
                                     <VBox spacing="18" styleClass="sponsor-overview-shell">
                                         <FlowPane hgap="16" vgap="16" prefWrapLength="1240" styleClass="sponsor-overview-grid">
@@ -167,7 +173,11 @@
                                 </content>
                             </Tab>
 
+<<<<<<< HEAD
                             <Tab fx:id="sponsorsTab" text="Sponsors">
+=======
+                            <Tab text="Sponsors">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 <content>
                                     <HBox spacing="18">
                                         <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
@@ -182,7 +192,10 @@
 
                                             <TableView fx:id="sponsorTableView" styleClass="data-table">
                                                 <columns>
+<<<<<<< HEAD
                                                     <TableColumn fx:id="sponsorLogoColumn" text="Logo"/>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                     <TableColumn fx:id="sponsorNameColumn" text="Name"/>
                                                     <TableColumn fx:id="sponsorEmailColumn" text="Email"/>
                                                     <TableColumn fx:id="sponsorPhoneColumn" text="Phone"/>
@@ -224,16 +237,24 @@
                                                 <Button text="Update" onAction="#handleUpdateSponsor" styleClass="ghost-button"/>
                                                 <Button text="Delete" onAction="#handleDeleteSponsor" styleClass="danger-button"/>
                                             </HBox>
+<<<<<<< HEAD
                                             <HBox spacing="10">
                                                 <Button text="Clear" onAction="#handleClearSponsor" styleClass="ghost-button"/>
                                                 <Button text="View map" onAction="#handleOpenSponsorMap" styleClass="primary-button"/>
                                             </HBox>
+=======
+                                            <Button text="Clear" onAction="#handleClearSponsor" styleClass="ghost-button"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         </VBox>
                                     </HBox>
                                 </content>
                             </Tab>
 
+<<<<<<< HEAD
                             <Tab fx:id="contractsTab" text="Contracts">
+=======
+                            <Tab text="Contracts">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 <content>
                                     <HBox spacing="18">
                                         <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="panel-card">
@@ -292,6 +313,7 @@
                                                 <Button text="Clear" onAction="#handleClearContract" styleClass="ghost-button"/>
                                                 <Button text="Export PDF" onAction="#handleExportContractPdf" styleClass="primary-button"/>
                                             </HBox>
+<<<<<<< HEAD
                                             <HBox spacing="10">
                                                 <Button text="Generate QR" onAction="#handleGenerateContractQr" styleClass="primary-button"/>
                                                 <Button text="Scan QR" onAction="#handleScanContractQr" styleClass="ghost-button"/>
@@ -371,6 +393,8 @@
                                                       wrapText="true"
                                                       prefRowCount="7"
                                                       styleClass="form-area"/>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         </VBox>
                                     </HBox>
                                 </content>

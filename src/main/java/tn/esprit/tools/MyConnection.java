@@ -19,7 +19,11 @@ public class MyConnection {
 
     private MyConnection() throws SQLException {
         connection = openConnection();
+<<<<<<< HEAD
         SchemaMigration.ensureFootballDataColumns(connection);
+=======
+        SchemaMigration.ensureFullSchema(connection);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     public static synchronized MyConnection getInstance() throws SQLException {
@@ -43,6 +47,7 @@ public class MyConnection {
 
     private Connection openConnection() throws SQLException {
         try {
+<<<<<<< HEAD
             Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
             DatabaseBootstrap.initializeIfNeeded(connection);
             return connection;
@@ -52,6 +57,13 @@ public class MyConnection {
                 Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
                 DatabaseBootstrap.initializeIfNeeded(connection);
                 return connection;
+=======
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException ex) {
+            if (isUnknownDatabase(ex)) {
+                createDatabaseIfMissing();
+                return DriverManager.getConnection(URL, USER, PASSWORD);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
             throw ex;
         }

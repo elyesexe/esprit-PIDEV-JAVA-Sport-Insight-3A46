@@ -12,6 +12,7 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+<<<<<<< HEAD
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -19,21 +20,32 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import tn.esprit.entities.ContratSponsor;
+=======
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Entrainement;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
+<<<<<<< HEAD
 import tn.esprit.entities.Sponsor;
 import tn.esprit.entities.User;
 import tn.esprit.gui.ThemeManager;
+=======
+import tn.esprit.entities.User;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.AnnonceService;
 import tn.esprit.services.EntrainementService;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.MatchsService;
+<<<<<<< HEAD
 import tn.esprit.services.SponsoringWorkspaceService;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.services.UserService;
 import tn.esprit.services.football.FootballDataCompetitions;
 
@@ -45,9 +57,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+=======
+import java.util.Map;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -55,6 +71,7 @@ import java.util.stream.Collectors;
 
 public class AdminDashboardController {
     private static final String DARK_TABLE_CLASS = "admin-dashboard-force-dark";
+<<<<<<< HEAD
     private static final String TRANSPARENT_SURFACE_STYLE =
             "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;";
     private static final String DARK_DASHBOARD_SURFACE_STYLE =
@@ -95,6 +112,10 @@ public class AdminDashboardController {
             List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e");
     private static final List<String> DARK_PLAYER_DISTRIBUTION_COLORS =
             List.of("#10b981", "#0ea5e9", "#34d399", "#f59e0b", "#ef4444", "#14b8a6");
+=======
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("admin-dashboard-db"));
 
@@ -111,6 +132,7 @@ public class AdminDashboardController {
     @FXML
     private Label matchCountLabel;
     @FXML
+<<<<<<< HEAD
     private Label sponsorCountLabel;
     @FXML
     private Label sponsorContractCountLabel;
@@ -119,6 +141,8 @@ public class AdminDashboardController {
     @FXML
     private Label sponsorMappedCountLabel;
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Label dashboardStatusLabel;
     @FXML
     private ComboBox<TeamOption> teamStatsComboBox;
@@ -129,12 +153,15 @@ public class AdminDashboardController {
     @FXML
     private Label matchChartSummaryLabel;
     @FXML
+<<<<<<< HEAD
     private ScrollPane dashboardScroll;
     @FXML
     private StackPane dashboardWrap;
     @FXML
     private FlowPane metricsRibbon;
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private BarChart<String, Number> teamRateChart;
     @FXML
     private BarChart<String, Number> playerDistributionChart;
@@ -189,16 +216,20 @@ public class AdminDashboardController {
 
     private List<Joueur> dashboardJoueurs = List.of();
     private List<Matchs> dashboardMatchs = List.of();
+<<<<<<< HEAD
     private boolean darkMode = ThemeManager.isDarkMode();
     private Boolean appliedDarkMode;
     private Node dashboardViewport;
     private Node dashboardContentNode;
     private boolean surfaceRefreshQueued;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
         configureTables();
         configureCharts();
+<<<<<<< HEAD
         if (dashboardScroll != null) {
             dashboardScroll.skinProperty().addListener((observable, oldValue, newValue) -> {
                 clearCachedScrollNodes();
@@ -210,22 +241,30 @@ public class AdminDashboardController {
             });
         }
         scheduleWorkspaceSurface();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         setLoadingState();
         loadDashboardAsync();
     }
 
     public void setDarkMode(boolean darkMode) {
+<<<<<<< HEAD
         if (Objects.equals(appliedDarkMode, darkMode)) {
             return;
         }
         this.darkMode = darkMode;
         appliedDarkMode = darkMode;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         toggleDarkClass(usersTableView, darkMode);
         toggleDarkClass(annoncesTableView, darkMode);
         toggleDarkClass(entrainementsTableView, darkMode);
         toggleDarkClass(operationsTableView, darkMode);
+<<<<<<< HEAD
         applyWorkspaceSurface();
         refreshActiveChartColors();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void configureTables() {
@@ -254,6 +293,7 @@ public class AdminDashboardController {
         annoncesTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         entrainementsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         operationsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+<<<<<<< HEAD
         configureFastTable(usersTableView);
         configureFastTable(annoncesTableView);
         configureFastTable(entrainementsTableView);
@@ -266,6 +306,8 @@ public class AdminDashboardController {
         }
         tableView.setFixedCellSize(40);
         tableView.setCache(false);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void configureCharts() {
@@ -280,7 +322,10 @@ public class AdminDashboardController {
         if (matchStatusChart != null) {
             matchStatusChart.setTitle("Repartition des statuts");
             matchStatusChart.setAnimated(false);
+<<<<<<< HEAD
             matchStatusChart.setLabelsVisible(false);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
         if (teamStatsComboBox != null) {
             teamStatsComboBox.valueProperty().addListener((observable, oldValue, newValue) -> updateTeamRateChart(newValue));
@@ -328,7 +373,10 @@ public class AdminDashboardController {
                         .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
                         .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
                         .reversed());
+<<<<<<< HEAD
                 SponsoringDashboard sponsoringDashboard = loadSponsoringDashboard();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
                 List<UserRow> userRows = users.stream()
                         .limit(6)
@@ -372,7 +420,11 @@ public class AdminDashboardController {
                         "Joueur",
                         buildPlayerName(joueur),
                         equipeNames.getOrDefault(joueur.getEquipeId(), "Sans equipe"),
+<<<<<<< HEAD
                         joueur.getNumero() > 0 ? "Numero " + joueur.getNumero() : "-"
+=======
+                        joueur.getNumero() > 0 ? "#" + joueur.getNumero() : "-"
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 )));
                 matchs.stream().limit(2).forEach(match -> operationRows.add(new OperationRow(
                         "Match",
@@ -380,7 +432,10 @@ public class AdminDashboardController {
                         buildMatchDate(match),
                         emptyIfNull(match.getStatut(), "Programme")
                 )));
+<<<<<<< HEAD
                 operationRows.addAll(sponsoringDashboard.operations());
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
                 return new DashboardPayload(
                         users.size(),
@@ -389,7 +444,10 @@ public class AdminDashboardController {
                         equipes.size(),
                         joueurs.size(),
                         matchs.size(),
+<<<<<<< HEAD
                         sponsoringDashboard,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                         equipes,
                         joueurs,
                         matchs,
@@ -410,10 +468,13 @@ public class AdminDashboardController {
             equipeCountLabel.setText(String.valueOf(payload.equipeCount()));
             joueurCountLabel.setText(String.valueOf(payload.joueurCount()));
             matchCountLabel.setText(String.valueOf(payload.matchCount()));
+<<<<<<< HEAD
             sponsorCountLabel.setText(String.valueOf(payload.sponsoring().sponsorCount()));
             sponsorContractCountLabel.setText(String.valueOf(payload.sponsoring().contractCount()));
             sponsorSatisfactionLabel.setText(payload.sponsoring().paidContracts() + " / " + payload.sponsoring().unpaidContracts());
             sponsorMappedCountLabel.setText(String.valueOf(payload.sponsoring().mappedSponsors()));
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             usersTableView.setItems(FXCollections.observableArrayList(payload.latestUsers()));
             annoncesTableView.setItems(FXCollections.observableArrayList(payload.latestAnnonces()));
             entrainementsTableView.setItems(FXCollections.observableArrayList(payload.latestEntrainements()));
@@ -429,10 +490,13 @@ public class AdminDashboardController {
             equipeCountLabel.setText("-");
             joueurCountLabel.setText("-");
             matchCountLabel.setText("-");
+<<<<<<< HEAD
             sponsorCountLabel.setText("-");
             sponsorContractCountLabel.setText("-");
             sponsorSatisfactionLabel.setText("-");
             sponsorMappedCountLabel.setText("-");
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             usersTableView.setItems(FXCollections.observableArrayList());
             annoncesTableView.setItems(FXCollections.observableArrayList());
             entrainementsTableView.setItems(FXCollections.observableArrayList());
@@ -449,6 +513,7 @@ public class AdminDashboardController {
         DB_EXECUTOR.execute(task);
     }
 
+<<<<<<< HEAD
     private SponsoringDashboard loadSponsoringDashboard() {
         try {
             SponsoringWorkspaceService sponsoringWorkspaceService = new SponsoringWorkspaceService();
@@ -506,6 +571,8 @@ public class AdminDashboardController {
         return emptyIfNull(equipe == null ? null : equipe.getNom(), "Equipe");
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void setLoadingState() {
         userCountLabel.setText("...");
         annonceCountLabel.setText("...");
@@ -513,10 +580,13 @@ public class AdminDashboardController {
         equipeCountLabel.setText("...");
         joueurCountLabel.setText("...");
         matchCountLabel.setText("...");
+<<<<<<< HEAD
         sponsorCountLabel.setText("...");
         sponsorContractCountLabel.setText("...");
         sponsorSatisfactionLabel.setText("...");
         sponsorMappedCountLabel.setText("...");
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         usersTableView.setItems(FXCollections.observableArrayList());
         annoncesTableView.setItems(FXCollections.observableArrayList());
         entrainementsTableView.setItems(FXCollections.observableArrayList());
@@ -644,7 +714,11 @@ public class AdminDashboardController {
                     + (pendingMatches > 0 ? " | " + pendingMatches + " matchs en attente" : ""));
         }
         teamRateChart.getData().add(series);
+<<<<<<< HEAD
         applyBarColors(series, darkMode ? DARK_TEAM_RATE_COLORS : LIGHT_TEAM_RATE_COLORS);
+=======
+        applyBarColors(series, List.of("#16a34a", "#f59e0b", "#dc2626"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updatePlayerDistributionChart(List<Joueur> joueurs, Map<Integer, String> equipeNames) {
@@ -671,7 +745,11 @@ public class AdminDashboardController {
                 .limit(6)
                 .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
         playerDistributionChart.getData().add(series);
+<<<<<<< HEAD
         applyBarColors(series, darkMode ? DARK_PLAYER_DISTRIBUTION_COLORS : LIGHT_PLAYER_DISTRIBUTION_COLORS);
+=======
+        applyBarColors(series, List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         long unassignedCount = joueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count();
         String averageAge = buildAverageAge(joueurs);
@@ -723,6 +801,7 @@ public class AdminDashboardController {
         tableView.getStyleClass().remove(DARK_TABLE_CLASS);
     }
 
+<<<<<<< HEAD
     private void refreshActiveChartColors() {
         if (teamRateChart != null && !teamRateChart.getData().isEmpty()) {
             repaintBarColors(teamRateChart.getData().get(0), darkMode ? DARK_TEAM_RATE_COLORS : LIGHT_TEAM_RATE_COLORS);
@@ -790,6 +869,8 @@ public class AdminDashboardController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void setStatus(String message, String styleClass) {
         dashboardStatusLabel.getStyleClass().removeAll("status-muted", "status-success", "status-warning", "status-error");
         if (!dashboardStatusLabel.getStyleClass().contains(styleClass)) {
@@ -898,6 +979,7 @@ public class AdminDashboardController {
         });
     }
 
+<<<<<<< HEAD
     private void repaintBarColors(XYChart.Series<String, Number> series, List<String> colors) {
         Platform.runLater(() -> {
             for (int index = 0; index < series.getData().size(); index++) {
@@ -914,6 +996,8 @@ public class AdminDashboardController {
         node.setStyle(TRANSPARENT_SURFACE_STYLE);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void applyBarColor(XYChart.Data<String, Number> data, String color) {
         if (data == null) {
             return;
@@ -928,6 +1012,7 @@ public class AdminDashboardController {
         return date == null ? "-" : DATE_FORMATTER.format(date);
     }
 
+<<<<<<< HEAD
     private String formatCompactCurrency(double amount) {
         if (Math.abs(amount) >= 1000) {
             return String.format(Locale.ENGLISH, "%,.1fK DT", amount / 1000.0);
@@ -935,6 +1020,8 @@ public class AdminDashboardController {
         return String.format(Locale.ENGLISH, "%,.0f DT", amount);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String buildTrainingTime(Entrainement entrainement) {
         String start = entrainement.getHeureDebut() == null ? "--:--" : TIME_FORMATTER.format(entrainement.getHeureDebut());
         String end = entrainement.getHeureFin() == null ? "--:--" : TIME_FORMATTER.format(entrainement.getHeureFin());
@@ -968,7 +1055,10 @@ public class AdminDashboardController {
             int equipeCount,
             int joueurCount,
             int matchCount,
+<<<<<<< HEAD
             SponsoringDashboard sponsoring,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             List<Equipe> equipes,
             List<Joueur> joueurs,
             List<Matchs> matchs,
@@ -992,6 +1082,7 @@ public class AdminDashboardController {
     private record OperationRow(String module, String primary, String secondary, String meta) {
     }
 
+<<<<<<< HEAD
     private record SponsoringDashboard(
             int sponsorCount,
             int contractCount,
@@ -1005,6 +1096,8 @@ public class AdminDashboardController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private record TeamOption(Integer id, String label, String competition) {
         @Override
         public String toString() {

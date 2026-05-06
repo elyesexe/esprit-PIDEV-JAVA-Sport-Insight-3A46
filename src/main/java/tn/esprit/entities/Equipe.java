@@ -11,7 +11,10 @@ public class Equipe {
     private Long externalApiId;
     private String externalSource;
     private String competitionCode;
+<<<<<<< HEAD
     private Long apiFootballId;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     public Equipe() {
     }
@@ -115,6 +118,7 @@ public class Equipe {
         this.competitionCode = competitionCode;
     }
 
+<<<<<<< HEAD
     public Long getApiFootballId() {
         return apiFootballId;
     }
@@ -123,6 +127,8 @@ public class Equipe {
         this.apiFootballId = apiFootballId;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @Override
     public String toString() {
         return "Equipe{" +
@@ -136,7 +142,10 @@ public class Equipe {
                 ", externalApiId=" + externalApiId +
                 ", externalSource='" + externalSource + '\'' +
                 ", competitionCode='" + competitionCode + '\'' +
+<<<<<<< HEAD
                 ", apiFootballId=" + apiFootballId +
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 '}';
     }
 }

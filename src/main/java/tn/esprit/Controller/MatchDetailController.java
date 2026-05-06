@@ -1,5 +1,6 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -11,10 +12,15 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+=======
+import javafx.embed.swing.SwingFXUtils;
+import javafx.fxml.FXML;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+<<<<<<< HEAD
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.OverrunStyle;
@@ -101,10 +107,47 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MatchDetailController implements AssistantContextProvider {
+=======
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Matchs;
+import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.SidebarModuleGroup;
+import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.EquipeService;
+import tn.esprit.services.MatchsService;
+import tn.esprit.services.football.FootballDataCompetitions;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+public class MatchDetailController {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final Path SYMFONY_UPLOADS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "equipes");
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
+<<<<<<< HEAD
     private static final String PITCH_LAYOUT_KEY = "matchDetailPitchLayout";
     private static final String PITCH_DECORATIONS_KEY = "matchDetailPitchDecorations";
     private static final String PITCH_DECORATION_NODE_KEY = "matchDetailPitchDecorationNode";
@@ -129,6 +172,8 @@ public class MatchDetailController implements AssistantContextProvider {
     private static final Color LIVE_ATTENTION_ACCENT = Color.web("#ef4444");
     private static final Color LIVE_ATTENTION_LIGHT_BASE = Color.web("#111827");
     private static final Color LIVE_ATTENTION_DARK_BASE = Color.web("#f8fafc");
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private HBox navbarRoot;
@@ -173,10 +218,13 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Label detailScoreValueLabel;
     @FXML
+<<<<<<< HEAD
     private Label detailLivePhaseLabel;
     @FXML
     private Label detailLiveMinuteLabel;
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Label detailDateValueLabel;
     @FXML
     private Label detailHeureValueLabel;
@@ -191,6 +239,7 @@ public class MatchDetailController implements AssistantContextProvider {
     @FXML
     private Label detailCompetitionValueLabel;
     @FXML
+<<<<<<< HEAD
     private Button summaryTabButton;
     @FXML
     private Button statsTabButton;
@@ -327,11 +376,22 @@ public class MatchDetailController implements AssistantContextProvider {
     private File currentLocalMp4File;
     private boolean matchVideoLookupCompleted;
     private boolean matchVideoRefreshInProgress;
+=======
+    private TextArea lineupDomicileArea;
+    @FXML
+    private TextArea lineupExterieurArea;
+
+    private MatchsService matchsService;
+    private EquipeService equipeService;
+    private Matchs match;
+    private SidebarModuleGroup sidebarModuleGroup;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
         configureSidebar();
         ThemeManager.bindToggle(themeToggleButton);
+<<<<<<< HEAD
         if (matchVideoWebView != null) {
             matchVideoWebView.setContextMenuEnabled(false);
             matchVideoWebView.getEngine().setJavaScriptEnabled(true);
@@ -343,12 +403,17 @@ public class MatchDetailController implements AssistantContextProvider {
         applyActiveTab();
         configureLiveRefreshLifecycle();
         youtubeService = new YouTubeService();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         try {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
+<<<<<<< HEAD
             apiFootballInsightsService = new ApiFootballInsightsService();
             matchFollowTargetService = new MatchFollowTargetService();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de preparer la fiche match.\n" + e.getMessage());
         }
@@ -365,6 +430,7 @@ public class MatchDetailController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     public Matchs getCurrentMatch() {
         return match;
     }
@@ -872,6 +938,8 @@ public class MatchDetailController implements AssistantContextProvider {
         openMatchList();
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleOpenHome() {
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
@@ -907,7 +975,10 @@ public class MatchDetailController implements AssistantContextProvider {
 
     @FXML
     private void handleBack() {
+<<<<<<< HEAD
         stopLiveRefresh();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         openMatchList();
     }
 
@@ -954,6 +1025,7 @@ public class MatchDetailController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     @FXML
     private void handleShowSummaryTab() {
         activeTab = MatchDetailTab.SUMMARY;
@@ -1033,16 +1105,23 @@ public class MatchDetailController implements AssistantContextProvider {
         loadYouTubeInChromium(selectedYouTubeVideo);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void renderMatch() {
         if (match == null || equipeService == null) {
             return;
         }
 
         try {
+<<<<<<< HEAD
             PLAYER_PHOTO_CACHE.clear();
             PLAYER_PHOTO_REQUESTS.clear();
             homeTeam = resolveEquipe(match.getEquipeDomicileId());
             awayTeam = resolveEquipe(match.getEquipeExterieurId());
+=======
+            Equipe homeTeam = resolveEquipe(match.getEquipeDomicileId());
+            Equipe awayTeam = resolveEquipe(match.getEquipeExterieurId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             String competitionLabel = resolveCompetitionLabel(match.getCompetitionCode());
 
             competitionBadgeLabel.setText(competitionLabel == null ? "Competition" : competitionLabel);
@@ -1053,6 +1132,7 @@ public class MatchDetailController implements AssistantContextProvider {
             detailScoreValueLabel.setText(buildScore(match));
             detailDateValueLabel.setText(formatDate(match.getDateMatch()));
             detailHeureValueLabel.setText(formatTime(match.getHeureDebut()));
+<<<<<<< HEAD
             updateLiveScoreboard(null, match.getStatut());
             detailLieuValueLabel.setText(emptyToFallback(match.getLieu(), "Non renseigne"));
             detailTypeValueLabel.setText(emptyToFallback(match.getType(), "Non renseigne"));
@@ -1087,6 +1167,20 @@ public class MatchDetailController implements AssistantContextProvider {
             ensureFinishedMatchHighlightsLoaded(false);
             refreshLiveMatchAsync(true);
             startLiveRefreshIfNeeded();
+=======
+            detailLieuValueLabel.setText(emptyToFallback(match.getLieu(), "Non renseigne"));
+            detailTypeValueLabel.setText(emptyToFallback(match.getType(), "Non renseigne"));
+            detailStatutValueLabel.setText(resolveStatus(match));
+            detailIdValueLabel.setText(match.getIdMatch() == null ? "#" + match.getId() : match.getIdMatch());
+            detailCompetitionValueLabel.setText(competitionLabel == null ? "Non renseignee" : competitionLabel);
+            detailHomeNameLabel.setText(homeTeam == null ? "Equipe domicile" : emptyToFallback(homeTeam.getNom(), "Equipe domicile"));
+            detailAwayNameLabel.setText(awayTeam == null ? "Equipe exterieur" : emptyToFallback(awayTeam.getNom(), "Equipe exterieur"));
+            lineupDomicileArea.setText(emptyToFallback(match.getLineupDomicile(), "Aucun onze de depart renseigne."));
+            lineupExterieurArea.setText(emptyToFallback(match.getLineupExterieur(), "Aucun onze de depart renseigne."));
+
+            updateLogo(detailHomeLogoView, detailHomeLogoFallbackLabel, homeTeam, "D");
+            updateLogo(detailAwayLogoView, detailAwayLogoFallbackLabel, awayTeam, "E");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations du match.\n" + e.getMessage());
         }
@@ -1096,6 +1190,7 @@ public class MatchDetailController implements AssistantContextProvider {
         return equipeId == null || equipeService == null ? null : equipeService.getById(equipeId);
     }
 
+<<<<<<< HEAD
     private void renderCachedInsights() {
         if (apiFootballInsightsService == null || match == null) {
             showApiFootballStatus("Les sources detaillees sont indisponibles pour le moment.", "status-warning");
@@ -4541,6 +4636,8 @@ public class MatchDetailController implements AssistantContextProvider {
         return message.length() <= 140 ? message : message.substring(0, 140) + "...";
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void updateLogo(ImageView imageView, Label fallbackLabel, Equipe equipe, String defaultLetter) {
         Image image = equipe == null ? null : loadImage(equipe.getImage());
         boolean hasImage = image != null;
@@ -4653,7 +4750,11 @@ public class MatchDetailController implements AssistantContextProvider {
         if (normalized == null) {
             return "fixture-status-scheduled";
         }
+<<<<<<< HEAD
         if (isLiveStatusText(normalized)) {
+=======
+        if (normalized.contains("cours") || normalized.contains("live")) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -4665,6 +4766,7 @@ public class MatchDetailController implements AssistantContextProvider {
         return "fixture-status-scheduled";
     }
 
+<<<<<<< HEAD
     private boolean isLiveStatusText(String normalized) {
         if (normalized == null) {
             return false;
@@ -4688,11 +4790,14 @@ public class MatchDetailController implements AssistantContextProvider {
                 || normalized.contains("shootout");
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String emptyToFallback(String value, String fallback) {
         String cleaned = emptyToNull(value);
         return cleaned == null ? fallback : cleaned;
     }
 
+<<<<<<< HEAD
     private String escapeHtml(String value) {
         String cleaned = emptyToFallback(value, "");
         return cleaned
@@ -4708,15 +4813,20 @@ public class MatchDetailController implements AssistantContextProvider {
         return cleaned == null ? fallback : cleaned;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String emptyToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
+<<<<<<< HEAD
     private String lowercase(String value) {
         String cleaned = emptyToNull(value);
         return cleaned == null ? null : cleaned.toLowerCase(Locale.ROOT);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String normalize(String value) {
         String cleaned = emptyToNull(value);
         return cleaned == null ? null : cleaned.toLowerCase();
@@ -4865,6 +4975,7 @@ public class MatchDetailController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     private static ThreadFactory daemonFactory(String threadName) {
         return runnable -> {
             Thread thread = new Thread(runnable, threadName);
@@ -4873,6 +4984,8 @@ public class MatchDetailController implements AssistantContextProvider {
         };
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -4880,6 +4993,7 @@ public class MatchDetailController implements AssistantContextProvider {
         alert.setContentText(message);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 
     private enum MatchDetailTab {
         SUMMARY,
@@ -4916,5 +5030,7 @@ public class MatchDetailController implements AssistantContextProvider {
 
     private record GridPlacement(ApiFootballLineupPlayer player, int row, int column) {
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 

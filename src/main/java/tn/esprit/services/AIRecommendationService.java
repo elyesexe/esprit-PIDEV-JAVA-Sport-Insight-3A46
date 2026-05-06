@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 
 import java.io.IOException;
+<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AIRecommendationService {
     
+<<<<<<< HEAD
     private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=";
     private static final String LOCAL_PROPERTIES_FILE = "ai-recommendation.local.properties";
     private static final String USER_HOME_PROPERTIES_FILE = ".sport-insight/ai-recommendation.local.properties";
@@ -30,6 +34,15 @@ public class AIRecommendationService {
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final String geminiApiKey;
+=======
+    // IMPORTANT: Replace with your actual Gemini API key
+    // Get free API key from: https://makersuite.google.com/app/apikey
+    private static final String GEMINI_API_KEY = "YOUR_API_KEY_HERE";
+    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+    
+    private final OkHttpClient httpClient;
+    private final ObjectMapper objectMapper;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     public AIRecommendationService() {
         this.httpClient = new OkHttpClient.Builder()
@@ -37,11 +50,14 @@ public class AIRecommendationService {
             .readTimeout(30, TimeUnit.SECONDS)
             .build();
         this.objectMapper = new ObjectMapper();
+<<<<<<< HEAD
         this.geminiApiKey = loadGeminiApiKey();
     }
 
     public boolean isConfigured() {
         return geminiApiKey != null && !geminiApiKey.isBlank() && !"YOUR_API_KEY_HERE".equals(geminiApiKey);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     /**
@@ -159,7 +175,11 @@ public class AIRecommendationService {
 
     private String callGeminiAPI(String prompt) throws IOException {
         // Check if API key is configured
+<<<<<<< HEAD
         if (!isConfigured()) {
+=======
+        if (GEMINI_API_KEY.equals("YOUR_API_KEY_HERE") || GEMINI_API_KEY.trim().isEmpty()) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return generateFallbackAdvice(prompt);
         }
 
@@ -179,7 +199,11 @@ public class AIRecommendationService {
             """, prompt.replace("\"", "\\\"").replace("\n", "\\n"));
 
         Request request = new Request.Builder()
+<<<<<<< HEAD
             .url(GEMINI_API_URL + geminiApiKey)
+=======
+            .url(GEMINI_API_URL)
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             .post(RequestBody.create(requestBody, MediaType.parse("application/json")))
             .build();
 
@@ -230,6 +254,7 @@ public class AIRecommendationService {
         throw new IOException("Invalid response format from Gemini API");
     }
 
+<<<<<<< HEAD
     private String loadGeminiApiKey() {
         String configured = firstNonBlank(
                 System.getProperty("sport.insight.gemini.api.key"),
@@ -268,10 +293,13 @@ public class AIRecommendationService {
         return null;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     /**
      * Fallback advice when API key is not configured or API call fails
      */
     private String generateFallbackAdvice(String prompt) {
+<<<<<<< HEAD
         String normalizedPrompt = prompt == null ? "" : prompt.toLowerCase();
         if (!normalizedPrompt.contains("nutrition") && !normalizedPrompt.contains("alimentaire")) {
             return """
@@ -307,6 +335,104 @@ public class AIRecommendationService {
                 - Visez 2 a 3 litres d'eau par jour.
                 - Gardez des repas simples: proteines maigres, feculents complets, fruits et legumes.
                 - Ajustez les portions les jours de charge forte.
+=======
+        if (prompt.contains("entraînement")) {
+            return """
+                🤖 **Mode Démo: Recommandations Générales d'Entraînement**
+                
+                ⚠️ **Pour activer l'IA Gemini (gratuit):**
+                1. Obtenez une clé API sur: https://makersuite.google.com/app/apikey
+                2. Remplacez "YOUR_API_KEY_HERE" dans AIRecommendationService.java
+                3. Redémarrez l'application
+                
+                📊 **Analyse des performances:**
+                • Score physique: Bon niveau général
+                • Technique: Points à travailler
+                • Tactique: Compréhension du jeu à améliorer
+                
+                🏋️ **Plan d'entraînement recommandé (4 semaines):**
+                
+                **Semaine 1-2: Fondamentaux**
+                • Lundi: Endurance (course 30 min + HIIT 15 min)
+                • Mardi: Technique (contrôle, passes, dribbles)
+                • Mercredi: Récupération active (étirements, yoga)
+                • Jeudi: Physique (musculation football-specific)
+                • Vendredi: Tactique (analyse vidéo + jeux réduits)
+                • Samedi: Match simulé
+                • Dimanche: Repos complet
+                
+                **Semaine 3-4: Intensification**
+                • Augmentation progressive de l'intensité
+                • Focus sur le point faible identifié
+                • Tests de progression
+                
+                💡 **Conseils clés:**
+                1. Consistance > Intensité: Mieux vaut 4 séances régulières que 6 irrégulières
+                2. Qualité > Quantité: 45 min concentrées valent mieux que 90 min molles
+                3. Récupération: Le sommeil et la nutrition sont aussi importants que l'entraînement
+                4. Mesure: Notez vos progrès chaque semaine
+                
+                🎯 **Objectifs SMART:**
+                • Spécifique: Améliorer la précision des passes longues de 60% à 75%
+                • Mesurable: 100 passes longues par session, noter le taux de réussite
+                • Atteignable: +5% par semaine
+                • Réaliste: Basé sur votre niveau actuel
+                • Temporel: 4 semaines
+                """;
+        } else {
+            return """
+                🍎 **Mode Démo: Conseils Nutritionnels Généraux**
+                
+                ⚠️ **Pour activer l'IA Gemini (gratuit):**
+                1. Obtenez une clé API sur: https://makersuite.google.com/app/apikey
+                2. Remplacez "YOUR_API_KEY_HERE" dans AIRecommendationService.java
+                3. Redémarrez l'application
+                
+                📋 **Plan nutritionnel football (exemple journée):**
+                
+                **Petit-déjeuner (7h - 1h avant entraînement):**
+                • 80g flocons d'avoine + 250ml lait
+                • 1 banane + 10 amandes
+                • 1 œuf dur
+                • Café/thé (sans sucre ajouté)
+                
+                **Collation pré-entraînement (30 min avant):**
+                • 1 fruit (pomme ou poire)
+                • 200ml boisson isotonique
+                
+                **Post-entraînement (dans les 30 min):**
+                • Shake: 25g whey + 200ml lait + 1 banane
+                • 500ml eau + électrolytes
+                
+                **Déjeuner (2h après entraînement):**
+                • 150g poulet/poisson/steak haché 5%
+                • 100g riz/pâtes complètes/quinoa
+                • Légumes variés à volonté (brocoli, carottes, haricots verts)
+                • 1 cuillère à soupe huile d'olive
+                
+                **Goûter (16h):**
+                • 1 yaourt grec nature
+                • 1 poignée de fruits rouges
+                • 1 carré chocolat noir 85%
+                
+                **Dîner (20h):**
+                • 120g poisson blanc/omelette 2 œufs
+                • Légumes variés à volonté
+                • 1 petite patate douce (si entraînement intense le lendemain)
+                • Salade verte + vinaigrette légère
+                
+                **Hydratation quotidienne:**
+                • 2-3L d'eau minimum
+                • +500ml par heure d'entraînement
+                • Éviter sodas et jus industriels
+                
+                💡 **Conseils nutritionnels:**
+                1. Timing: Manger 3-4h avant l'effort, collation 30-60 min avant
+                2. Proportion: 50% glucides, 30% protéines, 20% lipides
+                3. Qualité: Aliments non transformés > produits industriels
+                4. Variété: Couleurs dans l'assiette = nutriments variés
+                5. Écoute: Votre corps sait ce dont il a besoin
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 """;
         }
     }

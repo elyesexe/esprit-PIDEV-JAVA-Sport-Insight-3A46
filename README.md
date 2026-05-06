@@ -1,5 +1,6 @@
 # Sport Insight
 
+<<<<<<< HEAD
 Sport Insight is a JavaFX desktop platform dedicated to football management, analysis, and user experience. It brings together administration, sports data management, public-facing interfaces, and connected services inside one modern application backed by Java, JDBC, and MySQL.
 
 The goal of Sport Insight is to provide a single environment where teams, players, matches, training sessions, announcements, sponsors, products, orders, and users can be managed through rich graphical interfaces while also benefiting from live football data and operational dashboards.
@@ -20,6 +21,11 @@ The admin workspace recently received a large UI and workflow refresh. The bigge
 - finished-match highlight playback using the official YouTube Data API and an embedded Chromium player
 - a new user-facing News page with live football headlines, search, topic filters, saved stories, a custom hero image, responsive dark mode, and optimized high-resolution story images
 - restored training participation and evaluation UX from the training branch, including color-coded attendance cards, styled evaluation dialogs, evaluation notification email support, and player progression with AI recommendations
+=======
+Sport Insight is a JavaFX desktop platform dedicated to football management, analysis, and user experience. The project brings together administration, sports data management, public-facing interfaces, and connected services inside one modern application backed by Java, JDBC, and MySQL.
+
+The main idea behind Sport Insight is simple: create a single environment where teams, players, matches, training sessions, announcements, sponsors, products, and users can be managed through rich graphical interfaces while also benefiting from live football data and visual dashboards.
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ## Project Vision
 
@@ -36,12 +42,21 @@ The application focuses on usability, structured data, and a polished JavaFX exp
 
 ## Authors
 
+<<<<<<< HEAD
 - Elyes Chaouch - Director, Match management
 - Amine Bouchnak - Product management
 - Sirine Saidaoui - User management
 - Tesnim Fekih - Training management
 - Sayda Guennichi - Announcement management
 - Rym Hamouda - Sponsoring management
+=======
+- Elyes Chaouch — Director, Match management
+- Amine Bouchnak — Product management
+- Sirine Saidaoui — User management
+- Tesnim Fekih — Training management
+- Sayda Guennichi — Announcement management
+- Rym Hamouda — Sponsoring management
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ## Functional Scope
 
@@ -57,12 +72,16 @@ Sport Insight covers several business areas inside the same application:
 - sponsor and contract management
 - product and store management
 - league discovery, competition browsing, and standings consultation
+<<<<<<< HEAD
 - live football news browsing through the Sport Insight News page
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ## Main Modules
 
 ### 1. Administration
 
+<<<<<<< HEAD
 The admin area centralizes supervision of the platform. It includes:
 
 - an admin shell with side navigation and animated collapse/expand behavior
@@ -71,6 +90,15 @@ The admin area centralizes supervision of the platform. It includes:
 - moderation tools for users
 - a consistent violet dark-mode design language across admin pages
 - dedicated admin light-mode readability improvements
+=======
+The admin area centralizes the supervision of the platform. It includes:
+
+- an admin shell with side navigation
+- a dashboard with KPIs and charts
+- quick access to the main data modules
+- moderation tools for users
+- a visual overview of teams, players, matches, announcements, and training sessions
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ### 2. Teams
 
@@ -138,7 +166,10 @@ Main capabilities:
 - link home and away teams
 - track scores and statuses
 - sync matches from external football competitions
+<<<<<<< HEAD
 - search and watch finished-match highlights directly inside the app
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 Managed information includes:
 
@@ -166,6 +197,7 @@ Main capabilities:
 - create training sessions
 - edit and delete sessions
 - browse planning data
+<<<<<<< HEAD
 - mark front-office participation as `Present` or `Absent`
 - show green training cards for present users and red training cards for absent users
 - manage participation and evaluation-related flows
@@ -174,6 +206,9 @@ Main capabilities:
 - show player progression in the front training view after evaluations are recorded
 - generate AI-based recommended exercises and nutrition plans from the player's evaluation history
 - keep dedicated styling for training, participation, evaluation dialogs, and performance widgets in `entrainement-theme.css`
+=======
+- manage participation and evaluation-related flows
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ### 6. Announcements
 
@@ -221,6 +256,7 @@ The application contains a complete user flow:
 - profile interface
 - access-aware navigation
 
+<<<<<<< HEAD
 ### 10. Sport Insight News
 
 The News section adds a user-facing football newsroom inside the JavaFX application. It is designed to feel consistent with the Sport Insight interface while giving users quick access to current football headlines.
@@ -247,6 +283,8 @@ Main related files:
 - `football-news-theme.css`
 - `News hero.png`
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 ## CRUD Coverage
 
 Sport Insight includes strong CRUD coverage across the project. The platform manages operations such as:
@@ -263,8 +301,11 @@ Sport Insight includes strong CRUD coverage across the project. The platform man
 
 This CRUD logic is implemented through service classes, JavaFX controllers, and dedicated FXML views.
 
+<<<<<<< HEAD
 Recent admin workflow updates also introduced inline row actions and direct table editing for selected modules, especially `Equipe`, `Joueur`, and `Matchs`.
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 ## Interfaces and Screens
 
 The project is interface-driven and built around JavaFX views. Important screens include:
@@ -285,7 +326,10 @@ The project is interface-driven and built around JavaFX views. Important screens
 - sponsor admin and user views
 - product/store views
 - competition and standings views
+<<<<<<< HEAD
 - Sport Insight News user view
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 Notable FXML files:
 
@@ -301,6 +345,7 @@ Notable FXML files:
 - `product-crud-view.fxml`
 - `store-view.fxml`
 - `league-table-view.fxml`
+<<<<<<< HEAD
 - `football-news-view.fxml`
 
 Recent admin UX improvements include:
@@ -310,11 +355,14 @@ Recent admin UX improvements include:
 - row-level update and delete buttons inside selected tables
 - unified admin violet dark mode
 - clearer light-mode text contrast
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ## Dashboard and Statistics
 
 Sport Insight includes visual dashboards to make data easier to understand.
 
+<<<<<<< HEAD
 The current admin dashboard direction is intentionally more operational than decorative. It now focuses on:
 
 - administrative KPI cards
@@ -324,6 +372,18 @@ The current admin dashboard direction is intentionally more operational than dec
 - a cleaner home page without graphic charts on the admin dashboard itself
 
 Detailed charts and module-specific statistics remain available inside the dedicated admin pages for teams, players, matches, sponsors, products, orders, and users.
+=======
+Current dashboard direction includes:
+
+- administrative KPI cards
+- operational summary tables
+- team statistics charts
+- player distribution charts
+- match status charts
+- recent activity views
+
+These elements help transform raw data into quick decisions for administrators.
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 ## External APIs and Data Enrichment
 
@@ -349,6 +409,7 @@ Main related classes:
 - `LeagueStandingEntry`
 - `FootballDataConfig`
 
+<<<<<<< HEAD
 ### Football data providers
 
 The project now combines multiple sources so the free tier remains usable:
@@ -406,6 +467,8 @@ The JavaFX controller keeps the UI responsive by:
 - falling back to the local `News hero.png` image if a remote image is missing or fails
 - keeping saved stories in memory for the current session only
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 ### Wikidata integration
 
 Wikidata is used to enrich player information, especially media assets.
@@ -429,8 +492,11 @@ This enrichment improves the realism and presentation quality of player profiles
 - jBCrypt
 - PDFBox
 - WebP ImageIO
+<<<<<<< HEAD
 - JCEF / embedded Chromium
 - JavaFX Web and Media
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 - JUnit 5
 
 ## Architecture Overview
@@ -504,6 +570,7 @@ Contains the visual identity of the application, including module-specific theme
 
 Contains visual assets used across interfaces.
 
+<<<<<<< HEAD
 ## API Keys
 
 Sport Insight can use multiple football APIs in parallel:
@@ -528,6 +595,8 @@ Example files:
 - `football-data.local.properties.example`
 - `api-football.local.properties.example`
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 ## Database
 
 Sport Insight relies on a MySQL database named `sport_insight`.
@@ -576,12 +645,17 @@ The project emphasizes:
 - reusable layouts
 - dashboard visibility
 - modern football-oriented styling
+<<<<<<< HEAD
 - unified violet dark mode support in admin areas
 - dark-mode support for user-facing pages, including the News page background and scroll panel
 - improved light mode readability for admin interfaces
 - detailed screens for teams, players, and matches
 - inline editing flows for selected admin tables
 - responsive media-heavy pages that avoid UI freezes by batching image-card rendering
+=======
+- dark mode support in admin areas
+- detailed screens for teams, players, and matches
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 The goal is not only to store sports data, but to make that data meaningful, accessible, and attractive through a complete interface experience.
 
@@ -607,5 +681,8 @@ Sport Insight is a JavaFX and MySQL football platform that brings together:
 - administration and dashboard views
 - public and user-oriented screens
 - football-data and Wikidata integration
+<<<<<<< HEAD
 - live Sport Insight News feed integration
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 - a clear sports-tech concept centered on football insight and management

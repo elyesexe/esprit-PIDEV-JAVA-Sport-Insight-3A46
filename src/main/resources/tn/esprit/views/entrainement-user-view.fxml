@@ -24,7 +24,10 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.Controller.EntrainementUserController"
+<<<<<<< HEAD
             stylesheets="@../styles/entrainement-theme.css"
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             styleClass="page-root">
 
     <top>

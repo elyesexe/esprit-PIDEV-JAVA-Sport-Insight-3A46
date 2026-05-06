@@ -11,17 +11,24 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+<<<<<<< HEAD
 import java.sql.Statement;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+<<<<<<< HEAD
 import java.util.Map;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.Set;
 
 public class OrderService implements IService<Order> {
     private static final List<String> ORDER_STATUSES = List.of(
+<<<<<<< HEAD
             "pending",
             "confirmed",
             "shipped",
@@ -36,10 +43,31 @@ public class OrderService implements IService<Order> {
             "pending",
             "paid",
             "failed"
+=======
+            "PENDING",
+            "CONFIRMED",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED"
+    );
+    private static final List<String> PAYMENT_METHODS = List.of(
+            "CARD",
+            "CASH",
+            "CASH_ON_DELIVERY",
+            "BANK_TRANSFER"
+    );
+    private static final List<String> PAYMENT_STATUSES = List.of(
+            "UNPAID",
+            "PENDING",
+            "PAID",
+            "FAILED",
+            "REFUNDED"
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     );
     private static final Set<String> ALLOWED_ORDER_STATUSES = Set.copyOf(ORDER_STATUSES);
     private static final Set<String> ALLOWED_PAYMENT_METHODS = Set.copyOf(PAYMENT_METHODS);
     private static final Set<String> ALLOWED_PAYMENT_STATUSES = Set.copyOf(PAYMENT_STATUSES);
+<<<<<<< HEAD
     private static final Map<String, String> ORDER_STATUS_ALIASES = Map.of(
             "PENDING", "pending",
             "CONFIRMED", "confirmed",
@@ -69,6 +97,11 @@ public class OrderService implements IService<Order> {
     private static final int MIN_ADDRESS_LENGTH = 8;
     private static final int MAX_ADDRESS_LENGTH = 300;
     private static final int MAX_CLIENT_NAME_LENGTH = 120;
+=======
+
+    private static final int MIN_ADDRESS_LENGTH = 8;
+    private static final int MAX_ADDRESS_LENGTH = 300;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final int MAX_PHONE_LENGTH = 20;
     private static final int MAX_SIZE_LENGTH = 20;
 
@@ -184,7 +217,11 @@ public class OrderService implements IService<Order> {
     public List<Order> getAll() throws SQLException {
         String sql = """
                 SELECT id, quantity, order_date, status, payment_method, payment_status, size,
+<<<<<<< HEAD
                        client_name, contact_email, contact_phone, shipping_address, billing_address,
+=======
+                       contact_email, contact_phone, shipping_address, billing_address,
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                        total_amount, product_id, entraineur_id
                 FROM `order`
                 ORDER BY order_date DESC, id DESC
@@ -214,13 +251,20 @@ public class OrderService implements IService<Order> {
 
         String sql = """
                 SELECT id, quantity, order_date, status, payment_method, payment_status, size,
+<<<<<<< HEAD
                        client_name, contact_email, contact_phone, shipping_address, billing_address,
+=======
+                       contact_email, contact_phone, shipping_address, billing_address,
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                        total_amount, product_id, entraineur_id
                 FROM `order`
                 WHERE LOWER(COALESCE(status, '')) LIKE ?
                    OR LOWER(COALESCE(payment_method, '')) LIKE ?
                    OR LOWER(COALESCE(payment_status, '')) LIKE ?
+<<<<<<< HEAD
                    OR LOWER(COALESCE(client_name, '')) LIKE ?
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                    OR LOWER(COALESCE(contact_email, '')) LIKE ?
                    OR LOWER(COALESCE(contact_phone, '')) LIKE ?
                    OR CAST(id AS CHAR) LIKE ?
@@ -238,7 +282,10 @@ public class OrderService implements IService<Order> {
             statement.setString(5, pattern);
             statement.setString(6, pattern);
             statement.setString(7, pattern);
+<<<<<<< HEAD
             statement.setString(8, pattern);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -270,6 +317,7 @@ public class OrderService implements IService<Order> {
 
         LocalDate orderDate = order.getOrderDate() == null ? LocalDate.now() : order.getOrderDate();
 
+<<<<<<< HEAD
         String paymentMethod = normalizeEnum(order.getPaymentMethod(), ALLOWED_PAYMENT_METHODS, PAYMENT_METHOD_ALIASES, true, "Payment method is required.");
         String paymentStatus = normalizeEnum(order.getPaymentStatus(), ALLOWED_PAYMENT_STATUSES, PAYMENT_STATUS_ALIASES, false, null);
         if (paymentStatus == null) {
@@ -279,6 +327,17 @@ public class OrderService implements IService<Order> {
         String status = normalizeEnum(order.getStatus(), ALLOWED_ORDER_STATUSES, ORDER_STATUS_ALIASES, false, null);
         if (status == null) {
             status = "paid".equals(paymentStatus) ? "confirmed" : "pending";
+=======
+        String paymentMethod = normalizeEnum(order.getPaymentMethod(), ALLOWED_PAYMENT_METHODS, true, "Payment method is required.");
+        String paymentStatus = normalizeEnum(order.getPaymentStatus(), ALLOWED_PAYMENT_STATUSES, false, null);
+        if (paymentStatus == null) {
+            paymentStatus = ("CASH".equals(paymentMethod) || "CASH_ON_DELIVERY".equals(paymentMethod)) ? "PENDING" : "PAID";
+        }
+
+        String status = normalizeEnum(order.getStatus(), ALLOWED_ORDER_STATUSES, false, null);
+        if (status == null) {
+            status = ("PAID".equals(paymentStatus) || "CONFIRMED".equals(order.getStatus())) ? "CONFIRMED" : "PENDING";
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         String size = normalizeOptionalText(order.getSize(), MAX_SIZE_LENGTH, "Size is too long.");
@@ -290,7 +349,10 @@ public class OrderService implements IService<Order> {
         String contactPhone = normalizePhone(order.getContactPhone());
         String shippingAddress = normalizeAddress(order.getShippingAddress(), "Shipping address is required.");
         String billingAddress = normalizeAddress(order.getBillingAddress(), "Billing address is required.");
+<<<<<<< HEAD
         String clientName = normalizeClientName(order.getClientName(), contactEmail, contactPhone);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         BigDecimal totalAmount = normalizeTotalAmount(order.getTotalAmount(), product, quantity);
         Integer entraineurId = normalizeOptionalPositiveInteger(order.getEntraineurId(), "Coach id is invalid.");
@@ -299,7 +361,10 @@ public class OrderService implements IService<Order> {
                 id,
                 quantity,
                 orderDate,
+<<<<<<< HEAD
                 clientName,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 status,
                 paymentMethod,
                 paymentStatus,
@@ -317,6 +382,7 @@ public class OrderService implements IService<Order> {
     private void insertOrder(Order order) throws SQLException {
         String sql = """
                 INSERT INTO `order`
+<<<<<<< HEAD
                     (quantity, order_date, client_name, status, payment_method, payment_status, size,
                      contact_email, contact_phone, shipping_address, billing_address,
                      total_amount, product_id, entraineur_id)
@@ -331,13 +397,28 @@ public class OrderService implements IService<Order> {
                     order.setId(generatedKeys.getInt(1));
                 }
             }
+=======
+                    (quantity, order_date, status, payment_method, payment_status, size,
+                     contact_email, contact_phone, shipping_address, billing_address,
+                     total_amount, product_id, entraineur_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindOrder(statement, order, false);
+            statement.executeUpdate();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
     private void updateOrderRow(Order order) throws SQLException {
         String sql = """
                 UPDATE `order`
+<<<<<<< HEAD
                 SET quantity = ?, order_date = ?, client_name = ?, status = ?, payment_method = ?, payment_status = ?, size = ?,
+=======
+                SET quantity = ?, order_date = ?, status = ?, payment_method = ?, payment_status = ?, size = ?,
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     contact_email = ?, contact_phone = ?, shipping_address = ?, billing_address = ?,
                     total_amount = ?, product_id = ?, entraineur_id = ?
                 WHERE id = ?
@@ -355,6 +436,7 @@ public class OrderService implements IService<Order> {
     private void bindOrder(PreparedStatement statement, Order order, boolean includeId) throws SQLException {
         statement.setInt(1, order.getQuantity());
         statement.setDate(2, Date.valueOf(order.getOrderDate()));
+<<<<<<< HEAD
         statement.setString(3, order.getClientName());
         statement.setString(4, order.getStatus());
         statement.setString(5, order.getPaymentMethod());
@@ -369,6 +451,21 @@ public class OrderService implements IService<Order> {
         setNullableInteger(statement, 14, order.getEntraineurId());
         if (includeId) {
             statement.setInt(15, order.getId());
+=======
+        statement.setString(3, order.getStatus());
+        statement.setString(4, order.getPaymentMethod());
+        statement.setString(5, order.getPaymentStatus());
+        statement.setString(6, order.getSize());
+        statement.setString(7, order.getContactEmail());
+        statement.setString(8, order.getContactPhone());
+        statement.setString(9, order.getShippingAddress());
+        statement.setString(10, order.getBillingAddress());
+        statement.setBigDecimal(11, order.getTotalAmount());
+        statement.setInt(12, order.getProductId());
+        setNullableInteger(statement, 13, order.getEntraineurId());
+        if (includeId) {
+            statement.setInt(14, order.getId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -379,7 +476,11 @@ public class OrderService implements IService<Order> {
 
         String sql = """
                 SELECT id, quantity, order_date, status, payment_method, payment_status, size,
+<<<<<<< HEAD
                        client_name, contact_email, contact_phone, shipping_address, billing_address,
+=======
+                       contact_email, contact_phone, shipping_address, billing_address,
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                        total_amount, product_id, entraineur_id
                 FROM `order`
                 WHERE id = ?
@@ -457,7 +558,10 @@ public class OrderService implements IService<Order> {
                 resultSet.getInt("id"),
                 resultSet.getInt("quantity"),
                 orderDate == null ? null : orderDate.toLocalDate(),
+<<<<<<< HEAD
                 resultSet.getString("client_name"),
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 resultSet.getString("status"),
                 resultSet.getString("payment_method"),
                 resultSet.getString("payment_status"),
@@ -484,6 +588,7 @@ public class OrderService implements IService<Order> {
         return price.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
     }
 
+<<<<<<< HEAD
     private static String normalizeEnum(
             String value,
             Set<String> allowedValues,
@@ -491,6 +596,9 @@ public class OrderService implements IService<Order> {
             boolean required,
             String requiredMessage
     ) {
+=======
+    private static String normalizeEnum(String value, Set<String> allowedValues, boolean required, String requiredMessage) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         String normalized = trimToNull(value);
         if (normalized == null) {
             if (required) {
@@ -499,6 +607,7 @@ public class OrderService implements IService<Order> {
             return null;
         }
 
+<<<<<<< HEAD
         String aliasKey = normalized.toUpperCase(Locale.ROOT)
                 .replace(' ', '_')
                 .replace('-', '_');
@@ -508,6 +617,9 @@ public class OrderService implements IService<Order> {
         }
 
         String canonical = normalized.toLowerCase(Locale.ROOT)
+=======
+        String canonical = normalized.toUpperCase(Locale.ROOT)
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 .replace(' ', '_')
                 .replace('-', '_');
         if (!allowedValues.contains(canonical)) {
@@ -539,6 +651,7 @@ public class OrderService implements IService<Order> {
         return normalized;
     }
 
+<<<<<<< HEAD
     private static String normalizeClientName(String clientName, String contactEmail, String contactPhone) {
         String normalized = trimToNull(clientName);
         if (normalized != null) {
@@ -556,6 +669,8 @@ public class OrderService implements IService<Order> {
         return "Client Sport Insight";
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static String normalizeAddress(String address, String requiredMessage) {
         String normalized = trimToNull(address);
         if (normalized == null) {

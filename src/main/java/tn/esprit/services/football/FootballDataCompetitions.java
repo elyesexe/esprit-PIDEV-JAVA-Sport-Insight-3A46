@@ -25,6 +25,7 @@ public final class FootballDataCompetitions {
             return null;
         }
         String trimmed = code.trim();
+<<<<<<< HEAD
         if (trimmed.isEmpty()) {
             return null;
         }
@@ -38,6 +39,9 @@ public final class FootballDataCompetitions {
             }
         }
         return upper;
+=======
+        return trimmed.isEmpty() ? null : trimmed.toUpperCase();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     public static String labelOf(String code) {

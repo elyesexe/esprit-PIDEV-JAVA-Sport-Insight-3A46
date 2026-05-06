@@ -68,6 +68,7 @@
     -fx-padding: 22 24 24 24;
 }
 
+<<<<<<< HEAD
 .favorite-manager-card {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(240, 253, 250, 0.96) 0%, rgba(236, 253, 245, 0.94) 100%);
     -fx-background-radius: 20;
@@ -148,6 +149,8 @@
     -fx-padding: 10 12 10 12;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .profile-photo-shell {
     -fx-min-width: 180;
     -fx-pref-width: 180;
@@ -288,6 +291,7 @@
     -fx-text-fill: #94a3b8;
 }
 
+<<<<<<< HEAD
 .theme-dark .favorite-manager-card {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(15, 23, 42, 0.90) 0%, rgba(6, 78, 59, 0.24) 100%);
     -fx-border-color: rgba(52, 211, 153, 0.18);
@@ -336,6 +340,8 @@
     -fx-border-color: rgba(71, 85, 105, 0.4);
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .theme-dark .profile-form-card .form-date-picker {
     -fx-background-color: #12233f;
     -fx-border-color: rgba(96, 165, 250, 0.22);

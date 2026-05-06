@@ -7,10 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Control;
 import javafx.stage.Stage;
+<<<<<<< HEAD
 import tn.esprit.assistant.AssistantOverlay;
 import tn.esprit.assistant.AssistantService;
 import tn.esprit.i18n.I18n;
 import tn.esprit.i18n.UiTextLocalizer;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.security.AuthSession;
 
 import java.net.URL;
@@ -18,16 +21,22 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public final class SceneNavigator {
+<<<<<<< HEAD
     private static final String CURRENT_SCENE_STATE_KEY = SceneNavigator.class.getName() + ".currentSceneState";
     private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
     private static final String SIGNUP_VIEW = "/tn/esprit/views/signup-view.fxml";
     private static final String FACE_LOGIN_VIEW = "/tn/esprit/views/face_login.fxml";
     private static final String FORGOT_PASSWORD_VIEW = "/tn/esprit/views/forgot_password.fxml";
     private static final String GOOGLE_LOGIN_VIEW = "/tn/esprit/views/google_login.fxml";
+=======
+    private static final String LOGIN_VIEW = "/tn/esprit/views/login-view.fxml";
+    private static final String SIGNUP_VIEW = "/tn/esprit/views/signup-view.fxml";
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final String AUTH_CSS = "/tn/esprit/styles/auth-theme.css";
     private static final String HOME_VIEW = "/tn/esprit/views/home-view.fxml";
     private static final String HOME_CSS = "/tn/esprit/styles/home-theme.css";
     private static final String HOME_TITLE = "Sport Insight | Accueil";
+<<<<<<< HEAD
     private static final String ASSISTANT_CSS = "/tn/esprit/styles/assistant-theme.css";
     private static final String POPUP_DARK_CSS = "popup-dark.css";
     private static final String POPUP_LIGHT_CSS = "popup-light.css";
@@ -39,6 +48,10 @@ public final class SceneNavigator {
             FORGOT_PASSWORD_VIEW,
             GOOGLE_LOGIN_VIEW
     );
+=======
+
+    private static final Set<String> PUBLIC_VIEWS = Set.of(LOGIN_VIEW, SIGNUP_VIEW);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final Set<String> ADMIN_VIEWS = Set.of(
             "/tn/esprit/views/admin-shell.fxml",
             "/tn/esprit/views/admin-dashboard.fxml",
@@ -95,6 +108,7 @@ public final class SceneNavigator {
         setSceneInternal(stage, fxmlPath, cssPath, title, controllerConfigurer);
     }
 
+<<<<<<< HEAD
     public static void reloadCurrentScene(Stage stage) {
         if (stage == null) {
             return;
@@ -106,16 +120,23 @@ public final class SceneNavigator {
         setSceneInternal(stage, state.fxmlPath(), state.cssPath(), state.title(), state.controllerConfigurer());
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static void setSceneInternal(Stage stage, String fxmlPath, String cssPath, String title, Consumer<Object> controllerConfigurer) {
         double width = stage.getWidth() > 0 ? stage.getWidth() : 1180;
         double height = stage.getHeight() > 0 ? stage.getHeight() : 820;
         try {
+<<<<<<< HEAD
             FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource(fxmlPath), I18n.getBundle());
+=======
+            FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource(fxmlPath));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             Parent root = loader.load();
             if (controllerConfigurer != null) {
                 controllerConfigurer.accept(loader.getController());
             }
             AuthSession.configureLoadedController(loader.getController());
+<<<<<<< HEAD
             boolean publicView = PUBLIC_VIEWS.contains(fxmlPath);
             if (publicView) {
                 AssistantService.getInstance().setWakeWordListener(null);
@@ -149,10 +170,28 @@ public final class SceneNavigator {
             alert.setTitle(I18n.get("nav.alert.title"));
             alert.setHeaderText(null);
             alert.setContentText(I18n.format("nav.alert.openError", e.getMessage()));
+=======
+            Scene scene = new Scene(root, width, height);
+
+            URL stylesheet = SceneNavigator.class.getResource(cssPath);
+            if (stylesheet != null) {
+                scene.getStylesheets().add(stylesheet.toExternalForm());
+            }
+
+            ThemeManager.registerScene(scene);
+            stage.setScene(scene);
+            stage.setTitle(title);
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation");
+            alert.setHeaderText(null);
+            alert.setContentText("Impossible d'ouvrir la page demandee.\n" + e.getMessage());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             alert.showAndWait();
         }
     }
 
+<<<<<<< HEAD
     private static void configureSceneStylesheets(Scene scene, String pageStylesheet, String assistantStylesheet) {
         if (scene == null) {
             return;
@@ -177,20 +216,30 @@ public final class SceneNavigator {
         return !stylesheet.endsWith(POPUP_DARK_CSS) && !stylesheet.endsWith(POPUP_LIGHT_CSS);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static boolean ensureAccess(Stage stage, String fxmlPath, Node source) {
         if (PUBLIC_VIEWS.contains(fxmlPath)) {
             return true;
         }
 
         if (!AuthSession.isAuthenticated()) {
+<<<<<<< HEAD
             showAccessAlert(stage, I18n.get("scene.access.authRequired.title"), I18n.get("scene.access.authRequired.message"));
+=======
+            showAccessAlert(stage, "Authentication required", "Please sign in to continue.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             AuthSession.logout();
             setSceneInternal(stage, LOGIN_VIEW, AUTH_CSS, "Sport Insight | Sign in", null);
             return false;
         }
 
         if (ADMIN_VIEWS.contains(fxmlPath) && !AuthSession.isAdmin()) {
+<<<<<<< HEAD
             showAccessAlert(stage, I18n.get("scene.access.adminOnly.title"), I18n.get("scene.access.adminOnly.message"));
+=======
+            showAccessAlert(stage, "Access denied", "Only admins can access the dashboard and moderation views.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             setSceneInternal(stage, HOME_VIEW, HOME_CSS, HOME_TITLE, null);
             return false;
         }
@@ -209,6 +258,7 @@ public final class SceneNavigator {
         alert.initOwner(stage);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 
     private static String resolveSceneTitle(String fxmlPath, String fallback) {
         if (fxmlPath == null || fxmlPath.isBlank()) {
@@ -220,4 +270,6 @@ public final class SceneNavigator {
 
     private record SceneState(String fxmlPath, String cssPath, String title, Consumer<Object> controllerConfigurer) {
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

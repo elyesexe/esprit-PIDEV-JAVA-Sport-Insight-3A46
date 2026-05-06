@@ -81,9 +81,15 @@
                                     <Region styleClass="auth-hero-overlay"/>
 
                                     <VBox spacing="12" styleClass="auth-hero-content">
+<<<<<<< HEAD
                                         <Label text="%signup.hero.kicker" styleClass="auth-eyebrow"/>
                                         <Label text="%signup.hero.title" styleClass="auth-hero-title"/>
                                         <Label text="%signup.hero.subtitle"
+=======
+                                        <Label text="Registration" styleClass="auth-eyebrow"/>
+                                        <Label text="Create your Sport Insight account" styleClass="auth-hero-title"/>
+                                        <Label text="Join the platform to manage training, matches, teams, and announcements in one place."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                wrapText="true"
                                                styleClass="auth-hero-text"/>
                                     </VBox>
@@ -92,15 +98,22 @@
 
                             <HBox spacing="18" styleClass="auth-panel">
                                 <VBox spacing="16" styleClass="auth-panel-aside" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                     <Label text="%signup.panel.badge" styleClass="auth-panel-badge"/>
                                     <Label text="%signup.panel.title" wrapText="true" styleClass="auth-panel-title"/>
                                     <Label text="%signup.panel.copy"
+=======
+                                    <Label text="New account" styleClass="auth-panel-badge"/>
+                                    <Label text="Build your profile in a minute." wrapText="true" styleClass="auth-panel-title"/>
+                                    <Label text="Complete the form to unlock your Sport Insight workspace."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                            wrapText="true"
                                            styleClass="auth-panel-copy"/>
 
                                     <VBox spacing="10">
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
                                             <Region styleClass="auth-point-dot"/>
+<<<<<<< HEAD
                                             <Label text="%signup.panel.point.profile" wrapText="true" styleClass="auth-point-text"/>
                                         </HBox>
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
@@ -110,13 +123,29 @@
                                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
                                             <Region styleClass="auth-point-dot"/>
                                             <Label text="%signup.panel.point.admin" wrapText="true" styleClass="auth-point-text"/>
+=======
+                                            <Label text="Personal profile and role-based access" wrapText="true" styleClass="auth-point-text"/>
+                                        </HBox>
+                                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
+                                            <Region styleClass="auth-point-dot"/>
+                                            <Label text="New registrations start as standard users" wrapText="true" styleClass="auth-point-text"/>
+                                        </HBox>
+                                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="auth-point">
+                                            <Region styleClass="auth-point-dot"/>
+                                            <Label text="Admins can later promote accounts to player, coach, or admin" wrapText="true" styleClass="auth-point-text"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         </HBox>
                                     </VBox>
                                 </VBox>
 
                                 <VBox spacing="14" styleClass="auth-panel-form" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                     <Label text="%auth.signup.button" styleClass="auth-form-title"/>
                                     <Label text="%signup.form.copy"
+=======
+                                    <Label text="Create account" styleClass="auth-form-title"/>
+                                    <Label text="Fill in your information to get started."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                            wrapText="true"
                                            styleClass="auth-form-copy"/>
 
@@ -129,38 +158,64 @@
                                     <VBox spacing="12" styleClass="auth-form">
                                         <HBox spacing="12">
                                             <VBox spacing="6" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                                 <Label text="%common.field.firstName" styleClass="auth-label"/>
                                                 <TextField fx:id="prenomField" promptText="%common.prompt.firstName" styleClass="auth-input"/>
                                             </VBox>
                                             <VBox spacing="6" HBox.hgrow="ALWAYS">
                                                 <Label text="%common.field.lastName" styleClass="auth-label"/>
                                                 <TextField fx:id="nomField" promptText="%common.prompt.lastName" styleClass="auth-input"/>
+=======
+                                                <Label text="First name" styleClass="auth-label"/>
+                                                <TextField fx:id="prenomField" promptText="First name" styleClass="auth-input"/>
+                                            </VBox>
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Last name" styleClass="auth-label"/>
+                                                <TextField fx:id="nomField" promptText="Last name" styleClass="auth-input"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                             </VBox>
                                         </HBox>
 
                                         <VBox spacing="6">
+<<<<<<< HEAD
                                             <Label text="%common.field.email" styleClass="auth-label"/>
                                             <TextField fx:id="emailField"
                                                        promptText="%common.prompt.email"
                                                        styleClass="auth-input"/>
                                             <Label text="%signup.form.help.roles"
+=======
+                                            <Label text="Email" styleClass="auth-label"/>
+                                            <TextField fx:id="emailField"
+                                                       promptText="name@example.com"
+                                                       styleClass="auth-input"/>
+                                            <Label text="New accounts are created as standard users first; an admin can assign advanced roles later from moderation."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                    wrapText="true"
                                                    styleClass="auth-help"/>
                                         </VBox>
 
                                         <HBox spacing="12">
                                             <VBox spacing="6" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                                 <Label text="%common.field.phone" styleClass="auth-label"/>
                                                 <TextField fx:id="telephoneField" promptText="%common.prompt.phone" styleClass="auth-input"/>
                                             </VBox>
                                             <VBox spacing="6" HBox.hgrow="ALWAYS">
                                                 <Label text="%common.field.birthDate" styleClass="auth-label"/>
+=======
+                                                <Label text="Telephone" styleClass="auth-label"/>
+                                                <TextField fx:id="telephoneField" promptText="+216 ..." styleClass="auth-input"/>
+                                            </VBox>
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Birth date" styleClass="auth-label"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                 <DatePicker fx:id="dateNaissancePicker" styleClass="auth-date-picker"/>
                                             </VBox>
                                         </HBox>
 
                                         <HBox spacing="12">
                                             <VBox spacing="6" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                                 <Label text="%common.field.password" styleClass="auth-label"/>
                                                 <PasswordField fx:id="passwordField"
                                                                promptText="%signup.form.prompt.password"
@@ -170,6 +225,17 @@
                                                 <Label text="%common.field.confirmPassword" styleClass="auth-label"/>
                                                 <PasswordField fx:id="confirmPasswordField"
                                                                promptText="%signup.form.prompt.confirmPassword"
+=======
+                                                <Label text="Password" styleClass="auth-label"/>
+                                                <PasswordField fx:id="passwordField"
+                                                               promptText="Minimum 8 characters"
+                                                               styleClass="auth-input"/>
+                                            </VBox>
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                <Label text="Confirm password" styleClass="auth-label"/>
+                                                <PasswordField fx:id="confirmPasswordField"
+                                                               promptText="Repeat password"
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                                onAction="#handleCreateAccount"
                                                                styleClass="auth-input"/>
                                             </VBox>
@@ -178,7 +244,11 @@
                                         <HBox spacing="10" styleClass="auth-actions">
                                             <Button fx:id="createAccountButton"
                                                     onAction="#handleCreateAccount"
+<<<<<<< HEAD
                                                     text="%auth.signup.button"
+=======
+                                                    text="Create account"
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                     maxWidth="Infinity"
                                                     styleClass="auth-primary-button"
                                                     HBox.hgrow="ALWAYS"/>
@@ -186,9 +256,15 @@
                                     </VBox>
 
                                     <VBox spacing="8" styleClass="auth-switch">
+<<<<<<< HEAD
                                         <Label text="%signup.switch.copy" styleClass="auth-switch-copy"/>
                                         <Button onAction="#handleOpenLogin"
                                                 text="%auth.login.button"
+=======
+                                        <Label text="Already registered?" styleClass="auth-switch-copy"/>
+                                        <Button onAction="#handleOpenLogin"
+                                                text="Sign in"
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                 maxWidth="Infinity"
                                                 styleClass="auth-ghost-button"/>
                                     </VBox>

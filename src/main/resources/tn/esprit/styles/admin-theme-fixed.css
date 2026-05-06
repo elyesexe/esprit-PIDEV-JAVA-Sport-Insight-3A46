@@ -166,6 +166,7 @@
     -fx-background-color: rgba(82, 82, 91, 0.94);
     -fx-background-radius: 999;
 }
+<<<<<<< HEAD
 
 /* Neon admin dark redesign */
 .admin-dark.admin-shell-root,
@@ -3495,3 +3496,5 @@
     -fx-border-color: rgba(248, 113, 113, 0.34);
     -fx-text-fill: #fff7f7;
 }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

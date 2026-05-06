@@ -230,6 +230,7 @@
     -fx-border-color: rgba(167, 243, 208, 0.48);
 }
 
+<<<<<<< HEAD
 .settings-language-switch-shell {
     -fx-min-width: 160;
     -fx-pref-width: 160;
@@ -271,6 +272,8 @@
     -fx-text-fill: #f8fafc;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .settings-menu-danger {
     -fx-text-fill: #fecaca;
 }

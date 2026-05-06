@@ -5,7 +5,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+<<<<<<< HEAD
 import javafx.concurrent.Task;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.fxml.FXML;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -32,8 +35,13 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.AnnoncePdfExportService;
 import tn.esprit.services.AnnonceService;
+<<<<<<< HEAD
 import tn.esprit.services.CommentCvStorageService;
 import tn.esprit.services.CommentaireService;
+=======
+import tn.esprit.services.CommentaireService;
+import tn.esprit.services.UserService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.io.File;
 import java.sql.SQLException;
@@ -45,17 +53,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+<<<<<<< HEAD
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 public class AnnonceController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final List<String> ANNONCE_STATUTS = List.of("ACTIVE", "EN_ATTENTE", "EXPIREE", "CLOSED");
     private static final List<String> COMMENT_STATUTS = List.of("PENDING", "APPROVED", "REJECTED");
+<<<<<<< HEAD
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("annonce-admin-db"));
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private HBox navbarRoot;
     @FXML private Button adminNavButton;
@@ -144,12 +158,19 @@ public class AnnonceController {
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+<<<<<<< HEAD
     private CommentCvStorageService commentCvStorageService;
+=======
+    private UserService userService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private AnnoncePdfExportService annoncePdfExportService;
     private Annonce selectedAnnonce;
     private Commentaire selectedCommentaire;
     private boolean serviceReady;
+<<<<<<< HEAD
     private final AtomicLong refreshSequence = new AtomicLong();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -163,10 +184,17 @@ public class AnnonceController {
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+<<<<<<< HEAD
             commentCvStorageService = new CommentCvStorageService();
             annoncePdfExportService = new AnnoncePdfExportService();
             serviceReady = true;
             refreshData(null, null, "Loading announcement workspace...", "status-muted");
+=======
+            annoncePdfExportService = new AnnoncePdfExportService();
+            serviceReady = true;
+            refreshData(null, null);
+            showSuccessStatus("Announcement workspace ready.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -177,7 +205,12 @@ public class AnnonceController {
 
     @FXML
     private void handleRefresh() {
+<<<<<<< HEAD
         refreshData(getSelectedAnnonceId(), getSelectedCommentaireId(), "Lists refreshed.", "status-muted");
+=======
+        refreshData(getSelectedAnnonceId(), getSelectedCommentaireId());
+        showMutedStatus("Lists refreshed.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -200,8 +233,14 @@ public class AnnonceController {
 
         try {
             annonceService.add(annonce);
+<<<<<<< HEAD
             refreshData(null, null, "Announcement added successfully.", "status-success");
             handleClearAnnonce();
+=======
+            refreshData(null, null);
+            handleClearAnnonce();
+            showSuccessStatus("Announcement added successfully.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showErrorStatus("Could not add the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Add failed.\n" + e.getMessage());
@@ -225,7 +264,12 @@ public class AnnonceController {
 
         try {
             annonceService.update(annonce);
+<<<<<<< HEAD
             refreshData(annonce.getId(), null, "Announcement updated successfully.", "status-success");
+=======
+            refreshData(annonce.getId(), null);
+            showSuccessStatus("Announcement updated successfully.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showErrorStatus("Could not update the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Update failed.\n" + e.getMessage());
@@ -251,8 +295,14 @@ public class AnnonceController {
 
         try {
             annonceService.delete(selectedAnnonce.getId());
+<<<<<<< HEAD
             refreshData(null, null, "Announcement deleted.", "status-success");
             handleClearAnnonce();
+=======
+            refreshData(null, null);
+            handleClearAnnonce();
+            showSuccessStatus("Announcement deleted.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showErrorStatus("Could not delete the announcement.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Delete failed.\n" + e.getMessage());
@@ -329,7 +379,11 @@ public class AnnonceController {
 
         try {
             commentaireService.update(commentaire);
+<<<<<<< HEAD
             refreshData(getSelectedAnnonceId(), commentaire.getId(), "Comment updated successfully.", "status-success");
+=======
+            refreshData(getSelectedAnnonceId(), commentaire.getId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             showCommentSuccessStatus("Comment updated successfully.");
         } catch (SQLException e) {
             showCommentErrorStatus("Could not update the comment.");
@@ -355,11 +409,16 @@ public class AnnonceController {
         }
 
         try {
+<<<<<<< HEAD
             if (commentCvStorageService != null) {
                 commentCvStorageService.deleteQuietly(selectedCommentaire.getCvName());
             }
             commentaireService.delete(selectedCommentaire.getId());
             refreshData(getSelectedAnnonceId(), null, "Comment deleted.", "status-success");
+=======
+            commentaireService.delete(selectedCommentaire.getId());
+            refreshData(getSelectedAnnonceId(), null);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearCommentFormFields();
             showCommentSuccessStatus("Comment deleted.");
         } catch (SQLException e) {
@@ -525,12 +584,17 @@ public class AnnonceController {
         commentaireArea.textProperty().addListener((obs, oldValue, newValue) -> clearFieldError(commentaireArea));
     }
 
+<<<<<<< HEAD
     private void refreshData(Integer annonceIdToSelect, Integer commentaireIdToSelect, String statusMessage, String statusStyle) {
+=======
+    private void refreshData(Integer annonceIdToSelect, Integer commentaireIdToSelect) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (!serviceReady || annonceService == null || commentaireService == null) {
             updateActionAvailability();
             return;
         }
 
+<<<<<<< HEAD
         long requestId = refreshSequence.incrementAndGet();
         showMutedStatus(statusMessage == null ? "Loading announcements..." : statusMessage);
 
@@ -551,6 +615,11 @@ public class AnnonceController {
             RefreshPayload payload = loadTask.getValue();
             annonces.setAll(payload.annonces());
             commentaires.setAll(payload.commentaires());
+=======
+        try {
+            annonces.setAll(annonceService.getAll());
+            commentaires.setAll(commentaireService.getAll());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             rebuildCommentCounts();
             refreshPosteFilterValues();
             applyAnnonceFilters();
@@ -574,6 +643,7 @@ public class AnnonceController {
             }
 
             updateActionAvailability();
+<<<<<<< HEAD
             setStatus(statusLabel,
                     statusMessage == null ? "Announcement workspace ready." : statusMessage,
                     statusStyle == null ? "status-muted" : statusStyle);
@@ -589,6 +659,12 @@ public class AnnonceController {
         });
 
         DB_EXECUTOR.execute(loadTask);
+=======
+        } catch (SQLException e) {
+            showErrorStatus("Could not refresh the announcements.");
+            showAlert(Alert.AlertType.ERROR, "Announcements", "Refresh failed.\n" + e.getMessage());
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void rebuildCommentCounts() {
@@ -846,12 +922,17 @@ public class AnnonceController {
             return null;
         }
 
+<<<<<<< HEAD
         Commentaire commentaire = new Commentaire(
+=======
+        return new Commentaire(
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 contenu,
                 commentDate,
                 joueurId,
                 annonceId,
                 auteur,
+<<<<<<< HEAD
                 updateMode && selectedCommentaire != null ? selectedCommentaire.getCvName() : null,
                 updateMode && selectedCommentaire != null ? selectedCommentaire.getCvTitle() : null,
                 likes == null ? 0 : likes,
@@ -864,6 +945,12 @@ public class AnnonceController {
             commentaire.setNbDislikes(selectedCommentaire.getNbDislikes());
         }
         return commentaire;
+=======
+                likes == null ? 0 : likes,
+                moderationStatus,
+                moderationReason
+        );
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updateMetrics() {
@@ -1269,9 +1356,12 @@ public class AnnonceController {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
+<<<<<<< HEAD
     private record RefreshPayload(List<Annonce> annonces, List<Commentaire> commentaires) {
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -1279,6 +1369,7 @@ public class AnnonceController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 
     private static ThreadFactory daemonFactory(String name) {
         return runnable -> {
@@ -1287,4 +1378,6 @@ public class AnnonceController {
             return thread;
         };
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

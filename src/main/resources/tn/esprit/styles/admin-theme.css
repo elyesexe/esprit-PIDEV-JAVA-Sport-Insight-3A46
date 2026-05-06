@@ -1176,6 +1176,7 @@
     -fx-text-fill: #fef2f2;
 }
 
+<<<<<<< HEAD
 .table-row-delete-icon-button {
     -fx-padding: 0;
     -fx-min-width: 56px;
@@ -1226,6 +1227,8 @@
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f0c8ff 0%, #a5f3fc 100%);
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .admin-dark .toolbar-chip,
 .admin-dark .toolbar-chip-soft,
 .admin-dark .status-muted {

@@ -1,8 +1,11 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamResolution;
 import javafx.application.Platform;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -10,11 +13,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.CheckBox;
+<<<<<<< HEAD
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+=======
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -31,8 +40,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+<<<<<<< HEAD
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Annonce;
 import tn.esprit.entities.Commentaire;
 import tn.esprit.entities.User;
@@ -43,6 +55,7 @@ import tn.esprit.gui.ThemeManager;
 import tn.esprit.security.AuthSession;
 import tn.esprit.security.UserRoles;
 import tn.esprit.services.AnnonceService;
+<<<<<<< HEAD
 import tn.esprit.services.CommentCvStorageService;
 import tn.esprit.services.CommentaireService;
 import tn.esprit.services.UserService;
@@ -51,6 +64,11 @@ import tn.esprit.services.faceid.FaceIdApiClient;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+=======
+import tn.esprit.services.CommentaireService;
+import tn.esprit.services.UserService;
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -64,17 +82,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+<<<<<<< HEAD
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+=======
+import java.util.stream.Collectors;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 public class AnnonceUserController {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
     private static final String SORT_RECENT = "Most recent";
     private static final String SORT_ALPHA = "A-Z";
+<<<<<<< HEAD
     private static final String EDIT_ICON_PATH = "/tn/esprit/icons/comment-edit-white.png";
     private static final String DELETE_ICON_PATH = "/tn/esprit/icons/comment-delete-white.png";
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private BorderPane pageRoot;
     @FXML private Region heroPhotoRegion;
@@ -114,17 +139,21 @@ public class AnnonceUserController {
     @FXML private CheckBox urgentPostCheck;
     @FXML private Button publishPostButton;
     @FXML private Button clearPostButton;
+<<<<<<< HEAD
     @FXML private VBox cvSearchCard;
     @FXML private TextField cvSearchField;
     @FXML private DatePicker cvSearchDatePicker;
     @FXML private Label cvSearchSummaryLabel;
     @FXML private VBox cvResultsPane;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private final List<Annonce> annonces = new ArrayList<>();
     private final List<Commentaire> commentaires = new ArrayList<>();
     private final List<Annonce> visibleAnnonces = new ArrayList<>();
     private final HashMap<Integer, Integer> commentCounts = new HashMap<>();
     private final Map<Integer, User> userCache = new HashMap<>();
+<<<<<<< HEAD
     private final Map<Integer, TextArea> chatInputsByAnnonce = new HashMap<>();
     private final Map<Integer, TextArea> publicCommentInputsByAnnonce = new HashMap<>();
     private final Map<Integer, String> privateMessageDraftByAnnonce = new HashMap<>();
@@ -137,13 +166,19 @@ public class AnnonceUserController {
     private Integer activePublicCommentAnnonceId;
     private Integer pendingFocusAnnonceId;
     private Integer pendingPublicFocusAnnonceId;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private SidebarModuleGroup sidebarModuleGroup;
     private AnnonceService annonceService;
     private CommentaireService commentaireService;
+<<<<<<< HEAD
     private CommentCvStorageService commentCvStorageService;
     private UserService userService;
     private FaceIdApiClient faceIdApiClient;
+=======
+    private UserService userService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private boolean serviceReady;
 
     @FXML
@@ -157,14 +192,21 @@ public class AnnonceUserController {
             themeToggleButton.selectedProperty().addListener((obs, oldValue, selected) -> applyThemeState(selected));
         }
         configureFilters();
+<<<<<<< HEAD
         configureCvSearch();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         try {
             annonceService = new AnnonceService();
             commentaireService = new CommentaireService();
+<<<<<<< HEAD
             commentCvStorageService = new CommentCvStorageService();
             userService = new UserService();
             faceIdApiClient = new FaceIdApiClient();
+=======
+            userService = new UserService();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             serviceReady = true;
             refreshData();
             updateComposerState();
@@ -381,6 +423,7 @@ public class AnnonceUserController {
         sortComboBox.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
     }
 
+<<<<<<< HEAD
     private void configureCvSearch() {
         if (cvSearchField != null) {
             cvSearchField.textProperty().addListener((obs, oldValue, newValue) -> renderCvResults());
@@ -390,6 +433,8 @@ public class AnnonceUserController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void refreshData() {
         if (!serviceReady || annonceService == null || commentaireService == null) {
             return;
@@ -408,6 +453,7 @@ public class AnnonceUserController {
                 userCache.put(currentUser.getId(), currentUser);
             }
 
+<<<<<<< HEAD
             reactionByCommentId.clear();
             favoriteCommentIds.clear();
             if (currentUser != null && currentUser.getId() != null) {
@@ -415,12 +461,17 @@ public class AnnonceUserController {
                 favoriteCommentIds.addAll(commentaireService.getFavoriteCommentIdsByUser(currentUser.getId()));
             }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             rebuildCommentCounts();
             rebuildLevelFilterItems();
             updateMetrics();
             updateComposerState();
             applyFilters();
+<<<<<<< HEAD
             renderCvResults();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showErrorStatus("Could not refresh announcements.");
             showAlert(Alert.AlertType.ERROR, "Announcements", "Refresh failed.\n" + e.getMessage());
@@ -436,10 +487,13 @@ public class AnnonceUserController {
             composerCard.setManaged(enabled);
             composerCard.setVisible(enabled);
         }
+<<<<<<< HEAD
         if (cvSearchCard != null) {
             cvSearchCard.setManaged(isCoach);
             cvSearchCard.setVisible(isCoach);
         }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         if (composerIdentityLabel != null) {
             composerIdentityLabel.setText("Publish as " + buildDisplayName(currentUser));
@@ -552,8 +606,11 @@ public class AnnonceUserController {
 
     private void renderFeed() {
         annonceCardsPane.getChildren().clear();
+<<<<<<< HEAD
         chatInputsByAnnonce.clear();
         publicCommentInputsByAnnonce.clear();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         if (visibleAnnonces.isEmpty()) {
             VBox emptyState = new VBox(8);
@@ -575,6 +632,7 @@ public class AnnonceUserController {
         for (Annonce annonce : visibleAnnonces) {
             annonceCardsPane.getChildren().add(buildPostCard(annonce));
         }
+<<<<<<< HEAD
         focusPendingConversationInput();
         focusPendingPublicCommentInput();
     }
@@ -771,6 +829,8 @@ public class AnnonceUserController {
             target.requestFocus();
             target.positionCaret(target.getLength());
         });
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private VBox buildPostCard(Annonce annonce) {
@@ -779,8 +839,11 @@ public class AnnonceUserController {
         if (Boolean.TRUE.equals(annonce.getUrgent())) {
             card.getStyleClass().add("annonce-post-card-urgent");
         }
+<<<<<<< HEAD
         List<Commentaire> publicComments = resolvePublicCommentsForAnnonce(annonce);
         List<Commentaire> privateComments = resolveVisibleConversationCommentsForAnnonce(annonce);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         User author = resolveAnnonceAuthor(annonce);
         String authorName = resolveAnnonceAuthorName(annonce);
@@ -825,6 +888,7 @@ public class AnnonceUserController {
         metaFlow.getChildren().addAll(
                 createMetaChip("Role: " + fallbackText(annonce.getPosteRecherche(), "Not specified")),
                 createMetaChip("Level: " + fallbackText(annonce.getNiveauRequis(), "Not specified")),
+<<<<<<< HEAD
                 createMetaChip(publicComments.size() + " public comment(s)")
         );
 
@@ -843,6 +907,11 @@ public class AnnonceUserController {
                 openConversation(annonce.getId(), resolveInitialConversationPlayerUserId(annonce.getId())));
         contactRow.getChildren().addAll(commentButton, contactManagerButton);
 
+=======
+                createMetaChip(commentCounts.getOrDefault(annonce.getId(), 0) + " comment(s)")
+        );
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         VBox descriptionBox = new VBox(6);
         descriptionBox.getStyleClass().add("annonce-user-description-box");
         Label descriptionLabel = new Label(fallbackText(annonce.getDescription(), "No description available."));
@@ -850,6 +919,7 @@ public class AnnonceUserController {
         descriptionLabel.getStyleClass().add("annonce-user-description-text");
         descriptionBox.getChildren().add(descriptionLabel);
 
+<<<<<<< HEAD
         VBox commentsSection = new VBox(12);
         Label publicCommentsTitle = new Label("Public comments");
         publicCommentsTitle.getStyleClass().add("annonce-comments-title");
@@ -1115,22 +1185,64 @@ public class AnnonceUserController {
         return formBox;
     }
 
+=======
+        VBox commentsSection = new VBox(10);
+        Label commentsTitle = new Label("Comments");
+        commentsTitle.getStyleClass().add("annonce-comments-title");
+
+        VBox commentsStack = new VBox(10);
+        commentsStack.getStyleClass().add("annonce-comment-stack");
+
+        List<Commentaire> postComments = commentaires.stream()
+                .filter(commentaire -> Objects.equals(commentaire.getAnnonceId(), annonce.getId()))
+                .sorted(Comparator.comparing(Commentaire::getDateCommentaire, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        if (postComments.isEmpty()) {
+            Label emptyComments = new Label(
+                    isCommentsEnabled(annonce)
+                            ? "No comments yet. Players can start the discussion."
+                            : "Comments are disabled for this announcement."
+            );
+            emptyComments.getStyleClass().add("annonce-comment-empty");
+            commentsStack.getChildren().add(emptyComments);
+        } else {
+            for (Commentaire commentaire : postComments) {
+                commentsStack.getChildren().add(buildCommentCard(commentaire));
+            }
+        }
+
+        VBox addCommentSection = buildInlineCommentForm(annonce);
+        commentsSection.getChildren().addAll(commentsTitle, commentsStack);
+        if (addCommentSection != null) {
+            commentsSection.getChildren().add(addCommentSection);
+        }
+        card.getChildren().addAll(identityRow, titleLabel, metaFlow, descriptionBox, commentsSection);
+        return card;
+    }
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private VBox buildInlineCommentForm(Annonce annonce) {
         VBox formBox = new VBox(10);
         formBox.getStyleClass().add("annonce-post-comment-form");
 
         User currentUser = getCurrentUser();
+<<<<<<< HEAD
         boolean playerAuthor = isPlayerRole(currentUser);
         boolean managerAuthor = isCoachOrAdminCurrentUser();
         Integer targetPlayerUserId = playerAuthor
                 ? currentUser.getId()
                 : resolveInitialConversationPlayerUserId(annonce == null ? null : annonce.getId());
         boolean canComment = serviceReady && (playerAuthor || managerAuthor) && isCommentsEnabled(annonce)
+=======
+        boolean canComment = serviceReady && isCurrentUserJoueur() && isCommentsEnabled(annonce)
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 && currentUser != null && currentUser.getId() != null;
         if (!canComment) {
             return null;
         }
 
+<<<<<<< HEAD
         boolean conversationOpen = isConversationOpen(annonce);
         formBox.setManaged(conversationOpen);
         formBox.setVisible(conversationOpen);
@@ -1138,6 +1250,8 @@ public class AnnonceUserController {
             return formBox;
         }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         HBox authorRow = new HBox(10);
         authorRow.setAlignment(Pos.CENTER_LEFT);
         authorRow.getStyleClass().add("annonce-inline-author-row");
@@ -1147,6 +1261,7 @@ public class AnnonceUserController {
         );
 
         TextArea commentaireArea = new TextArea();
+<<<<<<< HEAD
         Label messageLabel = new Label("Private message");
         messageLabel.getStyleClass().add("field-label");
         commentaireArea.setPromptText((managerAuthor
@@ -1183,6 +1298,12 @@ public class AnnonceUserController {
         cvLabel.getStyleClass().add("annonce-section-note");
         cvLabel.setManaged(playerAuthor);
         cvLabel.setVisible(playerAuthor);
+=======
+        commentaireArea.setPromptText("Write a comment as " + buildDisplayName(currentUser) + "...");
+        commentaireArea.setWrapText(true);
+        commentaireArea.setPrefRowCount(3);
+        commentaireArea.getStyleClass().add("annonce-text-area");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Label validationLabel = new Label();
         validationLabel.getStyleClass().add("annonce-section-note");
@@ -1190,6 +1311,7 @@ public class AnnonceUserController {
         validationLabel.setVisible(false);
 
         HBox actions = new HBox(10);
+<<<<<<< HEAD
         Path[] selectedCvPath = new Path[1];
 
         Button attachCvButton = new Button("Attach CV");
@@ -1204,11 +1326,15 @@ public class AnnonceUserController {
         removeCvButton.setVisible(playerAuthor);
 
         Button postButton = new Button("Send");
+=======
+        Button postButton = new Button("Post comment");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         postButton.getStyleClass().add("primary-button");
 
         Button clearButton = new Button("Clear");
         clearButton.getStyleClass().add("ghost-button");
 
+<<<<<<< HEAD
         actions.getChildren().addAll(attachCvButton, removeCvButton, postButton, clearButton);
 
         if (managerAuthor && targetPlayerUserId == null) {
@@ -1252,11 +1378,20 @@ public class AnnonceUserController {
             }
             cvLabel.setText("No CV attached");
             removeCvButton.setDisable(true);
+=======
+        actions.getChildren().addAll(postButton, clearButton);
+
+        clearButton.setOnAction(event -> {
+            commentaireArea.clear();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             validationLabel.setText("");
             validationLabel.setManaged(false);
             validationLabel.setVisible(false);
             clearFieldError(commentaireArea);
+<<<<<<< HEAD
             clearFieldError(cvTitleField);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         });
 
         postButton.setOnAction(event -> {
@@ -1264,7 +1399,10 @@ public class AnnonceUserController {
             validationLabel.setManaged(false);
             validationLabel.setVisible(false);
             clearFieldError(commentaireArea);
+<<<<<<< HEAD
             clearFieldError(cvTitleField);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
             String contenu = emptyToNull(commentaireArea.getText());
             if (contenu == null) {
@@ -1274,6 +1412,7 @@ public class AnnonceUserController {
                 validationLabel.setVisible(true);
                 return;
             }
+<<<<<<< HEAD
             if (!currentUser.isActiveAccount()) {
                 markFieldInvalid(commentaireArea);
                 validationLabel.setText("Your account is blocked. Message cannot be sent.");
@@ -1309,10 +1448,13 @@ public class AnnonceUserController {
                 validationLabel.setVisible(true);
                 return;
             }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
             Commentaire commentaire = new Commentaire(
                     contenu,
                     LocalDate.now(),
+<<<<<<< HEAD
                     targetPlayerUserId,
                     annonce.getId(),
                     buildDisplayName(currentUser),
@@ -1323,10 +1465,19 @@ public class AnnonceUserController {
                     null,
                     currentUser.getId(),
                     currentUser.getPrimaryRole()
+=======
+                    currentUser.getId(),
+                    annonce.getId(),
+                    buildDisplayName(currentUser),
+                    0,
+                    "PENDING",
+                    null
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             );
 
             try {
                 commentaireService.add(commentaire);
+<<<<<<< HEAD
                 if (annonceId != null) {
                     privateMessageDraftByAnnonce.remove(annonceId);
                     privateCvTitleDraftByAnnonce.remove(annonceId);
@@ -1338,28 +1489,47 @@ public class AnnonceUserController {
                     commentCvStorageService.deleteQuietly(storedCvName);
                 }
                 showErrorStatus("Could not send the private message.");
+=======
+                refreshData();
+                showSuccessStatus("Comment posted.");
+            } catch (SQLException e) {
+                showErrorStatus("Could not post the comment.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 showAlert(Alert.AlertType.ERROR, "Comments", "Add failed.\n" + e.getMessage());
             }
         });
 
+<<<<<<< HEAD
         formBox.getChildren().addAll(authorRow, messageLabel, commentaireArea, cvTitleField, cvLabel, validationLabel, actions);
+=======
+        formBox.getChildren().addAll(authorRow, commentaireArea, validationLabel, actions);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         return formBox;
     }
 
     private VBox buildInlineAuthorInfo(User currentUser, boolean canComment, Annonce annonce) {
         VBox infoBox = new VBox(3);
+<<<<<<< HEAD
         boolean manager = currentUser != null
                 && (currentUser.hasRole(UserRoles.ROLE_ENTRAINEUR) || currentUser.hasRole(UserRoles.ROLE_ADMIN));
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Label authorLabel = new Label(buildDisplayName(currentUser));
         authorLabel.getStyleClass().add("annonce-comment-author");
 
         Label hint = new Label(canComment
+<<<<<<< HEAD
                 ? (manager
                 ? "Replying on " + fallbackText(annonce.getTitre(), "this post")
                 : "Commenting on " + fallbackText(annonce.getTitre(), "this post") + ". Face ID is required before sending.")
                 : isCommentsEnabled(annonce)
                 ? "Only player and manager accounts can use announcement comments."
+=======
+                ? "Commenting on " + fallbackText(annonce.getTitre(), "this post")
+                : isCommentsEnabled(annonce)
+                ? "Only player accounts can comment on announcements."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 : "Comments are disabled for this post.");
         hint.setWrapText(true);
         hint.getStyleClass().add("annonce-section-note");
@@ -1369,10 +1539,13 @@ public class AnnonceUserController {
     }
 
     private VBox buildCommentCard(Commentaire commentaire) {
+<<<<<<< HEAD
         return buildCommentCard(commentaire, false);
     }
 
     private VBox buildCommentCard(Commentaire commentaire, boolean privateConversationCard) {
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         VBox card = new VBox(10);
         card.getStyleClass().add("annonce-comment-card");
 
@@ -1399,9 +1572,14 @@ public class AnnonceUserController {
                 humanizeStatus(commentaire.getModerationStatus()),
                 resolveCommentStatusStyle(commentaire.getModerationStatus())
         );
+<<<<<<< HEAD
         Label rolePill = createMetaChip(resolveCommentRoleLabel(commentaire));
 
         header.getChildren().addAll(avatar, authorBox, spacer, rolePill, statusPill);
+=======
+
+        header.getChildren().addAll(avatar, authorBox, spacer, statusPill);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Label bodyLabel = new Label(fallbackText(commentaire.getContenu(), ""));
         bodyLabel.setWrapText(true);
@@ -1411,6 +1589,7 @@ public class AnnonceUserController {
         footer.setHgap(8);
         footer.setVgap(8);
         footer.getChildren().add(createMetaChip(commentaire.getNbLikes() + " like(s)"));
+<<<<<<< HEAD
         footer.getChildren().add(createMetaChip(commentaire.getNbDislikes() + " dislike(s)"));
         User currentUser = getCurrentUser();
         if (serviceReady && currentUser != null && currentUser.getId() != null && commentaire.getId() != null) {
@@ -1453,6 +1632,11 @@ public class AnnonceUserController {
                 footer.getChildren().add(replyButton);
             }
         }
+=======
+        if (emptyToNull(commentaire.getModerationReason()) != null) {
+            footer.getChildren().add(createMetaChip(commentaire.getModerationReason()));
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         VBox editSection = buildInlineCommentEditor(commentaire, bodyLabel, footer);
         card.getChildren().addAll(header, bodyLabel, footer);
@@ -1486,9 +1670,16 @@ public class AnnonceUserController {
         saveButton.getStyleClass().add("primary-button");
         Button cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("ghost-button");
+<<<<<<< HEAD
         Button editButton = createIconButton("Edit comment", EDIT_ICON_PATH, "annonce-icon-button-edit");
         Button deleteButton = createIconButton("Delete comment", DELETE_ICON_PATH, "annonce-icon-button-delete");
         actions.getStyleClass().add("annonce-comment-icon-actions");
+=======
+        Button editButton = new Button("Edit");
+        editButton.getStyleClass().add("ghost-button");
+        Button deleteButton = new Button("Delete");
+        deleteButton.getStyleClass().add("danger-button");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         actions.getChildren().addAll(editButton, deleteButton);
         footer.getChildren().add(actions);
 
@@ -1530,6 +1721,7 @@ public class AnnonceUserController {
                     commentaire.getJoueurId(),
                     commentaire.getAnnonceId(),
                     commentaire.getAuteurAnonyme(),
+<<<<<<< HEAD
                     commentaire.getCvName(),
                     commentaire.getCvTitle(),
                     commentaire.getNbLikes(),
@@ -1539,6 +1731,12 @@ public class AnnonceUserController {
                     commentaire.getAuthorRole()
             );
             updated.setNbDislikes(commentaire.getNbDislikes());
+=======
+                    commentaire.getNbLikes(),
+                    commentaire.getModerationStatus(),
+                    commentaire.getModerationReason()
+            );
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
             try {
                 commentaireService.update(updated);
@@ -1561,9 +1759,12 @@ public class AnnonceUserController {
             }
 
             try {
+<<<<<<< HEAD
                 if (commentCvStorageService != null) {
                     commentCvStorageService.deleteQuietly(commentaire.getCvName());
                 }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 commentaireService.delete(commentaire.getId());
                 refreshData();
                 showSuccessStatus("Comment deleted.");
@@ -1577,6 +1778,7 @@ public class AnnonceUserController {
         return editorBox;
     }
 
+<<<<<<< HEAD
     private void handleCommentReaction(Commentaire commentaire, String reactionType) {
         User currentUser = getCurrentUser();
         if (commentaire == null || commentaire.getId() == null || currentUser == null || currentUser.getId() == null) {
@@ -1752,6 +1954,8 @@ public class AnnonceUserController {
         return button;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private StackPane createAvatarNode(User user, String displayName, boolean compact) {
         StackPane shell = new StackPane();
         shell.getStyleClass().add("annonce-avatar-shell");
@@ -1923,7 +2127,10 @@ public class AnnonceUserController {
         return switch (statut.toUpperCase(Locale.ROOT)) {
             case "APPROVED" -> "status-success";
             case "PENDING" -> "status-warning";
+<<<<<<< HEAD
             case "PRIVATE" -> "status-muted";
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             case "REJECTED", "BLOCKED" -> "status-error";
             default -> "status-muted";
         };
@@ -1954,15 +2161,25 @@ public class AnnonceUserController {
 
     private boolean isCurrentUserJoueur() {
         User currentUser = getCurrentUser();
+<<<<<<< HEAD
         return isPlayerRole(currentUser);
+=======
+        return currentUser != null && currentUser.hasRole(UserRoles.ROLE_JOUEUR);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private boolean canCurrentUserManageComment(Commentaire commentaire) {
         User currentUser = getCurrentUser();
         return commentaire != null
                 && currentUser != null
+<<<<<<< HEAD
                 && currentUser.getId() != null
                 && Objects.equals(currentUser.getId(), resolveCommentAuthorUserId(commentaire));
+=======
+                && currentUser.hasRole(UserRoles.ROLE_JOUEUR)
+                && currentUser.getId() != null
+                && Objects.equals(currentUser.getId(), commentaire.getJoueurId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private boolean isCurrentUserCoach() {
@@ -1970,6 +2187,7 @@ public class AnnonceUserController {
         return currentUser != null && currentUser.hasRole(UserRoles.ROLE_ENTRAINEUR);
     }
 
+<<<<<<< HEAD
     private boolean isCurrentUserAdmin() {
         User currentUser = getCurrentUser();
         return currentUser != null && currentUser.hasRole(UserRoles.ROLE_ADMIN);
@@ -2051,6 +2269,8 @@ public class AnnonceUserController {
         return commentaire != null && "PRIVATE".equalsIgnoreCase(emptyToNull(commentaire.getModerationStatus()));
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private User resolveAnnonceAuthor(Annonce annonce) {
         if (annonce == null || annonce.getEntraineurId() == null) {
             return null;
@@ -2070,11 +2290,18 @@ public class AnnonceUserController {
     }
 
     private User resolveCommentAuthor(Commentaire commentaire) {
+<<<<<<< HEAD
         Integer authorUserId = resolveCommentAuthorUserId(commentaire);
         if (commentaire == null || authorUserId == null) {
             return null;
         }
         return resolveUserById(authorUserId);
+=======
+        if (commentaire == null || commentaire.getJoueurId() == null) {
+            return null;
+        }
+        return resolveUserById(commentaire.getJoueurId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private String resolveCommentAuthorName(Commentaire commentaire) {
@@ -2085,6 +2312,7 @@ public class AnnonceUserController {
         return fallbackText(commentaire == null ? null : commentaire.getAuteurAnonyme(), "Anonymous");
     }
 
+<<<<<<< HEAD
     private Integer resolveCommentAuthorUserId(Commentaire commentaire) {
         if (commentaire == null) {
             return null;
@@ -2212,6 +2440,8 @@ public class AnnonceUserController {
         showAlert(Alert.AlertType.INFORMATION, "Comments", "CV location: " + cvPath.toAbsolutePath());
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private User resolveUserById(Integer userId) {
         if (userId == null) {
             return null;

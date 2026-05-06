@@ -1,13 +1,17 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+<<<<<<< HEAD
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -15,16 +19,32 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+=======
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+<<<<<<< HEAD
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+=======
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
@@ -33,11 +53,15 @@ import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
+<<<<<<< HEAD
 import tn.esprit.services.FootballDataSyncService;
 import tn.esprit.services.FootballDataSyncSummary;
 import tn.esprit.services.JoueurService;
 import tn.esprit.services.PlayerPortraitService;
 import tn.esprit.services.football.FootballDataCompetitions;
+=======
+import tn.esprit.services.JoueurService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -46,6 +70,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+<<<<<<< HEAD
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +91,15 @@ public class JoueurListController {
             Executors.newSingleThreadExecutor(daemonFactory("joueur-list-db-worker"));
     private static final ExecutorService PORTRAIT_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-list-portrait-worker"));
+=======
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+public class JoueurListController {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final double CARD_IMAGE_SIZE = 82;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private HBox navbarRoot;
@@ -90,6 +124,7 @@ public class JoueurListController {
     @FXML
     private Label resultCountLabel;
     @FXML
+<<<<<<< HEAD
     private Label pageTitleLabel;
     @FXML
     private Label pageSubtitleLabel;
@@ -102,6 +137,8 @@ public class JoueurListController {
     @FXML
     private Label cardsSubtitleLabel;
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Label selectionStateLabel;
     @FXML
     private Label resultsMetaLabel;
@@ -114,7 +151,11 @@ public class JoueurListController {
     @FXML
     private ComboBox<Equipe> equipeFilterComboBox;
     @FXML
+<<<<<<< HEAD
     private FlowPane joueurCardsPane;
+=======
+    private ListView<Joueur> joueurListView;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private VBox emptyStateBox;
     @FXML
@@ -124,6 +165,7 @@ public class JoueurListController {
     private final ObservableList<Equipe> equipes = FXCollections.observableArrayList();
     private final FilteredList<Joueur> filteredJoueurs = new FilteredList<>(joueurs, joueur -> true);
     private final Map<Integer, Equipe> equipeById = new HashMap<>();
+<<<<<<< HEAD
     private final AtomicLong refreshSequence = new AtomicLong();
     private final PlayerPortraitService playerPortraitService = new PlayerPortraitService();
 
@@ -141,6 +183,13 @@ public class JoueurListController {
     private SidebarModuleGroup sidebarModuleGroup;
     private Timeline autoRefreshTimeline;
     private long lastBackgroundSyncAtMillis;
+=======
+
+    private JoueurService joueurService;
+    private EquipeService equipeService;
+    private boolean serviceReady;
+    private SidebarModuleGroup sidebarModuleGroup;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -150,7 +199,10 @@ public class JoueurListController {
         configureEquipeFilter();
         configureSearch();
         configurePlayerList();
+<<<<<<< HEAD
         configureAutoRefreshLifecycle();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateActionAvailability();
         updateSelectionState();
 
@@ -159,9 +211,14 @@ public class JoueurListController {
             equipeService = new EquipeService();
             serviceReady = true;
             updateActionAvailability();
+<<<<<<< HEAD
             Platform.runLater(() -> {
                 refreshDataAsync("Chargement de l'effectif...");
             });
+=======
+            refreshData();
+            showSuccessStatus("Effectif charge.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -170,6 +227,7 @@ public class JoueurListController {
         }
     }
 
+<<<<<<< HEAD
     public void setTeamContext(Equipe equipe, String competitionCode) {
         contextTeam = equipe;
         contextTeamId = equipe == null ? null : equipe.getId();
@@ -181,6 +239,8 @@ public class JoueurListController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleOpenHome() {
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
@@ -211,26 +271,40 @@ public class JoueurListController {
 
     @FXML
     private void handleOpenJoueurs() {
+<<<<<<< HEAD
         SceneNavigator.switchScene(joueursNavButton, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Competitions");
+=======
+        showMutedStatus("Vous etes deja dans le module Joueurs.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleRefresh() {
+<<<<<<< HEAD
         refreshDataAsync("Actualisation des joueurs...");
+=======
+        refreshData();
+        showMutedStatus("Liste des joueurs actualisee.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleResetFilters() {
         searchField.clear();
+<<<<<<< HEAD
         if (contextTeamId == null) {
             equipeFilterComboBox.getSelectionModel().clearSelection();
         } else {
             selectEquipeInFilter(contextTeamId);
         }
+=======
+        equipeFilterComboBox.getSelectionModel().clearSelection();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         applyFilters();
         showMutedStatus("Filtres reinitialises.");
     }
 
+<<<<<<< HEAD
     @FXML
     private void handleBack() {
         if (contextCompetitionCode != null) {
@@ -250,6 +324,8 @@ public class JoueurListController {
         SceneNavigator.switchScene(joueurCardsPane, "/tn/esprit/views/joueur-crud-view.fxml", "/tn/esprit/styles/joueur-theme.css", "Joueurs | Competitions");
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     private void handleOpenAnnonces() {
@@ -295,6 +371,7 @@ public class JoueurListController {
     }
 
     private void configurePlayerList() {
+<<<<<<< HEAD
         joueurCardsPane.getChildren().clear();
     }
 
@@ -364,14 +441,53 @@ public class JoueurListController {
         avatarShell.setMinSize(CARD_IMAGE_SIZE + 24, CARD_IMAGE_SIZE + 24);
         avatarShell.setPrefSize(CARD_IMAGE_SIZE + 24, CARD_IMAGE_SIZE + 24);
         avatarShell.setMaxSize(CARD_IMAGE_SIZE + 24, CARD_IMAGE_SIZE + 24);
+=======
+        joueurListView.setItems(filteredJoueurs);
+        joueurListView.setPlaceholder(new Label(""));
+        joueurListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Joueur item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                VBox card = buildPlayerCard(item);
+                card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
+                card.setOnMouseClicked(event -> openJoueurDetail(item));
+                setText(null);
+                setGraphic(card);
+            }
+        });
+    }
+
+    private VBox buildPlayerCard(Joueur joueur) {
+        HBox root = new HBox(16);
+        root.setAlignment(Pos.CENTER_LEFT);
+        root.getStyleClass().addAll("player-list-card", "team-list-card-clickable");
+
+        StackPane avatarShell = new StackPane();
+        avatarShell.getStyleClass().add("player-avatar-shell");
+        avatarShell.setMinSize(CARD_IMAGE_SIZE, CARD_IMAGE_SIZE);
+        avatarShell.setPrefSize(CARD_IMAGE_SIZE, CARD_IMAGE_SIZE);
+        avatarShell.setMaxSize(CARD_IMAGE_SIZE, CARD_IMAGE_SIZE);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Image image = JoueurUiSupport.loadJoueurImage(joueur.getImage());
         if (image != null) {
             ImageView avatarView = new ImageView(image);
+<<<<<<< HEAD
             avatarView.setFitWidth(CARD_IMAGE_SIZE);
             avatarView.setFitHeight(CARD_IMAGE_SIZE);
             avatarView.setPreserveRatio(false);
             avatarView.setClip(new Circle(CARD_IMAGE_SIZE / 2, CARD_IMAGE_SIZE / 2, CARD_IMAGE_SIZE / 2));
+=======
+            avatarView.setFitWidth(CARD_IMAGE_SIZE - 12);
+            avatarView.setFitHeight(CARD_IMAGE_SIZE - 12);
+            avatarView.setPreserveRatio(true);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             avatarShell.getChildren().add(avatarView);
         } else {
             Label fallback = new Label(buildInitials(joueur));
@@ -379,6 +495,7 @@ public class JoueurListController {
             avatarShell.getChildren().add(fallback);
         }
 
+<<<<<<< HEAD
         Label titleLabel = new Label(buildFullName(joueur));
         titleLabel.getStyleClass().add("player-card-title");
         titleLabel.setWrapText(true);
@@ -418,10 +535,57 @@ public class JoueurListController {
     }
 
     private void refreshDataAsync(String loadingMessage, boolean backgroundRefresh) {
+=======
+        VBox content = new VBox(7);
+        HBox.setHgrow(content, Priority.ALWAYS);
+
+        HBox titleRow = new HBox(10);
+        titleRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label titleLabel = new Label(buildFullName(joueur));
+        titleLabel.getStyleClass().add("player-card-title");
+        titleLabel.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+
+        Label numberLabel = new Label(buildPlayerBadge(joueur));
+        numberLabel.getStyleClass().add("player-number-badge");
+
+        titleRow.getChildren().addAll(titleLabel, numberLabel);
+
+        Label teamLabel = new Label(buildPlayerSecondaryLine(joueur));
+        teamLabel.getStyleClass().add("player-card-team");
+
+        HBox metaRow = new HBox(8);
+        metaRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label birthLabel = new Label(buildPlayerBirthLine(joueur));
+        birthLabel.getStyleClass().add("player-card-meta");
+
+        Label infoPill = new Label(buildPlayerMetaPill(joueur));
+        infoPill.getStyleClass().add("player-card-meta-pill");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        metaRow.getChildren().addAll(birthLabel, spacer, infoPill);
+        content.getChildren().addAll(titleRow, teamLabel, metaRow);
+
+        root.getChildren().addAll(avatarShell, content);
+        root.setMaxWidth(Double.MAX_VALUE);
+
+        VBox wrapper = new VBox(root);
+        wrapper.setFillWidth(true);
+        wrapper.setMaxWidth(Double.MAX_VALUE);
+        return wrapper;
+    }
+
+    private void refreshData() {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (joueurService == null || equipeService == null) {
             return;
         }
 
+<<<<<<< HEAD
         Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
         Integer teamId = contextTeamId;
         Equipe teamContext = contextTeam;
@@ -476,12 +640,19 @@ public class JoueurListController {
             selectEquipeInFilter(teamId == null ? selectedFilterEquipeId : teamId);
 
             List<Joueur> loadedJoueurs = new ArrayList<>(data.joueurs());
+=======
+        try {
+            loadEquipes();
+
+            List<Joueur> loadedJoueurs = new ArrayList<>(joueurService.getAll());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             loadedJoueurs.sort(Comparator
                     .comparing(this::getEquipeNameForSort, String.CASE_INSENSITIVE_ORDER)
                     .thenComparing(Joueur::getNumero)
                     .thenComparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                     .thenComparing(Joueur::getPrenom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
 
+<<<<<<< HEAD
             joueurs.setAll(loadedJoueurs);
             dataLoaded = true;
             loadingData = false;
@@ -653,12 +824,21 @@ public class JoueurListController {
                 current.setImage(imagePath);
                 return;
             }
+=======
+            JoueurUiSupport.clearImageCache();
+            joueurs.setAll(loadedJoueurs);
+            applyFilters();
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant le chargement.");
+            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n" + e.getMessage());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
     private void loadEquipes() throws SQLException {
         Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
 
+<<<<<<< HEAD
         List<Equipe> loadedEquipes;
         if (contextTeamId == null) {
             loadedEquipes = new ArrayList<>(equipeService.getAll());
@@ -667,6 +847,9 @@ public class JoueurListController {
             loadedEquipes = team == null ? new ArrayList<>() : new ArrayList<>(List.of(team));
             contextTeam = team;
         }
+=======
+        List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
 
         equipeById.clear();
@@ -677,12 +860,20 @@ public class JoueurListController {
         }
 
         equipes.setAll(loadedEquipes);
+<<<<<<< HEAD
         selectEquipeInFilter(contextTeamId == null ? selectedFilterEquipeId : contextTeamId);
+=======
+        selectEquipeInFilter(selectedFilterEquipeId);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void applyFilters() {
         String query = normalize(searchField.getText());
+<<<<<<< HEAD
         Integer filterEquipeId = contextTeamId == null ? getSelectedFilterEquipeId() : contextTeamId;
+=======
+        Integer filterEquipeId = getSelectedFilterEquipeId();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         filteredJoueurs.setPredicate(joueur -> {
             boolean matchesQuery = query == null
@@ -697,9 +888,12 @@ public class JoueurListController {
             return matchesQuery && matchesEquipe;
         });
 
+<<<<<<< HEAD
         joueurCardsPane.getChildren().setAll(filteredJoueurs.stream()
                 .map(this::buildPlayerCard)
                 .toList());
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateCounters();
         updateEmptyState();
     }
@@ -734,24 +928,40 @@ public class JoueurListController {
         }
 
         SceneNavigator.switchScene(
+<<<<<<< HEAD
                 joueurCardsPane,
+=======
+                joueurListView,
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 "/tn/esprit/views/joueur-detail-view.fxml",
                 "/tn/esprit/styles/joueur-theme.css",
                 "Fiche joueur",
                 controller -> {
                     if (controller instanceof JoueurDetailController joueurDetailController) {
+<<<<<<< HEAD
                         joueurDetailController.setJoueurContext(joueur, contextTeam, contextCompetitionCode);
+=======
+                        joueurDetailController.setJoueurContext(joueur);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     }
                 }
         );
     }
 
     private void updateActionAvailability() {
+<<<<<<< HEAD
         boolean disabled = !serviceReady || loadingData || syncingData;
         refreshButton.setDisable(disabled);
         searchField.setDisable(disabled);
         equipeFilterComboBox.setDisable(disabled || contextTeamId != null);
         joueurCardsPane.setDisable(disabled);
+=======
+        boolean disabled = !serviceReady;
+        refreshButton.setDisable(disabled);
+        searchField.setDisable(disabled);
+        equipeFilterComboBox.setDisable(disabled);
+        joueurListView.setDisable(disabled);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private Integer getSelectedFilterEquipeId() {
@@ -823,6 +1033,7 @@ public class JoueurListController {
         return parts.isEmpty() ? "Profil sans equipe" : String.join(" | ", parts);
     }
 
+<<<<<<< HEAD
     private void updatePageTexts() {
         String teamName = contextTeam == null ? null : emptyToNull(contextTeam.getNom());
         String competitionLabel = FootballDataCompetitions.labelOf(contextCompetitionCode);
@@ -850,6 +1061,8 @@ public class JoueurListController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String buildPlayerBirthLine(Joueur joueur) {
         return joueur.getDateNaissance() == null
                 ? "Date de naissance indisponible"
@@ -911,10 +1124,13 @@ public class JoueurListController {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
+<<<<<<< HEAD
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String normalize(String value) {
         if (value == null) {
             return null;
@@ -937,6 +1153,7 @@ public class JoueurListController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 
     private static ThreadFactory daemonFactory(String name) {
         return runnable -> {
@@ -948,5 +1165,7 @@ public class JoueurListController {
 
     private record PlayerData(List<Equipe> equipes, List<Joueur> joueurs, Equipe contextTeam) {
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 

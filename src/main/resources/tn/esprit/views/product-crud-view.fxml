@@ -11,7 +11,10 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<<<<<<< HEAD
 <?import javafx.scene.control.TextArea?>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
@@ -146,6 +149,10 @@
                                 </VBox>
                                 <HBox spacing="10">
                                     <Button fx:id="exportPdfButton" onAction="#handleExportPdf" text="Export PDF" styleClass="ghost-button"/>
+<<<<<<< HEAD
+=======
+                                    <Button onAction="#handleNewProduct" text="Ajouter un produit" styleClass="primary-button"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </HBox>
                             </HBox>
                         </VBox>
@@ -163,10 +170,13 @@
                                 <Label text="Rupture" styleClass="toolbar-summary-caption"/>
                                 <Label fx:id="outOfStockMetricLabel" text="0" styleClass="toolbar-summary-value"/>
                             </VBox>
+<<<<<<< HEAD
                             <VBox spacing="4" styleClass="toolbar-summary-card product-metric-card">
                                 <Label text="Restock soon" styleClass="toolbar-summary-caption"/>
                                 <Label fx:id="restockSoonMetricLabel" text="0" styleClass="toolbar-summary-value"/>
                             </VBox>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                         </FlowPane>
 
                         <HBox spacing="18" styleClass="product-chart-grid">
@@ -208,7 +218,11 @@
                         <VBox spacing="14" styleClass="panel-card toolbar-panel product-toolbar-panel">
                             <VBox spacing="4">
                                 <Label text="Recherche et tri" styleClass="section-title"/>
+<<<<<<< HEAD
                                 <Label text="Recherche locale par regles metier: cheap shoes, expensive gloves, nike jersey under 120."
+=======
+                                <Label text="Cherchez par nom, categorie ou marque puis appliquez le tri voulu."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                        wrapText="true"
                                        styleClass="section-subtitle"/>
                             </VBox>
@@ -217,7 +231,11 @@
                                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                                     <Label text="Recherche" styleClass="field-label"/>
                                     <TextField fx:id="searchField"
+<<<<<<< HEAD
                                                promptText="Ex: cheap shoes | expensive balls | nike jersey under 120"
+=======
+                                               promptText="Nom, categorie, marque..."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                                styleClass="form-text-field"/>
                                 </VBox>
                                 <VBox spacing="6">
@@ -233,6 +251,7 @@
                                     <HBox spacing="10">
                                         <Button onAction="#handleApplyFilters" text="Filtrer" styleClass="primary-button"/>
                                         <Button onAction="#handleResetFilters" text="Reinit." styleClass="ghost-button"/>
+<<<<<<< HEAD
                                         <Button fx:id="trendingFilterButton" onAction="#handleToggleTrending" text="Tendances" styleClass="soft-button"/>
                                     </HBox>
                                 </VBox>
@@ -241,15 +260,26 @@
                                    text="Recherche locale standard."
                                    wrapText="true"
                                    styleClass="section-subtitle"/>
+=======
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                         </VBox>
 
                         <HBox spacing="18" styleClass="product-content-shell">
                             <VBox spacing="14" styleClass="panel-card results-panel" HBox.hgrow="ALWAYS">
                                 <VBox spacing="4">
                                     <Label text="Catalogue" styleClass="section-title"/>
+<<<<<<< HEAD
                                         <Label text="Selectionnez une ligne pour basculer le formulaire en mode edition et afficher l'analyse produit."
                                             wrapText="true"
                                             styleClass="section-subtitle"/>
+=======
+                                    <Label text="La table conserve l'esprit du module Symfony avec image, prix, stock et actions rapides."
+                                           wrapText="true"
+                                           styleClass="section-subtitle"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </VBox>
 
                                 <TableView fx:id="productTableView" prefHeight="560" styleClass="data-table" VBox.vgrow="ALWAYS">
@@ -268,8 +298,13 @@
                                 </TableView>
                             </VBox>
 
+<<<<<<< HEAD
                                 <VBox spacing="18" minWidth="390" prefWidth="420">
                                     <VBox spacing="14" managed="false" visible="false" styleClass="panel-card detail-card product-detail-card">
+=======
+                            <VBox spacing="18" minWidth="390" prefWidth="420">
+                                <VBox spacing="14" styleClass="panel-card detail-card product-detail-card">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     <HBox alignment="CENTER_LEFT" spacing="10">
                                         <Label fx:id="detailBadgeLabel" text="Apercu" styleClass="toolbar-chip"/>
                                         <Label fx:id="detailStockChipLabel" text="-" styleClass="status-pill product-stock-chip product-stock-good"/>
@@ -315,6 +350,7 @@
                                     </GridPane>
 
                                     <VBox spacing="6">
+<<<<<<< HEAD
                                         <Label text="Tags" styleClass="field-label"/>
                                         <Label fx:id="detailTagsValueLabel" text="-" wrapText="true" styleClass="detail-subtitle"/>
                                     </VBox>
@@ -330,6 +366,8 @@
                                     </VBox>
 
                                     <VBox spacing="6">
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                         <Label text="Image" styleClass="field-label"/>
                                         <Label fx:id="detailImagePathLabel" text="Aucune image" wrapText="true" styleClass="detail-subtitle"/>
                                     </VBox>
@@ -389,6 +427,7 @@
                                             <TextField fx:id="sizeField" promptText="Ex: L" styleClass="form-text-field"/>
                                         </VBox>
                                         <VBox spacing="8" HBox.hgrow="ALWAYS">
+<<<<<<< HEAD
                                             <Label text="Image locale" styleClass="field-label"/>
                                             <HBox spacing="8">
                                                 <TextField fx:id="imageField"
@@ -423,6 +462,12 @@
                                                wrapText="true"
                                                styleClass="detail-subtitle"/>
                                     </VBox>
+=======
+                                            <Label text="Image / URL" styleClass="field-label"/>
+                                            <TextField fx:id="imageField" promptText="Chemin local ou URL" styleClass="form-text-field"/>
+                                        </VBox>
+                                    </HBox>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
                                     <HBox spacing="10" styleClass="product-form-actions">
                                         <Button fx:id="addButton" onAction="#handleAddProduct" text="Enregistrer" styleClass="primary-button" HBox.hgrow="ALWAYS"/>
@@ -430,10 +475,14 @@
                                     </HBox>
                                     <HBox spacing="10" styleClass="product-form-actions">
                                         <Button fx:id="deleteButton" onAction="#handleDeleteSelectedProduct" text="Supprimer" styleClass="danger-button" HBox.hgrow="ALWAYS"/>
+<<<<<<< HEAD
                                         <Button fx:id="generateAiButton" onAction="#handleGenerateAiContent" text="AI content" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
                                     </HBox>
                                     <HBox spacing="10" styleClass="product-form-actions">
                                         <Button onAction="#handleNewProduct" text="Ajouter un produit" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+=======
+                                        <Button onAction="#handleClearForm" text="Annuler / Effacer" styleClass="soft-button" HBox.hgrow="ALWAYS"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </HBox>
                                 </VBox>
                             </VBox>

@@ -1,7 +1,10 @@
 package tn.esprit.entities;
 
 import java.time.LocalDate;
+<<<<<<< HEAD
 import java.time.LocalDateTime;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.time.LocalTime;
 
 public class Matchs {
@@ -21,11 +24,14 @@ public class Matchs {
     private Long externalApiId;
     private String externalSource;
     private String competitionCode;
+<<<<<<< HEAD
     private Long apiFootballId;
     private String apiFootballStatsJson;
     private String apiFootballLineupJson;
     private String apiFootballIncidentsJson;
     private LocalDateTime apiFootballSyncedAt;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     public Matchs() {
     }
@@ -189,6 +195,7 @@ public class Matchs {
         this.competitionCode = competitionCode;
     }
 
+<<<<<<< HEAD
     public Long getApiFootballId() {
         return apiFootballId;
     }
@@ -229,6 +236,8 @@ public class Matchs {
         this.apiFootballSyncedAt = apiFootballSyncedAt;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @Override
     public String toString() {
         return "Matchs{" +
@@ -248,9 +257,12 @@ public class Matchs {
                 ", externalApiId=" + externalApiId +
                 ", externalSource='" + externalSource + '\'' +
                 ", competitionCode='" + competitionCode + '\'' +
+<<<<<<< HEAD
                 ", apiFootballId=" + apiFootballId +
                 ", apiFootballIncidentsJson='" + apiFootballIncidentsJson + '\'' +
                 ", apiFootballSyncedAt=" + apiFootballSyncedAt +
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 '}';
     }
 }

@@ -24,14 +24,21 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+<<<<<<< HEAD
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
+=======
+import javafx.scene.control.TableColumn;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
+<<<<<<< HEAD
 import javafx.scene.control.cell.TextFieldTableCell;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -42,12 +49,18 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+<<<<<<< HEAD
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.AdminTableButtons;
 import tn.esprit.gui.AdminTableScrollSupport;
+=======
+import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Joueur;
+import tn.esprit.gui.AdminNavigation;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
@@ -80,6 +93,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+<<<<<<< HEAD
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -91,6 +105,14 @@ public class JoueurController implements AssistantContextProvider {
     private static final double CARD_IMAGE_SIZE = 82;
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-db-worker"));
+=======
+import java.util.regex.Pattern;
+
+public class JoueurController {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final Path SYMFONY_JOUEURS_DIRECTORY = Path.of("C:", "final", "sport_insight_final", "public", "uploads", "joueurs");
+    private static final double CARD_IMAGE_SIZE = 82;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final ExecutorService IMAGE_IMPORT_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("joueur-image-import"));
     private static final Pattern PERSON_NAME_INPUT_PATTERN = Pattern.compile("[\\p{L} .'-]{0,100}");
@@ -204,7 +226,10 @@ public class JoueurController implements AssistantContextProvider {
     private final ObservableList<Equipe> equipes = FXCollections.observableArrayList();
     private final FilteredList<Joueur> filteredJoueurs = new FilteredList<>(joueurs, joueur -> true);
     private final Map<Integer, Equipe> equipeById = new HashMap<>();
+<<<<<<< HEAD
     private final AtomicLong refreshSequence = new AtomicLong();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private JoueurService joueurService;
     private EquipeService equipeService;
@@ -212,12 +237,17 @@ public class JoueurController implements AssistantContextProvider {
     private Joueur selectedJoueur;
     private File lastImageDirectory;
     private boolean serviceReady;
+<<<<<<< HEAD
     private boolean darkMode;
     private boolean loadingData;
     private boolean mutatingData;
     private SidebarModuleGroup sidebarModuleGroup;
     private final Set<Integer> loadingImageIds = new HashSet<>();
     private TableColumn<Joueur, Void> actionsColumn;
+=======
+    private SidebarModuleGroup sidebarModuleGroup;
+    private final Set<Integer> loadingImageIds = new HashSet<>();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -228,7 +258,10 @@ public class JoueurController implements AssistantContextProvider {
         configureNumeroField();
         configureFieldRestrictions();
         configurePlayerList();
+<<<<<<< HEAD
         configureCreateOnlyForm();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         configureStatsSection();
         bindUiState();
         updateActionAvailability();
@@ -239,7 +272,12 @@ public class JoueurController implements AssistantContextProvider {
             equipeService = new EquipeService();
             excelExportService = new AdminExcelExportService();
             serviceReady = true;
+<<<<<<< HEAD
             refreshDataAsync(null, "Chargement des joueurs...", "status-muted", "Module Joueur pret.");
+=======
+            refreshData(null);
+            showSuccessStatus("Module Joueur pret.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             serviceReady = false;
             updateActionAvailability();
@@ -248,6 +286,7 @@ public class JoueurController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     public void setDarkMode(boolean darkMode) {
         this.darkMode = darkMode;
         if (playerDistributionChart != null) {
@@ -289,6 +328,8 @@ public class JoueurController implements AssistantContextProvider {
         );
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleAdd() {
         clearValidation();
@@ -298,6 +339,7 @@ public class JoueurController implements AssistantContextProvider {
             return;
         }
 
+<<<<<<< HEAD
         runMutation(
                 () -> joueurService.add(joueur),
                 null,
@@ -307,6 +349,17 @@ public class JoueurController implements AssistantContextProvider {
                 "Erreur pendant l'ajout.",
                 "Erreur lors de l'ajout du joueur."
         );
+=======
+        try {
+            joueurService.add(joueur);
+            refreshData(null);
+            clearForm();
+            showSuccessStatus("Joueur ajoute avec succes.");
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant l'ajout.");
+            showAlert(Alert.AlertType.ERROR, "Ajout", "Erreur lors de l'ajout du joueur.\n" + e.getMessage());
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -325,6 +378,7 @@ public class JoueurController implements AssistantContextProvider {
 
         joueur.setId(selectedJoueur.getId());
 
+<<<<<<< HEAD
         runMutation(
                 () -> joueurService.update(joueur),
                 selectedJoueur.getId(),
@@ -334,6 +388,16 @@ public class JoueurController implements AssistantContextProvider {
                 "Erreur pendant la modification.",
                 "Erreur lors de la modification du joueur."
         );
+=======
+        try {
+            joueurService.update(joueur);
+            refreshData(selectedJoueur.getId());
+            showSuccessStatus("Joueur modifie avec succes.");
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant la modification.");
+            showAlert(Alert.AlertType.ERROR, "Modification", "Erreur lors de la modification du joueur.\n" + e.getMessage());
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -355,6 +419,7 @@ public class JoueurController implements AssistantContextProvider {
             return;
         }
 
+<<<<<<< HEAD
         runMutation(
                 () -> joueurService.delete(selectedJoueur.getId()),
                 null,
@@ -364,11 +429,27 @@ public class JoueurController implements AssistantContextProvider {
                 "Erreur pendant la suppression.",
                 "Erreur lors de la suppression du joueur."
         );
+=======
+        try {
+            joueurService.delete(selectedJoueur.getId());
+            refreshData(null);
+            clearForm();
+            showSuccessStatus("Joueur supprime avec succes.");
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant la suppression.");
+            showAlert(Alert.AlertType.ERROR, "Suppression", "Erreur lors de la suppression du joueur.\n" + e.getMessage());
+        }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleRefresh() {
+<<<<<<< HEAD
         refreshDataAsync(getSelectedJoueurId(), "Actualisation des joueurs...", "status-muted", "Liste des joueurs actualisee.");
+=======
+        refreshData(getSelectedJoueurId());
+        showMutedStatus("Liste des joueurs actualisee.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -406,11 +487,14 @@ public class JoueurController implements AssistantContextProvider {
 
     @FXML
     private void handleBrowseImage() {
+<<<<<<< HEAD
         if (selectedJoueur != null) {
             showMutedStatus("Le formulaire sert uniquement a l'ajout. Modifiez le joueur depuis le tableau.");
             return;
         }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir une image");
         fileChooser.getExtensionFilters().add(
@@ -554,7 +638,10 @@ public class JoueurController implements AssistantContextProvider {
     private void configurePlayerList() {
         if (joueurTableView != null) {
             joueurIdColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
+<<<<<<< HEAD
             joueurTableView.getColumns().remove(joueurIdColumn);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             joueurNomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getNom())));
             joueurPrenomColumn.setCellValueFactory(cell -> new SimpleStringProperty(emptyIfNull(cell.getValue().getPrenom())));
             joueurEquipeColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveEquipeLabel(cell.getValue())));
@@ -564,6 +651,7 @@ public class JoueurController implements AssistantContextProvider {
             joueurNationaliteColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolvePlayerNationalityLabel(cell.getValue())));
 
             joueurTableView.setItems(filteredJoueurs);
+<<<<<<< HEAD
             joueurTableView.setEditable(true);
             joueurTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
             joueurTableView.setTableMenuButtonVisible(true);
@@ -583,6 +671,12 @@ public class JoueurController implements AssistantContextProvider {
             configureEditableTableColumns();
             ensureActionsColumn();
             configureReadableTableLayout();
+=======
+            joueurTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            joueurTableView.setPlaceholder(new Label(""));
+            joueurTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                    handleSelectedJoueurChange(newValue));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         if (joueurListView != null) {
@@ -608,6 +702,7 @@ public class JoueurController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     private void configureCreateOnlyForm() {
         if (updateButton != null) {
             updateButton.setManaged(false);
@@ -716,11 +811,17 @@ public class JoueurController implements AssistantContextProvider {
         joueurNationaliteColumn.setPrefWidth(145);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void handleSelectedJoueurChange(Joueur newValue) {
         selectedJoueur = newValue;
 
         if (newValue != null) {
+<<<<<<< HEAD
             clearFormFieldsOnly();
+=======
+            populateForm(newValue);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } else if (!hasDraftContent()) {
             clearFormFieldsOnly();
         }
@@ -731,6 +832,7 @@ public class JoueurController implements AssistantContextProvider {
         triggerLazyImageImport(newValue);
     }
 
+<<<<<<< HEAD
     private void startInlineJoueurEdit(Joueur joueur) {
         if (joueur == null || joueurTableView == null) {
             return;
@@ -901,6 +1003,8 @@ public class JoueurController implements AssistantContextProvider {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void bindUiState() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
         equipeFilterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> applyFilters());
@@ -998,16 +1102,21 @@ public class JoueurController implements AssistantContextProvider {
         return wrapper;
     }
 
+<<<<<<< HEAD
     private void refreshDataAsync(
             Integer preferredSelectionId,
             String loadingMessage,
             String successStyleClass,
             String successMessage
     ) {
+=======
+    private void refreshData(Integer preferredSelectionId) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (joueurService == null || equipeService == null) {
             return;
         }
 
+<<<<<<< HEAD
         Integer selectedFormEquipeId = getSelectedFormEquipeId();
         Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
         long requestId = refreshSequence.incrementAndGet();
@@ -1057,10 +1166,23 @@ public class JoueurController implements AssistantContextProvider {
             selectEquipeInForm(selectedFormEquipeId);
             selectEquipeInFilter(selectedFilterEquipeId);
             joueurs.setAll(payload.joueurs());
+=======
+        try {
+            loadEquipes();
+            List<Joueur> loadedJoueurs = new ArrayList<>(joueurService.getAll());
+            loadedJoueurs.sort(Comparator
+                    .comparing(this::getEquipeNameForSort, String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(Joueur::getNumero)
+                    .thenComparing(Joueur::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                    .thenComparing(Joueur::getPrenom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+            joueurs.setAll(loadedJoueurs);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             applyFilters();
             restoreSelection(preferredSelectionId);
             updateDetailPanel();
             updatePlayerDistributionChart();
+<<<<<<< HEAD
             updateActionAvailability();
             if (successMessage != null && !successMessage.isBlank()) {
                 setStatus(successMessage, successStyleClass == null || successStyleClass.isBlank() ? "status-success" : successStyleClass);
@@ -1081,6 +1203,31 @@ public class JoueurController implements AssistantContextProvider {
         });
 
         DB_EXECUTOR.execute(loadTask);
+=======
+        } catch (SQLException e) {
+            showErrorStatus("Erreur pendant le chargement.");
+            showAlert(Alert.AlertType.ERROR, "Chargement", "Erreur lors du chargement des joueurs.\n" + e.getMessage());
+        }
+    }
+
+    private void loadEquipes() throws SQLException {
+        Integer selectedFormEquipeId = getSelectedFormEquipeId();
+        Integer selectedFilterEquipeId = getSelectedFilterEquipeId();
+
+        List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
+        loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+        equipeById.clear();
+        for (Equipe equipe : loadedEquipes) {
+            if (equipe.getId() != null) {
+                equipeById.put(equipe.getId(), equipe);
+            }
+        }
+
+        equipes.setAll(loadedEquipes);
+        selectEquipeInForm(selectedFormEquipeId);
+        selectEquipeInFilter(selectedFilterEquipeId);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void applyFilters() {
@@ -1138,9 +1285,13 @@ public class JoueurController implements AssistantContextProvider {
                 .limit(6)
                 .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
         playerDistributionChart.getData().add(series);
+<<<<<<< HEAD
         applyBarColors(series, darkMode
                 ? List.of("#10b981", "#0ea5e9", "#34d399", "#f59e0b", "#ef4444", "#14b8a6")
                 : List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
+=======
+        applyBarColors(series, List.of("#38bdf8", "#34d399", "#f59e0b", "#f97316", "#a78bfa", "#f43f5e"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         long withoutTeam = filteredJoueurs.stream().filter(joueur -> joueur.getEquipeId() == null).count();
         double averageAge = filteredJoueurs.stream()
@@ -1335,6 +1486,7 @@ public class JoueurController implements AssistantContextProvider {
         }
 
         LocalDate dateNaissance = dateNaissancePicker.getValue();
+<<<<<<< HEAD
         if (dateNaissance == null && selectedJoueur != null) {
             dateNaissance = selectedJoueur.getDateNaissance();
         }
@@ -1348,14 +1500,25 @@ public class JoueurController implements AssistantContextProvider {
         if (imagePath == null && selectedJoueur != null) {
             imagePath = emptyToNull(selectedJoueur.getImage());
         }
+=======
+        String numeroValue = emptyToNull(numeroField.getText());
+        String imagePath = emptyToNull(imageField.getText());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         boolean editing = selectedJoueur != null;
         boolean drafting = editing || hasDraftContent();
 
+<<<<<<< HEAD
         detailBadgeLabel.setText(editing ? "Edition en ligne" : drafting ? "Creation" : "Apercu");
         selectionStateLabel.setText(editing ? "Selection active" : "Mode creation");
         formHintLabel.setText(editing
                 ? "Double-cliquez la ligne pour modifier. Utilisez l'icone corbeille pour supprimer."
+=======
+        detailBadgeLabel.setText(editing ? "Edition" : drafting ? "Creation" : "Apercu");
+        selectionStateLabel.setText(editing ? "Mode edition" : "Mode creation");
+        formHintLabel.setText(editing
+                ? "Modifiez la fiche selectionnee puis enregistrez vos changements."
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 : "Composez une nouvelle fiche joueur et visualisez-la a droite.");
 
         String positionValue = selectedJoueur == null ? null : emptyToNull(selectedJoueur.getPosition());
@@ -1363,7 +1526,11 @@ public class JoueurController implements AssistantContextProvider {
 
         detailNameLabel.setText(fullName == null ? "Aucun joueur selectionne" : fullName);
         detailSubtitleLabel.setText(buildDetailSubtitle(equipeName, dateNaissance, numeroValue, drafting, positionValue, nationaliteValue));
+<<<<<<< HEAD
         detailIdValueLabel.setText(editing ? "Selection" : "Creation");
+=======
+        detailIdValueLabel.setText(editing && selectedJoueur.getId() != null ? "#" + selectedJoueur.getId() : "Nouveau");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         detailEquipeValueLabel.setText(equipeName == null ? "Aucune" : equipeName);
         detailNumeroValueLabel.setText(hasDefinedNumber(numeroValue) ? "#" + numeroValue : "Non defini");
 
@@ -1490,6 +1657,7 @@ public class JoueurController implements AssistantContextProvider {
 
     private void updateActionAvailability() {
         boolean hasSelection = selectedJoueur != null;
+<<<<<<< HEAD
         boolean busy = loadingData || mutatingData;
         boolean createMode = serviceReady && !busy && !hasSelection;
 
@@ -1511,6 +1679,19 @@ public class JoueurController implements AssistantContextProvider {
         }
         if (joueurListView != null) {
             joueurListView.setDisable(!serviceReady || busy);
+=======
+
+        addButton.setDisable(!serviceReady);
+        updateButton.setDisable(!serviceReady || !hasSelection);
+        deleteButton.setDisable(!serviceReady || !hasSelection);
+        clearButton.setDisable(!serviceReady);
+        refreshButton.setDisable(!serviceReady);
+        if (joueurTableView != null) {
+            joueurTableView.setDisable(!serviceReady);
+        }
+        if (joueurListView != null) {
+            joueurListView.setDisable(!serviceReady);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -1595,12 +1776,15 @@ public class JoueurController implements AssistantContextProvider {
         return "-".equals(equipeName) ? "zzzz" : equipeName;
     }
 
+<<<<<<< HEAD
     private String getEquipeNameForSort(Joueur joueur, Map<Integer, Equipe> loadedEquipeById) {
         Equipe equipe = joueur == null || joueur.getEquipeId() == null ? null : loadedEquipeById.get(joueur.getEquipeId());
         String equipeName = equipe == null ? "-" : emptyIfNull(equipe.getNom());
         return "-".equals(equipeName) ? "zzzz" : equipeName;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String buildFullName(Joueur joueur) {
         String prenom = emptyIfNull(joueur.getPrenom()).trim();
         String nom = emptyIfNull(joueur.getNom()).trim();
@@ -1892,6 +2076,7 @@ public class JoueurController implements AssistantContextProvider {
         return null;
     }
 
+<<<<<<< HEAD
     @FunctionalInterface
     private interface SqlRunnable {
         void run() throws SQLException;
@@ -1943,6 +2128,8 @@ public class JoueurController implements AssistantContextProvider {
         DB_EXECUTOR.execute(mutationTask);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static ThreadFactory daemonFactory(String name) {
         return runnable -> {
             Thread thread = new Thread(runnable, name);
@@ -2047,6 +2234,7 @@ public class JoueurController implements AssistantContextProvider {
         alert.setContentText(message);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 
     private record RefreshPayload(
             List<Equipe> equipes,
@@ -2054,5 +2242,7 @@ public class JoueurController implements AssistantContextProvider {
             List<Joueur> joueurs
     ) {
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 

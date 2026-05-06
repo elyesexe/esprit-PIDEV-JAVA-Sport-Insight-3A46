@@ -282,12 +282,20 @@
 
 .training-card-attending {
     -fx-background-color: rgba(236, 253, 245, 0.95);
+<<<<<<< HEAD
     -fx-border-color: rgba(16, 185, 129, 0.58);
     -fx-border-width: 2px;
 }
 
 .training-card-attending .training-card-hero {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(16, 185, 129, 0.96) 0%, rgba(5, 150, 105, 0.96) 100%);
+=======
+    -fx-border-color: rgba(16, 185, 129, 0.55);
+}
+
+.training-card-attending .training-card-hero {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(16, 185, 129, 0.94) 0%, rgba(5, 150, 105, 0.94) 100%);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 
 .training-card-attending .training-card-participation {
@@ -296,12 +304,20 @@
 
 .training-card-absent {
     -fx-background-color: rgba(254, 242, 242, 0.95);
+<<<<<<< HEAD
     -fx-border-color: rgba(239, 68, 68, 0.58);
     -fx-border-width: 2px;
 }
 
 .training-card-absent .training-card-hero {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(239, 68, 68, 0.96) 0%, rgba(190, 24, 93, 0.96) 100%);
+=======
+    -fx-border-color: rgba(239, 68, 68, 0.55);
+}
+
+.training-card-absent .training-card-hero {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, rgba(239, 68, 68, 0.94) 0%, rgba(190, 24, 93, 0.94) 100%);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 
 .training-card-absent .training-card-participation {
@@ -347,6 +363,18 @@
     -fx-text-fill: #047857;
 }
 
+<<<<<<< HEAD
+=======
+.training-card-score {
+    -fx-background-color: rgba(14, 165, 233, 0.14);
+    -fx-background-radius: 999;
+    -fx-padding: 4 10 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0369a1;
+}
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 /* Evaluation cards */
 .note-card {
     -fx-background-color: rgba(255, 255, 255, 0.92);
@@ -547,6 +575,7 @@
     -fx-text-fill: #27272a;
 }
 
+<<<<<<< HEAD
 /* Participation dialog and evaluation workflow */
 .attendance-dialog-root,
 .evaluation-dialog-root {
@@ -866,6 +895,8 @@
 .default-color1.chart-line-symbol { -fx-background-color: #2563eb, white; }
 .default-color2.chart-line-symbol { -fx-background-color: #7c3aed, white; }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 /* Dark theme for user pages */
 .theme-dark.page-root {
     -fx-background-color: radial-gradient(center 50% 30%, radius 120%, #0b2943 0%, #020617 100%);
@@ -951,6 +982,7 @@
     -fx-border-color: rgba(148, 163, 184, 0.28);
 }
 
+<<<<<<< HEAD
 .theme-dark .training-card-attending {
     -fx-background-color: rgba(6, 78, 59, 0.40);
     -fx-border-color: rgba(52, 211, 153, 0.72);
@@ -977,10 +1009,13 @@
     -fx-text-fill: #fecaca;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .theme-dark .training-card-line {
     -fx-text-fill: #cbd5e1;
 }
 
+<<<<<<< HEAD
 .theme-dark .attendance-dialog-content,
 .theme-dark .evaluation-dialog-content {
     -fx-background-color: #1f2937;
@@ -1086,6 +1121,29 @@
 .theme-dark .chart-vertical-grid-lines,
 .theme-dark .chart-horizontal-grid-lines {
     -fx-stroke: #334155;
+=======
+.theme-dark .training-card-score {
+    -fx-background-color: rgba(14, 165, 233, 0.24);
+    -fx-text-fill: #bae6fd;
+}
+
+.theme-dark .training-card-attending {
+    -fx-background-color: rgba(6, 78, 59, 0.64);
+    -fx-border-color: rgba(16, 185, 129, 0.76);
+}
+
+.theme-dark .training-card-attending .training-card-participation {
+    -fx-text-fill: #6ee7b7;
+}
+
+.theme-dark .training-card-absent {
+    -fx-background-color: rgba(127, 29, 29, 0.64);
+    -fx-border-color: rgba(248, 113, 113, 0.76);
+}
+
+.theme-dark .training-card-absent .training-card-participation {
+    -fx-text-fill: #fecaca;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }
 
 .theme-dark .note-card {
@@ -1269,3 +1327,555 @@
     -fx-border-color: rgba(82, 82, 91, 0.88);
     -fx-text-fill: #f5f5f5;
 }
+<<<<<<< HEAD
+=======
+
+/* Modern Attendance Dialog Styles */
+.attendance-dialog-root {
+    -fx-background-color: transparent;
+}
+
+.attendance-dialog-header {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #059669 100%);
+    -fx-background-radius: 20 20 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 20, 0.3, 0, 8);
+}
+
+.attendance-dialog-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.attendance-dialog-session {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(255, 255, 255, 0.95);
+}
+
+.attendance-dialog-info {
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+}
+
+.attendance-dialog-content {
+    -fx-background-color: white;
+}
+
+.attendance-dialog-question {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #1f2937;
+    -fx-alignment: center;
+}
+
+.attendance-choice-button {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #6b7280;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 12, 0.15, 0, 4);
+}
+
+.attendance-choice-button:hover {
+    -fx-border-color: #d1d5db;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 16, 0.2, 0, 6);
+    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.02;
+}
+
+.attendance-present-button:selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #d1fae5 0%, #a7f3d0 100%);
+    -fx-border-color: #10b981;
+    -fx-border-width: 3;
+    -fx-text-fill: #065f46;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 20, 0.3, 0, 6);
+}
+
+.attendance-absent-button:selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fee2e2 0%, #fecaca 100%);
+    -fx-border-color: #ef4444;
+    -fx-border-width: 3;
+    -fx-text-fill: #991b1b;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 20, 0.3, 0, 6);
+}
+
+.attendance-dialog-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #374151;
+}
+
+.attendance-justification-area {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1f2937;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.attendance-justification-area:focused {
+    -fx-border-color: #10b981;
+    -fx-background-color: white;
+}
+
+.attendance-justification-area .content {
+    -fx-background-color: transparent;
+}
+
+.attendance-dialog-footer {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 0 0 20 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 0 0 0;
+}
+
+.attendance-dialog-button {
+    -fx-background-radius: 12;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.attendance-save-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #10b981 0%, #059669 100%);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 12, 0.2, 0, 4);
+}
+
+.attendance-save-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #059669 0%, #047857 100%);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 16, 0.25, 0, 6);
+}
+
+.attendance-cancel-button {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-text-fill: #6b7280;
+}
+
+.attendance-cancel-button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #9ca3af;
+}
+
+.attendance-clear-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fef2f2 0%, #fee2e2 100%);
+    -fx-border-color: #fca5a5;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-text-fill: #dc2626;
+}
+
+.attendance-clear-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fee2e2 0%, #fecaca 100%);
+    -fx-border-color: #ef4444;
+}
+
+.attendance-clear-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+/* Dark theme support for attendance dialog */
+.theme-dark .attendance-dialog-content {
+    -fx-background-color: #1f2937;
+}
+
+.theme-dark .attendance-dialog-question {
+    -fx-text-fill: #f3f4f6;
+}
+
+.theme-dark .attendance-choice-button {
+    -fx-background-color: #374151;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #d1d5db;
+}
+
+.theme-dark .attendance-choice-button:hover {
+    -fx-border-color: #6b7280;
+}
+
+.theme-dark .attendance-dialog-label {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .attendance-justification-area {
+    -fx-background-color: #111827;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #f3f4f6;
+    -fx-prompt-text-fill: #6b7280;
+}
+
+.theme-dark .attendance-justification-area:focused {
+    -fx-border-color: #10b981;
+    -fx-background-color: #1f2937;
+}
+
+.theme-dark .attendance-dialog-footer {
+    -fx-background-color: #111827;
+    -fx-border-color: #374151;
+}
+
+.theme-dark .attendance-cancel-button {
+    -fx-background-color: #374151;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #d1d5db;
+}
+
+.theme-dark .attendance-cancel-button:hover {
+    -fx-background-color: #4b5563;
+    -fx-border-color: #6b7280;
+}
+
+/* Evaluation Dialog Styles */
+.evaluation-dialog-root {
+    -fx-background-color: transparent;
+}
+
+.evaluation-dialog-header {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #3b82f6 0%, #2563eb 100%);
+    -fx-background-radius: 20 20 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.3), 20, 0.3, 0, 8);
+}
+
+.evaluation-dialog-title {
+    -fx-font-family: "Bahnschrift SemiCondensed";
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.evaluation-dialog-player {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(255, 255, 255, 0.95);
+}
+
+.evaluation-dialog-session {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+}
+
+.evaluation-dialog-content {
+    -fx-background-color: white;
+}
+
+.evaluation-dialog-instruction {
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #1f2937;
+    -fx-alignment: center;
+}
+
+.evaluation-dialog-label {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #374151;
+}
+
+.evaluation-slider {
+    -fx-pref-width: 350;
+}
+
+.evaluation-slider .track {
+    -fx-background-color: linear-gradient(to right, #fee2e2 0%, #fef3c7 50%, #d1fae5 100%);
+    -fx-background-radius: 8;
+    -fx-pref-height: 8;
+}
+
+.evaluation-slider .thumb {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #3b82f6 0%, #2563eb 100%);
+    -fx-background-radius: 12;
+    -fx-pref-width: 24;
+    -fx-pref-height: 24;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.4), 12, 0.3, 0, 4);
+}
+
+.evaluation-slider .thumb:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #1d4ed8 100%);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.evaluation-value-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #3b82f6;
+    -fx-alignment: center-right;
+    -fx-background-color: #eff6ff;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12 6 12;
+}
+
+.evaluation-average-box {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dbeafe 0%, #bfdbfe 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.2), 12, 0.2, 0, 4);
+}
+
+.evaluation-average-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e40af;
+}
+
+.evaluation-average-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1e3a8a;
+}
+
+.evaluation-comment-area {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1f2937;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.evaluation-comment-area:focused {
+    -fx-border-color: #3b82f6;
+    -fx-background-color: white;
+}
+
+.evaluation-comment-area .content {
+    -fx-background-color: transparent;
+}
+
+.evaluation-dialog-footer {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 0 0 20 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 0 0 0;
+}
+
+.evaluation-dialog-button {
+    -fx-background-radius: 12;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.evaluation-save-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #3b82f6 0%, #2563eb 100%);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.3), 12, 0.2, 0, 4);
+}
+
+.evaluation-save-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #2563eb 0%, #1d4ed8 100%);
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.4), 16, 0.25, 0, 6);
+}
+
+.evaluation-cancel-button {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-text-fill: #6b7280;
+}
+
+.evaluation-cancel-button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #9ca3af;
+}
+
+/* Dark theme support for evaluation dialog */
+.theme-dark .evaluation-dialog-content {
+    -fx-background-color: #1f2937;
+}
+
+.theme-dark .evaluation-dialog-instruction {
+    -fx-text-fill: #f3f4f6;
+}
+
+.theme-dark .evaluation-dialog-label {
+    -fx-text-fill: #e5e7eb;
+}
+
+.theme-dark .evaluation-slider .track {
+    -fx-background-color: linear-gradient(to right, #7f1d1d 0%, #78350f 50%, #064e3b 100%);
+}
+
+.theme-dark .evaluation-value-label {
+    -fx-background-color: #1e3a8a;
+    -fx-text-fill: #93c5fd;
+}
+
+.theme-dark .evaluation-average-box {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1e3a8a 0%, #1e40af 100%);
+    -fx-border-color: #60a5fa;
+}
+
+.theme-dark .evaluation-average-title {
+    -fx-text-fill: #bfdbfe;
+}
+
+.theme-dark .evaluation-average-value {
+    -fx-text-fill: #dbeafe;
+}
+
+.theme-dark .evaluation-comment-area {
+    -fx-background-color: #111827;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #f3f4f6;
+    -fx-prompt-text-fill: #6b7280;
+}
+
+.theme-dark .evaluation-comment-area:focused {
+    -fx-border-color: #3b82f6;
+    -fx-background-color: #1f2937;
+}
+
+.theme-dark .evaluation-dialog-footer {
+    -fx-background-color: #111827;
+    -fx-border-color: #374151;
+}
+
+.theme-dark .evaluation-cancel-button {
+    -fx-background-color: #374151;
+    -fx-border-color: #4b5563;
+    -fx-text-fill: #d1d5db;
+}
+
+.theme-dark .evaluation-cancel-button:hover {
+    -fx-background-color: #4b5563;
+    -fx-border-color: #6b7280;
+}
+
+
+/* ==================== PERFORMANCE EVOLUTION STYLES ==================== */
+
+.stat-mini-card {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+    -fx-alignment: CENTER;
+}
+
+.theme-dark .stat-mini-card {
+    -fx-background-color: #2d2d2d;
+}
+
+.stat-mini-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #666;
+}
+
+.theme-dark .stat-mini-label {
+    -fx-text-fill: #999;
+}
+
+.stat-mini-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2196f3;
+}
+
+.chart-mini-container {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 8px;
+    -fx-padding: 15px;
+}
+
+.theme-dark .chart-mini-container {
+    -fx-background-color: #1e1e1e;
+}
+
+.weak-areas-box {
+    -fx-background-color: #fff3e0;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+}
+
+.theme-dark .weak-areas-box {
+    -fx-background-color: #3e2723;
+}
+
+.ai-mini-button {
+    -fx-background-color: linear-gradient(to right, #667eea 0%, #764ba2 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 20px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.3), 8, 0, 0, 3);
+}
+
+.ai-mini-button:hover {
+    -fx-background-color: linear-gradient(to right, #764ba2 0%, #667eea 100%);
+    -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.5), 10, 0, 0, 4);
+}
+
+.nutrition-button {
+    -fx-background-color: linear-gradient(to right, #f093fb 0%, #f5576c 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 20px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(240,147,251,0.3), 8, 0, 0, 3);
+}
+
+.nutrition-button:hover {
+    -fx-background-color: linear-gradient(to right, #f5576c 0%, #f093fb 100%);
+    -fx-effect: dropshadow(gaussian, rgba(240,147,251,0.5), 10, 0, 0, 4);
+}
+
+/* Chart styling */
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: white;
+}
+
+.theme-dark .chart-plot-background {
+    -fx-background-color: #1a1a1a;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #e0e0e0;
+}
+
+.theme-dark .chart-vertical-grid-lines,
+.theme-dark .chart-horizontal-grid-lines {
+    -fx-stroke: #404040;
+}
+
+.default-color0.chart-series-line { -fx-stroke: #ff5722; -fx-stroke-width: 2.5px; }
+.default-color1.chart-series-line { -fx-stroke: #2196f3; -fx-stroke-width: 2.5px; }
+.default-color2.chart-series-line { -fx-stroke: #9c27b0; -fx-stroke-width: 2.5px; }
+
+.default-color0.chart-line-symbol { -fx-background-color: #ff5722, white; }
+.default-color1.chart-line-symbol { -fx-background-color: #2196f3, white; }
+.default-color2.chart-line-symbol { -fx-background-color: #9c27b0, white; }
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

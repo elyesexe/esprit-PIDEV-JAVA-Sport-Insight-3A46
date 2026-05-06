@@ -6,14 +6,19 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+=======
+import java.util.List;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 public final class ProductImageResolver {
     private static final String SOURCE_PUBLIC_PROPERTY = "sportinsight.source.public";
     private static final String SOURCE_PUBLIC_ENV = "SPORT_INSIGHT_SOURCE_PUBLIC";
+<<<<<<< HEAD
     private static final String API_BASE_PROPERTY = "sportinsight.api.base";
     private static final String API_BASE_ENV = "SPORT_INSIGHT_API_BASE";
     private static final String DEFAULT_FALLBACK_RELATIVE_PATH = "store.png";
@@ -49,11 +54,21 @@ public final class ProductImageResolver {
     );
     private static boolean apiBaseDetectionComplete;
     private static String detectedApiBaseUrl;
+=======
+    private static final String DEFAULT_SOURCE_PUBLIC = "C:/final/sport_insight_final/public";
+    private static final String DEFAULT_FALLBACK_RELATIVE_PATH = "api/football_ball.png";
+    private static final Path WORKSPACE_ROOT = Path.of(System.getProperty("user.dir"));
+    private static final List<Path> LOCAL_SEARCH_ROOTS = List.of(
+            WORKSPACE_ROOT.resolve("src/main/resources/tn/esprit/images"),
+            WORKSPACE_ROOT.resolve("image")
+    );
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private ProductImageResolver() {
     }
 
     public static Image loadImage(Class<?> owner, String imagePath) {
+<<<<<<< HEAD
         String normalizedPath = normalizePath(trimToNull(imagePath));
         if (normalizedPath == null) {
             return resolveImage(owner, DEFAULT_FALLBACK_RELATIVE_PATH);
@@ -63,6 +78,14 @@ public final class ProductImageResolver {
 
     private static Image resolveImage(Class<?> owner, String imagePath) {
         String normalizedPath = normalizePath(trimToNull(imagePath));
+=======
+        Image resolved = resolveImage(owner, imagePath);
+        return resolved != null ? resolved : resolveImage(owner, DEFAULT_FALLBACK_RELATIVE_PATH);
+    }
+
+    private static Image resolveImage(Class<?> owner, String imagePath) {
+        String normalizedPath = trimToNull(imagePath);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (owner == null || normalizedPath == null) {
             return null;
         }
@@ -74,21 +97,27 @@ public final class ProductImageResolver {
                 return new Image(normalizedPath, true);
             }
 
+<<<<<<< HEAD
             String apiUrl = resolveApiUrl(normalizedPath);
             if (apiUrl != null) {
                 return new Image(apiUrl, true);
             }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             File directFile = new File(normalizedPath);
             if (directFile.exists()) {
                 return new Image(directFile.toURI().toString(), true);
             }
 
+<<<<<<< HEAD
             Path sourcePublicPath = resolveSourcePublicPath(normalizedPath);
             if (sourcePublicPath != null) {
                 return new Image(sourcePublicPath.toUri().toString(), true);
             }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             Path localPath = resolveLocalPath(normalizedPath);
             if (localPath != null) {
                 return new Image(localPath.toUri().toString(), true);
@@ -100,12 +129,20 @@ public final class ProductImageResolver {
                 return new Image(resource.toExternalForm(), true);
             }
 
+<<<<<<< HEAD
             String fileName = fileNameOf(normalizedPath);
             if (fileName != null && !fileName.equals(normalizedPath)) {
                 String imageResourcePath = "/tn/esprit/images/" + fileName;
                 URL imageResource = owner.getResource(imageResourcePath);
                 if (imageResource != null) {
                     return new Image(imageResource.toExternalForm(), true);
+=======
+            File sourcePublicRoot = resolveSourcePublicRoot();
+            if (sourcePublicRoot != null) {
+                File sourceFile = new File(sourcePublicRoot, normalizedPath.replace('/', File.separatorChar));
+                if (sourceFile.exists()) {
+                    return new Image(sourceFile.toURI().toString(), true);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 }
             }
         } catch (Exception ignored) {
@@ -114,6 +151,7 @@ public final class ProductImageResolver {
         return null;
     }
 
+<<<<<<< HEAD
     private static String resolveApiUrl(String normalizedPath) {
         if (normalizedPath == null || !normalizedPath.startsWith("api/")) {
             return null;
@@ -163,6 +201,8 @@ public final class ProductImageResolver {
         return base + path;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static Path resolveLocalPath(String normalizedPath) {
         for (Path root : LOCAL_SEARCH_ROOTS) {
             Path candidate = root.resolve(normalizedPath).normalize();
@@ -170,8 +210,14 @@ public final class ProductImageResolver {
                 return candidate;
             }
 
+<<<<<<< HEAD
             String fileName = fileNameOf(normalizedPath);
             Path fileNameCandidate = root.resolve(fileName == null ? normalizedPath : fileName).normalize();
+=======
+            Path fileNameCandidate = root.resolve(Path.of(normalizedPath).getFileName() == null
+                    ? normalizedPath
+                    : Path.of(normalizedPath).getFileName().toString()).normalize();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             if (Files.exists(fileNameCandidate)) {
                 return fileNameCandidate;
             }
@@ -179,6 +225,7 @@ public final class ProductImageResolver {
         return null;
     }
 
+<<<<<<< HEAD
     private static Path resolveSourcePublicPath(String normalizedPath) {
         if (normalizedPath == null) {
             return null;
@@ -202,10 +249,14 @@ public final class ProductImageResolver {
 
     private static List<Path> resolveSourcePublicRoots() {
         Set<Path> roots = new LinkedHashSet<>();
+=======
+    private static File resolveSourcePublicRoot() {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         String configuredPath = trimToNull(System.getProperty(SOURCE_PUBLIC_PROPERTY));
         if (configuredPath == null) {
             configuredPath = trimToNull(System.getenv(SOURCE_PUBLIC_ENV));
         }
+<<<<<<< HEAD
         if (configuredPath != null) {
             Path configuredRoot = Path.of(configuredPath).normalize();
             if (Files.exists(configuredRoot)) {
@@ -247,6 +298,14 @@ public final class ProductImageResolver {
             int slashIndex = normalizedPath.lastIndexOf('/');
             return slashIndex >= 0 ? normalizedPath.substring(slashIndex + 1) : normalizedPath;
         }
+=======
+        if (configuredPath == null) {
+            configuredPath = DEFAULT_SOURCE_PUBLIC;
+        }
+
+        File directory = new File(configuredPath);
+        return directory.exists() ? directory : null;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private static String trimToNull(String value) {

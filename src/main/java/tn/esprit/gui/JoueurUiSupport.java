@@ -138,7 +138,11 @@ public final class JoueurUiSupport {
 
     private static Image loadImageFromUri(String imagePath) {
         if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("file:/")) {
+<<<<<<< HEAD
             return createImage(imagePath, imagePath.startsWith("http://") || imagePath.startsWith("https://"));
+=======
+            return createImage(imagePath);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         return null;
@@ -172,12 +176,17 @@ public final class JoueurUiSupport {
     }
 
     private static Image createImage(String imageSource) {
+<<<<<<< HEAD
         return createImage(imageSource, false);
     }
 
     private static Image createImage(String imageSource, boolean backgroundLoading) {
         try {
             Image image = new Image(imageSource, 320, 320, true, true, backgroundLoading);
+=======
+        try {
+            Image image = new Image(imageSource, false);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return image.isError() ? null : image;
         } catch (IllegalArgumentException e) {
             return null;

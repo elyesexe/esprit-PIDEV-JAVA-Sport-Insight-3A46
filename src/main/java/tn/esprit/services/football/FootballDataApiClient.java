@@ -6,6 +6,7 @@ import tn.esprit.tools.FootballDataConfig;
 
 import java.io.IOException;
 import java.net.URI;
+<<<<<<< HEAD
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,6 +16,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+=======
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.Instant;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 public class FootballDataApiClient {
     private static final long MIN_REQUEST_INTERVAL_MS = 6500L;
@@ -44,6 +52,7 @@ public class FootballDataApiClient {
         return getJson("/competitions/" + competitionCode + "/standings");
     }
 
+<<<<<<< HEAD
     public JsonNode fetchCompetitionScorers(String competitionCode, int limit) throws IOException, InterruptedException {
         Map<String, String> query = new LinkedHashMap<>();
         query.put("limit", String.valueOf(limit));
@@ -59,6 +68,13 @@ public class FootballDataApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(buildUri(path, query))
+=======
+    private JsonNode getJson(String path) throws IOException, InterruptedException {
+        throttle();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(FootballDataConfig.BASE_URL + path))
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 .header("X-Auth-Token", apiKey)
                 .header("Accept", "application/json")
                 .GET()
@@ -74,6 +90,7 @@ public class FootballDataApiClient {
         return objectMapper.readTree(response.body());
     }
 
+<<<<<<< HEAD
     private URI buildUri(String path, Map<String, String> query) {
         StringBuilder builder = new StringBuilder(FootballDataConfig.BASE_URL).append(path);
         if (query != null && !query.isEmpty()) {
@@ -92,6 +109,8 @@ public class FootballDataApiClient {
         return URI.create(builder.toString());
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private synchronized void throttle() throws InterruptedException {
         long elapsed = Duration.between(lastRequestAt, Instant.now()).toMillis();
         long remaining = MIN_REQUEST_INTERVAL_MS - elapsed;

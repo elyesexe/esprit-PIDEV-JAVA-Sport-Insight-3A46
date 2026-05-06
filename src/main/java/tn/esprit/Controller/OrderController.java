@@ -5,7 +5,10 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+<<<<<<< HEAD
 import javafx.concurrent.Task;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
@@ -18,8 +21,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+<<<<<<< HEAD
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -28,6 +34,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+<<<<<<< HEAD
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -41,6 +48,16 @@ import tn.esprit.services.OrderPdfExportService;
 import tn.esprit.services.OrderService;
 import tn.esprit.services.OrderWorkflowNotificationService;
 import tn.esprit.services.ProductService;
+=======
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import tn.esprit.entities.Order;
+import tn.esprit.security.UserRoles;
+import tn.esprit.services.OrderPdfExportService;
+import tn.esprit.services.OrderService;
+import tn.esprit.services.ProductService;
+import tn.esprit.services.UserService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -55,18 +72,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+<<<<<<< HEAD
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.stream.Collectors;
 
 public class OrderController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+<<<<<<< HEAD
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("order-db"));
     private static final ExecutorService IO_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("order-io"));
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private BorderPane pageRoot;
     @FXML private ScrollPane pageScroll;
@@ -76,7 +99,10 @@ public class OrderController {
     @FXML private Label visibleOrdersMetricLabel;
     @FXML private Label confirmedOrdersMetricLabel;
     @FXML private Label pendingPaymentsMetricLabel;
+<<<<<<< HEAD
     @FXML private Label anomalyOrdersMetricLabel;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private Label statusChartSummaryLabel;
     @FXML private Label paymentChartSummaryLabel;
     @FXML private BarChart<String, Number> statusChart;
@@ -99,7 +125,10 @@ public class OrderController {
     @FXML private Label detailSubtitleLabel;
     @FXML private Label detailTotalLabel;
     @FXML private Label detailPaymentChipLabel;
+<<<<<<< HEAD
     @FXML private Label detailAnomalyChipLabel;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private Label detailIdValueLabel;
     @FXML private Label detailProductValueLabel;
     @FXML private Label detailCoachValueLabel;
@@ -109,17 +138,24 @@ public class OrderController {
     @FXML private Label detailPhoneValueLabel;
     @FXML private Label detailShippingValueLabel;
     @FXML private Label detailBillingValueLabel;
+<<<<<<< HEAD
     @FXML private Label detailLiveFxValueLabel;
     @FXML private Label detailAnomalySummaryLabel;
     @FXML private Label detailRecommendationValueLabel;
     @FXML private VBox emptyStateCard;
     @FXML private VBox detailCard;
     @FXML private VBox formCard;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private Label formModeLabel;
     @FXML private Label formHintLabel;
     @FXML private Label validationLabel;
     @FXML private ComboBox<ChoiceItem> productComboBox;
+<<<<<<< HEAD
     @FXML private TextField clientNameField;
+=======
+    @FXML private ComboBox<ChoiceItem> coachComboBox;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private DatePicker orderDatePicker;
     @FXML private ComboBox<String> statusComboBox;
     @FXML private ComboBox<String> paymentMethodComboBox;
@@ -131,6 +167,7 @@ public class OrderController {
     @FXML private TextField totalAmountField;
     @FXML private TextField shippingAddressField;
     @FXML private TextField billingAddressField;
+<<<<<<< HEAD
     @FXML private Button createOrderButton;
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
@@ -160,6 +197,25 @@ public class OrderController {
     private List<Product> productSnapshot = List.of();
     private OrderIntelligenceService.OrderAnomalyAssessment currentAnomalyAssessment =
             OrderIntelligenceService.OrderAnomalyAssessment.empty();
+=======
+    @FXML private Button updateButton;
+    @FXML private Button deleteButton;
+    @FXML private Button detailEditButton;
+    @FXML private Button detailDeleteButton;
+    @FXML private Button exportPdfButton;
+
+    private final ObservableList<Order> orders = FXCollections.observableArrayList();
+    private final ObservableList<ChoiceItem> productChoices = FXCollections.observableArrayList();
+    private final ObservableList<ChoiceItem> coachChoices = FXCollections.observableArrayList();
+
+    private OrderService orderService;
+    private ProductService productService;
+    private UserService userService;
+    private OrderPdfExportService orderPdfExportService;
+    private Order selectedOrder;
+    private boolean serviceReady;
+    private boolean darkMode;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -167,12 +223,17 @@ public class OrderController {
         configureTable();
         configureCharts();
         updateDetailPanel();
+<<<<<<< HEAD
         setPanelMode(PanelMode.EMPTY);
+=======
+        updateActionAvailability();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Platform.runLater(this::applyWorkspaceSurface);
 
         try {
             orderService = new OrderService();
             productService = new ProductService();
+<<<<<<< HEAD
             orderPdfExportService = new OrderPdfExportService();
             orderIntelligenceService = new OrderIntelligenceService();
             orderNotificationService = new OrderNotificationService();
@@ -180,6 +241,13 @@ public class OrderController {
             workflowNotificationService = new OrderWorkflowNotificationService();
             serviceReady = true;
             refreshOrders(null, "Chargement des commandes...", "status-muted");
+=======
+            userService = new UserService();
+            orderPdfExportService = new OrderPdfExportService();
+            serviceReady = true;
+            loadReferenceData();
+            refreshOrders(null, null, null);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException | IllegalStateException exception) {
             serviceReady = false;
             setStatus("Module commandes indisponible.", "status-error");
@@ -192,10 +260,13 @@ public class OrderController {
         if (orderTableView != null) {
             orderTableView.refresh();
         }
+<<<<<<< HEAD
         if (statusChart != null) {
             statusChart.applyCss();
         }
         updateCharts();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Platform.runLater(() -> applyPieChartTheme(paymentChart));
     }
 
@@ -206,8 +277,15 @@ public class OrderController {
         clearFormFields();
         clearValidation();
         updateDetailPanel();
+<<<<<<< HEAD
         selectionStateLabel.setText("Creation d'une commande");
         setPanelMode(PanelMode.CREATE);
+=======
+        updateActionAvailability();
+        formModeLabel.setText("Ajouter une commande");
+        formHintLabel.setText("Renseignez les informations ci-dessous pour enregistrer une nouvelle commande.");
+        selectionStateLabel.setText("Selectionnez une commande");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -231,9 +309,14 @@ public class OrderController {
         }
         try {
             orderService.add(order);
+<<<<<<< HEAD
             triggerOrderNotification(order, false);
             notifyOrderCreated(order);
             refreshOrders(order.getId(), "Commande ajoutee avec succes.", "status-success");
+=======
+            loadReferenceData();
+            refreshOrders(null, "Commande ajoutee avec succes.", "status-success");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             clearValidation();
         } catch (SQLException | IllegalArgumentException exception) {
             showValidation(resolveMessage(exception));
@@ -252,8 +335,12 @@ public class OrderController {
         }
         try {
             orderService.update(order);
+<<<<<<< HEAD
             triggerOrderNotification(order, true);
             notifyOrderUpdated(order);
+=======
+            loadReferenceData();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             refreshOrders(order.getId(), "Commande modifiee avec succes.", "status-success");
             clearValidation();
         } catch (SQLException | IllegalArgumentException exception) {
@@ -276,11 +363,16 @@ public class OrderController {
             showValidation("Selectionnez une commande a modifier.");
             return;
         }
+<<<<<<< HEAD
         openEditForm(selectedOrder);
+=======
+        populateForm(selectedOrder);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
     private void handleClearForm() {
+<<<<<<< HEAD
         clearValidation();
         if (panelMode == PanelMode.EDIT && selectedOrder != null) {
             updateDetailPanel();
@@ -294,6 +386,9 @@ public class OrderController {
         updateDetailPanel();
         selectionStateLabel.setText("Selectionnez une commande");
         setPanelMode(PanelMode.EMPTY);
+=======
+        handleNewOrder();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -319,9 +414,15 @@ public class OrderController {
             orderPdfExportService.exportOrders(
                     target,
                     ordersToExport,
+<<<<<<< HEAD
                     id -> resolveChoiceLabel(productChoices, id, "Produit")
             );
             notifyOrdersExported(ordersToExport.size(), target);
+=======
+                    id -> resolveChoiceLabel(productChoices, id, "Produit"),
+                    id -> resolveChoiceLabel(coachChoices, id, "Coach")
+            );
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             setStatus("Liste des commandes exportee en PDF.", "status-success");
         } catch (IOException exception) {
             setStatus("Export PDF impossible.", "status-error");
@@ -329,6 +430,7 @@ public class OrderController {
         }
     }
 
+<<<<<<< HEAD
     @FXML
     private void handleExportInvoice() {
         if (selectedOrder == null || orderPdfExportService == null) {
@@ -375,6 +477,11 @@ public class OrderController {
 
     private void configureControls() {
         productComboBox.setItems(productChoices);
+=======
+    private void configureControls() {
+        productComboBox.setItems(productChoices);
+        coachComboBox.setItems(coachChoices);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         sortByComboBox.setItems(FXCollections.observableArrayList("Date", "Montant", "Statut", "Quantite"));
         sortDirectionComboBox.setItems(FXCollections.observableArrayList("Asc", "Desc"));
         sortByComboBox.setValue("Date");
@@ -382,6 +489,7 @@ public class OrderController {
         statusComboBox.setItems(FXCollections.observableArrayList(OrderService.allowedOrderStatuses()));
         paymentMethodComboBox.setItems(FXCollections.observableArrayList(OrderService.allowedPaymentMethods()));
         paymentStatusComboBox.setItems(FXCollections.observableArrayList(OrderService.allowedPaymentStatuses()));
+<<<<<<< HEAD
         statusComboBox.setValue("pending");
         String defaultPaymentMethod = defaultPaymentMethod();
         paymentMethodComboBox.setValue(defaultPaymentMethod);
@@ -390,13 +498,25 @@ public class OrderController {
         quantityField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d{0,5}") ? change : null));
         totalAmountField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d{0,8}([\\.,]\\d{0,2})?") ? change : null));
         registerDraftPreviewListeners();
+=======
+        statusComboBox.setValue("PENDING");
+        paymentMethodComboBox.setValue("CARD");
+        paymentStatusComboBox.setValue("UNPAID");
+        orderDatePicker.setValue(LocalDate.now());
+        quantityField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d{0,5}") ? change : null));
+        totalAmountField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d{0,8}([\\.,]\\d{0,2})?") ? change : null));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void configureTable() {
         orderTableView.setItems(orders);
         orderIdColumn.setCellValueFactory(cell -> new SimpleStringProperty("#" + cell.getValue().getId()));
         orderProductColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveChoiceLabel(productChoices, cell.getValue().getProductId(), "Produit")));
+<<<<<<< HEAD
         orderCoachColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveClientName(cell.getValue())));
+=======
+        orderCoachColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveChoiceLabel(coachChoices, cell.getValue().getEntraineurId(), "Coach")));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         orderQuantityColumn.setCellValueFactory(cell -> new SimpleStringProperty(String.valueOf(cell.getValue().getQuantity())));
         orderTotalColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatPrice(cell.getValue().getTotalAmount())));
         orderDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatDate(cell.getValue().getOrderDate())));
@@ -405,7 +525,11 @@ public class OrderController {
             @Override
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
+<<<<<<< HEAD
                 setGraphic(empty || item == null ? null : createEditableStatusChip(item, false));
+=======
+                setGraphic(empty || item == null ? null : createStatusChip(item.getStatus(), false));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
         });
         orderPaymentColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
@@ -413,7 +537,11 @@ public class OrderController {
             @Override
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
+<<<<<<< HEAD
                 setGraphic(empty || item == null ? null : createEditableStatusChip(item, true));
+=======
+                setGraphic(empty || item == null ? null : createStatusChip(item.getPaymentStatus(), true));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
         });
         orderActionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
@@ -429,7 +557,14 @@ public class OrderController {
                 Button editButton = createTableActionButton("Modifier", "ghost-button");
                 Button deleteItemButton = createTableActionButton("Supprimer", "danger-button");
                 viewButton.setOnAction(event -> selectOrder(item));
+<<<<<<< HEAD
                 editButton.setOnAction(event -> openEditForm(item));
+=======
+                editButton.setOnAction(event -> {
+                    selectOrder(item);
+                    populateForm(item);
+                });
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 deleteItemButton.setOnAction(event -> confirmAndDelete(item));
                 HBox box = new HBox(8, viewButton, editButton, deleteItemButton);
                 box.getStyleClass().add("product-table-actions");
@@ -449,7 +584,16 @@ public class OrderController {
 
     private void loadReferenceData() throws SQLException {
         productChoices.setAll(productService.getAll().stream()
+<<<<<<< HEAD
                 .map(product -> new ChoiceItem(product.getId(), product.getName() + " | stock " + product.getStock()))
+=======
+                .map(product -> new ChoiceItem(product.getId(), product.getName() + " • stock " + product.getStock()))
+                .sorted(Comparator.comparing(ChoiceItem::toString, String.CASE_INSENSITIVE_ORDER))
+                .toList());
+        coachChoices.setAll(userService.getAll().stream()
+                .filter(user -> user.hasRole(UserRoles.ROLE_ENTRAINEUR))
+                .map(user -> new ChoiceItem(user.getId(), user.getDisplayName() + " • " + user.getEmail()))
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 .sorted(Comparator.comparing(ChoiceItem::toString, String.CASE_INSENSITIVE_ORDER))
                 .toList());
     }
@@ -458,6 +602,7 @@ public class OrderController {
         if (!serviceReady) {
             return;
         }
+<<<<<<< HEAD
         long requestId = refreshSequence.incrementAndGet();
         String keyword = trimToNull(searchField.getText());
         String sortBy = sortByComboBox.getValue();
@@ -493,6 +638,10 @@ public class OrderController {
             productSnapshot = payload.products();
             productChoices.setAll(payload.productChoices());
             orders.setAll(payload.orders());
+=======
+        try {
+            orders.setAll(filterAndSort(orderService.getAll()));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             updateMetrics();
             updateCharts();
             if (selectedId != null) {
@@ -508,6 +657,7 @@ public class OrderController {
             } else {
                 setStatus(orders.size() + " commande(s) chargees.", "status-muted");
             }
+<<<<<<< HEAD
         });
 
         loadTask.setOnFailed(event -> {
@@ -529,21 +679,43 @@ public class OrderController {
             String sortDirection
     ) {
         Comparator<Order> comparator = switch (sortBy == null ? "Date" : sortBy) {
+=======
+        } catch (SQLException exception) {
+            showAlert(Alert.AlertType.ERROR, "Commandes", resolveMessage(exception));
+        }
+    }
+
+    private List<Order> filterAndSort(List<Order> source) {
+        String keyword = trimToNull(searchField.getText());
+        Comparator<Order> comparator = switch (sortByComboBox.getValue()) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             case "Montant" -> Comparator.comparing(Order::getTotalAmount, Comparator.nullsLast(Comparator.naturalOrder()));
             case "Statut" -> Comparator.comparing(order -> emptyIfNull(order.getStatus(), ""), String.CASE_INSENSITIVE_ORDER);
             case "Quantite" -> Comparator.comparing(Order::getQuantity, Comparator.nullsLast(Comparator.naturalOrder()));
             default -> Comparator.comparing(Order::getOrderDate, Comparator.nullsLast(Comparator.naturalOrder()));
         };
+<<<<<<< HEAD
         if ("Desc".equalsIgnoreCase(sortDirection)) {
             comparator = comparator.reversed();
         }
         return source.stream()
                 .filter(order -> matchesKeyword(order, keyword, productChoiceSnapshot))
+=======
+        if ("Desc".equalsIgnoreCase(sortDirectionComboBox.getValue())) {
+            comparator = comparator.reversed();
+        }
+        return source.stream()
+                .filter(order -> matchesKeyword(order, keyword))
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 .sorted(comparator.thenComparing(Order::getId, Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+<<<<<<< HEAD
     private boolean matchesKeyword(Order order, String keyword, List<ChoiceItem> productChoiceSnapshot) {
+=======
+    private boolean matchesKeyword(Order order, String keyword) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (keyword == null) {
             return true;
         }
@@ -552,9 +724,15 @@ public class OrderController {
                 || contains(order.getStatus(), normalized)
                 || contains(order.getPaymentMethod(), normalized)
                 || contains(order.getPaymentStatus(), normalized)
+<<<<<<< HEAD
                 || contains(resolveClientName(order), normalized)
                 || contains(order.getContactEmail(), normalized)
                 || contains(resolveChoiceLabel(productChoiceSnapshot, order.getProductId(), "Produit"), normalized);
+=======
+                || contains(order.getContactEmail(), normalized)
+                || contains(resolveChoiceLabel(productChoices, order.getProductId(), "Produit"), normalized)
+                || contains(resolveChoiceLabel(coachChoices, order.getEntraineurId(), "Coach"), normalized);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private boolean contains(Object value, String keyword) {
@@ -564,15 +742,25 @@ public class OrderController {
     private Order buildOrderFromForm(boolean updateMode) {
         clearValidation();
         ChoiceItem product = productComboBox.getValue();
+<<<<<<< HEAD
         String clientName = trimToNull(clientNameField.getText());
+=======
+        ChoiceItem coach = coachComboBox.getValue();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (product == null) {
             markFieldInvalid(productComboBox);
             showValidation("Selectionnez un produit.");
             return null;
         }
+<<<<<<< HEAD
         if (clientName == null) {
             markFieldInvalid(clientNameField);
             showValidation("Saisissez le nom du client.");
+=======
+        if (coach == null) {
+            markFieldInvalid(coachComboBox);
+            showValidation("Selectionnez un coach.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return null;
         }
 
@@ -581,8 +769,12 @@ public class OrderController {
             order.setId(selectedOrder.getId());
         }
         order.setProductId(product.id);
+<<<<<<< HEAD
         order.setClientName(clientName);
         order.setEntraineurId(selectedOrder == null ? null : selectedOrder.getEntraineurId());
+=======
+        order.setEntraineurId(coach.id);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         order.setOrderDate(orderDatePicker.getValue() == null ? LocalDate.now() : orderDatePicker.getValue());
         order.setStatus(statusComboBox.getValue());
         order.setPaymentMethod(paymentMethodComboBox.getValue());
@@ -631,12 +823,20 @@ public class OrderController {
     private void populateForm(Order order) {
         selectedOrder = order;
         selectChoice(productComboBox, productChoices, order.getProductId());
+<<<<<<< HEAD
         clientNameField.setText(emptyIfNull(order.getClientName(), ""));
         orderDatePicker.setValue(order.getOrderDate());
         statusComboBox.setValue(emptyIfNull(order.getStatus(), "pending"));
         String paymentMethod = resolveEditablePaymentMethod(order.getPaymentMethod());
         paymentMethodComboBox.setValue(paymentMethod);
         paymentStatusComboBox.setValue(emptyIfNull(order.getPaymentStatus(), defaultPaymentStatus(paymentMethod)));
+=======
+        selectChoice(coachComboBox, coachChoices, order.getEntraineurId());
+        orderDatePicker.setValue(order.getOrderDate());
+        statusComboBox.setValue(emptyIfNull(order.getStatus(), "PENDING"));
+        paymentMethodComboBox.setValue(emptyIfNull(order.getPaymentMethod(), "CARD"));
+        paymentStatusComboBox.setValue(emptyIfNull(order.getPaymentStatus(), "UNPAID"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         quantityField.setText(String.valueOf(order.getQuantity()));
         sizeField.setText(emptyIfNull(order.getSize(), ""));
         contactEmailField.setText(emptyIfNull(order.getContactEmail(), ""));
@@ -644,6 +844,7 @@ public class OrderController {
         totalAmountField.setText(order.getTotalAmount() == null ? "" : order.getTotalAmount().setScale(2, RoundingMode.HALF_UP).toPlainString());
         shippingAddressField.setText(emptyIfNull(order.getShippingAddress(), ""));
         billingAddressField.setText(emptyIfNull(order.getBillingAddress(), ""));
+<<<<<<< HEAD
     }
 
     private void openEditForm(Order order) {
@@ -654,6 +855,10 @@ public class OrderController {
         populateForm(order);
         selectionStateLabel.setText("Edition commande #" + order.getId());
         setPanelMode(PanelMode.EDIT);
+=======
+        formModeLabel.setText("Modifier la commande");
+        formHintLabel.setText("Les modifications seront appliquees a la commande selectionnee.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void confirmAndDelete(Order order) {
@@ -664,6 +869,7 @@ public class OrderController {
             return;
         }
         try {
+<<<<<<< HEAD
             List<Integer> recipients = orderRecipients(order);
             String productLabel = resolveChoiceLabel(productChoices, order.getProductId(), "Produit");
             orderService.delete(order.getId());
@@ -673,6 +879,12 @@ public class OrderController {
             selectionStateLabel.setText("Selectionnez une commande");
             setPanelMode(PanelMode.EMPTY);
             notifyOrderDeleted(recipients, order.getId(), productLabel);
+=======
+            orderService.delete(order.getId());
+            loadReferenceData();
+            selectedOrder = null;
+            clearFormFields();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             refreshOrders(null, "Commande supprimee avec succes.", "status-success");
         } catch (SQLException | IllegalArgumentException exception) {
             showAlert(Alert.AlertType.ERROR, "Suppression", resolveMessage(exception));
@@ -682,6 +894,7 @@ public class OrderController {
     private void selectOrder(Order order) {
         selectedOrder = order;
         updateDetailPanel();
+<<<<<<< HEAD
         if (order == null) {
             selectionStateLabel.setText("Selectionnez une commande");
             if (panelMode != PanelMode.CREATE) {
@@ -693,12 +906,17 @@ public class OrderController {
         }
         selectionStateLabel.setText("Commande #" + order.getId());
         setPanelMode(PanelMode.DETAIL);
+=======
+        updateActionAvailability();
+        selectionStateLabel.setText(order == null ? "Selectionnez une commande" : "Commande #" + order.getId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void selectOrderById(Integer id) {
         if (id == null) {
             return;
         }
+<<<<<<< HEAD
         orders.stream()
                 .filter(order -> id.equals(order.getId()))
                 .findFirst()
@@ -709,6 +927,9 @@ public class OrderController {
                     selectionStateLabel.setText("Selectionnez une commande");
                     setPanelMode(PanelMode.EMPTY);
                 });
+=======
+        orders.stream().filter(order -> id.equals(order.getId())).findFirst().ifPresent(this::selectOrder);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updateMetrics() {
@@ -724,6 +945,7 @@ public class OrderController {
         visibleOrdersMetricLabel.setText(String.valueOf(orders.size()));
         confirmedOrdersMetricLabel.setText(String.valueOf(confirmed));
         pendingPaymentsMetricLabel.setText(String.valueOf(pendingPayment));
+<<<<<<< HEAD
         if (anomalyOrdersMetricLabel != null) {
             anomalyOrdersMetricLabel.setText(String.valueOf(countFlaggedOrders()));
         }
@@ -745,6 +967,16 @@ public class OrderController {
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (String status : OrderService.allowedOrderStatuses()) {
+=======
+    }
+
+    private void updateCharts() {
+        Map<String, Long> statusCounts = orders.stream().collect(Collectors.groupingBy(order -> emptyIfNull(order.getStatus(), "PENDING"), Collectors.counting()));
+        Map<String, Long> paymentCounts = orders.stream().collect(Collectors.groupingBy(order -> emptyIfNull(order.getPaymentStatus(), "UNKNOWN"), Collectors.counting()));
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        for (String status : List.of("PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED")) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             XYChart.Data<String, Number> data = new XYChart.Data<>(status, statusCounts.getOrDefault(status, 0L));
             series.getData().add(data);
             applyBarColor(data, colorForStatus(status));
@@ -758,6 +990,7 @@ public class OrderController {
         }
         paymentChart.setData(pieData);
 
+<<<<<<< HEAD
         statusChartSummaryLabel.setText(orders.size() + " visible order(s) | " + formatCountSummary(statusCounts));
         paymentChartSummaryLabel.setText(paymentCounts.isEmpty() ? "Aucune donnee de paiement." : formatCountSummary(paymentCounts));
         Platform.runLater(() -> applyPieChartTheme(paymentChart));
@@ -833,6 +1066,20 @@ public class OrderController {
             detailTotalLabel.setText("0.00 DT");
             detailPaymentChipLabel.setText("-");
             detailAnomalyChipLabel.setText(formatAnomalyLevel("LOW"));
+=======
+        statusChartSummaryLabel.setText(orders.size() + " visible order(s) | " + statusCounts);
+        paymentChartSummaryLabel.setText(paymentCounts.isEmpty() ? "Aucune donnee de paiement." : paymentCounts.toString());
+        Platform.runLater(() -> applyPieChartTheme(paymentChart));
+    }
+
+    private void updateDetailPanel() {
+        if (selectedOrder == null) {
+            detailBadgeLabel.setText("Apercu");
+            detailTitleLabel.setText("Aucune commande selectionnee");
+            detailSubtitleLabel.setText("Selectionnez une commande");
+            detailTotalLabel.setText("0.00 DT");
+            detailPaymentChipLabel.setText("-");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             detailIdValueLabel.setText("Auto");
             detailProductValueLabel.setText("-");
             detailCoachValueLabel.setText("-");
@@ -842,6 +1089,7 @@ public class OrderController {
             detailPhoneValueLabel.setText("-");
             detailShippingValueLabel.setText("-");
             detailBillingValueLabel.setText("-");
+<<<<<<< HEAD
             detailLiveFxValueLabel.setText("Selectionnez une commande pour charger la conversion live.");
             detailAnomalySummaryLabel.setText("Score 0/100\nAucun signal de risque detecte pour le moment.");
             detailRecommendationValueLabel.setText("Selectionnez une commande pour afficher des suggestions produits.");
@@ -868,15 +1116,32 @@ public class OrderController {
         detailIdValueLabel.setText(String.valueOf(selectedOrder.getId()));
         detailProductValueLabel.setText(resolveChoiceLabel(productChoices, selectedOrder.getProductId(), "Produit"));
         detailCoachValueLabel.setText(resolveClientName(selectedOrder));
+=======
+            return;
+        }
+
+        detailBadgeLabel.setText(emptyIfNull(selectedOrder.getStatus()));
+        detailTitleLabel.setText(resolveChoiceLabel(productChoices, selectedOrder.getProductId(), "Produit"));
+        detailSubtitleLabel.setText(resolveChoiceLabel(coachChoices, selectedOrder.getEntraineurId(), "Coach") + " • " + formatDate(selectedOrder.getOrderDate()));
+        detailTotalLabel.setText(formatPrice(selectedOrder.getTotalAmount()));
+        detailPaymentChipLabel.setText(emptyIfNull(selectedOrder.getPaymentStatus()));
+        applyStatusStyle(detailPaymentChipLabel, selectedOrder.getPaymentStatus(), true);
+        detailIdValueLabel.setText(String.valueOf(selectedOrder.getId()));
+        detailProductValueLabel.setText(resolveChoiceLabel(productChoices, selectedOrder.getProductId(), "Produit"));
+        detailCoachValueLabel.setText(resolveChoiceLabel(coachChoices, selectedOrder.getEntraineurId(), "Coach"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         detailDateValueLabel.setText(formatDate(selectedOrder.getOrderDate()));
         detailQuantityValueLabel.setText(String.valueOf(selectedOrder.getQuantity()));
         detailEmailValueLabel.setText(emptyIfNull(selectedOrder.getContactEmail()));
         detailPhoneValueLabel.setText(emptyIfNull(selectedOrder.getContactPhone()));
         detailShippingValueLabel.setText(emptyIfNull(selectedOrder.getShippingAddress()));
         detailBillingValueLabel.setText(emptyIfNull(selectedOrder.getBillingAddress()));
+<<<<<<< HEAD
         detailAnomalySummaryLabel.setText(formatAnomalySummary(currentAnomalyAssessment));
         detailRecommendationValueLabel.setText(formatRecommendations(recommendations));
         refreshLiveFx(selectedOrder);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private Label createStatusChip(String value, boolean paymentMode) {
@@ -885,6 +1150,7 @@ public class OrderController {
         return label;
     }
 
+<<<<<<< HEAD
     private MenuButton createEditableStatusChip(Order order, boolean paymentMode) {
         String currentValue = paymentMode ? order.getPaymentStatus() : order.getStatus();
         MenuButton menuButton = new MenuButton(emptyIfNull(currentValue));
@@ -1024,18 +1290,56 @@ public class OrderController {
             case "SHIPPED" -> "#6366f1";
             case "DELIVERED" -> "#22c55e";
             case "CANCELLED", "REJECTED" -> "#ef4444";
+=======
+    private void applyStatusStyle(Label label, String value, boolean paymentMode) {
+        label.getStyleClass().setAll("status-pill", "product-stock-chip");
+        String normalized = emptyIfNull(value, "").toUpperCase(Locale.ROOT);
+        if (paymentMode) {
+            if ("PAID".equals(normalized)) {
+                label.getStyleClass().add("product-stock-good");
+            } else if ("FAILED".equals(normalized) || "REFUNDED".equals(normalized)) {
+                label.getStyleClass().add("product-stock-out");
+            } else {
+                label.getStyleClass().add("product-stock-low");
+            }
+            return;
+        }
+        if ("DELIVERED".equals(normalized) || "CONFIRMED".equals(normalized)) {
+            label.getStyleClass().add("product-stock-good");
+        } else if ("CANCELLED".equals(normalized)) {
+            label.getStyleClass().add("product-stock-out");
+        } else {
+            label.getStyleClass().add("product-stock-low");
+        }
+    }
+
+    private String colorForStatus(String status) {
+        return switch (status) {
+            case "CONFIRMED" -> "#0ea5e9";
+            case "SHIPPED" -> "#6366f1";
+            case "DELIVERED" -> "#22c55e";
+            case "CANCELLED" -> "#ef4444";
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             default -> "#f59e0b";
         };
     }
 
     private void clearFormFields() {
         productComboBox.getSelectionModel().clearSelection();
+<<<<<<< HEAD
         clientNameField.clear();
         orderDatePicker.setValue(LocalDate.now());
         statusComboBox.setValue("pending");
         String defaultPaymentMethod = defaultPaymentMethod();
         paymentMethodComboBox.setValue(defaultPaymentMethod);
         paymentStatusComboBox.setValue(defaultPaymentStatus(defaultPaymentMethod));
+=======
+        coachComboBox.getSelectionModel().clearSelection();
+        orderDatePicker.setValue(LocalDate.now());
+        statusComboBox.setValue("PENDING");
+        paymentMethodComboBox.setValue("CARD");
+        paymentStatusComboBox.setValue("UNPAID");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         quantityField.clear();
         sizeField.clear();
         contactEmailField.clear();
@@ -1043,11 +1347,15 @@ public class OrderController {
         totalAmountField.clear();
         shippingAddressField.clear();
         billingAddressField.clear();
+<<<<<<< HEAD
         currentAnomalyAssessment = OrderIntelligenceService.OrderAnomalyAssessment.empty();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updateActionAvailability() {
         boolean hasSelection = selectedOrder != null;
+<<<<<<< HEAD
         boolean createMode = panelMode == PanelMode.CREATE;
         boolean editMode = panelMode == PanelMode.EDIT;
         if (createOrderButton != null) {
@@ -1082,6 +1390,12 @@ public class OrderController {
 
     private String defaultPaymentStatus(String paymentMethod) {
         return "cod".equalsIgnoreCase(paymentMethod) ? "pending" : "paid";
+=======
+        updateButton.setDisable(!hasSelection);
+        deleteButton.setDisable(!hasSelection);
+        detailEditButton.setDisable(!hasSelection);
+        detailDeleteButton.setDisable(!hasSelection);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void showValidation(String message) {
@@ -1095,7 +1409,11 @@ public class OrderController {
         validationLabel.setText("");
         validationLabel.setManaged(false);
         validationLabel.setVisible(false);
+<<<<<<< HEAD
         for (Control control : List.of(productComboBox, clientNameField, quantityField, totalAmountField, contactEmailField, contactPhoneField, shippingAddressField, billingAddressField)) {
+=======
+        for (Control control : List.of(productComboBox, coachComboBox, quantityField, totalAmountField, contactEmailField, contactPhoneField, shippingAddressField, billingAddressField)) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             control.getStyleClass().remove("invalid-field");
         }
     }
@@ -1117,6 +1435,7 @@ public class OrderController {
         return choices.stream().filter(choice -> choice.id.equals(id)).map(ChoiceItem::toString).findFirst().orElse(fallbackPrefix + " #" + id);
     }
 
+<<<<<<< HEAD
     private String resolveClientName(Order order) {
         if (order == null) {
             return "-";
@@ -1197,10 +1516,13 @@ public class OrderController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Integer getSelectedOrderId() {
         return selectedOrder == null ? null : selectedOrder.getId();
     }
 
+<<<<<<< HEAD
     private long countFlaggedOrders() {
         if (orderIntelligenceService == null) {
             return 0;
@@ -1557,6 +1879,8 @@ public class OrderController {
         );
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Path choosePdfTarget() {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Exporter les commandes en PDF");
@@ -1569,6 +1893,7 @@ public class OrderController {
         return targetFile == null ? null : targetFile.toPath();
     }
 
+<<<<<<< HEAD
     private Path chooseInvoiceTarget(Integer orderId) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Exporter la facture");
@@ -1581,6 +1906,8 @@ public class OrderController {
         return targetFile == null ? null : targetFile.toPath();
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Button createTableActionButton(String text, String styleClass) {
         Button button = new Button(text);
         button.getStyleClass().addAll(styleClass, "product-table-action");
@@ -1664,10 +1991,17 @@ public class OrderController {
         if (chart == null) {
             return;
         }
+<<<<<<< HEAD
         String labelColor = darkMode ? "#eef3ff" : "#475569";
         String lineColor = darkMode ? "rgba(226, 232, 255, 0.58)" : "rgba(71, 85, 105, 0.5)";
         String legendColor = darkMode ? "#eef3ff" : "#475569";
         String legendBackground = darkMode ? "rgba(31, 38, 67, 0.96)" : "rgba(255, 255, 255, 0.82)";
+=======
+        String labelColor = darkMode ? "#f8fafc" : "#475569";
+        String lineColor = darkMode ? "rgba(248, 250, 252, 0.72)" : "rgba(71, 85, 105, 0.5)";
+        String legendColor = darkMode ? "#f8fafc" : "#475569";
+        String legendBackground = darkMode ? "rgba(11, 18, 32, 0.78)" : "rgba(255, 255, 255, 0.82)";
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         chart.applyCss();
         chart.lookupAll(".chart-pie-label").forEach(node -> node.setStyle("-fx-fill: " + labelColor + "; -fx-font-weight: 700;"));
         chart.lookupAll(".chart-pie-label-line").forEach(node -> node.setStyle("-fx-stroke: " + lineColor + ";"));
@@ -1690,6 +2024,7 @@ public class OrderController {
             return label;
         }
     }
+<<<<<<< HEAD
 
     private record RefreshPayload(List<Product> products, List<ChoiceItem> productChoices, List<Order> orders) {
     }
@@ -1708,4 +2043,6 @@ public class OrderController {
             return thread;
         };
     }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 }

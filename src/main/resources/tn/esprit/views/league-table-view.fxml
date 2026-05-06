@@ -106,7 +106,11 @@
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
 
+<<<<<<< HEAD
                     <StackPane styleClass="hero-shell standings-hero-shell">
+=======
+                    <StackPane styleClass="hero-shell">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                         <StackPane styleClass="league-table-hero-photo"/>
                         <StackPane styleClass="hero-overlay"/>
                         <VBox spacing="14" styleClass="hero-content">
@@ -138,7 +142,11 @@
 
                     <VBox spacing="16" styleClass="panel-card standings-panel-card">
                         <VBox spacing="4">
+<<<<<<< HEAD
                             <Label text="Standings" styleClass="section-title"/>
+=======
+                            <Label text="Classement" styleClass="section-title"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             <Label fx:id="sectionSubtitleLabel"
                                    text="Position, matchs joues, bilan, buts, difference et points."
                                    styleClass="section-subtitle"/>
@@ -164,6 +172,7 @@
                                    styleClass="empty-text"/>
                         </VBox>
                     </VBox>
+<<<<<<< HEAD
 
                     <VBox spacing="14" styleClass="panel-card standings-panel-card">
                         <HBox alignment="CENTER_LEFT" spacing="10">
@@ -183,6 +192,8 @@
 
                         <VBox fx:id="scorersContainer" spacing="10"/>
                     </VBox>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 </VBox>
                 </StackPane>
             </content>

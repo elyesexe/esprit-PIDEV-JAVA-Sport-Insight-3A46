@@ -1,6 +1,9 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
 import com.stripe.exception.StripeException;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -40,6 +43,7 @@ import tn.esprit.gui.ThemeManager;
 import tn.esprit.repositories.ProductRepository;
 import tn.esprit.security.AuthSession;
 import tn.esprit.services.OrderPdfExportService;
+<<<<<<< HEAD
 import tn.esprit.services.OrderIntelligenceService;
 import tn.esprit.services.OrderService;
 import tn.esprit.services.OrderWorkflowNotificationService;
@@ -50,12 +54,19 @@ import tn.esprit.services.ProductService;
 import tn.esprit.services.StoreCartSession;
 import tn.esprit.services.StripeCheckoutService;
 import tn.esprit.services.StripeCheckoutSessionStore;
+=======
+import tn.esprit.services.OrderService;
+import tn.esprit.services.ProductService;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
 import java.awt.Desktop;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+<<<<<<< HEAD
 import java.net.URI;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -65,15 +76,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.stream.Collectors;
 
 public class StoreController {
     private static final DateTimeFormatter INVOICE_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+<<<<<<< HEAD
     private static final int STRIPE_AUTO_VERIFY_MAX_ATTEMPTS = 60;
     private static final long STRIPE_AUTO_VERIFY_DELAY_MS = 2500L;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final String LIGHT_PAGE_BACKGROUND = "-fx-background-color:"
             + " radial-gradient(center 12% 12%, radius 34%, rgba(16, 185, 129, 0.14) 0%, rgba(16, 185, 129, 0) 100%),"
             + " radial-gradient(center 86% 14%, radius 30%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 100%),"
@@ -111,10 +128,15 @@ public class StoreController {
     @FXML private Label selectionStateLabel;
 
     @FXML private TextField searchField;
+<<<<<<< HEAD
     @FXML private Label searchSummaryLabel;
     @FXML private ComboBox<ProductRepository.ProductSortField> sortByComboBox;
     @FXML private ComboBox<ProductRepository.SortDirection> sortDirectionComboBox;
     @FXML private Button trendingFilterButton;
+=======
+    @FXML private ComboBox<ProductRepository.ProductSortField> sortByComboBox;
+    @FXML private ComboBox<ProductRepository.SortDirection> sortDirectionComboBox;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML private Button catalogSectionButton;
     @FXML private Button cartSectionButton;
@@ -127,8 +149,11 @@ public class StoreController {
     @FXML private VBox paymentItemsPane;
     @FXML private Label paymentTotalLabel;
     @FXML private Label validationLabel;
+<<<<<<< HEAD
     @FXML private Label paymentFlowDescriptionLabel;
     @FXML private Label paymentMethodHintLabel;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML private TextField emailField;
     @FXML private TextField phoneField;
     @FXML private TextArea shippingAddressArea;
@@ -137,13 +162,18 @@ public class StoreController {
     @FXML private Button payNowButton;
 
     private final List<Product> visibleProducts = new ArrayList<>();
+<<<<<<< HEAD
     private final List<Product> catalogProducts = new ArrayList<>();
     private final List<CartLine> cartItems = new ArrayList<>();
     private final List<Order> orderHistorySnapshot = new ArrayList<>();
+=======
+    private final List<CartLine> cartItems = new ArrayList<>();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private final Map<String, Image> imageCache = new HashMap<>();
 
     private ProductService productService;
     private OrderService orderService;
+<<<<<<< HEAD
     private OrderIntelligenceService orderIntelligenceService;
     private OrderPdfExportService orderPdfExportService;
     private ProductAiService productAiService;
@@ -160,6 +190,12 @@ public class StoreController {
     private final AtomicLong stripeAutoVerifySequence = new AtomicLong();
     private final Object stripeCompletionLock = new Object();
     private String completingStripeSessionId;
+=======
+    private OrderPdfExportService orderPdfExportService;
+    private SidebarModuleGroup sidebarModuleGroup;
+    private boolean serviceReady;
+    private StoreSection activeSection = StoreSection.CATALOG;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -176,16 +212,21 @@ public class StoreController {
         }
         configureFilters();
         configurePaymentMethods();
+<<<<<<< HEAD
         prefillCheckoutFromSession();
         restorePendingStripeCheckout();
         updateTrendingButtonState();
         updateSectionVisibility(StoreSection.CATALOG);
         updatePaymentMethodState();
+=======
+        updateSectionVisibility(StoreSection.CATALOG);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Platform.runLater(this::forceScrollPaneViewportTransparent);
 
         try {
             productService = new ProductService();
             orderService = new OrderService();
+<<<<<<< HEAD
             orderIntelligenceService = new OrderIntelligenceService();
             orderPdfExportService = new OrderPdfExportService();
             productAiService = new ProductAiService();
@@ -197,6 +238,11 @@ public class StoreController {
             restoreCartSession();
             refreshCatalog();
             updatePaymentMethodState();
+=======
+            orderPdfExportService = new OrderPdfExportService();
+            serviceReady = true;
+            refreshCatalog();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             setStatus("Boutique prete.", "status-success");
         } catch (SQLException exception) {
             serviceReady = false;
@@ -298,6 +344,7 @@ public class StoreController {
         searchField.clear();
         sortByComboBox.setValue(ProductRepository.ProductSortField.NAME);
         sortDirectionComboBox.setValue(ProductRepository.SortDirection.ASC);
+<<<<<<< HEAD
         trendingFilterActive = false;
         updateTrendingButtonState();
         refreshCatalog();
@@ -307,6 +354,8 @@ public class StoreController {
     private void handleToggleTrending() {
         trendingFilterActive = !trendingFilterActive;
         updateTrendingButtonState();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         refreshCatalog();
     }
 
@@ -332,12 +381,45 @@ public class StoreController {
 
     @FXML
     private void handlePayNow() {
+<<<<<<< HEAD
         CheckoutFormSnapshot checkout = validateAndCaptureCheckout();
         if (checkout == null) {
+=======
+        clearValidation();
+        if (!serviceReady || orderService == null || productService == null) {
+            showValidation("Le service store est indisponible.");
+            return;
+        }
+        if (cartItems.isEmpty()) {
+            showValidation("Votre panier est vide.");
+            updateSectionVisibility(StoreSection.CART);
+            return;
+        }
+
+        Map<String, String> errors = validateCheckoutForm();
+        if (!errors.isEmpty()) {
+            applyCheckoutErrors(errors);
+            updateSectionVisibility(StoreSection.PAYMENT);
+            return;
+        }
+
+        String email = trimToNull(emailField.getText());
+        String phone = trimToNull(phoneField.getText());
+        String shipping = trimToNull(shippingAddressArea.getText());
+        String billing = trimToNull(billingAddressArea.getText());
+        String paymentMethod = paymentMethodComboBox.getValue();
+        User currentUser = AuthSession.getCurrentUser();
+        Integer orderOwnerId = currentUser == null ? null : currentUser.getId();
+
+        if (orderOwnerId == null || orderOwnerId <= 0) {
+            showValidation("Votre session utilisateur est introuvable. Reconnectez-vous puis reessayez.");
+            updateSectionVisibility(StoreSection.PAYMENT);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return;
         }
 
         try {
+<<<<<<< HEAD
             PreparedCheckout preparedCheckout = prepareCheckout(cartItems);
             if (isStripePayment(checkout.paymentMethod())) {
                 handleStripeCheckout(checkout, preparedCheckout);
@@ -362,6 +444,76 @@ public class StoreController {
             notifyPaymentFailed(calculateCartTotal(), exception.getMessage());
             setStatus("Paiement Stripe impossible.", "status-error");
             showValidation("Stripe a refuse la demande: " + emptyIfNull(trimToNull(exception.getMessage()), "erreur inconnue."));
+=======
+            Map<Integer, Product> latestProducts = new HashMap<>();
+            List<OrderPdfExportService.InvoiceLine> invoiceLines = new ArrayList<>();
+            for (CartLine line : cartItems) {
+                Product freshProduct = productService.getById(line.getProduct().getId());
+                if (freshProduct == null) {
+                    throw new IllegalArgumentException("Un produit du panier n'existe plus.");
+                }
+                if (freshProduct.getStock() < line.getQuantity()) {
+                    throw new IllegalArgumentException("Stock insuffisant pour " + freshProduct.getName() + ".");
+                }
+                latestProducts.put(freshProduct.getId(), freshProduct);
+                invoiceLines.add(new OrderPdfExportService.InvoiceLine(
+                        freshProduct.getName(),
+                        freshProduct.getSize(),
+                        line.getQuantity(),
+                        freshProduct.getPrice(),
+                        freshProduct.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())).setScale(2, RoundingMode.HALF_UP)
+                ));
+            }
+
+            for (CartLine line : cartItems) {
+                Product freshProduct = latestProducts.get(line.getProduct().getId());
+                Order order = new Order(
+                        line.getQuantity(),
+                        LocalDate.now(),
+                        null,
+                        paymentMethod,
+                        null,
+                        freshProduct.getSize(),
+                        email,
+                        phone,
+                        shipping,
+                        billing,
+                        null,
+                        freshProduct.getId(),
+                        orderOwnerId
+                );
+                orderService.add(order);
+            }
+
+            BigDecimal total = calculateCartTotal();
+            Path invoicePath = exportInvoiceAutomatically(
+                    currentUser,
+                    email,
+                    phone,
+                    paymentMethod,
+                    shipping,
+                    billing,
+                    total,
+                    invoiceLines
+            );
+            cartItems.clear();
+            clearCheckoutForm();
+            refreshCatalog();
+            renderCart();
+            renderPaymentSummary();
+            updateSectionVisibility(StoreSection.CATALOG);
+            setStatus("Commande enregistree avec succes.", "status-success");
+            String invoiceMessage = invoicePath == null
+                    ? ""
+                    : "\nFacture PDF telechargee ici:\n" + invoicePath.toAbsolutePath();
+            showAlert(Alert.AlertType.INFORMATION, "Paiement", "Commande validee pour " + formatPrice(total) + "." + invoiceMessage);
+        } catch (IllegalArgumentException | SQLException exception) {
+            setStatus("Paiement impossible.", "status-error");
+            showValidation(exception.getMessage());
+        } catch (IOException exception) {
+            setStatus("Commande enregistree, facture PDF indisponible.", "status-warning");
+            showAlert(Alert.AlertType.WARNING, "Facture", "La commande a ete enregistree, mais la facture PDF n'a pas pu etre generee.\n" + exception.getMessage());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
     }
 
@@ -407,6 +559,7 @@ public class StoreController {
         if (!paymentMethodComboBox.getItems().isEmpty()) {
             paymentMethodComboBox.setValue(paymentMethodComboBox.getItems().get(0));
         }
+<<<<<<< HEAD
         paymentMethodComboBox.valueProperty().addListener((obs, oldValue, newValue) -> handlePaymentMethodSelectionChanged(oldValue, newValue));
     }
 
@@ -843,6 +996,8 @@ public class StoreController {
         updateSectionVisibility(StoreSection.PAYMENT);
         updatePaymentMethodState();
         setStatus("Paiement ouvert depuis les notifications.", "status-success");
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void refreshCatalog() {
@@ -851,6 +1006,7 @@ public class StoreController {
         }
 
         try {
+<<<<<<< HEAD
             List<Product> sortedProducts = productService.getAllSorted(
                     sortByComboBox == null ? ProductRepository.ProductSortField.NAME : sortByComboBox.getValue(),
                     sortDirectionComboBox == null ? ProductRepository.SortDirection.ASC : sortDirectionComboBox.getValue()
@@ -872,11 +1028,23 @@ public class StoreController {
             visibleProducts.addAll(trendingFilterActive ? trendingSelection.products() : filteredProducts);
             updateTrendingRanking(trendingSelection);
             syncCartWithCatalog(sortedProducts);
+=======
+            visibleProducts.clear();
+            visibleProducts.addAll(productService.findProducts(
+                    searchField == null ? null : searchField.getText(),
+                    sortByComboBox.getValue(),
+                    sortDirectionComboBox.getValue()
+            ));
+            syncCartWithCatalog();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             renderProducts();
             renderCart();
             renderPaymentSummary();
             updateCartMetrics();
+<<<<<<< HEAD
             updateSearchSummary(searchField == null ? null : searchField.getText(), smartQuery, trendingSelection);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             setStatus(visibleProducts.size() + " produit(s) disponibles.", "status-muted");
         } catch (SQLException exception) {
             setStatus("Chargement impossible.", "status-error");
@@ -884,8 +1052,13 @@ public class StoreController {
         }
     }
 
+<<<<<<< HEAD
     private void syncCartWithCatalog(List<Product> catalogProducts) {
         Map<Integer, Product> visibleById = catalogProducts.stream()
+=======
+    private void syncCartWithCatalog() {
+        Map<Integer, Product> visibleById = visibleProducts.stream()
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 .filter(product -> product.getId() != null)
                 .collect(Collectors.toMap(Product::getId, this::copyProduct, (left, right) -> right));
 
@@ -900,6 +1073,7 @@ public class StoreController {
             }
             return line.getQuantity() <= 0;
         });
+<<<<<<< HEAD
         persistCartSession();
     }
 
@@ -969,6 +1143,8 @@ public class StoreController {
         }
 
         searchSummaryLabel.setText(baseSummary);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void renderProducts() {
@@ -990,6 +1166,7 @@ public class StoreController {
 
         card.getChildren().add(createImageShell(product.getImage(), product.getName(), 240, 170, "store-product-image-shell"));
 
+<<<<<<< HEAD
         ProductAnalyticsService.TrendingProductSnapshot trendingSnapshot = product == null || product.getId() == null
                 ? null
                 : trendingByProductId.get(product.getId());
@@ -999,6 +1176,8 @@ public class StoreController {
             card.getChildren().add(trendingBadge);
         }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         Label title = new Label(emptyIfNull(product.getName(), "Produit"));
         title.getStyleClass().add("store-product-title");
         title.setWrapText(true);
@@ -1019,6 +1198,7 @@ public class StoreController {
         addButton.setMaxWidth(Double.MAX_VALUE);
         addButton.setOnAction(event -> addProductToCart(product));
 
+<<<<<<< HEAD
         if (trendingSnapshot != null) {
             Label trendingInsight = new Label(trendingSnapshot.summary());
             trendingInsight.getStyleClass().add("store-product-subtitle");
@@ -1027,6 +1207,9 @@ public class StoreController {
         } else {
             card.getChildren().addAll(title, subtitle, price, stock, addButton);
         }
+=======
+        card.getChildren().addAll(title, subtitle, price, stock, addButton);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         VBox.setVgrow(addButton, Priority.NEVER);
         return card;
     }
@@ -1085,6 +1268,7 @@ public class StoreController {
 
         actions.getChildren().addAll(minusButton, quantityLabel, plusButton, spacer, removeButton);
         card.getChildren().addAll(header, actions);
+<<<<<<< HEAD
 
         List<StoreRecommendation> recommendations = buildRecommendationsForProduct(line.getProduct(), 3);
         if (!recommendations.isEmpty()) {
@@ -1097,6 +1281,8 @@ public class StoreController {
             }
             card.getChildren().add(suggestionBox);
         }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         return card;
     }
 
@@ -1121,6 +1307,7 @@ public class StoreController {
         paymentTotalLabel.setText(formatPrice(calculateCartTotal()));
     }
 
+<<<<<<< HEAD
     private List<StoreRecommendation> buildRecommendationsForProduct(Product baseProduct, int limit) {
         if (orderIntelligenceService == null || baseProduct == null || catalogProducts.isEmpty()) {
             return List.of();
@@ -1231,11 +1418,16 @@ public class StoreController {
         return normalized;
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void addProductToCart(Product product) {
         if (product == null || product.getId() == null) {
             return;
         }
+<<<<<<< HEAD
         clearPendingStripeCheckout(null, null);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         CartLine existingLine = findCartLine(product.getId());
         if (existingLine == null) {
             cartItems.add(new CartLine(copyProduct(product), 1));
@@ -1245,6 +1437,7 @@ public class StoreController {
         renderCart();
         renderPaymentSummary();
         updateCartMetrics();
+<<<<<<< HEAD
         prefillCheckoutFromSession();
         persistCartSession();
         if (persistCartNotification(product)) {
@@ -1252,13 +1445,19 @@ public class StoreController {
         } else {
             setStatus("Produit ajoute au panier.", "status-success");
         }
+=======
+        setStatus("Produit ajoute au panier.", "status-success");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void updateCartQuantity(CartLine line, int quantity) {
         if (line == null) {
             return;
         }
+<<<<<<< HEAD
         clearPendingStripeCheckout(null, null);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (quantity <= 0) {
             cartItems.remove(line);
         } else {
@@ -1268,16 +1467,25 @@ public class StoreController {
         renderCart();
         renderPaymentSummary();
         updateCartMetrics();
+<<<<<<< HEAD
         persistCartSession();
     }
 
     private void removeFromCart(CartLine line) {
         clearPendingStripeCheckout(null, null);
+=======
+    }
+
+    private void removeFromCart(CartLine line) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         cartItems.remove(line);
         renderCart();
         renderPaymentSummary();
         updateCartMetrics();
+<<<<<<< HEAD
         persistCartSession();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         setStatus("Produit retire du panier.", "status-muted");
     }
 
@@ -1293,7 +1501,10 @@ public class StoreController {
         cartTotalLabel.setText(total);
         paymentTotalLabel.setText(total);
         payNowButton.setDisable(cartItems.isEmpty());
+<<<<<<< HEAD
         updatePaymentMethodState();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private int calculateCartQuantity() {
@@ -1344,9 +1555,12 @@ public class StoreController {
         if (!paymentMethodComboBox.getItems().isEmpty()) {
             paymentMethodComboBox.setValue(paymentMethodComboBox.getItems().get(0));
         }
+<<<<<<< HEAD
         clearValidation();
         prefillCheckoutFromSession();
         updatePaymentMethodState();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private Map<String, String> validateCheckoutForm() {
@@ -1516,6 +1730,7 @@ public class StoreController {
         return null;
     }
 
+<<<<<<< HEAD
     private void updateTrendingButtonState() {
         if (trendingFilterButton == null) {
             return;
@@ -1525,6 +1740,8 @@ public class StoreController {
         trendingFilterButton.getStyleClass().add(trendingFilterActive ? "primary-button" : "soft-button");
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String buildPlaceholderLabel(String value) {
         String normalized = trimToNull(value);
         if (normalized == null) {
@@ -1533,6 +1750,7 @@ public class StoreController {
         return normalized.substring(0, Math.min(3, normalized.length())).toUpperCase();
     }
 
+<<<<<<< HEAD
     private void restoreCartSession() {
         cartItems.clear();
         for (StoreCartSession.CartEntry entry : StoreCartSession.loadCart(currentCartUserId())) {
@@ -1726,6 +1944,8 @@ public class StoreController {
         workflowNotificationService.notifyPaymentFailed(userId, total, reason);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void setStatus(String message, String styleClass) {
         statusLabel.setText(emptyIfNull(message, "Boutique prete"));
         statusLabel.getStyleClass().setAll("status-pill", styleClass == null ? "status-muted" : styleClass);
@@ -1736,6 +1956,7 @@ public class StoreController {
         return safe.toPlainString() + " DT";
     }
 
+<<<<<<< HEAD
     private String formatCurrency(BigDecimal value, String currency) {
         BigDecimal safe = value == null ? BigDecimal.ZERO : value.setScale(2, RoundingMode.HALF_UP);
         return safe.toPlainString() + " " + emptyIfNull(currency, "USD");
@@ -1755,6 +1976,8 @@ public class StoreController {
                 .collect(Collectors.joining("|"));
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String resolveStockStyle(int stock) {
         if (stock <= 0) {
             return "store-stock-badge-out";
@@ -1813,8 +2036,12 @@ public class StoreController {
             String shipping,
             String billing,
             BigDecimal total,
+<<<<<<< HEAD
             List<OrderPdfExportService.InvoiceLine> invoiceLines,
             String qrPayload
+=======
+            List<OrderPdfExportService.InvoiceLine> invoiceLines
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     ) throws IOException {
         if (orderPdfExportService == null) {
             return null;
@@ -1834,13 +2061,18 @@ public class StoreController {
                         LocalDate.now(),
                         total,
                         invoiceLines
+<<<<<<< HEAD
                 ),
                 qrPayload
+=======
+                )
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         );
         openFileIfPossible(target);
         return target;
     }
 
+<<<<<<< HEAD
     private String buildAutomaticInvoiceQrPayload(
             CheckoutFormSnapshot checkout,
             PreparedCheckout preparedCheckout,
@@ -1892,6 +2124,8 @@ public class StoreController {
         return compactName + " x" + quantity + " = " + formatPrice(subtotal);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Path resolveAutomaticInvoicePath(String customerName) throws IOException {
         String safeName = (customerName == null || customerName.isBlank() ? "client" : customerName)
                 .replaceAll("[^A-Za-z0-9_-]+", "-")
@@ -1922,6 +2156,7 @@ public class StoreController {
         PAYMENT
     }
 
+<<<<<<< HEAD
     private record CheckoutFormSnapshot(
             User currentUser,
             Integer userId,
@@ -1961,6 +2196,8 @@ public class StoreController {
     ) {
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final class CartLine {
         private Product product;
         private int quantity;

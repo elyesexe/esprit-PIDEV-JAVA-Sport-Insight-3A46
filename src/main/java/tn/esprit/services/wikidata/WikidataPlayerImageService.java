@@ -66,10 +66,15 @@ public class WikidataPlayerImageService {
         }
         if (resolved == null) {
             for (String candidateName : buildCandidateNames(fullName)) {
+<<<<<<< HEAD
                 String commonsUrl = resolveCommonsImageUrlUncached(candidateName, dob);
                 if (commonsUrl != null) {
                     String local = downloadToCache(candidateName, dob, commonsUrl);
                     resolved = local != null ? local : commonsUrl;
+=======
+                resolved = resolveCommonsImageUrlUncached(candidateName, dob);
+                if (resolved != null) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     break;
                 }
             }

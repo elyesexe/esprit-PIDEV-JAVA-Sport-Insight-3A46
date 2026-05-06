@@ -26,7 +26,10 @@ import java.util.Properties;
 
 public class EvaluationNotificationService {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+<<<<<<< HEAD
     private static final String DEFAULT_GMAIL_SENDER = "bennjimamariem99@gmail.com";
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final String LOCAL_PROPERTIES_FILE = "evaluation-mail.local.properties";
     private static final String USER_HOME_PROPERTIES_FILE = ".sport-insight/evaluation-mail.local.properties";
     private static final String CLASSPATH_PROPERTIES = "/evaluation-mail.properties";
@@ -45,7 +48,11 @@ public class EvaluationNotificationService {
         SmtpConfig config = SmtpConfig.load();
         if (!config.isConfigured()) {
             return new DeliveryResult(false,
+<<<<<<< HEAD
                     "SMTP configuration missing. Create evaluation-mail.local.properties at project root, or ~/.sport-insight/evaluation-mail.local.properties, then fill in SMTP values. " +
+=======
+                    "Configuration SMTP manquante. Cree evaluation-mail.local.properties a la racine du projet, ou ~/.sport-insight/evaluation-mail.local.properties, puis renseigne les valeurs SMTP. " +
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             config.describeConfigurationStatus());
         }
 
@@ -165,8 +172,12 @@ public class EvaluationNotificationService {
                     System.getProperty("sport.insight.smtp.host"),
                     System.getenv("SPORT_INSIGHT_SMTP_HOST"),
                     props.getProperty("smtp.host"),
+<<<<<<< HEAD
                     props.getProperty("mail.smtp.host"),
                     "smtp.gmail.com");
+=======
+                    props.getProperty("mail.smtp.host"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             int port = parseInt(firstNonBlank(
                     System.getProperty("sport.insight.smtp.port"),
                     System.getenv("SPORT_INSIGHT_SMTP_PORT"),
@@ -177,8 +188,12 @@ public class EvaluationNotificationService {
                     System.getenv("SPORT_INSIGHT_SMTP_USERNAME"),
                     props.getProperty("smtp.username"),
                     props.getProperty("mail.sender"),
+<<<<<<< HEAD
                     props.getProperty("mail.smtp.username"),
                     DEFAULT_GMAIL_SENDER);
+=======
+                    props.getProperty("mail.smtp.username"));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             String password = firstNonBlank(
                     System.getProperty("sport.insight.smtp.password"),
                     System.getenv("SPORT_INSIGHT_SMTP_PASSWORD"),
@@ -190,8 +205,12 @@ public class EvaluationNotificationService {
                     System.getenv("SPORT_INSIGHT_SMTP_FROM"),
                     props.getProperty("smtp.from"),
                     props.getProperty("mail.sender"),
+<<<<<<< HEAD
                     username,
                     DEFAULT_GMAIL_SENDER);
+=======
+                    username);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             boolean useStartTls = parseBoolean(firstNonBlank(
                     System.getProperty("sport.insight.smtp.tls"),
                     System.getenv("SPORT_INSIGHT_SMTP_TLS"),
@@ -213,7 +232,11 @@ public class EvaluationNotificationService {
         }
 
         String describeConfigurationStatus() {
+<<<<<<< HEAD
             return "SMTP expected in: " + String.join(", ", CHECKED_LOCATIONS);
+=======
+            return "SMTP attendu dans: " + String.join(", ", CHECKED_LOCATIONS);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         }
 
         String host() { return host; }
@@ -297,9 +320,15 @@ public class EvaluationNotificationService {
                 ((SSLSocket) socket).startHandshake();
             } else {
                 socket = new Socket();
+<<<<<<< HEAD
                 socket.connect(new InetSocketAddress(config.host(), config.port()), 30000);
             }
             socket.setSoTimeout(30000);
+=======
+                socket.connect(new InetSocketAddress(config.host(), config.port()), 10000);
+            }
+            socket.setSoTimeout(10000);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
 

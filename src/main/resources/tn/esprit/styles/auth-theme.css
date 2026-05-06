@@ -346,6 +346,7 @@
     -fx-border-color: rgba(148, 163, 184, 0.18) transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
 }
+<<<<<<< HEAD
 
 .auth-feature-root {
     -fx-background-color: transparent;
@@ -560,3 +561,5 @@
     -fx-font-size: 14px;
     -fx-font-weight: 600;
 }
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

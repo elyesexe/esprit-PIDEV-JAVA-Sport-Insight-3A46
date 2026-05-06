@@ -80,8 +80,13 @@
                         <StackPane styleClass="theme-toggle-track">
                             <StackPane styleClass="theme-toggle-thumb">
                                 <StackPane styleClass="theme-toggle-icon-shell">
+<<<<<<< HEAD
                                     <Label text="&#9728;" styleClass="theme-toggle-icon theme-toggle-sun"/>
                                     <Label text="&#9790;" styleClass="theme-toggle-icon theme-toggle-moon"/>
+=======
+                                    <Label text="â˜€" styleClass="theme-toggle-icon theme-toggle-sun"/>
+                                    <Label text="â˜¾" styleClass="theme-toggle-icon theme-toggle-moon"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                 </StackPane>
                             </StackPane>
                         </StackPane>
@@ -134,8 +139,13 @@
 
                                 <HBox spacing="10">
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+<<<<<<< HEAD
                                         <Label text="Fiche" styleClass="stat-caption"/>
                                         <Label fx:id="detailIdValueLabel" text="Joueur" styleClass="stat-value"/>
+=======
+                                        <Label text="ID" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="-" styleClass="stat-value"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </VBox>
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
                                         <Label text="Equipe" styleClass="stat-caption"/>
@@ -177,6 +187,7 @@
                             </HBox>
                         </VBox>
                     </VBox>
+<<<<<<< HEAD
 
                     <VBox spacing="16" styleClass="panel-card">
                         <HBox spacing="12" alignment="CENTER_LEFT">
@@ -216,6 +227,8 @@
                             </VBox>
                         </HBox>
                     </VBox>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 </VBox>
                 </StackPane>
             </content>
@@ -223,4 +236,7 @@
     </center>
 </BorderPane>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0

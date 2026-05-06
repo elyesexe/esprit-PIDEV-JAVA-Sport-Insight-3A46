@@ -1,6 +1,9 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
 import javafx.concurrent.Task;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -10,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+<<<<<<< HEAD
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -21,6 +25,13 @@ import tn.esprit.assistant.AssistantTeamDetailSnapshot;
 import tn.esprit.entities.Equipe;
 import tn.esprit.entities.Joueur;
 import tn.esprit.entities.Matchs;
+=======
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Joueur;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.gui.EquipeUiSupport;
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
@@ -28,6 +39,7 @@ import tn.esprit.gui.SidebarModuleGroup;
 import tn.esprit.gui.ThemeManager;
 import tn.esprit.services.EquipeService;
 import tn.esprit.services.JoueurService;
+<<<<<<< HEAD
 import tn.esprit.services.MatchsService;
 import tn.esprit.services.football.ApiFootballInsightsService;
 import tn.esprit.services.football.ApiFootballScorerEntry;
@@ -53,6 +65,17 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
     private static final DateTimeFormatter MATCH_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final ExecutorService API_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("equipe-detail-api-worker"));
+=======
+import tn.esprit.services.football.FootballDataCompetitions;
+
+import java.sql.SQLException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class EquipeDetailController {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private HBox navbarRoot;
     @FXML
@@ -100,6 +123,7 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
     @FXML
     private Label detailSourceValueLabel;
     @FXML
+<<<<<<< HEAD
     private FlowPane squadContainer;
     @FXML
     private Label squadEmptyLabel;
@@ -132,6 +156,16 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
     private List<Matchs> currentNextMatches = List.of();
     private List<Matchs> currentRecentResults = List.of();
     private boolean squadExpanded;
+=======
+    private VBox squadContainer;
+    @FXML
+    private Label squadEmptyLabel;
+
+    private EquipeService equipeService;
+    private JoueurService joueurService;
+    private Equipe equipe;
+    private SidebarModuleGroup sidebarModuleGroup;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -141,8 +175,11 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         try {
             equipeService = new EquipeService();
             joueurService = new JoueurService();
+<<<<<<< HEAD
             matchsService = new MatchsService();
             apiFootballInsightsService = new ApiFootballInsightsService();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Connexion", "Impossible de preparer la fiche equipe.\n" + e.getMessage());
         }
@@ -241,6 +278,7 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         }
     }
 
+<<<<<<< HEAD
     @FXML
     private void handleToggleSquadExpanded() {
         if (currentSquad.size() <= COLLAPSED_SQUAD_LIMIT) {
@@ -250,6 +288,8 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         renderSquad(currentSquad);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void renderEquipe() {
         if (equipe == null || equipeService == null || joueurService == null) {
             return;
@@ -275,7 +315,11 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
             competitionBadgeLabel.setText(competitionLabel);
             detailTitleLabel.setText(emptyToFallback(equipe.getNom(), "Equipe"));
             detailSubtitleLabel.setText(buildSubtitle(competitionLabel, equipe));
+<<<<<<< HEAD
             detailIdValueLabel.setText("Equipe");
+=======
+            detailIdValueLabel.setText(equipe.getId() == null ? "Nouveau" : "#" + equipe.getId());
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             detailCoachValueLabel.setText(emptyToFallback(equipe.getCoach(), "Non renseigne"));
             detailCompetitionValueLabel.setText(competitionLabel);
             detailPlayerCountValueLabel.setText(String.valueOf(squad.size()));
@@ -285,35 +329,51 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
             detailSourceValueLabel.setText(emptyToFallback(equipe.getExternalSource(), "Manuel"));
 
             updateLogo();
+<<<<<<< HEAD
             currentSquad = squad == null ? List.of() : List.copyOf(squad);
             squadExpanded = false;
             renderSquad(squad);
             renderTeamMatches();
             loadTopScorersAsync();
+=======
+            renderSquad(squad);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Chargement", "Impossible de charger les informations de l'equipe.\n" + e.getMessage());
         }
     }
 
     private void renderSquad(List<Joueur> squad) {
+<<<<<<< HEAD
         currentSquad = squad == null ? List.of() : List.copyOf(squad);
         squadContainer.getChildren().clear();
         boolean hasPlayers = !currentSquad.isEmpty();
         squadEmptyLabel.setManaged(!hasPlayers);
         squadEmptyLabel.setVisible(!hasPlayers);
         updateSquadToggleButton();
+=======
+        squadContainer.getChildren().clear();
+        boolean hasPlayers = squad != null && !squad.isEmpty();
+        squadEmptyLabel.setManaged(!hasPlayers);
+        squadEmptyLabel.setVisible(!hasPlayers);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (!hasPlayers) {
             return;
         }
 
+<<<<<<< HEAD
         List<Joueur> visiblePlayers = squadExpanded
                 ? currentSquad
                 : currentSquad.stream().limit(COLLAPSED_SQUAD_LIMIT).toList();
         for (Joueur joueur : visiblePlayers) {
+=======
+        for (Joueur joueur : squad) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             squadContainer.getChildren().add(createPlayerCard(joueur));
         }
     }
 
+<<<<<<< HEAD
     private void updateSquadToggleButton() {
         if (squadToggleButton == null) {
             return;
@@ -328,6 +388,8 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         squadToggleButton.setText(squadExpanded ? "Reduire" : "Afficher " + hiddenPlayers + " autres");
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private HBox createPlayerCard(Joueur joueur) {
         Label numberLabel = new Label(joueur.getNumero() <= 0 ? "--" : String.valueOf(joueur.getNumero()));
         numberLabel.getStyleClass().add("squad-number");
@@ -354,6 +416,7 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         return card;
     }
 
+<<<<<<< HEAD
     private void loadTopScorersAsync() {
         if (equipe == null || apiFootballInsightsService == null) {
             showTopScorersStatus("status-warning", "Les sources de buteurs sont indisponibles.");
@@ -687,6 +750,8 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         return message.length() <= 140 ? message : message.substring(0, 140) + "...";
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void updateLogo() {
         Image image = EquipeUiSupport.loadEquipeImage(equipe.getImage());
         boolean hasImage = image != null;
@@ -757,14 +822,18 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         return fullName.isBlank() ? "Joueur" : fullName;
     }
 
+<<<<<<< HEAD
     private String textOf(Label label) {
         return label == null ? null : label.getText();
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String emptyToFallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
     }
 
+<<<<<<< HEAD
     private enum TeamResultOutcome {
         WIN("WIN", "team-result-card-win", "team-result-badge-win"),
         DRAW("DRAW", "team-result-card-draw", "team-result-badge-draw"),
@@ -801,6 +870,8 @@ public class EquipeDetailController implements AssistantContextProvider, Assista
         };
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

@@ -1,5 +1,6 @@
 package tn.esprit.Controller;
 
+<<<<<<< HEAD
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -7,6 +8,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+=======
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -16,10 +22,15 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+<<<<<<< HEAD
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+=======
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -27,6 +38,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+<<<<<<< HEAD
 import javafx.util.Duration;
 import tn.esprit.assistant.AssistantContextProvider;
 import tn.esprit.entities.Equipe;
@@ -50,21 +62,44 @@ import tn.esprit.services.football.FootballDataCompetitions;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+=======
+import tn.esprit.entities.Equipe;
+import tn.esprit.entities.Matchs;
+import tn.esprit.gui.AdminNavigation;
+import tn.esprit.gui.EquipeUiSupport;
+import tn.esprit.gui.SceneNavigator;
+import tn.esprit.gui.SidebarModuleGroup;
+import tn.esprit.gui.ThemeManager;
+import tn.esprit.services.EquipeService;
+import tn.esprit.services.FootballDataSyncService;
+import tn.esprit.services.FootballDataSyncSummary;
+import tn.esprit.services.MatchsService;
+import tn.esprit.services.football.FootballDataCompetitions;
+
+import java.time.LocalDate;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+<<<<<<< HEAD
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+=======
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+<<<<<<< HEAD
 public class MatchListController implements AssistantContextProvider {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -73,6 +108,12 @@ public class MatchListController implements AssistantContextProvider {
     private static final double CATALOG_CARD_GAP = 20;
     private static final double CATALOG_LOGO_SIZE = 70;
     private static final double CATALOG_TEAM_WIDTH = 120;
+=======
+public class MatchListController {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final double CARD_LOGO_SIZE = 68;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final Map<String, String> COMPETITION_LABELS = FootballDataCompetitions.labels();
     private static final Map<String, String> COMPETITION_CODES_BY_LABEL = COMPETITION_LABELS.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
@@ -82,8 +123,11 @@ public class MatchListController implements AssistantContextProvider {
     private static final String STATUS_FINI = "Fini";
     private static final String STATUS_REPORTE = "Reporte";
     private static final String STATUS_ANNULE = "Annule";
+<<<<<<< HEAD
     private static final int BACKGROUND_REFRESH_SECONDS = 30;
     private static final int BACKGROUND_SYNC_SECONDS = 90;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final ExecutorService DB_EXECUTOR =
             Executors.newSingleThreadExecutor(daemonFactory("match-list-db-worker"));
 
@@ -124,7 +168,11 @@ public class MatchListController implements AssistantContextProvider {
     @FXML
     private Label syncMetaLabel;
     @FXML
+<<<<<<< HEAD
     private ListView<List<Matchs>> matchListView;
+=======
+    private ListView<Matchs> matchListView;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private VBox emptyStateBox;
     @FXML
@@ -138,26 +186,38 @@ public class MatchListController implements AssistantContextProvider {
 
     private final ObservableList<Matchs> matchs = FXCollections.observableArrayList();
     private final FilteredList<Matchs> filteredMatchs = new FilteredList<>(matchs, match -> true);
+<<<<<<< HEAD
     private final SortedList<Matchs> sortedMatchs = new SortedList<>(filteredMatchs);
     private final ObservableList<List<Matchs>> catalogRows = FXCollections.observableArrayList();
     private final AtomicLong refreshSequence = new AtomicLong();
     private int catalogColumnCount = MAX_CATALOG_COLUMNS;
+=======
+    private final AtomicLong refreshSequence = new AtomicLong();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     private MatchsService matchsService;
     private EquipeService equipeService;
     private FootballDataSyncService footballDataSyncService;
+<<<<<<< HEAD
     private ApiFootballInsightsService apiFootballInsightsService;
     private MatchFollowTargetService matchFollowTargetService;
     private Map<Integer, Equipe> equipeById = Map.of();
     private Set<Integer> favoriteMatchIds = Set.of();
+=======
+    private Map<Integer, Equipe> equipeById = Map.of();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String selectedCompetitionCode;
     private boolean serviceReady;
     private boolean loadingData;
     private boolean syncingData;
+<<<<<<< HEAD
     private boolean backgroundSyncing;
     private SidebarModuleGroup sidebarModuleGroup;
     private Timeline liveRefreshTimeline;
     private long lastBackgroundMatchSyncAtMillis;
+=======
+    private SidebarModuleGroup sidebarModuleGroup;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     @FXML
     public void initialize() {
@@ -170,16 +230,24 @@ public class MatchListController implements AssistantContextProvider {
         configureMatchList();
         updateSelectionState();
         updateActionAvailability();
+<<<<<<< HEAD
         configureLiveRefreshLifecycle();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         try {
             matchsService = new MatchsService();
             equipeService = new EquipeService();
+<<<<<<< HEAD
             apiFootballInsightsService = new ApiFootballInsightsService();
             matchFollowTargetService = new MatchFollowTargetService();
             serviceReady = true;
             refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.", false);
             LiveMatchNotificationRuntime.getInstance().requestImmediatePoll();
+=======
+            serviceReady = true;
+            refreshDataAsync("Chargement des matchs...", "status-success", "Calendrier pret.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         } catch (Exception e) {
             serviceReady = false;
             updateActionAvailability();
@@ -210,6 +278,7 @@ public class MatchListController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     public String getSelectedCompetitionCode() {
         return selectedCompetitionCode;
     }
@@ -323,6 +392,8 @@ public class MatchListController implements AssistantContextProvider {
         return header + " Next visible fixtures: " + fixtures + ".";
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     @FXML
     private void handleOpenHome() {
         SceneNavigator.switchScene(sidebarBrandBox, "/tn/esprit/views/home-view.fxml", "/tn/esprit/styles/home-theme.css", "Sport Insight | Accueil");
@@ -358,7 +429,11 @@ public class MatchListController implements AssistantContextProvider {
 
     @FXML
     private void handleRefresh() {
+<<<<<<< HEAD
         refreshDataAsync("Actualisation des matchs...", "status-success", "Liste des matchs actualisee.", false);
+=======
+        refreshDataAsync("Actualisation des matchs...", "status-success", "Liste des matchs actualisee.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     @FXML
@@ -406,7 +481,10 @@ public class MatchListController implements AssistantContextProvider {
         statusFilterComboBox.setItems(FXCollections.observableArrayList(
                 STATUS_FILTER_ALL,
                 STATUS_PROGRAMME,
+<<<<<<< HEAD
                 STATUS_EN_DIRECT,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 STATUS_FINI
         ));
         statusFilterComboBox.getSelectionModel().select(STATUS_FILTER_ALL);
@@ -427,6 +505,7 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private void configureMatchList() {
+<<<<<<< HEAD
         sortedMatchs.setComparator(displayComparatorFor(selectedStatusFilter()));
         matchListView.setItems(catalogRows);
         matchListView.setPlaceholder(new Label(""));
@@ -440,11 +519,21 @@ public class MatchListController implements AssistantContextProvider {
             protected void updateItem(List<Matchs> rowMatches, boolean empty) {
                 super.updateItem(rowMatches, empty);
                 if (empty || rowMatches == null || rowMatches.isEmpty()) {
+=======
+        matchListView.setItems(filteredMatchs);
+        matchListView.setPlaceholder(new Label(""));
+        matchListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Matchs item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     setText(null);
                     setGraphic(null);
                     return;
                 }
 
+<<<<<<< HEAD
                 HBox row = buildCatalogRow(rowMatches);
                 setText(null);
                 setGraphic(row);
@@ -635,6 +724,89 @@ public class MatchListController implements AssistantContextProvider {
         imageView.setFitHeight(CATALOG_LOGO_SIZE);
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
+=======
+                VBox card = buildMatchCard(item);
+                card.prefWidthProperty().bind(listView.widthProperty().subtract(26));
+                card.setOnMouseClicked(event -> openMatchDetail(item));
+                setText(null);
+                setGraphic(card);
+            }
+        });
+    }
+
+    private VBox buildMatchCard(Matchs match) {
+        Label statusChip = new Label(resolveStatus(match));
+        statusChip.getStyleClass().add("fixture-status");
+        applyFixtureStatusStyle(statusChip, match.getStatut());
+
+        Label dateLabel = new Label(formatDate(match.getDateMatch()) + "  |  " + formatTime(match.getHeureDebut()));
+        dateLabel.getStyleClass().add("fixture-date");
+
+        Label idLabel = new Label(resolveMatchReference(match));
+        idLabel.getStyleClass().add("fixture-id");
+
+        Region headSpacer = new Region();
+        HBox.setHgrow(headSpacer, Priority.ALWAYS);
+
+        HBox head = new HBox(10, statusChip, headSpacer, dateLabel, idLabel);
+        head.setAlignment(Pos.CENTER_LEFT);
+        head.getStyleClass().add("fixture-card-head");
+
+        Equipe homeTeam = getEquipe(match.getEquipeDomicileId());
+        Equipe awayTeam = getEquipe(match.getEquipeExterieurId());
+
+        VBox homeBox = buildTeamPreview(homeTeam, "Domicile");
+        VBox awayBox = buildTeamPreview(awayTeam, "Exterieur");
+
+        Label scoreLabel = new Label(buildScore(match));
+        scoreLabel.getStyleClass().add("fixture-score-value");
+
+        Label versusLabel = new Label("VS");
+        versusLabel.getStyleClass().add("fixture-score-caption");
+
+        VBox scoreBox = new VBox(2, scoreLabel, versusLabel);
+        scoreBox.setAlignment(Pos.CENTER);
+        scoreBox.getStyleClass().add("fixture-score-shell");
+
+        HBox teamsRow = new HBox(16, homeBox, scoreBox, awayBox);
+        teamsRow.setAlignment(Pos.CENTER);
+        teamsRow.getStyleClass().add("fixture-teams-row");
+        HBox.setHgrow(homeBox, Priority.ALWAYS);
+        HBox.setHgrow(awayBox, Priority.ALWAYS);
+
+        Label competitionChip = new Label(resolveCompetitionTag(match));
+        competitionChip.getStyleClass().add("fixture-meta-chip");
+
+        Label locationChip = new Label(resolveMatchLocation(match));
+        locationChip.getStyleClass().add("fixture-meta-chip");
+
+        Label typeChip = new Label(resolveMatchType(match));
+        typeChip.getStyleClass().add("fixture-meta-chip");
+
+        Label detailChip = new Label("Voir la fiche");
+        detailChip.getStyleClass().add("fixture-link-chip");
+
+        Region metaSpacer = new Region();
+        HBox.setHgrow(metaSpacer, Priority.ALWAYS);
+
+        HBox metaRow = new HBox(10, competitionChip, locationChip, typeChip, metaSpacer, detailChip);
+        metaRow.setAlignment(Pos.CENTER_LEFT);
+        metaRow.getStyleClass().add("fixture-meta-row");
+
+        VBox card = new VBox(14, head, teamsRow, metaRow);
+        card.getStyleClass().addAll("fixture-card", "fixture-card-clickable");
+        card.setMaxWidth(Double.MAX_VALUE);
+        return card;
+    }
+
+    private VBox buildTeamPreview(Equipe equipe, String fallbackRole) {
+        String teamName = equipe == null ? "Equipe " + fallbackRole.toLowerCase() : emptyIfNull(equipe.getNom());
+
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(CARD_LOGO_SIZE);
+        imageView.setFitHeight(CARD_LOGO_SIZE);
+        imageView.setPreserveRatio(true);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Image image = equipe == null ? null : EquipeUiSupport.loadEquipeImage(equipe.getImage());
         boolean hasImage = image != null;
@@ -643,11 +815,16 @@ public class MatchListController implements AssistantContextProvider {
         imageView.setVisible(hasImage);
 
         Label fallbackLabel = new Label(EquipeUiSupport.buildInitials(teamName, "SI"));
+<<<<<<< HEAD
         fallbackLabel.getStyleClass().add("fixture-catalog-fallback");
+=======
+        fallbackLabel.getStyleClass().add("fixture-team-fallback");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         fallbackLabel.setManaged(!hasImage);
         fallbackLabel.setVisible(!hasImage);
 
         StackPane logoPane = new StackPane(imageView, fallbackLabel);
+<<<<<<< HEAD
         logoPane.setMinSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
         logoPane.setPrefSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
         logoPane.setMaxSize(CATALOG_LOGO_SIZE, CATALOG_LOGO_SIZE);
@@ -673,19 +850,46 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage, boolean backgroundRefresh) {
+=======
+        logoPane.setMinSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
+        logoPane.setPrefSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
+        logoPane.setMaxSize(CARD_LOGO_SIZE, CARD_LOGO_SIZE);
+        logoPane.getStyleClass().add("fixture-team-logo-shell");
+
+        Label nameLabel = new Label(teamName);
+        nameLabel.setWrapText(true);
+        nameLabel.getStyleClass().add("fixture-team-name");
+
+        Label roleLabel = new Label(fallbackRole);
+        roleLabel.getStyleClass().add("fixture-team-role");
+
+        VBox box = new VBox(10, logoPane, nameLabel, roleLabel);
+        box.setAlignment(Pos.CENTER);
+        box.getStyleClass().add("fixture-team-box");
+        return box;
+    }
+
+    private void refreshDataAsync(String loadingMessage, String successStyleClass, String successMessage) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (matchsService == null || equipeService == null) {
             return;
         }
 
         long requestId = refreshSequence.incrementAndGet();
+<<<<<<< HEAD
         loadingData = !backgroundRefresh;
         if (!backgroundRefresh) {
             updateActionAvailability();
         }
+=======
+        loadingData = true;
+        updateActionAvailability();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (loadingMessage != null) {
             showMutedStatus(loadingMessage);
         }
 
+<<<<<<< HEAD
         String statusFilterAtStart = selectedStatusFilter();
         Task<RefreshPayload> loadTask = new Task<>() {
             @Override
@@ -704,6 +908,21 @@ public class MatchListController implements AssistantContextProvider {
                 }
 
                 return new RefreshPayload(loadedEquipes, loadedMatchs, loadFavoriteMatchIds());
+=======
+        Task<RefreshPayload> loadTask = new Task<>() {
+            @Override
+            protected RefreshPayload call() throws Exception {
+                List<Equipe> loadedEquipes = new ArrayList<>(equipeService.getAll());
+                loadedEquipes.sort(Comparator.comparing(Equipe::getNom, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+                List<Matchs> loadedMatchs = new ArrayList<>(matchsService.getAll());
+                loadedMatchs.sort(Comparator
+                        .comparing(Matchs::getDateMatch, Comparator.nullsLast(LocalDate::compareTo))
+                        .thenComparing(Matchs::getHeureDebut, Comparator.nullsLast(LocalTime::compareTo))
+                        .reversed());
+
+                return new RefreshPayload(loadedEquipes, loadedMatchs);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             }
         };
 
@@ -716,9 +935,15 @@ public class MatchListController implements AssistantContextProvider {
             equipeById = payload.loadedEquipes.stream()
                     .filter(equipe -> equipe.getId() != null)
                     .collect(Collectors.toMap(Equipe::getId, equipe -> equipe, (left, right) -> left));
+<<<<<<< HEAD
             favoriteMatchIds = payload.favoriteMatchIds == null ? Set.of() : payload.favoriteMatchIds;
 
             matchs.setAll(payload.loadedMatchs);
+=======
+
+            matchs.setAll(payload.loadedMatchs);
+            EquipeUiSupport.clearImageCache();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             applyFilters();
 
             loadingData = false;
@@ -735,17 +960,25 @@ public class MatchListController implements AssistantContextProvider {
 
             loadingData = false;
             updateActionAvailability();
+<<<<<<< HEAD
             if (!backgroundRefresh) {
                 showErrorStatus("Erreur pendant le chargement.");
                 Throwable throwable = loadTask.getException();
                 showAlert(Alert.AlertType.ERROR, "Chargement",
                         "Erreur lors du chargement des matchs.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
             }
+=======
+            showErrorStatus("Erreur pendant le chargement.");
+            Throwable throwable = loadTask.getException();
+            showAlert(Alert.AlertType.ERROR, "Chargement",
+                    "Erreur lors du chargement des matchs.\n" + (throwable == null ? "Erreur inconnue." : throwable.getMessage()));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         });
 
         DB_EXECUTOR.execute(loadTask);
     }
 
+<<<<<<< HEAD
     private Set<Integer> loadFavoriteMatchIds() throws SQLException {
         User currentUser = AuthSession.getCurrentUser();
         if (currentUser == null || currentUser.getId() == null) {
@@ -809,6 +1042,8 @@ public class MatchListController implements AssistantContextProvider {
                 : match.getDateMatch().atTime(match.getHeureDebut());
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void applyFilters() {
         String query = normalize(searchField.getText());
         String statusFilter = selectedStatusFilter();
@@ -819,13 +1054,18 @@ public class MatchListController implements AssistantContextProvider {
                         && (statusFilter == null || Objects.equals(statusFilter, normalizeMatchStatus(match.getStatut())))
                         && (competitionCode == null || Objects.equals(competitionCode, emptyToNull(match.getCompetitionCode())))
         );
+<<<<<<< HEAD
         sortedMatchs.setComparator(displayComparatorFor(statusFilter));
 
         rebuildCatalogRows();
+=======
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         updateCounters();
         updateEmptyState();
     }
 
+<<<<<<< HEAD
     private Comparator<Matchs> displayComparatorFor(String statusFilter) {
         boolean newestFirst = STATUS_FINI.equals(statusFilter);
         return (left, right) -> compareByKickoff(left, right, newestFirst);
@@ -858,6 +1098,8 @@ public class MatchListController implements AssistantContextProvider {
         return Comparator.nullsLast(Integer::compareTo).compare(leftId, rightId);
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private boolean matchesQuery(Matchs match, String query) {
         return containsNormalized(buildMatchLabel(match), query)
                 || containsNormalized(getEquipeName(match.getEquipeDomicileId()), query)
@@ -899,15 +1141,19 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private void runSync(boolean matchesOnly) {
+<<<<<<< HEAD
         runSync(matchesOnly, false);
     }
 
     private void runSync(boolean matchesOnly, boolean backgroundSync) {
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         FootballDataSyncService syncService = ensureSyncService();
         if (syncService == null) {
             return;
         }
 
+<<<<<<< HEAD
         List<String> competitionCodes = backgroundSync ? selectedBackgroundSyncCompetitionCodes() : selectedSyncCompetitionCodes();
         if (backgroundSync && competitionCodes.isEmpty()) {
             refreshDataAsync(null, null, null, true);
@@ -928,6 +1174,19 @@ public class MatchListController implements AssistantContextProvider {
                     ? "Import du calendrier en cours..."
                     : "Import des clubs et effectifs en cours...");
         }
+=======
+        List<String> competitionCodes = selectedSyncCompetitionCodes();
+        syncingData = true;
+        updateActionAvailability();
+
+        String scopeLabel = competitionCodes.size() == 1
+                ? FootballDataCompetitions.labelOf(competitionCodes.get(0))
+                : FootballDataCompetitions.ALL_LABEL;
+        syncMetaLabel.setText("Synchronisation en cours : " + scopeLabel + ".");
+        showMutedStatus(matchesOnly
+                ? "Import du calendrier en cours..."
+                : "Import des clubs et effectifs en cours...");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
         Task<FootballDataSyncSummary> syncTask = new Task<>() {
             @Override
@@ -941,7 +1200,11 @@ public class MatchListController implements AssistantContextProvider {
         };
 
         syncTask.messageProperty().addListener((observable, oldValue, newValue) -> {
+<<<<<<< HEAD
             if (backgroundSync || newValue == null || newValue.isBlank()) {
+=======
+            if (newValue == null || newValue.isBlank()) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 return;
             }
             syncMetaLabel.setText(newValue);
@@ -949,10 +1212,17 @@ public class MatchListController implements AssistantContextProvider {
         });
 
         syncTask.setOnSucceeded(event -> {
+<<<<<<< HEAD
+=======
+            syncingData = false;
+            updateActionAvailability();
+
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             FootballDataSyncSummary summary = syncTask.getValue();
             String summaryMessage = summary == null
                     ? "Synchronisation terminee."
                     : summary.toHumanMessage(!matchesOnly, matchesOnly);
+<<<<<<< HEAD
             if (backgroundSync) {
                 backgroundSyncing = false;
                 lastBackgroundMatchSyncAtMillis = System.currentTimeMillis();
@@ -977,11 +1247,22 @@ public class MatchListController implements AssistantContextProvider {
                 return;
             }
 
+=======
+            syncMetaLabel.setText("Synchronise : " + summaryMessage);
+            refreshDataAsync(null, "status-success", summaryMessage);
+        });
+
+        syncTask.setOnFailed(event -> {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             syncingData = false;
             updateActionAvailability();
 
             syncMetaLabel.setText("La synchronisation a echoue.");
             showErrorStatus("Erreur pendant la synchronisation.");
+<<<<<<< HEAD
+=======
+            Throwable throwable = syncTask.getException();
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             showAlert(Alert.AlertType.ERROR, "Synchronisation football-data.org",
                     throwable == null ? "Erreur inconnue." : throwable.getMessage());
         });
@@ -1005,6 +1286,7 @@ public class MatchListController implements AssistantContextProvider {
         }
     }
 
+<<<<<<< HEAD
     private boolean shouldRunBackgroundMatchSync() {
         if (STATUS_FINI.equals(selectedStatusFilter())) {
             return false;
@@ -1031,6 +1313,8 @@ public class MatchListController implements AssistantContextProvider {
         return List.of();
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void openMatchDetail(Matchs match) {
         if (match == null) {
             return;
@@ -1091,7 +1375,15 @@ public class MatchListController implements AssistantContextProvider {
     }
 
     private String resolveMatchReference(Matchs match) {
+<<<<<<< HEAD
         return "";
+=======
+        if (match == null) {
+            return "-";
+        }
+        String reference = emptyToNull(match.getIdMatch());
+        return reference == null ? (match.getId() == null ? "-" : "#" + match.getId()) : reference;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private String resolveMatchLocation(Matchs match) {
@@ -1117,7 +1409,11 @@ public class MatchListController implements AssistantContextProvider {
         if (normalized.startsWith("prog")) {
             return STATUS_PROGRAMME;
         }
+<<<<<<< HEAD
         if (isLiveStatusText(normalized)) {
+=======
+        if (normalized.contains("direct") || normalized.contains("cours") || normalized.contains("live")) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return STATUS_EN_DIRECT;
         }
         if (normalized.startsWith("fini") || normalized.contains("term")) {
@@ -1142,7 +1438,11 @@ public class MatchListController implements AssistantContextProvider {
         if (normalized == null || normalized.contains("prog")) {
             return "fixture-status-scheduled";
         }
+<<<<<<< HEAD
         if (isLiveStatusText(normalized)) {
+=======
+        if (normalized.contains("cours") || normalized.contains("live")) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             return "fixture-status-live";
         }
         if (normalized.contains("fini") || normalized.contains("term")) {
@@ -1154,6 +1454,7 @@ public class MatchListController implements AssistantContextProvider {
         return "fixture-status-scheduled";
     }
 
+<<<<<<< HEAD
     private boolean isLiveStatusText(String normalized) {
         if (normalized == null) {
             return false;
@@ -1177,6 +1478,8 @@ public class MatchListController implements AssistantContextProvider {
                 || normalized.contains("shootout");
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private String buildMatchLabel(Matchs match) {
         if (match == null) {
             return "Match";
@@ -1264,7 +1567,11 @@ public class MatchListController implements AssistantContextProvider {
         alert.showAndWait();
     }
 
+<<<<<<< HEAD
     private record RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs, Set<Integer> favoriteMatchIds) {
+=======
+    private record RefreshPayload(List<Equipe> loadedEquipes, List<Matchs> loadedMatchs) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 }
 

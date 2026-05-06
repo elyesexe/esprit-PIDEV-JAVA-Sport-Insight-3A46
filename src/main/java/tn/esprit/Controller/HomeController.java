@@ -21,7 +21,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.Node;
+<<<<<<< HEAD
 import javafx.scene.CacheHint;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -32,7 +35,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import tn.esprit.entities.User;
+<<<<<<< HEAD
 import tn.esprit.i18n.I18n;
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 import tn.esprit.gui.AdminNavigation;
 import tn.esprit.gui.SceneNavigator;
 import tn.esprit.gui.SidebarModuleGroup;
@@ -58,6 +64,11 @@ import java.util.concurrent.ThreadFactory;
 public class HomeController {
     private static final String MATCH_STATUS_PROGRAMME = "Programme";
     private static final ExecutorService DB_EXECUTOR = Executors.newSingleThreadExecutor(daemonFactory("home-db-worker"));
+<<<<<<< HEAD
+=======
+    private static final DateTimeFormatter HEADER_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("EEEE, MMM d", Locale.ENGLISH);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private static final Path NOTES_LOG_PATH =
             Path.of(System.getProperty("user.home"), ".sport-insight", "home-notes.log");
 
@@ -108,8 +119,11 @@ public class HomeController {
     @FXML
     private Button annoncesModuleBox;
     @FXML
+<<<<<<< HEAD
     private Button newsModuleBox;
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private Button trainModuleBox;
     @FXML
     private Button sponsorsModuleBox;
@@ -148,7 +162,10 @@ public class HomeController {
         }
 
         Platform.runLater(() -> {
+<<<<<<< HEAD
             enableAnimationCaching();
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             installTileHoverAnimations();
             installNavbarHoverAnimations();
             playHomeIntroAnimations();
@@ -162,10 +179,17 @@ public class HomeController {
         User currentUser = AuthSession.getCurrentUser();
         String displayName = currentUser == null ? "" : currentUser.getDisplayName();
         if (displayName == null || displayName.isBlank()) {
+<<<<<<< HEAD
             welcomeTitleLabel.setText(I18n.get("home.welcome.back"));
             return;
         }
         welcomeTitleLabel.setText(I18n.format("home.welcome.back.named", displayName));
+=======
+            welcomeTitleLabel.setText("Welcome back");
+            return;
+        }
+        welcomeTitleLabel.setText("Welcome back, " + displayName);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     /**
@@ -177,7 +201,10 @@ public class HomeController {
             setModuleVisible(equipesButton, true);
             setModuleVisible(joueursButton, true);
             setModuleVisible(matchsButton, true);
+<<<<<<< HEAD
             setModuleVisible(newsModuleBox, true);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             setModuleVisible(annoncesModuleBox, true);
             setModuleVisible(trainModuleBox, true);
             setModuleVisible(sponsorsModuleBox, true);
@@ -187,17 +214,28 @@ public class HomeController {
         boolean teams = matchesTokens(n, "team", "teams", "equipe", "equipes", "club", "clubs", "roster");
         boolean players = matchesTokens(n, "player", "players", "joueur", "joueurs", "profile", "profiles");
         boolean matches = matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games");
+<<<<<<< HEAD
         boolean news = matchesTokens(n, "news", "headline", "headlines", "football news", "sport insight news");
         boolean announcements = matchesTokens(n, "annonce", "annonces", "announcement", "announcements", "update", "updates");
         boolean training = matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions");
         boolean sponsors = matchesTokens(n, "sponsor", "sponsors", "contract", "contracts", "partnership", "partnerships");
         boolean store = matchesTokens(n, "store", "shop", "product", "products", "order", "orders");
         boolean any = teams || players || matches || news || announcements || training || sponsors || store;
+=======
+        boolean news = matchesTokens(n, "news", "annonce", "annonces", "update", "updates");
+        boolean training = matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions");
+        boolean sponsors = matchesTokens(n, "sponsor", "sponsors", "contract", "contracts", "partnership", "partnerships");
+        boolean store = matchesTokens(n, "store", "shop", "product", "products", "order", "orders");
+        boolean any = teams || players || matches || news || training || sponsors || store;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         if (!any) {
             setModuleVisible(equipesButton, true);
             setModuleVisible(joueursButton, true);
             setModuleVisible(matchsButton, true);
+<<<<<<< HEAD
             setModuleVisible(newsModuleBox, true);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             setModuleVisible(annoncesModuleBox, true);
             setModuleVisible(trainModuleBox, true);
             setModuleVisible(sponsorsModuleBox, true);
@@ -207,8 +245,12 @@ public class HomeController {
         setModuleVisible(equipesButton, teams);
         setModuleVisible(joueursButton, players);
         setModuleVisible(matchsButton, matches);
+<<<<<<< HEAD
         setModuleVisible(newsModuleBox, news);
         setModuleVisible(annoncesModuleBox, announcements);
+=======
+        setModuleVisible(annoncesModuleBox, news);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         setModuleVisible(trainModuleBox, training);
         setModuleVisible(sponsorsModuleBox, sponsors);
         setModuleVisible(storeModuleBox, store);
@@ -271,9 +313,13 @@ public class HomeController {
             handleOpenJoueurs();
         } else if (matchesTokens(n, "match", "matches", "matchs", "fixture", "fixtures", "game", "games")) {
             openMatchsModule();
+<<<<<<< HEAD
         } else if (matchesTokens(n, "news", "headline", "headlines", "football news", "sport insight news")) {
             handleOpenNews();
         } else if (matchesTokens(n, "annonce", "annonces", "announcement", "announcements", "update", "updates")) {
+=======
+        } else if (matchesTokens(n, "news", "annonce", "annonces", "update", "updates")) {
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             handleOpenAnnonces();
         } else if (matchesTokens(n, "train", "training", "entrainement", "entrainements", "session", "sessions")) {
             handleOpenEntrainements();
@@ -283,9 +329,17 @@ public class HomeController {
             handleOpenStore();
         } else {
             Alert hint = new Alert(Alert.AlertType.INFORMATION);
+<<<<<<< HEAD
             hint.setTitle(I18n.get("home.search.help.title"));
             hint.setHeaderText(null);
             hint.setContentText(I18n.get("home.search.help.message"));
+=======
+            hint.setTitle("Search");
+            hint.setHeaderText(null);
+            hint.setContentText(
+                    "Type part of a keyword to filter tiles (e.g. team, player, match), then press Enter to open a module.\n"
+                            + "Examples: \"team\" -> Teams, \"joueur\" -> Players, \"match\" -> Matches.");
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
             hint.initOwner(homeSearchField.getScene() != null ? homeSearchField.getScene().getWindow() : null);
             hint.showAndWait();
         }
@@ -317,7 +371,11 @@ public class HomeController {
             return;
         }
         LocalDate today = LocalDate.now();
+<<<<<<< HEAD
         headerDateLabel.setText(DateTimeFormatter.ofPattern("EEEE d MMM", I18n.getLocale()).format(today));
+=======
+        headerDateLabel.setText(HEADER_DATE_FORMAT.format(today));
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void loadDashboardMetricsAsync() {
@@ -458,12 +516,15 @@ public class HomeController {
     }
 
     @FXML
+<<<<<<< HEAD
     private void handleOpenNews() {
         Node source = newsModuleBox != null ? newsModuleBox : sidebarBrandBox;
         SceneNavigator.switchScene(source, "/tn/esprit/views/football-news-view.fxml", "/tn/esprit/styles/football-news-theme.css", "Sport Insight News | Sport Insight");
     }
 
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void handleOpenEntrainements() {
         Node source = trainModuleBox != null ? trainModuleBox : sidebarBrandBox;
         SceneNavigator.switchScene(source, "/tn/esprit/views/entrainement-user-view.fxml", "/tn/esprit/styles/entrainement-theme.css", "Entrainements | Sport Insight");
@@ -482,6 +543,7 @@ public class HomeController {
     }
 
     @FXML
+<<<<<<< HEAD
     private void handleRegisterFace() {
         User currentUser = AuthSession.getCurrentUser();
         SceneNavigator.switchScene(sidebarBrandBox,
@@ -501,6 +563,8 @@ public class HomeController {
     }
 
     @FXML
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void handleOpenLeagues() {
         SceneNavigator.switchScene(leaguesNavButton, "/tn/esprit/views/league-competitions-view.fxml", "/tn/esprit/styles/league-theme.css", "Leagues | Top 5");
     }
@@ -524,7 +588,10 @@ public class HomeController {
         installHoverAnimation(equipesButton);
         installHoverAnimation(joueursButton);
         installHoverAnimation(matchsButton);
+<<<<<<< HEAD
         installHoverAnimation(newsModuleBox);
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
         installHoverAnimation(annoncesModuleBox);
         installHoverAnimation(trainModuleBox);
         installHoverAnimation(sponsorsModuleBox);
@@ -540,6 +607,7 @@ public class HomeController {
         installHoverAnimation(adminNavButton, 1.02, -3.0, 150, false);
     }
 
+<<<<<<< HEAD
     private void enableAnimationCaching() {
         for (Node node : new Node[] {
                 homeWelcomeCard,
@@ -566,6 +634,8 @@ public class HomeController {
         }
     }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     private void playHomeIntroAnimations() {
         if (homeWelcomeCard != null) {
             homeWelcomeCard.setOpacity(0.0);
@@ -587,11 +657,18 @@ public class HomeController {
         playTileEntrance(equipesButton, 0);
         playTileEntrance(joueursButton, 45);
         playTileEntrance(matchsButton, 90);
+<<<<<<< HEAD
         playTileEntrance(newsModuleBox, 135);
         playTileEntrance(annoncesModuleBox, 180);
         playTileEntrance(trainModuleBox, 225);
         playTileEntrance(sponsorsModuleBox, 270);
         playTileEntrance(storeModuleBox, 315);
+=======
+        playTileEntrance(annoncesModuleBox, 135);
+        playTileEntrance(trainModuleBox, 180);
+        playTileEntrance(sponsorsModuleBox, 225);
+        playTileEntrance(storeModuleBox, 270);
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 
     private void playTileEntrance(Button card, int delayMillis) {

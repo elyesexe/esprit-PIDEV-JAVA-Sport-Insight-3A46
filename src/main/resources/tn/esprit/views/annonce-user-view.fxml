@@ -4,7 +4,10 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<<<<<<< HEAD
 <?import javafx.scene.control.DatePicker?>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
@@ -212,6 +215,7 @@
                             </HBox>
                         </VBox>
 
+<<<<<<< HEAD
                         <VBox fx:id="cvSearchCard"
                               spacing="12"
                               managed="false"
@@ -250,6 +254,8 @@
                                   styleClass="annonce-cv-results"/>
                         </VBox>
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                         <!-- FEED -->
                         <VBox spacing="14">
                             <VBox fx:id="composerCard" spacing="14" styleClass="panel-card annonce-composer-card">

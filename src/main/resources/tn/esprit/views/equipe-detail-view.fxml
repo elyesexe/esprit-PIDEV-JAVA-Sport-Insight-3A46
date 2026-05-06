@@ -8,7 +8,10 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<<<<<<< HEAD
 <?import javafx.scene.layout.FlowPane?>
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -100,7 +103,11 @@
                     BorderPane.alignment="CENTER">
             <content>
                 <StackPane styleClass="page-shell-wrap">
+<<<<<<< HEAD
                 <VBox spacing="18" alignment="TOP_CENTER" maxWidth="1180" styleClass="page-shell team-detail-page-shell">
+=======
+                <VBox spacing="18" styleClass="page-shell">
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                     <padding>
                         <Insets top="24" right="28" bottom="28" left="28"/>
                     </padding>
@@ -135,8 +142,13 @@
 
                                 <HBox spacing="10">
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
+<<<<<<< HEAD
                                         <Label text="Fiche" styleClass="stat-caption"/>
                                         <Label fx:id="detailIdValueLabel" text="Equipe" styleClass="stat-value"/>
+=======
+                                        <Label text="ID" styleClass="stat-caption"/>
+                                        <Label fx:id="detailIdValueLabel" text="-" styleClass="stat-value"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                                     </VBox>
                                     <VBox HBox.hgrow="ALWAYS" styleClass="stat-chip">
                                         <Label text="Coach" styleClass="stat-caption"/>
@@ -189,12 +201,16 @@
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Effectif" styleClass="section-title"/>
                                 <Region HBox.hgrow="ALWAYS"/>
+<<<<<<< HEAD
                                 <Button fx:id="squadToggleButton"
                                         onAction="#handleToggleSquadExpanded"
                                         text="Afficher"
                                         managed="false"
                                         visible="false"
                                         styleClass="ghost-button team-squad-toggle-button"/>
+=======
+                                <Label text="Vue rapide" styleClass="toolbar-chip-soft"/>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                             </HBox>
 
                             <Label fx:id="squadEmptyLabel"
@@ -202,6 +218,7 @@
                                    wrapText="true"
                                    styleClass="section-subtitle"/>
 
+<<<<<<< HEAD
                             <FlowPane fx:id="squadContainer"
                                       hgap="10"
                                       vgap="10"
@@ -267,6 +284,11 @@
 
                         <VBox fx:id="topScorersContainer" spacing="10"/>
                     </VBox>
+=======
+                            <VBox fx:id="squadContainer" spacing="10"/>
+                        </VBox>
+                    </HBox>
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
                 </VBox>
                 </StackPane>
             </content>

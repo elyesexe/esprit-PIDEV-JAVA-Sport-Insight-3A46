@@ -149,6 +149,7 @@
     -fx-text-fill: #334155;
 }
 
+<<<<<<< HEAD
 .sponsor-qr-row {
     -fx-alignment: center-left;
 }
@@ -165,6 +166,8 @@
     -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 12, 0.18, 0, 4);
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .sponsor-line-label {
     -fx-font-size: 12px;
     -fx-font-weight: 800;
@@ -227,6 +230,7 @@
     -fx-spacing: 12;
 }
 
+<<<<<<< HEAD
 .sentiment-metric-card {
     -fx-background-color: rgba(255, 255, 255, 0.94);
     -fx-background-radius: 18;
@@ -271,6 +275,8 @@
     -fx-opacity: 1;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .sponsor-tab-pane > .tab-header-area {
     -fx-padding: 0 0 6 0;
 }
@@ -348,7 +354,10 @@
 .theme-dark .sponsor-empty-text,
 .theme-dark .sponsor-line-label,
 .theme-dark .sponsor-contract-description,
+<<<<<<< HEAD
 .theme-dark .sponsor-qr-row,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .sponsor-user-dark .sponsor-card-subtitle,
 .sponsor-user-dark .sponsor-contract-subtitle,
 .sponsor-user-dark .sponsor-empty-text,
@@ -372,12 +381,15 @@
     -fx-text-fill: #86efac;
 }
 
+<<<<<<< HEAD
 .theme-dark .sponsor-qr-shell,
 .sponsor-user-dark .sponsor-qr-shell {
     -fx-background-color: rgba(255, 255, 255, 0.96);
     -fx-border-color: rgba(71, 85, 105, 0.42);
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .theme-dark .toolbar-chip-soft,
 .theme-dark .status-muted,
 .sponsor-user-dark .toolbar-chip-soft,
@@ -419,14 +431,20 @@
 
 .admin-dark .sponsor-admin-root .sponsor-admin-metric-card,
 .admin-dark .sponsor-admin-root .sponsor-chart-card,
+<<<<<<< HEAD
 .admin-dark .sponsor-admin-root .sentiment-metric-card,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .admin-dark .sponsor-admin-root .sponsor-logo-preview-shell {
     -fx-background-color: rgba(39, 39, 42, 0.96);
     -fx-border-color: rgba(82, 82, 91, 0.86);
 }
 
 .admin-dark .sponsor-admin-root .sponsor-admin-metric-card .sponsor-metric-label,
+<<<<<<< HEAD
 .admin-dark .sponsor-admin-root .sentiment-metric-card .sponsor-metric-label,
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .admin-dark .sponsor-admin-root .axis,
 .admin-dark .sponsor-admin-root .axis-label,
 .admin-dark .sponsor-admin-root .chart-legend,
@@ -476,10 +494,13 @@
     -fx-text-fill: #fafafa;
 }
 
+<<<<<<< HEAD
 .admin-dark .sponsor-admin-root .sentiment-metric-card .sponsor-metric-value {
     -fx-text-fill: #fafafa;
 }
 
+=======
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 .admin-dark .sponsor-admin-root .sponsor-tab-pane > .tab-header-area .tab {
     -fx-background-color: rgba(24, 24, 27, 0.98);
     -fx-border-color: rgba(82, 82, 91, 0.78);

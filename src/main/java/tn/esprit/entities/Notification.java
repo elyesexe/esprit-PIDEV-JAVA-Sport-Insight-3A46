@@ -3,6 +3,7 @@ package tn.esprit.entities;
 import java.time.LocalDateTime;
 
 public class Notification {
+<<<<<<< HEAD
     public static final String TYPE_STORE_CART = "store_cart";
     public static final String TYPE_PAYMENT_SUCCESS = "payment_success";
     public static final String TYPE_PAYMENT_FAILED = "payment_failed";
@@ -31,11 +32,19 @@ public class Notification {
     private String actorImage;
     private String minuteLabel;
     private String accentTone;
+=======
+    private Integer id;
+    private String message;
+    private LocalDateTime createdAt;
+    private boolean isRead;
+    private Integer userId;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
 
     public Notification() {
     }
 
     public Notification(String message, LocalDateTime createdAt, boolean isRead, Integer userId) {
+<<<<<<< HEAD
         this(null, message, null, createdAt, isRead, userId, null, null, null, null, null, null, null, null, null, null);
     }
 
@@ -278,5 +287,11 @@ public class Notification {
                 ", minuteLabel='" + minuteLabel + '\'' +
                 ", accentTone='" + accentTone + '\'' +
                 '}';
+=======
+        this.message = message;
+        this.createdAt = createdAt;
+        this.isRead = isRead;
+        this.userId = userId;
+>>>>>>> 37457458daa1c0c7108e6ba4ed1ba88a98cda5f0
     }
 }
